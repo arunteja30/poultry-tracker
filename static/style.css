@@ -1,0 +1,367 @@
+/* Facebook Blue Light Theme */
+:root {
+  --fb-blue: #1877f2;
+  --fb-blue-dark: #166fe5;
+  --fb-blue-light: #42a5f5;
+  --fb-light-bg: #f8f9fa;
+  --fb-white: #ffffff;
+  --fb-light-gray: #e9ecef;
+  --fb-text-dark: #212529;
+  --fb-text-muted: #6c757d;
+  --fb-glow: rgba(24, 119, 242, 0.3);
+  --fb-shadow: rgba(24, 119, 242, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body { 
+  padding-bottom: 60px; 
+  background: linear-gradient(135deg, var(--fb-white) 0%, var(--fb-light-bg) 50%, var(--fb-light-gray) 100%);
+  min-height: 100vh;
+  color: var(--fb-text-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar Facebook Blue Theme */
+.navbar {
+  background: linear-gradient(90deg, var(--fb-blue) 0%, var(--fb-blue-dark) 50%, var(--fb-blue-light) 100%) !important;
+  border-bottom: 3px solid var(--fb-glow);
+  box-shadow: 0 4px 20px var(--fb-shadow);
+}
+
+.navbar-brand {
+  color: #ffffff !important;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  margin: 0 5px;
+  padding: 8px 16px !important;
+}
+
+.navbar-nav .nav-link:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Cards with Facebook Blue Effect - Light Theme */
+.card { 
+  border-radius: 15px; 
+  background: var(--fb-white);
+  border: 2px solid var(--fb-light-gray);
+  box-shadow: 
+    0 8px 32px rgba(24,119,242,0.1),
+    0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(24,119,242,0.05), transparent);
+  transition: left 0.5s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 12px 40px rgba(24,119,242,0.15),
+    0 4px 16px rgba(0,0,0,0.1);
+  border-color: var(--fb-glow);
+}
+
+.card:hover::before {
+  left: 100%;
+}
+
+.card-body, .card .p-3 {
+  position: relative;
+  z-index: 1;
+}
+
+.card-text {
+  color: var(--fb-text-dark);
+}
+
+.card-title {
+  color: var(--fb-text-dark);
+}
+
+/* Form Elements - Light Theme */
+.form-control, .form-select {
+  background: var(--fb-white);
+  border: 2px solid var(--fb-light-gray);
+  border-radius: 10px;
+  color: var(--fb-text-dark);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  background: var(--fb-white);
+  border-color: var(--fb-blue);
+  box-shadow: 0 0 20px var(--fb-glow);
+  color: var(--fb-text-dark);
+}
+
+.form-control::placeholder {
+  color: var(--fb-text-muted);
+}
+
+.form-label {
+  color: var(--fb-text-dark);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Buttons with Facebook Blue Effect */
+.btn {
+  border-radius: 25px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, var(--fb-blue), var(--fb-blue-dark));
+  box-shadow: 0 4px 15px rgba(24,119,242,0.4);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, var(--fb-blue-dark), var(--fb-blue-light));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(24,119,242,0.6);
+}
+
+.btn-success {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+}
+
+.btn-success:hover {
+  background: linear-gradient(45deg, #20c997, #17a2b8);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(40,167,69,0.6);
+}
+
+.btn-outline-secondary {
+  border: 2px solid var(--fb-light-gray);
+  color: var(--fb-text-dark);
+  background: var(--fb-white);
+}
+
+.btn-outline-secondary:hover {
+  background: var(--fb-blue);
+  border-color: var(--fb-blue);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Tables - Light Theme */
+.table {
+  color: var(--fb-text-dark);
+  background: var(--fb-white);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.table th {
+  background: linear-gradient(90deg, var(--fb-blue), var(--fb-blue-dark));
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table td {
+  border-color: var(--fb-light-gray);
+  vertical-align: middle;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: var(--fb-light-bg);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(24,119,242,0.05);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Headings - Light Theme */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--fb-text-dark);
+  font-weight: 700;
+}
+
+h2 {
+  border-bottom: 3px solid var(--fb-blue);
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: var(--fb-blue-light);
+  border-radius: 2px;
+}
+
+/* Animation for chicken effect */
+@keyframes bob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+.chicken-icon::before {
+  content: '�';
+  animation: bob 2s infinite;
+  margin-right: 8px;
+}
+
+/* Chart container - Light Theme */
+#fcrChart {
+  background: var(--fb-white);
+  border: 1px solid var(--fb-light-gray);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* Language selector - Light Theme */
+#langSelect {
+  background: var(--fb-white);
+  border: 2px solid var(--fb-light-gray);
+  color: var(--fb-text-dark);
+}
+
+#langSelect option {
+  background: var(--fb-white);
+  color: var(--fb-text-dark);
+}
+
+/* Strong/Bold text - Light Theme */
+strong {
+  color: var(--fb-blue);
+}
+
+/* Additional Light Theme Styles */
+.text-white {
+  color: var(--fb-text-dark) !important;
+}
+
+.text-muted {
+  color: var(--fb-text-muted) !important;
+}
+
+/* Alert styling for light theme */
+.alert {
+  border-radius: 10px;
+  border: none;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.alert-error, .alert-danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.alert-info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* Ensure all text in containers is dark */
+.container, .container-fluid {
+  color: var(--fb-text-dark);
+}
+
+/* Force light theme - override any dark mode preferences */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, var(--fb-white) 0%, var(--fb-light-bg) 50%, var(--fb-light-gray) 100%) !important;
+    color: var(--fb-text-dark) !important;
+  }
+  
+  .card {
+    background: var(--fb-white) !important;
+    color: var(--fb-text-dark) !important;
+  }
+  
+  .form-control, .form-select {
+    background: var(--fb-white) !important;
+    color: var(--fb-text-dark) !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 20px;
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+  
+  .btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
+/* Loading animation */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--fb-glow);
+  border-top: 2px solid var(--fb-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

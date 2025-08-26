@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 data-i18n="dashboard_title">🐔 Dashboard - Ramesh Farms</h2>
+
+{% if cycle %}
+<!-- Key Performance Tiles -->
+<div class="row g-3 mb-4">
+  <!-- Live Birds Tile -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">🐔</div>
+        <h3 class="text-primary mb-1">{{ summary.current_birds }}</h3>
+        <h6 class="card-title" data-i18n="live_birds">Live Birds</h6>
+        <small class="text-muted">{{ metrics.survival_rate }}% survival rate</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Days Running Tile -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">📅</div>
+        <h3 class="text-success mb-1">{{ summary.days }}</h3>
+        <h6 class="card-title" data-i18n="day_of_farm">Days Running</h6>
+        <small class="text-muted">{{ metrics.days_to_target }} days to target</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- FCR Today Tile -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">📊</div>
+        <h3 class="text-info mb-1">{{ summary.fcr_today if summary.fcr_today else '-' }}</h3>
+        <h6 class="card-title" data-i18n="fcr_today">FCR Today</h6>
+        <small class="text-muted">Avg: {{ summary.avg_fcr }}</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Total Mortality Tile -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">💀</div>
+        <h3 class="text-danger mb-1">{{ summary.mortality_total }}</h3>
+        <h6 class="card-title" data-i18n="mortality_total">Total Mortality</h6>
+        <small class="text-muted">{{ metrics.avg_mortality_per_day }}/day avg</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feed Management Tiles -->
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <h4 data-i18n="feed_management">🌾 Feed Management</h4>
+  </div>
+  
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">🛒</div>
+        <h3 class="text-warning mb-1">{{ summary.bags_available }}</h3>
+        <h6 class="card-title" data-i18n="bags_available">Bags Available</h6>
+        <small class="text-muted">{{ metrics.feed_utilization }}% utilized</small>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">📦</div>
+        <h3 class="text-primary mb-1">{{ summary.feed_bags_consumed_total }}</h3>
+        <h6 class="card-title" data-i18n="bags_consumed_total">Bags Consumed</h6>
+        <small class="text-muted">{{ metrics.feed_efficiency }} per bird</small>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">💰</div>
+        <h3 class="text-success mb-1">₹{{ "{:,.0f}".format(metrics.total_feed_cost) }}</h3>
+        <h6 class="card-title" data-i18n="total_feed_cost">Feed Cost</h6>
+        <small class="text-muted">₹{{ metrics.feed_cost_per_bird }}/bird</small>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="mb-2">⚖️</div>
+        <h3 class="text-info mb-1">{{ summary.avg_weight }}kg</h3>
+        <h6 class="card-title" data-i18n="avg_weight">Avg Weight</h6>
+        <small class="text-muted">Today: {{ metrics.today_avg_weight }}kg</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Today's Summary -->
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <h4 data-i18n="today_summary">📋 Today's Summary</h4>
+  </div>
+  
+  <div class="col-12 col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="mb-2">🔴</div>
+        <h4 class="text-danger mb-1">{{ metrics.today_mortality }}</h4>
+        <h6 class="card-title" data-i18n="today_mortality">Today's Mortality</h6>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="mb-2">🍽️</div>
+        <h4 class="text-primary mb-1">{{ metrics.today_feed_consumed }}</h4>
+        <h6 class="card-title" data-i18n="today_feed_consumed">Bags Consumed Today</h6>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="mb-2">📈</div>
+        <h4 class="text-success mb-1">{{ metrics.last_week_avg_fcr }}</h4>
+        <h6 class="card-title" data-i18n="week_avg_fcr">Week Avg FCR</h6>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 data-i18n="fcr_trend">📊 FCR Trend Analysis</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="fcrChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 data-i18n="quick_stats">⚡ Quick Stats</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <strong data-i18n="cycle_start">Cycle Started:</strong><br>
+          <span class="text-muted">{{ summary.start_date }}</span>
+        </div>
+        <div class="mb-3">
+          <strong data-i18n="initial_stock">Initial Stock:</strong><br>
+          <span class="text-muted">{{ summary.start_birds }} birds</span>
+        </div>
+        <div class="mb-3">
+          <strong data-i18n="survival_rate">Survival Rate:</strong><br>
+          <span class="text-success">{{ metrics.survival_rate }}%</span>
+        </div>
+        <div class="mb-3">
+          <strong data-i18n="last_week_mortality">Last Week Mortality:</strong><br>
+          <span class="text-{{ 'danger' if metrics.last_week_mortality > 50 else 'warning' if metrics.last_week_mortality > 20 else 'success' }}">
+            {{ metrics.last_week_mortality }} birds
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Performance Indicators -->
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 data-i18n="performance_indicators">🎯 Performance Indicators</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label"><strong data-i18n="survival_rate">Survival Rate</strong></label>
+              <div class="progress" style="height: 25px;">
+                <div class="progress-bar bg-{{ 'success' if metrics.survival_rate > 95 else 'warning' if metrics.survival_rate > 90 else 'danger' }}" 
+                     style="width: {{ metrics.survival_rate }}%">{{ metrics.survival_rate }}%</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label"><strong data-i18n="feed_utilization">Feed Utilization</strong></label>
+              <div class="progress" style="height: 25px;">
+                <div class="progress-bar bg-info" style="width: {{ metrics.feed_utilization }}%">{{ metrics.feed_utilization }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- No Active Cycle -->
+<div class="row">
+  <div class="col-12">
+    <div class="card text-center p-5">
+      <div class="card-body">
+        <div class="mb-4" style="font-size: 4rem;">🐔</div>
+        <h3 data-i18n="no_cycle">No Active Cycle</h3>
+        <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
+        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if cycle %}
+const fcrSeries = {{ fcr_series|tojson }};
+const dates = {{ dates|tojson }};
+const ctx = document.getElementById('fcrChart').getContext('2d');
+new Chart(ctx,{
+  type:'line',
+  data:{
+    labels: dates,
+    datasets:[{
+      label:'FCR', 
+      data:fcrSeries, 
+      tension:0.2, 
+      borderWidth:2,
+      borderColor: '#1877f2',
+      backgroundColor: 'rgba(24, 119, 242, 0.1)',
+      fill: true
+    }]
+  },
+  options:{
+    responsive: true,
+    scales:{
+      y:{
+        beginAtZero:true,
+        title: {
+          display: true,
+          text: 'FCR Value'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Date'
+        }
+      }
+    },
+    plugins: {
+      title: {
+        display: true,
+        text: 'Feed Conversion Ratio Trend'
+      }
+    }
+  }
+});
+{% endif %}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fcrSeries = {{ fcr_series|tojson }};
+const dates = {{ dates|tojson }};
+const ctx = document.getElementById('fcrChart').getContext('2d');
+new Chart(ctx,{
+  type:'line',
+  data:{
+    labels: dates,
+    datasets:[{label:'FCR', data:fcrSeries, tension:0.2, borderWidth:2}]
+  },
+  options:{scales:{y:{beginAtZero:true}}}
+});
+</script>
+{% endblock %}

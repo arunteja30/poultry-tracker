@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 data-i18n="daywise_title">Daywise Entries</h2>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th data-i18n="table_date">Date</th>
+          <th data-i18n="table_mortality">Mortality</th>
+          <th data-i18n="table_feed_consumed">Feed Consumed</th>
+          <th data-i18n="table_feed_added">Feed Added</th>
+          <th data-i18n="table_avg_weight">Avg Weight</th>
+          <th data-i18n="table_fcr">FCR</th>
+          <th data-i18n="table_medicines">Medicines</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ r.entry_date }}</td>
+            <td>{{ r.mortality }}</td>
+            <td>{{ r.feed_bags_consumed }}</td>
+            <td>{{ r.feed_bags_added }}</td>
+            <td>{{ r.avg_weight }} kg</td>
+            <td>{{ r.fcr }}</td>
+            <td>{{ r.medicines or '-' }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="7" class="text-center" data-i18n="no_entries">No entries found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
