@@ -1,42 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 data-i18n="daily_title">Daily Input</h2>
-<form method="POST" class="row g-3">
-  <div class="col-md-4">
-    <label class="form-label" data-i18n="entry_date">Date</label>
-    <input type="date" name="entry_date" class="form-control" value="{{ '' }}">
-  </div>
-  <div class="col-md-4">
-    <label class="form-label" data-i18n="mortality">Mortality</label>
-    <input type="number" name="mortality" class="form-control" value="0">
-  </div>
-  <div class="col-md-4">
-    <label class="form-label" data-i18n="feed_consumed">Feed Bags Consumed</label>
-    <input type="number" step="0.1" name="feed_bags_consumed" class="form-control" value="0">
-  </div>
-  <div class="col-md-4">
-    <label class="form-label" data-i18n="bags_added">Feed Bags Added</label>
-    <input type="number" step="0.1" name="feed_bags_added" class="form-control" value="0">
-  </div>
-  <div class="col-md-4">
-    <label class="form-label" data-i18n="avg_weight">Avg Weight (kg)</label>
-    <input type="number" step="0.01" name="avg_weight" class="form-control" value="0">
-  </div>
-  <div class="col-md-4">
-    <label class="form-label" data-i18n="avg_feed_per_bird">Avg Feed / Bird (g)</label>
-    <input type="number" step="1" name="avg_feed_per_bird_g" class="form-control" value="0">
-  </div>
-  <div class="col-12">
-    <label class="form-label" data-i18n="medicines">Medicines Given</label>
-    <select name="medicines" class="form-select">
-      <option value="" data-i18n="none">None</option>
-      {% for m in meds %}
-        <option value="{{ m.name }}">{{ m.name }} ({{ m.qty }})</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-12">
-    <button class="btn btn-primary" type="submit" data-i18n="save_daily">Save Daily Entry</button>
-  </div>
-</form>
+
+<div class="card p-4">
+  <form method="POST" class="row g-3">
+    <div class="col-md-4">
+      <label for="entry-date" class="form-label" data-i18n="entry_date">Date</label>
+      <input id="entry-date" type="date" name="entry_date" class="form-control" value="{{ '' }}">
+    </div>
+    <div class="col-md-4">
+      <label for="mortality" class="form-label" data-i18n="mortality">Mortality</label>
+      <input id="mortality" type="number" name="mortality" class="form-control" value="0" min="0">
+    </div>
+    <div class="col-md-4">
+      <label for="feed-consumed" class="form-label" data-i18n="feed_consumed">Feed Bags Consumed</label>
+      <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control" value="0" min="0">
+    </div>
+    <div class="col-md-4">
+      <label for="bags-added" class="form-label" data-i18n="bags_added">Feed Bags Added</label>
+      <input id="bags-added" type="number" step="0.1" name="feed_bags_added" class="form-control" value="0" min="0">
+    </div>
+    <div class="col-md-4">
+      <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (kg)</label>
+      <input id="avg-weight" type="number" step="0.01" name="avg_weight" class="form-control" value="0" min="0">
+    </div>
+    <div class="col-md-4">
+      <label for="avg-feed" class="form-label" data-i18n="avg_feed_per_bird">Avg Feed / Bird (g)</label>
+      <input id="avg-feed" type="number" step="1" name="avg_feed_per_bird_g" class="form-control" value="0" min="0">
+    </div>
+    <div class="col-12">
+      <label for="medicines" class="form-label" data-i18n="medicines">Medicines Given</label>
+      <select id="medicines" name="medicines" class="form-select">
+        <option value="" data-i18n="none">None</option>
+        {% for m in meds %}
+          <option value="{{ m.name }}">{{ m.name }} ({{ m.qty }} <span data-i18n="available">available</span>)</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12">
+      <div class="alert alert-info">
+        <small data-i18n="auto_calc_live">Auto calculated live birds and bags remaining shown on dashboard after save.</small>
+      </div>
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary btn-lg" type="submit" data-i18n="save_daily">Save Daily Entry</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

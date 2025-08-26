@@ -1,2 +1,301 @@
-body { padding-bottom: 60px; }
-.card { border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+/* Flame UI Theme */
+:root {
+  --flame-red: #ff4444;
+  --flame-orange: #ff6b35;
+  --flame-yellow: #ffa500;
+  --flame-dark: #2b1810;
+  --flame-medium: #5d3319;
+  --flame-light: #8b4513;
+  --flame-glow: rgba(255, 100, 53, 0.3);
+  --flame-shadow: rgba(255, 68, 68, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body { 
+  padding-bottom: 60px; 
+  background: linear-gradient(135deg, var(--flame-dark) 0%, var(--flame-medium) 50%, var(--flame-light) 100%);
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar Flame Theme */
+.navbar {
+  background: linear-gradient(90deg, var(--flame-red) 0%, var(--flame-orange) 50%, var(--flame-yellow) 100%) !important;
+  border-bottom: 3px solid var(--flame-glow);
+  box-shadow: 0 4px 20px var(--flame-shadow);
+}
+
+.navbar-brand {
+  color: #ffffff !important;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+  color: #ffffff !important;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  margin: 0 5px;
+  padding: 8px 16px !important;
+}
+
+.navbar-nav .nav-link:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Cards with Flame Effect */
+.card { 
+  border-radius: 15px; 
+  background: linear-gradient(145deg, rgba(255,100,53,0.1) 0%, rgba(255,68,68,0.05) 100%);
+  border: 2px solid var(--flame-glow);
+  box-shadow: 
+    0 8px 32px rgba(255,68,68,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 12px 40px rgba(255,68,68,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.card:hover::before {
+  left: 100%;
+}
+
+.card-body, .card .p-3 {
+  position: relative;
+  z-index: 1;
+}
+
+/* Form Elements */
+.form-control, .form-select {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid var(--flame-glow);
+  border-radius: 10px;
+  color: #ffffff;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.form-control:focus, .form-select:focus {
+  background: rgba(255,255,255,0.15);
+  border-color: var(--flame-orange);
+  box-shadow: 0 0 20px var(--flame-glow);
+  color: #ffffff;
+}
+
+.form-control::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.form-label {
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  margin-bottom: 8px;
+}
+
+/* Buttons with Flame Effect */
+.btn {
+  border-radius: 25px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, var(--flame-red), var(--flame-orange));
+  box-shadow: 0 4px 15px rgba(255,68,68,0.4);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, var(--flame-orange), var(--flame-yellow));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255,68,68,0.6);
+}
+
+.btn-success {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  box-shadow: 0 4px 15px rgba(40,167,69,0.4);
+}
+
+.btn-success:hover {
+  background: linear-gradient(45deg, #20c997, #17a2b8);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(40,167,69,0.6);
+}
+
+.btn-outline-secondary {
+  border: 2px solid var(--flame-glow);
+  color: #ffffff;
+  background: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--flame-orange);
+  border-color: var(--flame-orange);
+  transform: translateY(-2px);
+}
+
+/* Tables */
+.table {
+  color: #ffffff;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.table th {
+  background: linear-gradient(90deg, var(--flame-red), var(--flame-orange));
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table td {
+  border-color: rgba(255,255,255,0.1);
+  vertical-align: middle;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: rgba(255,255,255,0.05);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255,100,53,0.1);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  font-weight: 700;
+}
+
+h2 {
+  border-bottom: 3px solid var(--flame-orange);
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: var(--flame-yellow);
+  border-radius: 2px;
+}
+
+/* Animation for flame effect */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.flame-icon::before {
+  content: '🔥';
+  animation: flicker 2s infinite;
+  margin-right: 8px;
+}
+
+/* Chart container */
+#fcrChart {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* Language selector */
+#langSelect {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid var(--flame-glow);
+  color: #ffffff;
+}
+
+#langSelect option {
+  background: var(--flame-dark);
+  color: #ffffff;
+}
+
+/* Strong/Bold text */
+strong {
+  color: var(--flame-yellow);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 20px;
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+  
+  .btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
+/* Loading animation */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--flame-glow);
+  border-top: 2px solid var(--flame-orange);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
