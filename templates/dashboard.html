@@ -10,7 +10,10 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">🐔</div>
-        <h3 class="text-primary mb-1">{{ summary.current_birds }}</h3>
+        <h3 class="text-primary mb-1">
+          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-primary fw-bold" 
+                 value="{{ summary.current_birds }}" id="liveBirds" style="box-shadow: none;">
+        </h3>
         <h6 class="card-title" data-i18n="live_birds">Live Birds</h6>
         <small class="text-muted">{{ metrics.survival_rate }}% survival rate</small>
       </div>
@@ -34,7 +37,10 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">📊</div>
-        <h3 class="text-info mb-1">{{ summary.fcr_today if summary.fcr_today else '-' }}</h3>
+        <h3 class="text-info mb-1">
+          <input type="number" step="0.01" class="form-control form-control-lg text-center border-0 bg-transparent text-info fw-bold" 
+                 value="{{ summary.fcr_today if summary.fcr_today else '' }}" placeholder="-" id="fcrToday" style="box-shadow: none;">
+        </h3>
         <h6 class="card-title" data-i18n="fcr_today">FCR Today</h6>
         <small class="text-muted">Avg: {{ summary.avg_fcr }}</small>
       </div>
@@ -46,7 +52,10 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">💀</div>
-        <h3 class="text-danger mb-1">{{ summary.mortality_total }}</h3>
+        <h3 class="text-danger mb-1">
+          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-danger fw-bold" 
+                 value="{{ summary.mortality_total }}" id="mortalityTotal" style="box-shadow: none;">
+        </h3>
         <h6 class="card-title" data-i18n="mortality_total">Total Mortality</h6>
         <small class="text-muted">{{ metrics.avg_mortality_per_day }}/day avg</small>
       </div>
@@ -64,7 +73,10 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">🛒</div>
-        <h3 class="text-warning mb-1">{{ summary.bags_available }}</h3>
+        <h3 class="text-warning mb-1">
+          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-warning fw-bold" 
+                 value="{{ summary.bags_available }}" id="bagsAvailable" style="box-shadow: none;">
+        </h3>
         <h6 class="card-title" data-i18n="bags_available">Bags Available</h6>
         <small class="text-muted">{{ metrics.feed_utilization }}% utilized</small>
       </div>
@@ -97,7 +109,11 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">⚖️</div>
-        <h3 class="text-info mb-1">{{ summary.avg_weight }}kg</h3>
+        <h3 class="text-info mb-1">
+          <input type="number" step="0.01" class="form-control form-control-lg text-center border-0 bg-transparent text-info fw-bold" 
+                 value="{{ summary.avg_weight }}" id="avgWeight" style="box-shadow: none;">
+          <span class="text-info">kg</span>
+        </h3>
         <h6 class="card-title" data-i18n="avg_weight">Avg Weight</h6>
         <small class="text-muted">Today: {{ metrics.today_avg_weight }}kg</small>
       </div>
@@ -279,22 +295,33 @@ new Chart(ctx,{
     }
   }
 });
-{% endif %}
-</script>
-{% endblock %}
 
-{% block scripts %}
-<script>
-const fcrSeries = {{ fcr_series|tojson }};
-const dates = {{ dates|tojson }};
-const ctx = document.getElementById('fcrChart').getContext('2d');
-new Chart(ctx,{
-  type:'line',
-  data:{
-    labels: dates,
-    datasets:[{label:'FCR', data:fcrSeries, tension:0.2, borderWidth:2}]
-  },
-  options:{scales:{y:{beginAtZero:true}}}
+// Add change event listeners for editable fields
+document.getElementById('liveBirds').addEventListener('change', function(e) {
+  updateField('live_birds', e.target.value);
 });
+
+document.getElementById('fcrToday').addEventListener('change', function(e) {
+  updateField('fcr_today', e.target.value);
+});
+
+document.getElementById('mortalityTotal').addEventListener('change', function(e) {
+  updateField('mortality_total', e.target.value);
+});
+
+document.getElementById('bagsAvailable').addEventListener('change', function(e) {
+  updateField('bags_available', e.target.value);
+});
+
+document.getElementById('avgWeight').addEventListener('change', function(e) {
+  updateField('avg_weight', e.target.value);
+});
+
+function updateField(field, value) {
+  // This function would send an AJAX request to update the backend
+  console.log(`Updating ${field} to ${value}`);
+  // You can implement actual AJAX call here
+}
+{% endif %}
 </script>
 {% endblock %}
