@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 data-i18n="setup_title">Initial Setup</h2>
+<form method="POST" class="row g-3">
+  <div class="col-md-4">
+    <label class="form-label" data-i18n="start_birds">Start Birds</label>
+    <input data-i18n-placeholder="start_birds_ph" type="number" name="start_birds" class="form-control" required>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label" data-i18n="start_feed">Start Feed Bags</label>
+    <input data-i18n-placeholder="start_feed_ph" type="number" step="0.1" name="start_feed_bags" class="form-control" required>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label" data-i18n="arrival_dt">Arrival Date</label>
+    <input type="date" name="start_date" class="form-control">
+  </div>
+  <div class="col-md-4">
+    <label class="form-label" data-i18n="arrival_time">Arrival Time</label>
+    <input type="time" name="start_time" class="form-control">
+  </div>
+  <div class="col-md-4">
+    <label class="form-label" data-i18n="driver">Driver Name</label>
+    <input data-i18n-placeholder="driver_ph" type="text" name="driver" class="form-control">
+  </div>
+  <div class="col-12">
+    <label class="form-label" data-i18n="notes">Notes</label>
+    <textarea name="notes" class="form-control"></textarea>
+  </div>
+  <div class="col-12">
+    <button class="btn btn-success" type="submit" data-i18n="save">Save</button>
+  </div>
+</form>
+{% endblock %}
