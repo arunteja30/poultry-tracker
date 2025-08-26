@@ -1,13 +1,13 @@
-/* Flame UI Theme */
+/* Facebook Blue Theme */
 :root {
-  --flame-red: #ff4444;
-  --flame-orange: #ff6b35;
-  --flame-yellow: #ffa500;
-  --flame-dark: #2b1810;
-  --flame-medium: #5d3319;
-  --flame-light: #8b4513;
-  --flame-glow: rgba(255, 100, 53, 0.3);
-  --flame-shadow: rgba(255, 68, 68, 0.2);
+  --fb-blue: #1877f2;
+  --fb-blue-dark: #166fe5;
+  --fb-blue-light: #42a5f5;
+  --fb-dark: #1c1e21;
+  --fb-medium: #242526;
+  --fb-light: #3a3b3c;
+  --fb-glow: rgba(24, 119, 242, 0.3);
+  --fb-shadow: rgba(24, 119, 242, 0.2);
 }
 
 * {
@@ -16,17 +16,17 @@
 
 body { 
   padding-bottom: 60px; 
-  background: linear-gradient(135deg, var(--flame-dark) 0%, var(--flame-medium) 50%, var(--flame-light) 100%);
+  background: linear-gradient(135deg, var(--fb-dark) 0%, var(--fb-medium) 50%, var(--fb-light) 100%);
   min-height: 100vh;
   color: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navbar Flame Theme */
+/* Navbar Facebook Blue Theme */
 .navbar {
-  background: linear-gradient(90deg, var(--flame-red) 0%, var(--flame-orange) 50%, var(--flame-yellow) 100%) !important;
-  border-bottom: 3px solid var(--flame-glow);
-  box-shadow: 0 4px 20px var(--flame-shadow);
+  background: linear-gradient(90deg, var(--fb-blue) 0%, var(--fb-blue-dark) 50%, var(--fb-blue-light) 100%) !important;
+  border-bottom: 3px solid var(--fb-glow);
+  box-shadow: 0 4px 20px var(--fb-shadow);
 }
 
 .navbar-brand {
@@ -50,13 +50,13 @@ body {
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-/* Cards with Flame Effect */
+/* Cards with Facebook Blue Effect */
 .card { 
   border-radius: 15px; 
-  background: linear-gradient(145deg, rgba(255,100,53,0.1) 0%, rgba(255,68,68,0.05) 100%);
-  border: 2px solid var(--flame-glow);
+  background: linear-gradient(145deg, rgba(24,119,242,0.1) 0%, rgba(24,119,242,0.05) 100%);
+  border: 2px solid var(--fb-glow);
   box-shadow: 
-    0 8px 32px rgba(255,68,68,0.2),
+    0 8px 32px rgba(24,119,242,0.2),
     inset 0 1px 0 rgba(255,255,255,0.1);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
@@ -78,7 +78,7 @@ body {
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 
-    0 12px 40px rgba(255,68,68,0.3),
+    0 12px 40px rgba(24,119,242,0.3),
     inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
@@ -94,7 +94,7 @@ body {
 /* Form Elements */
 .form-control, .form-select {
   background: rgba(255,255,255,0.1);
-  border: 2px solid var(--flame-glow);
+  border: 2px solid var(--fb-glow);
   border-radius: 10px;
   color: #ffffff;
   transition: all 0.3s ease;
@@ -103,8 +103,8 @@ body {
 
 .form-control:focus, .form-select:focus {
   background: rgba(255,255,255,0.15);
-  border-color: var(--flame-orange);
-  box-shadow: 0 0 20px var(--flame-glow);
+  border-color: var(--fb-blue);
+  box-shadow: 0 0 20px var(--fb-glow);
   color: #ffffff;
 }
 
@@ -119,7 +119,7 @@ body {
   margin-bottom: 8px;
 }
 
-/* Buttons with Flame Effect */
+/* Buttons with Facebook Blue Effect */
 .btn {
   border-radius: 25px;
   font-weight: 600;
@@ -132,14 +132,14 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, var(--flame-red), var(--flame-orange));
-  box-shadow: 0 4px 15px rgba(255,68,68,0.4);
+  background: linear-gradient(45deg, var(--fb-blue), var(--fb-blue-dark));
+  box-shadow: 0 4px 15px rgba(24,119,242,0.4);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(45deg, var(--flame-orange), var(--flame-yellow));
+  background: linear-gradient(45deg, var(--fb-blue-dark), var(--fb-blue-light));
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255,68,68,0.6);
+  box-shadow: 0 8px 25px rgba(24,119,242,0.6);
 }
 
 .btn-success {
@@ -154,14 +154,14 @@ body {
 }
 
 .btn-outline-secondary {
-  border: 2px solid var(--flame-glow);
+  border: 2px solid var(--fb-glow);
   color: #ffffff;
   background: transparent;
 }
 
 .btn-outline-secondary:hover {
-  background: var(--flame-orange);
-  border-color: var(--flame-orange);
+  background: var(--fb-blue);
+  border-color: var(--fb-blue);
   transform: translateY(-2px);
 }
 
@@ -175,7 +175,7 @@ body {
 }
 
 .table th {
-  background: linear-gradient(90deg, var(--flame-red), var(--flame-orange));
+  background: linear-gradient(90deg, var(--fb-blue), var(--fb-blue-dark));
   color: #ffffff;
   border: none;
   font-weight: 600;
@@ -193,7 +193,7 @@ body {
 }
 
 .table-hover tbody tr:hover {
-  background-color: rgba(255,100,53,0.1);
+  background-color: rgba(24,119,242,0.1);
   transform: scale(1.02);
   transition: all 0.3s ease;
 }
@@ -206,7 +206,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h2 {
-  border-bottom: 3px solid var(--flame-orange);
+  border-bottom: 3px solid var(--fb-blue);
   padding-bottom: 10px;
   margin-bottom: 25px;
   position: relative;
@@ -219,19 +219,19 @@ h2::after {
   left: 0;
   width: 50px;
   height: 3px;
-  background: var(--flame-yellow);
+  background: var(--fb-blue-light);
   border-radius: 2px;
 }
 
-/* Animation for flame effect */
-@keyframes flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+/* Animation for chicken effect */
+@keyframes bob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
 }
 
-.flame-icon::before {
-  content: '🔥';
-  animation: flicker 2s infinite;
+.chicken-icon::before {
+  content: '�';
+  animation: bob 2s infinite;
   margin-right: 8px;
 }
 
@@ -245,18 +245,18 @@ h2::after {
 /* Language selector */
 #langSelect {
   background: rgba(255,255,255,0.1);
-  border: 2px solid var(--flame-glow);
+  border: 2px solid var(--fb-glow);
   color: #ffffff;
 }
 
 #langSelect option {
-  background: var(--flame-dark);
+  background: var(--fb-dark);
   color: #ffffff;
 }
 
 /* Strong/Bold text */
 strong {
-  color: var(--flame-yellow);
+  color: var(--fb-blue-light);
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
@@ -289,8 +289,8 @@ strong {
   width: 20px;
   height: 20px;
   margin: -10px 0 0 -10px;
-  border: 2px solid var(--flame-glow);
-  border-top: 2px solid var(--flame-orange);
+  border: 2px solid var(--fb-glow);
+  border-top: 2px solid var(--fb-blue);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
