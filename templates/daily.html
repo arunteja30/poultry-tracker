@@ -2,27 +2,46 @@
 {% block content %}
 <h2 data-i18n="daily_title">Daily Input</h2>
 
+<!-- Current Feed Bags Status -->
+<div class="alert alert-info mb-4">
+  <h6 data-i18n="current_feed_status">📦 Current Feed Status:</h6>
+  <strong><span data-i18n="available_bags">Available Bags:</span> {{ cycle.start_feed_bags|round|int }}</strong>
+  {% if cycle.start_feed_bags <= 3 %}
+    <span class="badge bg-warning ms-2" data-i18n="warning_low_stock">Low Stock!</span>
+  {% elif cycle.start_feed_bags <= 1 %}
+    <span class="badge bg-danger ms-2" data-i18n="warning_critical_stock">Critical Stock!</span>
+  {% endif %}
+</div>
+
 <div class="card p-4">
   <form method="POST" class="row g-3">
     <div class="col-md-4">
       <label for="entry-date" class="form-label" data-i18n="entry_date">Date</label>
-      <input id="entry-date" type="date" name="entry_date" class="form-control" value="{{ '' }}">
+      <input id="entry-date" type="date" name="entry_date" class="form-control" 
+             value="{{ error_data.entry_date if error_data else '' }}">
     </div>
     <div class="col-md-4">
       <label for="mortality" class="form-label" data-i18n="mortality">Mortality</label>
-      <input id="mortality" type="number" name="mortality" class="form-control" value="0" min="0">
+      <input id="mortality" type="number" name="mortality" class="form-control" 
+             value="{{ error_data.mortality if error_data else 0 }}" min="0">
     </div>
     <div class="col-md-4">
       <label for="feed-consumed" class="form-label" data-i18n="feed_consumed">Feed Bags Consumed</label>
-      <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control" value="0" min="0">
+      <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control" 
+             value="{{ error_data.feed_bags_consumed if error_data else 0 }}" min="0"
+             onchange="validateFeedBags()">
+      <small class="text-muted">Available: {{ cycle.start_feed_bags|round|int }} bags</small>
     </div>
     <div class="col-md-4">
       <label for="bags-added" class="form-label" data-i18n="bags_added">Feed Bags Added</label>
-      <input id="bags-added" type="number" step="0.1" name="feed_bags_added" class="form-control" value="0" min="0">
+      <input id="bags-added" type="number" step="0.1" name="feed_bags_added" class="form-control" 
+             value="{{ error_data.feed_bags_added if error_data else 0 }}" min="0"
+             onchange="validateFeedBags()">
     </div>
     <div class="col-md-4">
       <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (grams)</label>
-      <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control" value="0" min="0" placeholder="Enter weight in grams">
+      <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control" 
+             value="{{ error_data.avg_weight_grams if error_data else 0 }}" min="0" placeholder="Enter weight in grams">
       <small class="text-muted">Will be converted to kg automatically</small>
     </div>
     <div class="col-md-4">
@@ -37,18 +56,114 @@
       <select id="medicines" name="medicines" class="form-select">
         <option value="" data-i18n="none">None</option>
         {% for m in meds %}
-          <option value="{{ m.name }}">{{ m.name }} ({{ m.qty }} <span data-i18n="available">available</span>)</option>
+          <option value="{{ m.name }}" {% if error_data and error_data.medicines == m.name %}selected{% endif %}>
+            {{ m.name }} ({{ m.qty }} <span data-i18n="available">available</span>)
+          </option>
         {% endfor %}
       </select>
     </div>
+    
+    <!-- Feed Validation Alert -->
+    <div class="col-12">
+      <div id="feed-validation-alert" class="alert alert-warning d-none">
+        <strong data-i18n="warning_prefix">⚠️ Warning:</strong> <span id="validation-message"></span>
+      </div>
+    </div>
+    
     <div class="col-12">
       <div class="alert alert-info">
         <small data-i18n="auto_calc_live">Auto calculated live birds and bags remaining shown on dashboard after save.</small>
       </div>
     </div>
     <div class="col-12">
-      <button class="btn btn-primary btn-lg" type="submit" data-i18n="save_daily">Save Daily Entry</button>
+      <button id="submit-btn" class="btn btn-primary btn-lg" type="submit" data-i18n="save_daily">Save Daily Entry</button>
     </div>
   </form>
 </div>
+
+<script>
+// Load i18n messages for JavaScript - you can implement language switching later
+const i18nMessages = {
+  en: {
+    feed_validation_insufficient: "Insufficient feed bags! You need {shortage} more bags. Available: {available}, trying to consume: {consumed}. Please add more bags.",
+    feed_validation_minimum: "Error: Must maintain at least 1 feed bag in inventory! Current available: {available}, trying to consume: {consumed}, bags added: {added}. This would leave only {remaining} bags.",
+    feed_validation_low: "Feed bags are running low! Only {remaining} bags will remain after this entry.",
+    button_cannot_save_bags: "Cannot Save - Add More Bags",
+    button_cannot_save_minimum: "Cannot Save - Must Keep 1+ Bags",
+    save_daily: "Save Daily Entry"
+  },
+  hi: {
+    feed_validation_insufficient: "अपर्याप्त फ़ीड बैग! आपको {shortage} और बैग चाहिए। उपलब्ध: {available}, उपयोग करने की कोशिश: {consumed}। कृपया और बैग जोड़ें।",
+    feed_validation_minimum: "त्रुटि: इन्वेंटरी में कम से कम 1 फ़ीड बैग बनाए रखना चाहिए! वर्तमान उपलब्ध: {available}, उपयोग करने की कोशिश: {consumed}, जोड़े गए बैग: {added}। इससे केवल {remaining} बैग रह जाएंगे।",
+    feed_validation_low: "फ़ीड बैग कम हो रहे हैं! इस प्रविष्टि के बाद केवल {remaining} बैग रह जाएंगे।",
+    button_cannot_save_bags: "सहेज नहीं सकते - और बैग जोड़ें",
+    button_cannot_save_minimum: "सहेज नहीं सकते - 1+ बैग रखना चाहिए",
+    save_daily: "दैनिक सहेजें"
+  },
+  te: {
+    feed_validation_insufficient: "తగినంత ఫీడ్ బ్యాగులు లేవు! మీకు {shortage} మరిన్ని బ్యాగులు కావాలి। అందుబాటులో: {available}, వాడటానికి ప్రయత్నిస్తున్నారు: {consumed}. దయచేసి మరిన్ని బ్యాగులు జోడించండి।",
+    feed_validation_minimum: "లోపం: ఇన్వెంటరీలో కనీసం 1 ఫీడ్ బ్యాగ్ ఉంచాలి! ప్రస్తుతం అందుబాటులో: {available}, వాడటానికి ప్రయత్నిస్తున్నారు: {consumed}, జోడించిన బ్యాగులు: {added}. దీని వలన కేవలం {remaining} బ్యాగులు మిగిలిపోతాయి।",
+    feed_validation_low: "ఫీడ్ బ్యాగులు తక్కువగా అవుతున్నాయి! ఈ ఎంట్రీ తర్వాత కేవలం {remaining} బ్యాగులు మిగిలిపోతాయి।",
+    button_cannot_save_bags: "సేవ్ చేయలేము - మరిన్ని బ్యాగులు జోడించండి",
+    button_cannot_save_minimum: "సేవ్ చేయలేము - 1+ బ్యాగులు ఉంచాలి",
+    save_daily: "రోజువారీ లెక్కలు దాచు"
+  }
+};
+
+// Get current language (you can implement language detection/switching)
+const currentLang = localStorage.getItem('language') || 'te';
+
+function formatMessage(template, params) {
+  return template.replace(/\{(\w+)\}/g, (match, key) => params[key] || match);
+}
+
+function validateFeedBags() {
+  const currentBags = {{ cycle.start_feed_bags }};
+  const consumed = parseFloat(document.getElementById('feed-consumed').value) || 0;
+  const added = parseFloat(document.getElementById('bags-added').value) || 0;
+  const remaining = currentBags + added - consumed;
+  
+  const alertDiv = document.getElementById('feed-validation-alert');
+  const messageSpan = document.getElementById('validation-message');
+  const submitBtn = document.getElementById('submit-btn');
+  const messages = i18nMessages[currentLang];
+  
+  if (remaining < 0) {
+    const shortage = Math.abs(remaining);
+    const params = {shortage: shortage.toFixed(1), available: currentBags, consumed: consumed};
+    messageSpan.textContent = formatMessage(messages.feed_validation_insufficient, params);
+    alertDiv.className = 'alert alert-danger';
+    alertDiv.classList.remove('d-none');
+    submitBtn.disabled = true;
+    submitBtn.textContent = messages.button_cannot_save_bags;
+  } else if (remaining < 1) {
+    const params = {available: currentBags, consumed: consumed, added: added, remaining: remaining.toFixed(1)};
+    messageSpan.textContent = formatMessage(messages.feed_validation_minimum, params);
+    alertDiv.className = 'alert alert-danger';
+    alertDiv.classList.remove('d-none');
+    submitBtn.disabled = true;
+    submitBtn.textContent = messages.button_cannot_save_minimum;
+  } else if (remaining <= 3) {
+    const params = {remaining: remaining.toFixed(1)};
+    messageSpan.textContent = formatMessage(messages.feed_validation_low, params);
+    alertDiv.className = 'alert alert-warning';
+    alertDiv.classList.remove('d-none');
+    submitBtn.disabled = false;
+    submitBtn.textContent = messages.save_daily;
+  } else {
+    alertDiv.classList.add('d-none');
+    submitBtn.disabled = false;
+    submitBtn.textContent = messages.save_daily;
+  }
+}
+
+// Set today's date as default
+document.getElementById('entry-date').value = new Date().toISOString().split('T')[0];
+
+// Validate on page load if there's error data
+{% if error_data %}
+setTimeout(validateFeedBags, 100);
+{% endif %}
+</script>
+
 {% endblock %}

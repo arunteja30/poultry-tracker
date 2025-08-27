@@ -12,6 +12,71 @@
   --fb-shadow: rgba(24, 119, 242, 0.15);
 }
 
+/* Custom Font Face Declaration */
+@font-face {
+  font-family: 'JIMS Regular';
+  src: url('/static/fonts/JIMS Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font Size Classes */
+body.font-size-small {
+  font-size: 0.85rem !important;
+}
+
+body.font-size-medium {
+  font-size: 1rem !important;
+}
+
+body.font-size-large {
+  font-size: 1.15rem !important;
+}
+
+body.font-size-xlarge {
+  font-size: 1.3rem !important;
+}
+
+/* Font size specific adjustments for headings */
+body.font-size-small h1 { font-size: 2.2rem !important; }
+body.font-size-small h2 { font-size: 1.9rem !important; }
+body.font-size-small h3 { font-size: 1.6rem !important; }
+body.font-size-small h4 { font-size: 1.3rem !important; }
+body.font-size-small h5 { font-size: 1.1rem !important; }
+body.font-size-small h6 { font-size: 1rem !important; }
+
+body.font-size-medium h1 { font-size: 2.5rem !important; }
+body.font-size-medium h2 { font-size: 2.2rem !important; }
+body.font-size-medium h3 { font-size: 1.9rem !important; }
+body.font-size-medium h4 { font-size: 1.6rem !important; }
+body.font-size-medium h5 { font-size: 1.3rem !important; }
+body.font-size-medium h6 { font-size: 1.1rem !important; }
+
+body.font-size-large h1 { font-size: 2.8rem !important; }
+body.font-size-large h2 { font-size: 2.5rem !important; }
+body.font-size-large h3 { font-size: 2.2rem !important; }
+body.font-size-large h4 { font-size: 1.9rem !important; }
+body.font-size-large h5 { font-size: 1.6rem !important; }
+body.font-size-large h6 { font-size: 1.3rem !important; }
+
+body.font-size-xlarge h1 { font-size: 3.2rem !important; }
+body.font-size-xlarge h2 { font-size: 2.9rem !important; }
+body.font-size-xlarge h3 { font-size: 2.6rem !important; }
+body.font-size-xlarge h4 { font-size: 2.3rem !important; }
+body.font-size-xlarge h5 { font-size: 2rem !important; }
+body.font-size-xlarge h6 { font-size: 1.7rem !important; }
+
+/* Font size adjustments for navigation */
+body.font-size-small .navbar-brand { font-size: 1.8rem !important; }
+body.font-size-small .nav-link { font-size: 0.9rem !important; }
+body.font-size-medium .navbar-brand { font-size: 2.2rem !important; }
+body.font-size-medium .nav-link { font-size: 1rem !important; }
+body.font-size-large .navbar-brand { font-size: 2.6rem !important; }
+body.font-size-large .nav-link { font-size: 1.1rem !important; }
+body.font-size-xlarge .navbar-brand { font-size: 3rem !important; }
+body.font-size-xlarge .nav-link { font-size: 1.2rem !important; }
+
 * {
   box-sizing: border-box;
 }
@@ -24,18 +89,126 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Language-specific fonts */
+body.lang-te {
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.1em; /* Increased base font size for Telugu */
+}
+
+body.lang-hi {
+  font-family: 'Noto Sans Devanagari', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body.lang-en {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Telugu-specific text styling for better readability */
+body.lang-te .navbar-brand,
+body.lang-te .nav-link,
+body.lang-te .btn,
+body.lang-te .form-label,
+body.lang-te .table th,
+body.lang-te .table td,
+body.lang-te .card-title,
+body.lang-te .card-text,
+body.lang-te h1, body.lang-te h2, body.lang-te h3, body.lang-te h4, body.lang-te h5, body.lang-te h6 {
+  font-weight: normal;
+  letter-spacing: 0.025em;
+}
+
+/* Increased font sizes for Telugu elements */
+body.lang-te .navbar-brand {
+  font-size: 2.4rem !important;
+  font-weight: 900 !important;
+}
+
+body.lang-te .nav-link {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .btn {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te .form-label {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .table th,
+body.lang-te .table td {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te .card-title {
+  font-size: 1.4rem !important;
+}
+
+body.lang-te .card-text {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te h1 { font-size: 2.8rem !important; }
+body.lang-te h2 { font-size: 2.4rem !important; }
+body.lang-te h3 { font-size: 2.0rem !important; }
+body.lang-te h4 { font-size: 1.6rem !important; }
+body.lang-te h5 { font-size: 1.4rem !important; }
+body.lang-te h6 { font-size: 1.2rem !important; }
+
+/* Hindi-specific text styling */
+body.lang-hi .navbar-brand,
+body.lang-hi .nav-link,
+body.lang-hi .btn,
+body.lang-hi .form-label,
+body.lang-hi .table th,
+body.lang-hi .table td,
+body.lang-hi .card-title,
+body.lang-hi .card-text,
+body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi h5, body.lang-hi h6 {
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
 /* Navbar Facebook Blue Theme */
 .navbar {
   background: linear-gradient(90deg, var(--fb-blue) 0%, var(--fb-blue-dark) 50%, var(--fb-blue-light) 100%) !important;
   border-bottom: 3px solid var(--fb-glow);
   box-shadow: 0 4px 20px var(--fb-shadow);
+  align-items: center;
+  min-height: 70px;
+}
+
+.navbar .container-fluid {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.navbar-collapse {
+  align-items: center;
+}
+
+.navbar-nav {
+  align-items: center;
+  margin-bottom: 0 !important;
+}
+
+.navbar-nav .nav-item {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-brand {
   color: #ffffff !important;
-  font-weight: bold;
+  font-weight: 900 !important;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-  font-size: 1.5rem;
+  font-size: 2rem !important;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem;
 }
 
 .navbar-nav .nav-link {
@@ -44,12 +217,42 @@ body {
   border-radius: 20px;
   margin: 0 5px;
   padding: 8px 16px !important;
+  display: flex;
+  align-items: center;
+  height: auto;
 }
 
 .navbar-nav .nav-link:hover {
   background: rgba(255,255,255,0.2);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Navbar right side controls vertical centering */
+.navbar .d-flex {
+  align-items: center;
+  height: 100%;
+}
+
+.navbar .form-select {
+  margin-bottom: 0;
+}
+
+.navbar .btn {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.navbar .dropdown {
+  display: flex;
+  align-items: center;
+}
+
+.navbar .dropdown-toggle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
 }
 
 /* Cards with Facebook Blue Effect - Light Theme */
@@ -125,6 +328,49 @@ body {
   color: var(--fb-text-dark);
   font-weight: 600;
   margin-bottom: 8px;
+}
+
+/* Language-specific form element styling */
+body.lang-te .form-control,
+body.lang-te .form-select,
+body.lang-te .form-label,
+body.lang-te input,
+body.lang-te textarea,
+body.lang-te select,
+body.lang-te option {
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Segoe UI', sans-serif;
+  font-weight: normal;
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .form-control::placeholder {
+  font-size: 1.05rem !important;
+}
+
+body.lang-hi .form-control,
+body.lang-hi .form-select,
+body.lang-hi .form-label,
+body.lang-hi input,
+body.lang-hi textarea,
+body.lang-hi select,
+body.lang-hi option {
+  font-family: 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
+  font-weight: 500;
+}
+
+/* Telugu-specific improvements for better text rendering */
+body.lang-te {
+  font-feature-settings: "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body.lang-hi {
+  font-feature-settings: "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Buttons with Facebook Blue Effect */
@@ -251,11 +497,45 @@ h2::after {
   background: var(--fb-white);
   border: 2px solid var(--fb-light-gray);
   color: var(--fb-text-dark);
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
+  font-weight: normal;
 }
 
 #langSelect option {
   background: var(--fb-white);
   color: var(--fb-text-dark);
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
+  font-weight: normal;
+}
+
+/* Larger text for Telugu language selector */
+body.lang-te #langSelect {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te #langSelect option {
+  font-size: 1.1rem !important;
+}
+
+/* Font size selector styling */
+#fontSizeSelect {
+  background: var(--fb-white);
+  border: 2px solid var(--fb-light-gray);
+  color: var(--fb-text-dark);
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: normal;
+  transition: all 0.3s ease;
+}
+
+#fontSizeSelect:hover {
+  border-color: var(--fb-blue);
+  box-shadow: 0 0 10px var(--fb-glow);
+}
+
+#fontSizeSelect option {
+  background: var(--fb-white);
+  color: var(--fb-text-dark);
+  padding: 5px;
 }
 
 /* Strong/Bold text - Light Theme */
@@ -327,8 +607,27 @@ strong {
     margin-bottom: 20px;
   }
   
+  .navbar {
+    min-height: 60px;
+  }
+  
   .navbar-brand {
-    font-size: 1.2rem;
+    font-size: 1.8rem !important;
+    font-weight: 900 !important;
+  }
+  
+  .navbar-nav {
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .navbar-nav .nav-item {
+    display: block;
+    align-items: center;
+  }
+  
+  .navbar-nav .nav-link {
+    justify-content: center;
   }
   
   .btn {
@@ -359,4 +658,213 @@ strong {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Modal fixes for proper layering and interaction */
+.modal {
+  z-index: 1055 !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop {
+  z-index: 1050 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5 !important;
+}
+
+.modal-dialog {
+  z-index: 1056 !important;
+  margin: 1.75rem auto;
+  pointer-events: auto !important;
+  position: relative;
+}
+
+.modal-content {
+  background: var(--fb-white);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1057 !important;
+}
+
+.modal-header {
+  background: linear-gradient(90deg, var(--fb-blue), var(--fb-blue-dark));
+  color: white;
+  border-radius: 15px 15px 0 0;
+  border-bottom: none;
+}
+
+.modal-title {
+  color: white;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--fb-light-gray);
+  padding: 1rem 2rem;
+}
+
+/* Ensure form fields in modals are interactive */
+.modal .form-control,
+.modal .form-select {
+  position: relative;
+  z-index: 1058 !important;
+  background: var(--fb-white) !important;
+  border: 2px solid var(--fb-light-gray) !important;
+  color: var(--fb-text-dark) !important;
+  pointer-events: auto !important;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus {
+  z-index: 1059 !important;
+  border-color: var(--fb-blue) !important;
+  box-shadow: 0 0 0 0.2rem var(--fb-glow) !important;
+  outline: none !important;
+}
+
+.modal .btn {
+  z-index: 1058 !important;
+  pointer-events: auto !important;
+  position: relative;
+}
+
+.modal .btn:hover,
+.modal .btn:focus {
+  z-index: 1059 !important;
+}
+
+/* Prevent modal from blocking page interaction */
+.modal.show {
+  padding-right: 0 !important;
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.modal.show .modal-dialog {
+  pointer-events: auto !important;
+}
+
+body.modal-open {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+
+/* Remove modal backdrop interference completely */
+.modal-backdrop {
+  display: none !important;
+}
+
+/* Bootstrap 5 close button styling */
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  opacity: 0.8;
+  padding: 0.5rem;
+  margin: -0.5rem -0.5rem -0.5rem auto;
+  z-index: 1060 !important;
+  pointer-events: auto !important;
+  position: relative;
+}
+
+.btn-close:hover,
+.btn-close:focus {
+  opacity: 1;
+  color: white;
+  z-index: 1061 !important;
+}
+
+/* Additional modal interaction fixes */
+.modal-header,
+.modal-body,
+.modal-footer {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1058 !important;
+}
+
+.modal-title {
+  color: white;
+  font-weight: 600;
+  pointer-events: auto !important;
+}
+
+/* Badge improvements for better visibility */
+.badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 10px;
+}
+
+.badge-primary {
+  background: linear-gradient(45deg, var(--fb-blue), var(--fb-blue-dark)) !important;
+  color: white !important;
+  border: 1px solid var(--fb-blue-dark);
+}
+
+.badge-success {
+  background: linear-gradient(45deg, #28a745, #20c997) !important;
+  color: white !important;
+  border: 1px solid #1e7e34;
+}
+
+.badge-secondary {
+  background: linear-gradient(45deg, #6c757d, #5a6268) !important;
+  color: white !important;
+  border: 1px solid #545b62;
+}
+
+/* Additional Telugu text size enhancements */
+body.lang-te .alert {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .modal-title {
+  font-size: 1.5rem !important;
+}
+
+body.lang-te .modal-body {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .tooltip {
+  font-size: 1.0rem !important;
+}
+
+body.lang-te .dropdown-item {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te .badge {
+  font-size: 0.9rem !important;
+}
+
+body.lang-te .pagination .page-link {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te small, body.lang-te .small {
+  font-size: 0.95rem !important;
+}
+
+/* Improved line height for Telugu text readability */
+body.lang-te {
+  line-height: 1.6 !important;
+}
+
+body.lang-te p, body.lang-te li, body.lang-te div {
+  line-height: 1.55 !important;
 }

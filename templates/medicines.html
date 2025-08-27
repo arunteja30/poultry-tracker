@@ -61,5 +61,14 @@
       </tbody>
     </table>
   </div>
+  <div class="card-footer">
+    <div class="row">
+      <div class="col-md-8"></div>
+      <div class="col-md-4">
+        <strong data-i18n="total_amount">Total Amount: </strong>
+        <span class="text-success fw-bold">₹{{ "%.2f"|format(total_amount|float) }}</span>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

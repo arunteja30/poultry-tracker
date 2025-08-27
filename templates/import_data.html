@@ -19,14 +19,24 @@
         </div>
         
         <div class="alert alert-info">
-          <h6 data-i18n="required_columns">Required Columns:</h6>
+          <h6 data-i18n="import_options">📋 Import Options:</h6>
+          <div class="mb-3">
+            <strong data-i18n="exported_files">🔄 Exported Files:</strong>
+            <p class="mb-2" data-i18n="exported_desc">Upload files exported from this system to import complete data including daily records and medicines.</p>
+          </div>
+          
+          <div class="mb-3">
+            <strong data-i18n="custom_files">📊 Custom Files:</strong>
+            <p class="mb-2" data-i18n="custom_desc">Upload Excel/CSV files with daily data only.</p>
+          </div>
+          
+          <h6 data-i18n="required_columns">Required Columns for Custom Files:</h6>
           <ul class="mb-0">
             <li><strong>date</strong> - <span data-i18n="col_date_desc">Entry date (YYYY-MM-DD format)</span></li>
             <li><strong>mortality</strong> - <span data-i18n="col_mortality_desc">Number of dead birds</span></li>
             <li><strong>feed_bags_consumed</strong> - <span data-i18n="col_feed_consumed_desc">Feed bags used</span></li>
             <li><strong>feed_bags_added</strong> - <span data-i18n="col_feed_added_desc">Feed bags added</span></li>
             <li><strong>avg_weight</strong> - <span data-i18n="col_avg_weight_desc">Average weight in kg</span></li>
-            <li><strong>avg_feed_per_bird_g</strong> - <span data-i18n="col_feed_per_bird_desc">Feed per bird in grams</span></li>
             <li><strong>fcr</strong> - <span data-i18n="col_fcr_desc">Feed conversion ratio</span></li>
             <li><strong>medicines</strong> - <span data-i18n="col_medicines_desc">Medicines given (optional)</span></li>
           </ul>

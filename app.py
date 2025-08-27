@@ -591,9 +591,9 @@ def daily():
         
         # Success message
         if feed_bags_added > 0:
-            flash(f'✅ Daily entry saved successfully! Added {round(feed_bags_added)} bags, consumed {round(feed_bags_consumed)} bags. Remaining: {round(cycle.start_feed_bags)} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {round(feed_bags_added)} बैग जोड़े गए, {round(feed_bags_consumed)} बैग उपयोग किए गए। बचे हुए: {round(cycle.start_feed_bags)} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {round(feed_bags_added)} బ్యాగులు జోడించబడ్డాయి, {round(feed_bags_consumed)} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {round(cycle.start_feed_bags)} బ్యాగులు।', 'success')
+            flash(f'✅ Daily entry saved successfully! Added {feed_bags_added:.1f} bags, consumed {feed_bags_consumed:.1f} bags. Remaining: {cycle.start_feed_bags:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_added:.1f} बैग जोड़े गए, {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {cycle.start_feed_bags:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_added:.1f} బ్యాగులు జోడించబడ్డాయి, {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {cycle.start_feed_bags:.1f} బ్యాగులు।', 'success')
         else:
-            flash(f'✅ Daily entry saved successfully! Consumed {round(feed_bags_consumed)} bags. Remaining: {round(cycle.start_feed_bags)} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {round(feed_bags_consumed)} बैग उपयोग किए गए। बचे हुए: {round(cycle.start_feed_bags)} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {round(feed_bags_consumed)} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {round(cycle.start_feed_bags)} బ్యాగులు।', 'success')
+            flash(f'✅ Daily entry saved successfully! Consumed {feed_bags_consumed:.1f} bags. Remaining: {cycle.start_feed_bags:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {cycle.start_feed_bags:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {cycle.start_feed_bags:.1f} బ్యాగులు।', 'success')
         
         return redirect(url_for('dashboard'))
     meds = Medicine.query.order_by(Medicine.name).all()
