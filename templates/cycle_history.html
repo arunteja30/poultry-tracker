@@ -76,6 +76,13 @@
                   </button>
                 </form>
                 {% endif %}
+                <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}" 
+                      style="display: inline;"
+                      onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.');">
+                  <button type="submit" class="btn btn-outline-danger btn-sm" data-i18n="btn_delete">
+                    🗑️ Delete
+                  </button>
+                </form>
               </div>
             </td>
           </tr>

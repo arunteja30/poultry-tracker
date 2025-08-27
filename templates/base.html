@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title or 'Ramesh Farms' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts for Telugu Support -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐔</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>�</text></svg>">
   </head>
   <body>
     <nav class="navbar navbar-expand-lg">
@@ -19,7 +15,7 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navmenu">
+                <div class="collapse navbar-collapse" id="navmenu">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a></li>
             {% if session.role == 'admin' %}
@@ -27,28 +23,18 @@
             {% endif %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
             {% if session.role == 'admin' %}
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
             {% endif %}
           </ul>
           <div class="d-flex align-items-center">
-            {% if session.role == 'admin' %}
             <a href="{{ url_for('export') }}" class="btn btn-outline-secondary btn-sm me-3" data-i18n="export_excel">Export Excel</a>
-            {% endif %}
-            <select id="langSelect" class="form-select form-select-sm me-2" style="width:130px;">
+            <select id="langSelect" class="form-select form-select-sm me-3" style="width:130px;">
               <option value="en">🇺🇸 English</option>
               <option value="hi">🇮🇳 हिन्दी</option>
               <option value="te">🇮🇳 తెలుగు</option>
-            </select>
-            <select id="fontSizeSelect" class="form-select form-select-sm me-3" style="width:110px;" title="Font Size">
-              <option value="small" data-i18n="font_size_small">🔤 Small</option>
-              <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
-              <option value="large" data-i18n="font_size_large">🔤 Large</option>
-              <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
             </select>
             <div class="dropdown">
               <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -77,25 +63,12 @@
           const dict = await res.json();
           document.querySelectorAll('[data-i18n]').forEach(el=>{
             const key = el.getAttribute('data-i18n');
-            if(dict[key]) {
-              if(el.tagName === 'OPTION') {
-                // For option elements, preserve the emoji and add translation
-                const emoji = el.innerText.split(' ')[0]; // Get emoji part
-                el.innerText = emoji + ' ' + dict[key];
-              } else {
-                el.innerText = dict[key];
-              }
-            }
+            if(dict[key]) el.innerText = dict[key];
           });
           document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
             const key = el.getAttribute('data-i18n-placeholder');
             if(dict[key]) el.setAttribute('placeholder', dict[key]);
           });
-          
-          // Apply language-specific fonts
-          document.body.className = document.body.className.replace(/\blang-\w+/g, '');
-          document.body.classList.add('lang-' + lang);
-          
         }catch(e){ console.error('Translation loading failed:', e); }
       }
       
@@ -104,28 +77,10 @@
         localStorage.setItem('selectedLang', e.target.value);
       });
       
-      // Font size management
-      function applyFontSize(size) {
-        // Remove existing font size classes
-        document.body.className = document.body.className.replace(/\bfont-size-\w+/g, '');
-        // Add new font size class
-        document.body.classList.add('font-size-' + size);
-      }
-      
-      document.getElementById('fontSizeSelect').addEventListener('change', (e)=> {
-        applyFontSize(e.target.value);
-        localStorage.setItem('selectedFontSize', e.target.value);
-      });
-      
-      // Load saved language and font size or defaults
+      // Load saved language or default to English
       const savedLang = localStorage.getItem('selectedLang') || 'en';
-      const savedFontSize = localStorage.getItem('selectedFontSize') || 'medium';
-      
       document.getElementById('langSelect').value = savedLang;
-      document.getElementById('fontSizeSelect').value = savedFontSize;
-      
       loadLang(savedLang);
-      applyFontSize(savedFontSize);
     </script>
     {% block scripts %}{% endblock %}
   </body>

@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% block content %}
 <h2 data-i18n="daily_title">Daily Input</h2>
@@ -25,13 +26,18 @@
       <input id="mortality" type="number" name="mortality" class="form-control" 
              value="{{ error_data.mortality if error_data else 0 }}" min="0">
     </div>
-    <div class="col-md-4">
-      <label for="feed-consumed" class="form-label" data-i18n="feed_consumed">Feed Bags Consumed</label>
-      <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control" 
-             value="{{ error_data.feed_bags_consumed if error_data else 0 }}" min="0"
-             onchange="validateFeedBags()">
-      <small class="text-muted">Available: {{ cycle.start_feed_bags|round|int }} bags</small>
-    </div>
+     <div class="col-md-4">
+    <label for="feed-consumed" class="form-label" data-i18n="feed_consumed">Feed Bags Consumed</label>
+    <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control" 
+           value="{{ error_data.feed_bags_consumed if error_data else 0 }}" min="0" required
+           onchange="validateFeedBags()">
+    <small class="text-muted">Available: {{ cycle.start_feed_bags|round|int }} bags</small>
+    {% if error_data and (error_data.feed_bags_consumed == 0 or error_data.feed_bags_consumed is none) %}
+      <div class="text-danger mt-1" id="feed-bags-error">
+        <span data-i18n="error_feed_bags_zero">Feed bags consumed cannot be zero. Please enter a valid value.</span>
+      </div>
+    {% endif %}
+  </div>
     <div class="col-md-4">
       <label for="bags-added" class="form-label" data-i18n="bags_added">Feed Bags Added</label>
       <input id="bags-added" type="number" step="0.1" name="feed_bags_added" class="form-control" 
@@ -39,18 +45,17 @@
              onchange="validateFeedBags()">
     </div>
     <div class="col-md-4">
-      <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (grams)</label>
-      <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control" 
-             value="{{ error_data.avg_weight_grams if error_data else 0 }}" min="0" placeholder="Enter weight in grams">
-      <small class="text-muted">Will be converted to kg automatically</small>
+  <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (grams)</label>
+  <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control" 
+        value="{{ error_data.avg_weight_grams if error_data else 0 }}" min="0" required>
+  <small class="text-muted">Will be converted to kg automatically</small>
+  {% if error_data and (error_data.avg_weight_grams == 0 or error_data.avg_weight_grams is none) %}
+    <div class="text-danger mt-1" id="avg-weight-error">
+      <span data-i18n="error_avg_weight_zero">Average weight gain cannot be zero. Please enter a valid value.</span>
     </div>
-    <div class="col-md-4">
-      <label class="form-label text-muted">Avg Feed / Bird (g)</label>
-      <div class="form-control bg-light text-muted" style="cursor: not-allowed;">
-        Auto-calculated
-      </div>
-      <small class="text-muted">Calculated based on cumulative feed consumption</small>
-    </div>
+  {% endif %}
+</div>
+  
     <div class="col-12">
       <label for="medicines" class="form-label" data-i18n="medicines">Medicines Given</label>
       <select id="medicines" name="medicines" class="form-select">
@@ -111,23 +116,34 @@ const i18nMessages = {
 };
 
 // Get current language (you can implement language detection/switching)
-const currentLang = localStorage.getItem('language') || 'te';
+const currentLang = localStorage.getItem('language') || 'en';
 
 function formatMessage(template, params) {
   return template.replace(/\{(\w+)\}/g, (match, key) => params[key] || match);
 }
 
+function safeFloat(val) {
+  return val === "" || val === null || typeof val === "undefined" ? 0 : parseFloat(val);
+}
+
+
 function validateFeedBags() {
-  const currentBags = {{ cycle.start_feed_bags }};
-  const consumed = parseFloat(document.getElementById('feed-consumed').value) || 0;
-  const added = parseFloat(document.getElementById('bags-added').value) || 0;
-  const remaining = currentBags + added - consumed;
+ const currentBags = {{ cycle.start_feed_bags }};
+  const consumed = safeFloat(document.getElementById('feed-consumed').value);
+  const added = safeFloat(document.getElementById('bags-added').value);
+  console.log("currentBags: " + currentBags);
+  console.log("added: " + added);
+  console.log("consumed: " + consumed);
+  const remaining = (currentBags + added) - consumed;
+
+  console.log("remaining: " + remaining);
+
   
   const alertDiv = document.getElementById('feed-validation-alert');
   const messageSpan = document.getElementById('validation-message');
   const submitBtn = document.getElementById('submit-btn');
   const messages = i18nMessages[currentLang];
-  
+
   if (remaining < 0) {
     const shortage = Math.abs(remaining);
     const params = {shortage: shortage.toFixed(1), available: currentBags, consumed: consumed};
@@ -136,7 +152,7 @@ function validateFeedBags() {
     alertDiv.classList.remove('d-none');
     submitBtn.disabled = true;
     submitBtn.textContent = messages.button_cannot_save_bags;
-  } else if (remaining < 1) {
+  } else if (remaining < 0) {
     const params = {available: currentBags, consumed: consumed, added: added, remaining: remaining.toFixed(1)};
     messageSpan.textContent = formatMessage(messages.feed_validation_minimum, params);
     alertDiv.className = 'alert alert-danger';
@@ -144,13 +160,15 @@ function validateFeedBags() {
     submitBtn.disabled = true;
     submitBtn.textContent = messages.button_cannot_save_minimum;
   } else if (remaining <= 3) {
-    const params = {remaining: remaining.toFixed(1)};
+    console.log("Low feed bags warning");
+    const params = {remaining: remaining.toFixed(0)};
     messageSpan.textContent = formatMessage(messages.feed_validation_low, params);
     alertDiv.className = 'alert alert-warning';
-    alertDiv.classList.remove('d-none');
+    alertDiv.classList.add('d-none');
     submitBtn.disabled = false;
     submitBtn.textContent = messages.save_daily;
   } else {
+    console.log("Sufficient feed bags");
     alertDiv.classList.add('d-none');
     submitBtn.disabled = false;
     submitBtn.textContent = messages.save_daily;

@@ -18,11 +18,11 @@
       <h5 data-i18n="setup_subtitle">Configure your poultry cycle</h5>
       <form method="POST" class="row g-3">
         {% if existing_cycle %}
-        <input type="hidden" name="action" value="reset">
+          <input type="hidden" name="action" value="reset">
         {% else %}
-        <input type="hidden" name="action" value="new">
+          <input type="hidden" name="action" value="new">
         {% endif %}
-
+        
         <div class="col-md-4">
           <label for="start-birds" class="form-label" data-i18n="start_birds">Start Birds</label>
           <input id="start-birds" data-i18n-placeholder="start_birds_ph" type="number" name="start_birds" class="form-control" required min="1">
@@ -55,15 +55,23 @@
         <div class="col-12">
           <button class="btn btn-success btn-lg" type="submit" data-i18n="save">
             {% if existing_cycle %}
-            🔄 Start New Cycle
+              🔄 Start New Cycle
             {% else %}
-            🐔 Create Cycle
+              🐔 Create Cycle
             {% endif %}
           </button>
+
+          {% if existing_cycle and session.role == 'admin' %}
+        <form action="{{ url_for('delete_cycle', cycle_id=existing_cycle.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.');">
+          <button type="submit" class="btn btn-outline-danger btnme-2" data-i18n="delete_cycle">
+            🗑️ Delete Cycle
+          </button>
+        </form>
+        {% endif %}
         </div>
       </form>
     </div>
-
+    
     <div class="col-md-4">
       <div class="card bg-info bg-opacity-10 border-info">
         <div class="card-body">
@@ -88,7 +96,7 @@
           </div>
         </div>
       </div>
-
+      
       {% if existing_cycle %}
       <div class="card bg-warning bg-opacity-10 border-warning mt-3">
         <div class="card-body">

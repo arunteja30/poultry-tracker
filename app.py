@@ -332,7 +332,7 @@ def setup():
         db.session.commit()
         
         if action == 'reset':
-            flash('नया चक्र सफलतापूर्वक शुरू किया गया! / New cycle started successfully!', 'success')
+            flash('New cycle started successfully!', 'success')
         
         return redirect(url_for('dashboard'))
     
@@ -343,12 +343,12 @@ def setup():
 def import_data():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('कोई फ़ाइल नहीं चुनी गई / No file selected', 'error')
+            flash('No file selected', 'error')
             return redirect(request.url)
         
         file = request.files['file']
         if file.filename == '':
-            flash('कोई फ़ाइल नहीं चुनी गई / No file selected', 'error')
+            flash('No file selected', 'error')
             return redirect(request.url)
         
         if file and file.filename.endswith(('.xlsx', '.xls', '.csv')):
@@ -362,7 +362,7 @@ def import_data():
                     df = pd.read_csv(file)
                     cycle = get_active_cycle()
                     if not cycle:
-                        flash('पहले एक चक्र सेटअप करें / Please setup a cycle first', 'error')
+                        flash('Please setup a cycle first', 'error')
                         return redirect(url_for('setup'))
                     
                     imported_daily_count = import_daily_data(df, cycle)
@@ -374,7 +374,7 @@ def import_data():
                     
                     cycle = get_active_cycle()
                     if not cycle:
-                        flash('पहले एक चक्र सेटअप करें / Please setup a cycle first', 'error')
+                        flash('Please setup a cycle first', 'error')
                         return redirect(url_for('setup'))
                     
                     # Import Daily Data
@@ -512,6 +512,7 @@ def reset_cycle():
     
     return redirect(url_for('setup'))
 
+
 @app.route('/daily', methods=['GET','POST'])
 @login_required
 def daily():
@@ -526,12 +527,27 @@ def daily():
         avg_weight_grams = float(request.form.get('avg_weight_grams',0) or 0)
         avg_weight = round(avg_weight_grams / 1000, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
         medicines = request.form.get('medicines','')
-        
+
+        # Validate form data
+        if not entry_date or not avg_weight_grams:
+            error_message = '⚠️ Please fill in all required fields. / ⚠️ दयचेसि अन्नि अवसरमैन फील्डलनु निंपंडी.'
+            meds = Medicine.query.order_by(Medicine.name).all()
+            return render_template('daily.html', cycle=cycle, meds=meds, 
+                                   error_data={
+                                       'entry_date': entry_date,
+                                       'mortality': mortality,
+                                       'feed_bags_consumed': feed_bags_consumed,
+                                       'feed_bags_added': feed_bags_added,
+                                       'avg_weight_grams': avg_weight_grams,
+                                       'medicines': medicines,
+                                       'error_message': error_message
+                                   })
+
         # Check if feed bags consumed exceeds available bags or leaves less than 1 bag
         bags_after_consumption = cycle.start_feed_bags + feed_bags_added - feed_bags_consumed
         if bags_after_consumption < 0:
             shortage = abs(bags_after_consumption)
-            flash(f'⚠️ Insufficient feed bags! You need {round(shortage)} more bags. Current available: {round(cycle.start_feed_bags)}, trying to consume: {round(feed_bags_consumed)}. Please add new bags first. / ⚠️ अपर्याप्त फ़ीड बैग! आपको {round(shortage)} और बैग चाहिए। वर्तमान उपलब्ध: {round(cycle.start_feed_bags)}, उपयोग करने की कोशिश: {round(feed_bags_consumed)}। कृपया पहले नए बैग जोड़ें। / ⚠️ తగినంత ఫీడ్ బ్యాగులు లేవు! మీకు {round(shortage)} మరిన్ని బ్యాగులు కావాలి। అందుబాటులో: {round(cycle.start_feed_bags)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}. దయచేసి మరిన్ని బ్యాగులు జోడించండి।', 'error')
+            flash('⚠️ Insufficient feed bags! You need {round(shortage)} more bags. Current available: {round(cycle.start_feed_bags)}, trying to consume: {round(feed_bags_consumed)}. Please add new bags first. / ⚠️ अपर्याप्त फ़ीड बैग! आपको {round(shortage)} और बैग चाहिए। वर्तमान उपलब्ध: {round(cycle.start_feed_bags)}, उपयोग करने की कोशिश: {round(feed_bags_consumed)}। कृपया पहले नए बैग जोड़ें। / ⚠️ తగినంత ఫీడ్ బ్యాగులు లేవు! మీకు {round(shortage)} మరిన్ని బ్యాగులు కావాలి। అందుబాటులో: {round(cycle.start_feed_bags)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}. దయచేసి మరిన్ని బ్యాగులు జోడించండి।', 'error')
             meds = Medicine.query.order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, 
                                    error_data={
@@ -542,8 +558,8 @@ def daily():
                                        'avg_weight_grams': avg_weight_grams,
                                        'medicines': medicines
                                    })
-        elif bags_after_consumption < 1:
-            flash(f'⚠️ Error: Must maintain at least 1 feed bag in inventory! Current available: {round(cycle.start_feed_bags)}, trying to consume: {round(feed_bags_consumed)}, bags added: {round(feed_bags_added)}. This would leave only {round(bags_after_consumption)} bags. / ⚠️ त्रुटि: इन्वेंटरी में कम से कम 1 फ़ीड बैग बनाए रखना चाहिए! / ⚠️ లోపం: ఇన్వెంటరీలో కనీసం 1 ఫీడ్ బ్యాగ్ ఉంచాలి! ప్రస్తుతం అందుబాటులో: {round(cycle.start_feed_bags)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}, జోడించిన బ్యాగులు: {round(feed_bags_added)}. దీని వలన కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలిపోతాయి।', 'error')
+        elif bags_after_consumption < 0:
+            flash('⚠️ Error: Must maintain at least 1 feed bag in inventory! Current available: {round(cycle.start_feed_bags)}, trying to consume: {round(feed_bags_consumed)}, bags added: {round(feed_bags_added)}. This would leave only {round(bags_after_consumption)} bags. / ⚠️ त्रुटि: इन्वेंटरी में कम से कम 1 फ़ीड बैग बनाए रखना चाहिए! / ⚠️ లోపం: ఇన్వెంటరీలో కనీసం 1 ఫీడ్ బ్యాగ్ ఉంచాలి! ప్రస్తుతం అందుబాటులో: {round(cycle.start_feed_bags)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}, జోడించిన బ్యాగులు: {round(feed_bags_added)}. దీని వలన కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలిపోతాయి।', 'error')
             meds = Medicine.query.order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, 
                                    error_data={
@@ -1229,6 +1245,17 @@ def unarchive_cycle(cycle_id):
         flash(f'Error unarchiving cycle: {str(e)} / चक्र अनआर्काइव करने में त्रुटि: {str(e)} / సైకిల్ అన్‌ఆర్కైవ్ చేయడంలో లోపం: {str(e)}', 'error')
     
     return redirect(url_for('cycle_history'))
+   
+@app.route('/delete_cycle/<int:cycle_id>', methods=['POST'])
+@admin_required
+def delete_cycle(cycle_id):
+    cycle = Cycle.query.get_or_404(cycle_id)
+    Daily.query.filter_by(cycle_id=cycle_id).delete()
+    # If you have other related tables, delete them here as needed
+    db.session.delete(cycle)
+    db.session.commit()
+    flash('Cycle deleted successfully!', 'success')
+    return redirect(url_for('setup'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -38,8 +38,7 @@
       <div class="card-body">
         <div class="mb-2">📊</div>
         <h3 class="text-info mb-1">
-          <input type="number" step="0.01" class="form-control form-control-lg text-center border-0 bg-transparent text-info fw-bold" 
-                 value="{{ summary.fcr_today if summary.fcr_today else '' }}" placeholder="-" id="fcrToday" style="box-shadow: none;">
+          {{ summary.avg_fcr }}
         </h3>
         <h6 class="card-title" data-i18n="fcr_today">FCR Today</h6>
         <small class="text-muted">Avg: {{ summary.avg_fcr }}</small>
