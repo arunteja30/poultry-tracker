@@ -26,7 +26,6 @@
             <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
             {% if session.role == 'admin' %}
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
             {% endif %}
           </ul>
