@@ -15,23 +15,38 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navmenu">
+                <div class="collapse navbar-collapse" id="navmenu">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a></li>
+            {% if session.role == 'admin' %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a></li>
+            {% endif %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
+            {% if session.role == 'admin' %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
+            {% endif %}
           </ul>
           <div class="d-flex align-items-center">
             <a href="{{ url_for('export') }}" class="btn btn-outline-secondary btn-sm me-3" data-i18n="export_excel">Export Excel</a>
-            <select id="langSelect" class="form-select form-select-sm" style="width:130px;">
+            <select id="langSelect" class="form-select form-select-sm me-3" style="width:130px;">
               <option value="en">🇺🇸 English</option>
               <option value="hi">🇮🇳 हिन्दी</option>
               <option value="te">🇮🇳 తెలుగు</option>
             </select>
+            <div class="dropdown">
+              <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                {% if session.role == 'admin' %}👑{% else %}👤{% endif %} {{ session.username }}
+              </button>
+              <ul class="dropdown-menu">
+                <li><span class="dropdown-item-text">Role: {{ session.role.title() }}</span></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

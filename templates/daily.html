@@ -21,12 +21,16 @@
       <input id="bags-added" type="number" step="0.1" name="feed_bags_added" class="form-control" value="0" min="0">
     </div>
     <div class="col-md-4">
-      <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (kg)</label>
-      <input id="avg-weight" type="number" step="0.01" name="avg_weight" class="form-control" value="0" min="0">
+      <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (grams)</label>
+      <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control" value="0" min="0" placeholder="Enter weight in grams">
+      <small class="text-muted">Will be converted to kg automatically</small>
     </div>
     <div class="col-md-4">
-      <label for="avg-feed" class="form-label" data-i18n="avg_feed_per_bird">Avg Feed / Bird (g)</label>
-      <input id="avg-feed" type="number" step="1" name="avg_feed_per_bird_g" class="form-control" value="0" min="0">
+      <label class="form-label text-muted">Avg Feed / Bird (g)</label>
+      <div class="form-control bg-light text-muted" style="cursor: not-allowed;">
+        Auto-calculated
+      </div>
+      <small class="text-muted">Calculated based on cumulative feed consumption</small>
     </div>
     <div class="col-12">
       <label for="medicines" class="form-label" data-i18n="medicines">Medicines Given</label>
