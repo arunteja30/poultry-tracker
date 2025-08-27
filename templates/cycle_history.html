@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 data-i18n="cycle_history_title">🔄 Cycle History</h2>
+<p class="text-muted mb-4" data-i18n="cycle_history_desc">Compare performance across different poultry cycles</p>
+
+{% if cycle_data %}
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th data-i18n="table_cycle_id">Cycle ID</th>
+            <th data-i18n="table_start_date">Start Date</th>
+            <th data-i18n="table_duration">Duration (Days)</th>
+            <th data-i18n="table_status">Status</th>
+            <th data-i18n="table_initial_birds">Initial Birds</th>
+            <th data-i18n="table_final_birds">Final Birds</th>
+            <th data-i18n="table_survival_rate">Survival Rate</th>
+            <th data-i18n="table_avg_fcr">Avg FCR</th>
+            <th data-i18n="table_final_weight">Final Weight (kg)</th>
+            <th data-i18n="table_feed_efficiency">Feed/Bird (bags)</th>
+            <th data-i18n="table_actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for data in cycle_data %}
+          <tr class="{% if data.cycle.status == 'active' %}table-success{% endif %}">
+            <td>
+              <strong>#{{ data.cycle.id }}</strong>
+              {% if data.cycle.status == 'active' %}
+                <span class="badge bg-success ms-1" data-i18n="status_active">Active</span>
+              {% endif %}
+            </td>
+            <td>{{ data.cycle.start_date }}</td>
+            <td>{{ data.duration_days }}</td>
+            <td>
+              {% if data.cycle.status == 'active' %}
+                <span class="badge bg-success" data-i18n="status_active">Active</span>
+              {% else %}
+                <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+              {% endif %}
+            </td>
+            <td>{{ data.cycle.start_birds }}</td>
+            <td>{{ data.final_birds }}</td>
+            <td>
+              <span class="{% if data.survival_rate >= 95 %}text-success{% elif data.survival_rate >= 90 %}text-warning{% else %}text-danger{% endif %}">
+                {{ data.survival_rate }}%
+              </span>
+            </td>
+            <td>
+              <span class="{% if data.avg_fcr > 0 and data.avg_fcr <= 1.8 %}text-success{% elif data.avg_fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
+                {{ data.avg_fcr if data.avg_fcr > 0 else 'N/A' }}
+              </span>
+            </td>
+            <td>{{ "%.3f"|format(data.final_weight) if data.final_weight > 0 else 'N/A' }}</td>
+            <td>{{ data.feed_per_bird }}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <a href="{{ url_for('cycle_details', cycle_id=data.cycle.id) }}" 
+                   class="btn btn-outline-primary btn-sm" 
+                   data-i18n="btn_view_details">
+                  📊 Details
+                </a>
+                {% if data.cycle.status == 'archived' and session.role == 'admin' %}
+                <a href="{{ url_for('export_cycle', cycle_id=data.cycle.id) }}" 
+                   class="btn btn-outline-success btn-sm"
+                   data-i18n="btn_export">
+                  📥 Export
+                </a>
+                <form method="POST" action="{{ url_for('unarchive_cycle', cycle_id=data.cycle.id) }}" 
+                      style="display: inline;"
+                      onsubmit="return confirm('Are you sure you want to unarchive this cycle? It will become the active cycle. / क्या आप वाकई इस चक्र को अनआर्काइव करना चाहते हैं? यह सक्रिय चक्र बन जाएगा। / మీరు ఖచ్చితంగా ఈ సైకిల్‌ను అన్‌ఆర్కైవ్ చేయాలనుకుంటున్నారా? ఇది యాక్టివ్ సైకిల్ అవుతుంది।')">
+                  <button type="submit" class="btn btn-outline-warning btn-sm" data-i18n="btn_unarchive">
+                    🔄 Unarchive
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Performance Comparison Section -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 data-i18n="performance_comparison">📈 Performance Comparison</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 text-center">
+            <h6 data-i18n="total_cycles">Total Cycles</h6>
+            <h3 class="text-primary">{{ cycle_data|length }}</h3>
+          </div>
+          <div class="col-md-3 text-center">
+            <h6 data-i18n="avg_survival_rate">Avg Survival Rate</h6>
+            <h3 class="text-success">
+              {% set total_survival = cycle_data|sum(attribute='survival_rate') %}
+              {{ "%.1f"|format(total_survival / cycle_data|length) if cycle_data|length > 0 else 0 }}%
+            </h3>
+          </div>
+          <div class="col-md-3 text-center">
+            <h6 data-i18n="avg_fcr_all">Avg FCR (All Cycles)</h6>
+            <h3 class="text-info">
+              {% set valid_fcrs = cycle_data|selectattr('avg_fcr', 'greaterthan', 0)|list %}
+              {% set total_fcr = valid_fcrs|sum(attribute='avg_fcr') %}
+              {{ "%.2f"|format(total_fcr / valid_fcrs|length) if valid_fcrs|length > 0 else 'N/A' }}
+            </h3>
+          </div>
+          <div class="col-md-3 text-center">
+            <h6 data-i18n="best_survival">Best Survival</h6>
+            <h3 class="text-success">
+              {% set best_survival = cycle_data|max(attribute='survival_rate') %}
+              {{ "%.1f"|format(best_survival.survival_rate) if best_survival else 0 }}%
+            </h3>
+            <small class="text-muted">Cycle #{{ best_survival.cycle.id if best_survival else 'N/A' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="card text-center p-5">
+  <div class="card-body">
+    <div class="mb-4" style="font-size: 4rem;">🔄</div>
+    <h3 data-i18n="no_cycle_history">No Cycle History</h3>
+    <p class="text-muted mb-4" data-i18n="no_cycle_history_desc">Complete your first cycle to see historical data here.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary" data-i18n="back_to_dashboard">Back to Dashboard</a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
