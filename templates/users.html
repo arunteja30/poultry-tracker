@@ -121,10 +121,8 @@
                                         <div class="form-group">
                                             <label data-i18n="role" for="new_role">Role:</label>
                                             <select class="form-control" name="new_role">
-                                                <option if user.role== value="user" {%
-                                                'user' %}selected{% endif %} data-i18n="user_role">User</option>
-                                                <option if user.role== value="admin" {%
-                                                'admin' %}selected{% endif %} data-i18n="admin_role">Admin</option>
+                                                <option value="user" {% if user.role == 'user' %}selected{% endif %} data-i18n="user_role">User</option>
+                                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %} data-i18n="admin_role">Admin</option>
                                             </select>
                                         </div>
                                     </div>
