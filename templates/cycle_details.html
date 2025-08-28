@@ -4,12 +4,12 @@
   <div>
     <h2 data-i18n="cycle_details_title">📊 Cycle Details</h2>
     <p class="text-muted">
-      <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
-      <span data-i18n="status_label">Status:</span> 
+      <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} |
+      <span data-i18n="status_label">Status:</span>
       {% if cycle.status == 'active' %}
-        <span class="badge bg-success" data-i18n="status_active">Active</span>
+      <span class="badge bg-success" data-i18n="status_active">Active</span>
       {% else %}
-        <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+      <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
       {% endif %}
     </p>
   </div>
@@ -47,9 +47,9 @@
               <dt class="col-sm-5" data-i18n="duration">Duration:</dt>
               <dd class="col-sm-7">
                 {% if cycle.end_date %}
-                  {{ duration }} days
+                {{ duration }} days
                 {% else %}
-                  {{ current_duration }} days (ongoing)
+                {{ current_duration }} days (ongoing)
                 {% endif %}
               </dd>
               <dt class="col-sm-5" data-i18n="notes">Notes:</dt>
@@ -110,8 +110,10 @@
   </div>
 </div>
 
-<!-- Daily Entries Table -->
-<div class="card">
+
+
+<!-- Daily Entries Table (Desktop) -->
+<div class="card d-none d-md-block">
   <div class="card-header">
     <h5 data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
   </div>
@@ -120,48 +122,48 @@
     <div class="table-responsive">
       <table class="table table-sm table-striped">
         <thead>
-          <tr>
-            <th data-i18n="table_date">Date</th>
-            <th data-i18n="table_mortality">Mortality</th>
-            <th data-i18n="table_feed_consumed">Feed Consumed</th>
-            <th data-i18n="table_feed_added">Feed Added</th>
-            <th data-i18n="table_avg_weight">Avg Weight (kg)</th>
-            <th data-i18n="table_fcr">FCR</th>
-            <th data-i18n="table_medicines">Medicines</th>
-          </tr>
+        <tr>
+          <th data-i18n="table_date">Date</th>
+          <th data-i18n="table_mortality">Mortality</th>
+          <th data-i18n="table_feed_consumed">Feed Consumed</th>
+          <th data-i18n="table_feed_added">Feed Added</th>
+          <th data-i18n="table_avg_weight">Avg Weight (kg)</th>
+          <th data-i18n="table_fcr">FCR</th>
+          <th data-i18n="table_medicines">Medicines</th>
+        </tr>
         </thead>
         <tbody>
-          {% for entry in daily_entries %}
-          <tr>
-            <td>{{ entry.entry_date }}</td>
-            <td>
-              {% if entry.mortality > 0 %}
-                <span class="text-danger">{{ entry.mortality }}</span>
-              {% else %}
-                {{ entry.mortality }}
-              {% endif %}
-            </td>
-            <td>{{ entry.feed_bags_consumed }}</td>
-            <td>
-              {% if entry.feed_bags_added > 0 %}
-                <span class="text-success">+{{ entry.feed_bags_added }}</span>
-              {% else %}
-                {{ entry.feed_bags_added }}
-              {% endif %}
-            </td>
-            <td>{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</td>
-            <td>
-              {% if entry.fcr > 0 %}
-                <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
+        {% for entry in daily_entries %}
+        <tr>
+          <td>{{ entry.entry_date }}</td>
+          <td>
+            {% if entry.mortality > 0 %}
+            <span class="text-danger">{{ entry.mortality }}</span>
+            {% else %}
+            {{ entry.mortality }}
+            {% endif %}
+          </td>
+          <td>{{ entry.feed_bags_consumed }}</td>
+          <td>
+            {% if entry.feed_bags_added > 0 %}
+            <span class="text-success">+{{ entry.feed_bags_added }}</span>
+            {% else %}
+            {{ entry.feed_bags_added }}
+            {% endif %}
+          </td>
+          <td>{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</td>
+          <td>
+            {% if entry.fcr > 0 %}
+            <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
                   {{ "%.3f"|format(entry.fcr) }}
                 </span>
-              {% else %}
-                N/A
-              {% endif %}
-            </td>
-            <td>{{ entry.medicines or '-' }}</td>
-          </tr>
-          {% endfor %}
+            {% else %}
+            N/A
+            {% endif %}
+          </td>
+          <td>{{ entry.medicines or '-' }}</td>
+        </tr>
+        {% endfor %}
         </tbody>
       </table>
     </div>
@@ -171,74 +173,120 @@
   </div>
 </div>
 
+<!-- Daily Entries Card View (Mobile) -->
+<div class="d-block d-md-none">
+  {% if daily_entries %}
+  {% for entry in daily_entries %}
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong class="text-primary">{{ entry.entry_date }}</strong>
+
+      </div>
+      <div>
+        <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
+        <span class="fw-bold text-danger">{{ entry.mortality }}</span><br>
+        <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span>
+        <span class="fw-bold text-info">{{ entry.feed_bags_consumed }}</span><br>
+        <span class="text-secondary" data-i18n="table_feed_added">Feed Added:</span>
+        {% if entry.feed_bags_added > 0 %}
+        <span class="fw-bold text-success">+{{ entry.feed_bags_added }}</span>
+        {% else %}
+        <span class="fw-bold text-dark">{{ entry.feed_bags_added }}</span>
+        {% endif %}<br>
+        <span class="text-secondary" data-i18n="table_avg_weight">Avg Weight:</span>
+        <span class="fw-bold text-warning">{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }} kg</span><br>
+        <span class="text-secondary" data-i18n="table_fcr">FCR:</span>
+        {% if entry.fcr > 0 %}
+        <span class="fw-bold {% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
+                {{ "%.3f"|format(entry.fcr) }}
+              </span>
+        {% else %}
+        <span class="fw-bold text-dark">N/A</span>
+        {% endif %}<br>
+        <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
+        <span class="fw-bold text-primary">{{ entry.medicines or '-' }}</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="card mb-3">
+    <div class="card-body text-center text-muted" data-i18n="no_daily_entries">
+      No daily entries found for this cycle.
+    </div>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}
+
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// FCR Chart
-const fcrSeries = {{ fcr_series|tojson }};
-const dates = {{ dates|tojson }};
-const fcrCtx = document.getElementById('fcrChart').getContext('2d');
-new Chart(fcrCtx, {
-  type: 'line',
-  data: {
-    labels: dates,
-    datasets: [{
-      label: 'FCR',
-      data: fcrSeries,
-      tension: 0.2,
-      borderWidth: 2,
-      borderColor: '#1877f2',
-      backgroundColor: 'rgba(24, 119, 242, 0.1)',
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'FCR Value'
+  // FCR Chart
+  const fcrSeries = {{ fcr_series|tojson | safe }};
+  const dates = {{ dates|tojson | safe }};
+  const fcrCtx = document.getElementById('fcrChart').getContext('2d');
+  new Chart(fcrCtx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'FCR',
+        data: fcrSeries,
+        tension: 0.2,
+        borderWidth: 2,
+        borderColor: '#1877f2',
+        backgroundColor: 'rgba(24, 119, 242, 0.1)',
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'FCR Value'
+          }
         }
       }
     }
-  }
-});
+  });
 
-// Weight Chart
-const weightSeries = {{ weight_series|tojson }};
-const weightCtx = document.getElementById('weightChart').getContext('2d');
-new Chart(weightCtx, {
-  type: 'line',
-  data: {
-    labels: dates,
-    datasets: [{
-      label: 'Weight (kg)',
-      data: weightSeries,
-      tension: 0.2,
-      borderWidth: 2,
-      borderColor: '#28a745',
-      backgroundColor: 'rgba(40, 167, 69, 0.1)',
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Weight (kg)'
+  // Weight Chart
+  const weightSeries = {{ weight_series|tojson }};
+  const weightCtx = document.getElementById('weightChart').getContext('2d');
+  new Chart(weightCtx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Weight (kg)',
+        data: weightSeries,
+        tension: 0.2,
+        borderWidth: 2,
+        borderColor: '#28a745',
+        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Weight (kg)'
+          }
         }
       }
     }
-  }
-});
+  });
 </script>
 {% endblock %}

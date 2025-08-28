@@ -10,53 +10,103 @@
   </form>
   {% endif %}
 </div>
-<div class="card">
+
+<!-- Desktop Table View -->
+<div class="card d-none d-md-block">
   <div class="table-responsive">
     <table class="table table-hover">
       <thead>
-        <tr>
-          <th data-i18n="table_date">Date</th>
-          <th data-i18n="table_mortality">Mortality</th>
-          <th data-i18n="table_feed_consumed">Feed Consumed</th>
-          <th data-i18n="table_feed_added">Feed Added</th>
-          <th data-i18n="table_avg_weight">Avg Weight</th>
-          <th data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
-          <th data-i18n="table_fcr">FCR</th>
-          <th data-i18n="table_medicines">Medicines</th>
-          {% if session.role == 'admin' %}
-          <th>Actions</th>
-          {% endif %}
-        </tr>
+      <tr>
+        <th data-i18n="table_day">Day</th>
+        <th data-i18n="table_date">Date</th>
+        <th data-i18n="table_mortality">Mortality</th>
+        <th data-i18n="table_feed_consumed">Feed Consumed</th>
+        <th data-i18n="table_feed_added">Feed Added</th>
+        <th data-i18n="table_avg_weight">Avg Weight</th>
+        <th data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
+        <th data-i18n="table_fcr">FCR</th>
+        <th data-i18n="table_medicines">Medicines</th>
+        {% if session.role == 'admin' %}
+        <th>Actions</th>
+        {% endif %}
+      </tr>
       </thead>
       <tbody>
-        {% for r in rows %}
-          <tr>
-            <td>{{ r.entry_date }}</td>
-            <td>{{ r.mortality }}</td>
-            <td>{{ r.feed_bags_consumed }}</td>
-            <td>{{ r.feed_bags_added }}</td>
-            <td>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
-            <td>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
-            <td>{{ r.fcr }}</td>
-            <td>{{ r.medicines or '-' }}</td>
-            {% if session.role == 'admin' %}
-            <td>
-              <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;" 
-                    onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
-                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
-                  🗑️
-                </button>
-              </form>
-            </td>
-            {% endif %}
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="{% if session.role == 'admin' %}9{% else %}8{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
-          </tr>
-        {% endfor %}
+      {% for r in rows %}
+      <tr>
+        <td>Day {{ loop.index }}</td>
+        <td>{{ r.entry_date }}</td>
+        <td>{{ r.mortality }}</td>
+        <td>{{ r.feed_bags_consumed }}</td>
+        <td>{{ r.feed_bags_added }}</td>
+        <td>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
+        <td>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
+        <td>{{ r.fcr }}</td>
+        <td>{{ r.medicines or '-' }}</td>
+        {% if session.role == 'admin' %}
+        <td>
+          <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
+                onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
+            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
+              🗑️
+            </button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="{% if session.role == 'admin' %}10{% else %}9{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
+      </tr>
+      {% endfor %}
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- Mobile Card View -->
+<div class="d-block d-md-none">
+  {% for r in rows %}
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>Day {{ loop.index }}</strong>
+        <span class="text-muted">{{ r.entry_date }}</span>
+      </div>
+      <div>
+        <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
+        <span class="fw-bold text-danger">{{ r.mortality }}</span><br>
+        <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span>
+        <span class="fw-bold text-info">{{ r.feed_bags_consumed }}</span><br>
+        <span class="text-secondary" data-i18n="table_feed_added">Feed Added:</span>
+        <span class="fw-bold text-success">{{ r.feed_bags_added }}</span><br>
+        <span class="text-secondary" data-i18n="table_avg_weight">Avg Weight:</span>
+        <span class="fw-bold text-warning">{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</span><br>
+        <span class="text-secondary" data-i18n="avg_feed_per_bird">Avg Feed/Bird:</span>
+        <span class="fw-bold text-primary">{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</span><br>
+        <span class="text-secondary" data-i18n="table_fcr">FCR:</span>
+        <span class="fw-bold text-success">{{ r.fcr }}</span><br>
+        <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
+        <span class="fw-bold text-dark">{{ r.medicines or '-' }}</span>
+      </div>
+      {% if session.role == 'admin' %}
+      <div class="mt-2">
+        <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
+              onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
+          <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Delete Entry">
+            🗑️ Delete
+          </button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="card mb-3">
+    <div class="card-body text-center text-muted" data-i18n="no_entries">
+      No entries found
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
