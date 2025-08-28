@@ -242,32 +242,32 @@ def dashboard():
         # Advanced metrics
         stats = calc_cumulative_stats(cycle.id)
         survival_rate = round(((cycle.current_birds / cycle.start_birds) * 100), 2) if cycle.start_birds > 0 else 0
-        feed_efficiency = round((total_consumed / cycle.current_birds), 2) if cycle.current_birds > 0 else 0
-        
+        feed_efficiency = round((total_consumed*50 / cycle.current_birds), 2) if cycle.current_birds > 0 else 0
+
         # Calculate days running from cycle start date
         if cycle.start_date:
             try:
                 cycle_start_date = datetime.fromisoformat(cycle.start_date).date()
-                days_running = (date.today() - cycle_start_date).days + 1  # +1 to include start day
+                days_running = (date.today() - cycle_start_date).days
             except (ValueError, TypeError):
                 # Fallback if date parsing fails
                 days_running = 1
         else:
             days_running = 1
-            
+
         avg_mortality_per_day = round((total_mort / max(days_running, 1)), 2)
-        
-        # Feed cost calculations (₹40 per kg, 50kg per bag = ₹2000 per bag)
-        feed_cost_per_kg = 40
-        feed_cost_per_bag = feed_cost_per_kg * 50  # ₹2000 per bag
+
+        # Feed cost calculations (₹45 per kg, 50kg per bag = ₹2250 per bag)
+        feed_cost_per_kg = 45
+        feed_cost_per_bag = feed_cost_per_kg * 50  # ₹2250 per bag
         total_feed_cost = total_consumed * feed_cost_per_bag
         feed_cost_per_bird = round((total_feed_cost / cycle.current_birds), 2) if cycle.current_birds > 0 else 0
-        
+
         # Performance indicators
         last_week_rows = [r for r in rows if r.entry_date >= (date.today() - pd.Timedelta(days=7)).isoformat()]
         last_week_mortality = sum(r.mortality for r in last_week_rows)
         last_week_avg_fcr = round(sum(r.fcr for r in last_week_rows if r.fcr > 0) / max(len([r for r in last_week_rows if r.fcr > 0]), 1), 3) if last_week_rows else 0
-        
+
         dashboard_metrics = {
             # Performance Metrics
             "survival_rate": survival_rate,
@@ -275,23 +275,23 @@ def dashboard():
             "avg_mortality_per_day": avg_mortality_per_day,
             "last_week_mortality": last_week_mortality,
             "last_week_avg_fcr": last_week_avg_fcr,
-            
+
             # Financial Metrics
             "total_feed_cost": total_feed_cost,
             "feed_cost_per_bird": feed_cost_per_bird,
             "feed_cost_per_bag": feed_cost_per_bag,
-            
+
             # Operational Metrics
             "total_feed_added": total_feed_added,
             "feed_utilization": round(((total_consumed / (cycle.start_feed_bags + total_feed_added)) * 100), 2) if (cycle.start_feed_bags + total_feed_added) > 0 else 0,
             "days_to_target": max(42 - days_running, 0),  # Assuming 42-day cycle
-            
+
             # Today's metrics
             "today_mortality": today_row.mortality if today_row else 0,
             "today_feed_consumed": today_row.feed_bags_consumed if today_row else 0,
             "today_avg_weight": today_row.avg_weight if today_row else 0,
         }
-        
+
         summary = {
             "start_birds": cycle.start_birds,
             "current_birds": cycle.current_birds,
@@ -313,29 +313,29 @@ def setup():
     existing_cycle = get_active_cycle()
     if request.method=='POST':
         action = request.form.get('action', 'new')
-        
+
         if action == 'reset' and existing_cycle:
             # Archive current cycle
             existing_cycle.status = 'archived'
             existing_cycle.end_date = date.today().isoformat()
             existing_cycle.notes = f"Archived on {datetime.now().isoformat()} - {existing_cycle.notes}"
-            
+
         start_birds = int(request.form.get('start_birds',0))
         start_feed_bags = float(request.form.get('start_feed_bags',0))
         start_date = request.form.get('start_date') or date.today().isoformat()
         start_time = request.form.get('start_time') or datetime.now().time().isoformat(timespec='minutes')
         driver = request.form.get('driver','')
         notes = request.form.get('notes','')
-        
+
         c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active')
         db.session.add(c)
         db.session.commit()
-        
+
         if action == 'reset':
             flash('New cycle started successfully!', 'success')
-        
+
         return redirect(url_for('dashboard'))
-    
+
     return render_template('setup.html', existing_cycle=existing_cycle)
 
 @app.route('/import_data', methods=['GET', 'POST'])
@@ -345,18 +345,18 @@ def import_data():
         if 'file' not in request.files:
             flash('No file selected', 'error')
             return redirect(request.url)
-        
+
         file = request.files['file']
         if file.filename == '':
             flash('No file selected', 'error')
             return redirect(request.url)
-        
+
         if file and file.filename.endswith(('.xlsx', '.xls', '.csv')):
             try:
                 # Check if this is an exported Excel file with multiple sheets
                 imported_daily_count = 0
                 imported_medicine_count = 0
-                
+
                 if file.filename.endswith('.csv'):
                     # CSV - only daily data
                     df = pd.read_csv(file)
@@ -364,19 +364,19 @@ def import_data():
                     if not cycle:
                         flash('Please setup a cycle first', 'error')
                         return redirect(url_for('setup'))
-                    
+
                     imported_daily_count = import_daily_data(df, cycle)
-                
+
                 else:
                     # Excel file - check for multiple sheets
                     excel_file = pd.ExcelFile(file)
                     sheet_names = excel_file.sheet_names
-                    
+
                     cycle = get_active_cycle()
                     if not cycle:
                         flash('Please setup a cycle first', 'error')
                         return redirect(url_for('setup'))
-                    
+
                     # Import Daily Data
                     if 'Daily Data' in sheet_names:
                         daily_df = pd.read_excel(file, sheet_name='Daily Data')
@@ -385,28 +385,28 @@ def import_data():
                         # Single sheet Excel file - assume it's daily data
                         daily_df = pd.read_excel(file)
                         imported_daily_count = import_daily_data(daily_df, cycle)
-                    
+
                     # Import Medicines Data
                     if 'Medicines' in sheet_names:
                         medicines_df = pd.read_excel(file, sheet_name='Medicines')
                         imported_medicine_count = import_medicines_data(medicines_df)
-                
+
                 db.session.commit()
-                
+
                 # Success message
                 if imported_medicine_count > 0:
                     flash(f'✅ Import successful! {imported_daily_count} daily entries and {imported_medicine_count} medicines imported. / ✅ आयात सफल! {imported_daily_count} दैनिक प्रविष्टियां और {imported_medicine_count} दवाएं आयात की गईं। / ✅ దిగుమతి విజయవంతం! {imported_daily_count} రోజువారీ ఎంట్రీలు మరియు {imported_medicine_count} మందులు దిగుమతి చేయబడ్డాయి।', 'success')
                 else:
                     flash(f'✅ Import successful! {imported_daily_count} daily entries imported. / ✅ आयात सफल! {imported_daily_count} दैनिक प्रविष्टियां आयात की गईं। / ✅ దిగుమతి విజయవంతం! {imported_daily_count} రోజువారీ ఎంట్రీలు దిగుమతి చేయబడ్డాయి।', 'success')
-                
+
             except Exception as e:
                 flash(f'Import failed: {str(e)} / आयात असफल: {str(e)} / దిగుమతి విఫలమైంది: {str(e)}', 'error')
-        
+
         else:
             flash('केवल Excel (.xlsx, .xls) या CSV फ़ाइलें समर्थित हैं / Only Excel (.xlsx, .xls) or CSV files are supported / Excel (.xlsx, .xls) లేదా CSV ఫైల్‌లు మాత్రమే సపోర్ట్ చేయబడతాయి', 'error')
-        
+
         return redirect(url_for('import_data'))
-    
+
     return render_template('import_data.html')
 
 def import_daily_data(df, cycle):
@@ -416,35 +416,35 @@ def import_daily_data(df, cycle):
         try:
             # Check if entry already exists
             existing = Daily.query.filter_by(
-                cycle_id=cycle.id, 
+                cycle_id=cycle.id,
                 entry_date=str(row.get('date', ''))
             ).first()
-            
+
             if not existing:
                 # Auto-calculate avg_feed_per_bird_g for imported data
                 entry_date_str = str(row.get('date', date.today().isoformat()))
                 mortality = int(row.get('mortality', 0))
                 feed_bags_consumed = float(row.get('feed_bags_consumed', 0))
-                
+
                 # Calculate live birds after mortality
                 live_after = cycle.current_birds - mortality
-                
+
                 if live_after > 0:
                     # Get cumulative feed consumption up to this date
                     previous_rows = Daily.query.filter_by(cycle_id=cycle.id).filter(Daily.entry_date < entry_date_str).all()
                     cumulative_feed_consumed = sum(r.feed_bags_consumed for r in previous_rows) + feed_bags_consumed
-                    
+
                     # Calculate days elapsed
                     cycle_start_date = datetime.fromisoformat(cycle.start_date).date()
                     current_entry_date = datetime.fromisoformat(entry_date_str).date()
                     days_elapsed = (current_entry_date - cycle_start_date).days + 1
-                    
+
                     # Calculate avg feed per bird in grams
                     total_feed_grams = cumulative_feed_consumed * 50 * 1000  # bags to grams
                     auto_avg_feed_per_bird_g = round((total_feed_grams / live_after / days_elapsed), 1) if days_elapsed > 0 else 0
                 else:
                     auto_avg_feed_per_bird_g = 0
-                
+
                 daily_entry = Daily(
                     cycle_id=cycle.id,
                     entry_date=entry_date_str,
@@ -460,7 +460,7 @@ def import_daily_data(df, cycle):
                 imported_count += 1
         except Exception as e:
             continue
-    
+
     return imported_count
 
 def import_medicines_data(df):
@@ -472,14 +472,14 @@ def import_medicines_data(df):
             medicine_name = str(row.get('medicine_name', '')).strip()
             if medicine_name.upper() == 'TOTAL' or not medicine_name:
                 continue
-            
+
             # Check if medicine already exists
             existing = Medicine.query.filter_by(name=medicine_name).first()
-            
+
             if not existing:
                 price = float(row.get('price', 0))
                 quantity = int(row.get('quantity', 0)) if pd.notna(row.get('quantity', 0)) else 0
-                
+
                 medicine = Medicine(
                     name=medicine_name,
                     price=price,
@@ -492,10 +492,10 @@ def import_medicines_data(df):
                 existing.price = float(row.get('price', existing.price))
                 if pd.notna(row.get('quantity', 0)):
                     existing.qty = int(row.get('quantity', existing.qty))
-                
+
         except Exception as e:
             continue
-    
+
     return imported_count
 
 @app.route('/reset_cycle', methods=['POST'])
@@ -509,14 +509,18 @@ def reset_cycle():
         cycle.notes = f"Archived on {datetime.now().isoformat()} - {cycle.notes}"
         db.session.commit()
         flash('Current cycle archived. You can now start a new cycle. / वर्तमान चक्र संग्रहीत किया गया। अब आप नया चक्र शुरू कर सकते हैं।', 'info')
-    
+
     return redirect(url_for('setup'))
 
+def get_latest_daily(cycle_id):
+    """Get the latest Daily entry for a cycle by date."""
+    return Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date.desc()).first()
 
 @app.route('/daily', methods=['GET','POST'])
 @login_required
 def daily():
     cycle = get_active_cycle()
+    latest_daily = get_latest_daily(cycle.id) if cycle else None
     if not cycle:
         return redirect(url_for('setup'))
     if request.method=='POST':
@@ -525,14 +529,14 @@ def daily():
         feed_bags_consumed = float(request.form.get('feed_bags_consumed',0))
         feed_bags_added = float(request.form.get('feed_bags_added',0))
         avg_weight_grams = float(request.form.get('avg_weight_grams',0) or 0)
-        avg_weight = round(avg_weight_grams / 1000, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
+        avg_weight = round(((avg_weight_grams / 1000)+latest_daily.avg_weight)/2, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
         medicines = request.form.get('medicines','')
 
         # Validate form data
         if not entry_date or not avg_weight_grams:
-            error_message = '⚠️ Please fill in all required fields. / ⚠️ दयचेसि अन्नि अवसरमैन फील्डलनु निंपंडी.'
+            error_message = '⚠️ Please fill in all required fields. / దయచేసి అన్ని అవసరమైన ఫీల్డ్‌లను పూరించండి।'
             meds = Medicine.query.order_by(Medicine.name).all()
-            return render_template('daily.html', cycle=cycle, meds=meds, 
+            return render_template('daily.html', cycle=cycle, meds=meds,
                                    error_data={
                                        'entry_date': entry_date,
                                        'mortality': mortality,
@@ -549,7 +553,7 @@ def daily():
             shortage = abs(bags_after_consumption)
             flash('⚠️ Insufficient feed bags! You need {round(shortage)} more bags. Current available: {round(cycle.start_feed_bags)}, trying to consume: {round(feed_bags_consumed)}. Please add new bags first. / ⚠️ अपर्याप्त फ़ीड बैग! आपको {round(shortage)} और बैग चाहिए। वर्तमान उपलब्ध: {round(cycle.start_feed_bags)}, उपयोग करने की कोशिश: {round(feed_bags_consumed)}। कृपया पहले नए बैग जोड़ें। / ⚠️ తగినంత ఫీడ్ బ్యాగులు లేవు! మీకు {round(shortage)} మరిన్ని బ్యాగులు కావాలి। అందుబాటులో: {round(cycle.start_feed_bags)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}. దయచేసి మరిన్ని బ్యాగులు జోడించండి।', 'error')
             meds = Medicine.query.order_by(Medicine.name).all()
-            return render_template('daily.html', cycle=cycle, meds=meds, 
+            return render_template('daily.html', cycle=cycle, meds=meds,
                                    error_data={
                                        'entry_date': entry_date,
                                        'mortality': mortality,
@@ -561,7 +565,7 @@ def daily():
         elif bags_after_consumption < 0:
             flash('⚠️ Error: Must maintain at least 1 feed bag in inventory! Current available: {round(cycle.start_feed_bags)}, trying to consume: {round(feed_bags_consumed)}, bags added: {round(feed_bags_added)}. This would leave only {round(bags_after_consumption)} bags. / ⚠️ त्रुटि: इन्वेंटरी में कम से कम 1 फ़ीड बैग बनाए रखना चाहिए! / ⚠️ లోపం: ఇన్వెంటరీలో కనీసం 1 ఫీడ్ బ్యాగ్ ఉంచాలి! ప్రస్తుతం అందుబాటులో: {round(cycle.start_feed_bags)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}, జోడించిన బ్యాగులు: {round(feed_bags_added)}. దీని వలన కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలిపోతాయి।', 'error')
             meds = Medicine.query.order_by(Medicine.name).all()
-            return render_template('daily.html', cycle=cycle, meds=meds, 
+            return render_template('daily.html', cycle=cycle, meds=meds,
                                    error_data={
                                        'entry_date': entry_date,
                                        'mortality': mortality,
@@ -570,23 +574,23 @@ def daily():
                                        'avg_weight_grams': avg_weight_grams,
                                        'medicines': medicines
                                    })
-        
+
         # Warn if bags are getting low (less than 3 days worth)
         if bags_after_consumption <= 3:
             flash(f'🟡 Warning: Feed bags are running low! Only {round(bags_after_consumption)} bags remaining. Consider adding new bags soon. / 🟡 चेतावनी: फ़ीड बैग कम हो रहे हैं! केवल {round(bags_after_consumption)} बैग बचे हैं। जल्द ही नए बैग जोड़ने पर विचार करें। / 🟡 హెచ్చరిక: ఫీడ్ బ్యాగులు తక్కువగా అవుతున్నాయి! కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలి ఉన్నాయి। త్వరలో కొత్త బ్యాగులు జోడించడాన్ని పరిగణించండి।', 'warning')
-        
+
         # Auto-calculate average feed per bird based on cumulative consumption and current live birds
         live_after = cycle.current_birds - mortality
         if live_after > 0:
             # Get all previous entries for cumulative calculation
             previous_rows = Daily.query.filter_by(cycle_id=cycle.id).filter(Daily.entry_date < entry_date).all()
             cumulative_feed_consumed = sum(r.feed_bags_consumed for r in previous_rows) + feed_bags_consumed
-            
+
             # Calculate days elapsed from cycle start to current entry
             cycle_start_date = datetime.fromisoformat(cycle.start_date).date()
             current_entry_date = datetime.fromisoformat(entry_date).date()
             days_elapsed = (current_entry_date - cycle_start_date).days + 1  # +1 to include current day
-            
+
             # Calculate average feed per bird in grams
             total_feed_kg = cumulative_feed_consumed * 50  # Convert bags to kg
             total_feed_grams = total_feed_kg * 1000  # Convert kg to grams
@@ -596,7 +600,7 @@ def daily():
         try:
             feed_kg = feed_bags_consumed * 50
             live_after = cycle.current_birds - mortality
-            fcr = round((feed_kg / (avg_weight * live_after)),3) if (avg_weight>0 and live_after>0) else 0
+            fcr = round((total_feed_kg / (avg_weight * live_after)),3) if (avg_weight>0 and live_after>0) else 0
         except Exception:
             fcr = 0
         row = Daily(cycle_id=cycle.id, entry_date=entry_date, mortality=mortality, feed_bags_consumed=feed_bags_consumed, feed_bags_added=feed_bags_added, avg_weight=avg_weight, avg_feed_per_bird_g=avg_feed_per_bird_g, fcr=fcr, medicines=medicines)
