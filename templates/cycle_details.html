@@ -110,8 +110,10 @@
   </div>
 </div>
 
-<!-- Daily Entries Table -->
-<div class="card">
+
+
+<!-- Daily Entries Table (Desktop) -->
+<div class="card d-none d-md-block">
   <div class="card-header">
     <h5 data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
   </div>
@@ -171,7 +173,50 @@
   </div>
 </div>
 
+<!-- Daily Entries Card View (Mobile) -->
+<div class="d-block d-md-none">
+  {% if daily_entries %}
+    {% for entry in daily_entries %}
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>{{ entry.entry_date }}</strong>
+            <span class="badge {% if entry.mortality > 0 %}bg-danger{% else %}bg-success{% endif %}">
+              {{ entry.mortality }}
+            </span>
+          </div>
+          <div>
+            <span data-i18n="table_feed_consumed">Feed Consumed:</span> {{ entry.feed_bags_consumed }}<br>
+            <span data-i18n="table_feed_added">Feed Added:</span> 
+            {% if entry.feed_bags_added > 0 %}
+              <span class="text-success">+{{ entry.feed_bags_added }}</span>
+            {% else %}
+              {{ entry.feed_bags_added }}
+            {% endif %}<br>
+            <span data-i18n="table_avg_weight">Avg Weight:</span> {{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }} kg<br>
+            <span data-i18n="table_fcr">FCR:</span>
+            {% if entry.fcr > 0 %}
+              <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
+                {{ "%.3f"|format(entry.fcr) }}
+              </span>
+            {% else %}
+              N/A
+            {% endif %}<br>
+            <span data-i18n="table_medicines">Medicines:</span> {{ entry.medicines or '-' }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+   {% else %}
+    <div class="card mb-3">
+      <div class="card-body text-center text-muted" data-i18n="no_daily_entries">
+        No daily entries found for this cycle.
+      </div>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
+
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
