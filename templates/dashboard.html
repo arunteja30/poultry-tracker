@@ -11,7 +11,7 @@
       <div class="card-body">
         <div class="mb-2">🐔</div>
         <h3 class="text-primary mb-1">
-          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-primary fw-bold" 
+          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-primary fw-bold"
                  value="{{ summary.current_birds }}" id="liveBirds" style="box-shadow: none;">
         </h3>
         <h6 class="card-title" data-i18n="live_birds">Live Birds</h6>
@@ -19,7 +19,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Days Running Tile -->
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
@@ -31,7 +31,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- FCR Today Tile -->
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
@@ -41,18 +41,17 @@
           {{ summary.avg_fcr }}
         </h3>
         <h6 class="card-title" data-i18n="fcr_today">FCR Today</h6>
-        <small class="text-muted">Avg: {{ summary.avg_fcr }}</small>
       </div>
     </div>
   </div>
-  
+
   <!-- Total Mortality Tile -->
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">💀</div>
         <h3 class="text-danger mb-1">
-          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-danger fw-bold" 
+          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-danger fw-bold"
                  value="{{ summary.mortality_total }}" id="mortalityTotal" style="box-shadow: none;">
         </h3>
         <h6 class="card-title" data-i18n="mortality_total">Total Mortality</h6>
@@ -67,13 +66,13 @@
   <div class="col-12">
     <h4 data-i18n="feed_management">🌾 Feed Management</h4>
   </div>
-  
+
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">🛒</div>
         <h3 class="text-warning mb-1">
-          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-warning fw-bold" 
+          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-warning fw-bold"
                  value="{{ summary.bags_available }}" id="bagsAvailable" style="box-shadow: none;">
         </h3>
         <h6 class="card-title" data-i18n="bags_available">Bags Available</h6>
@@ -81,18 +80,18 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">📦</div>
         <h3 class="text-primary mb-1">{{ summary.feed_bags_consumed_total }}</h3>
         <h6 class="card-title" data-i18n="bags_consumed_total">Bags Consumed</h6>
-        <small class="text-muted">{{ metrics.feed_efficiency }} per bird</small>
+        <small class="text-muted">{{ metrics.feed_efficiency }} kg per bird</small>
       </div>
     </div>
   </div>
-  
+
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
       <div class="card-body">
@@ -103,13 +102,13 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-12 col-sm-6 col-lg-3">
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">⚖️</div>
         <h3 class="text-info mb-1">
-          <input type="number" step="0.01" class="form-control form-control-lg text-center border-0 bg-transparent text-info fw-bold" 
+          <input type="number" step="0.01" class="form-control form-control-lg text-center border-0 bg-transparent text-info fw-bold"
                  value="{{ summary.avg_weight }}" id="avgWeight" style="box-shadow: none;">
           <span class="text-info">kg</span>
         </h3>
@@ -125,7 +124,7 @@
   <div class="col-12">
     <h4 data-i18n="today_summary">📋 Today's Summary</h4>
   </div>
-  
+
   <div class="col-12 col-md-4">
     <div class="card text-center">
       <div class="card-body">
@@ -135,7 +134,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-12 col-md-4">
     <div class="card text-center">
       <div class="card-body">
@@ -145,7 +144,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-12 col-md-4">
     <div class="card text-center">
       <div class="card-body">
@@ -169,7 +168,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-12 col-lg-4">
     <div class="card h-100">
       <div class="card-header">
@@ -212,7 +211,7 @@
             <div class="mb-3">
               <label class="form-label"><strong data-i18n="survival_rate">Survival Rate</strong></label>
               <div class="progress" style="height: 25px;">
-                <div class="progress-bar bg-{{ 'success' if metrics.survival_rate > 95 else 'warning' if metrics.survival_rate > 90 else 'danger' }}" 
+                <div class="progress-bar bg-{{ 'success' if metrics.survival_rate > 95 else 'warning' if metrics.survival_rate > 90 else 'danger' }}"
                      style="width: {{ metrics.survival_rate }}%">{{ metrics.survival_rate }}%</div>
               </div>
             </div>
@@ -251,76 +250,76 @@
 
 {% block scripts %}
 <script>
-{% if cycle %}
-const fcrSeries = {{ fcr_series|tojson }};
-const dates = {{ dates|tojson }};
-const ctx = document.getElementById('fcrChart').getContext('2d');
-new Chart(ctx,{
-  type:'line',
-  data:{
-    labels: dates,
-    datasets:[{
-      label:'FCR', 
-      data:fcrSeries, 
-      tension:0.2, 
-      borderWidth:2,
-      borderColor: '#1877f2',
-      backgroundColor: 'rgba(24, 119, 242, 0.1)',
-      fill: true
-    }]
-  },
-  options:{
-    responsive: true,
-    scales:{
-      y:{
-        beginAtZero:true,
-        title: {
-          display: true,
-          text: 'FCR Value'
+  {% if cycle %}
+  const fcrSeries = {{ fcr_series|tojson }};
+  const dates = {{ dates|tojson }};
+  const ctx = document.getElementById('fcrChart').getContext('2d');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: dates,
+      datasets:[{
+        label:'FCR',
+        data:fcrSeries,
+        tension:0.2,
+        borderWidth:2,
+        borderColor: '#1877f2',
+        backgroundColor: 'rgba(24, 119, 242, 0.1)',
+        fill: true
+      }]
+    },
+    options:{
+      responsive: true,
+      scales:{
+        y:{
+          beginAtZero:true,
+          title: {
+            display: true,
+            text: 'FCR Value'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Date'
+          }
         }
       },
-      x: {
+      plugins: {
         title: {
           display: true,
-          text: 'Date'
+          text: 'Feed Conversion Ratio Trend'
         }
       }
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Feed Conversion Ratio Trend'
-      }
     }
+  });
+
+  // Add change event listeners for editable fields
+  document.getElementById('liveBirds').addEventListener('change', function(e) {
+    updateField('live_birds', e.target.value);
+  });
+
+  document.getElementById('fcrToday').addEventListener('change', function(e) {
+    updateField('fcr_today', e.target.value);
+  });
+
+  document.getElementById('mortalityTotal').addEventListener('change', function(e) {
+    updateField('mortality_total', e.target.value);
+  });
+
+  document.getElementById('bagsAvailable').addEventListener('change', function(e) {
+    updateField('bags_available', e.target.value);
+  });
+
+  document.getElementById('avgWeight').addEventListener('change', function(e) {
+    updateField('avg_weight', e.target.value);
+  });
+
+  function updateField(field, value) {
+    // This function would send an AJAX request to update the backend
+    console.log(`Updating ${field} to ${value}`);
+    // You can implement actual AJAX call here
   }
-});
-
-// Add change event listeners for editable fields
-document.getElementById('liveBirds').addEventListener('change', function(e) {
-  updateField('live_birds', e.target.value);
-});
-
-document.getElementById('fcrToday').addEventListener('change', function(e) {
-  updateField('fcr_today', e.target.value);
-});
-
-document.getElementById('mortalityTotal').addEventListener('change', function(e) {
-  updateField('mortality_total', e.target.value);
-});
-
-document.getElementById('bagsAvailable').addEventListener('change', function(e) {
-  updateField('bags_available', e.target.value);
-});
-
-document.getElementById('avgWeight').addEventListener('change', function(e) {
-  updateField('avg_weight', e.target.value);
-});
-
-function updateField(field, value) {
-  // This function would send an AJAX request to update the backend
-  console.log(`Updating ${field} to ${value}`);
-  // You can implement actual AJAX call here
-}
-{% endif %}
+  {% endif %}
 </script>
 {% endblock %}
