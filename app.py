@@ -14,10 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-@app.before_first_request
-def reset_database():
-    db.drop_all()      # Drops all table
+   
 
 # ---------------- Models ----------------
 class User(db.Model):
@@ -75,6 +72,7 @@ class Medicine(db.Model):
 # ---------------- Safe DB creation ----------------
 def init_database():
     """Initialize database tables and default users"""
+     db.drop_all()      # Drops all table
     try:
         # Always ensure tables exist
         db.create_all()
