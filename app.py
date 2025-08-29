@@ -15,13 +15,18 @@ app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in p
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+@app.before_first_request
+def reset_database():
+    db.drop_all()      # Drops all table
+
 # ---------------- Models ----------------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), default='user')  # 'user' or 'admin'
-
+    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
 
