@@ -23,8 +23,6 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), default='user')  # 'user' or 'admin'
-    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
-    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
 
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
@@ -79,19 +77,19 @@ def init_database():
     try:
 
         # Always ensure tables exist
-        db.drop_all()
+#         db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
         # Check if default users exist, create them if they don't
         if not User.query.filter_by(username='admin').first():
-            admin_user = User(username='admin', role='admin', ext1="", ext2="")
+            admin_user = User(username='admin', role='admin')
             admin_user.set_password('admin123')
             db.session.add(admin_user)
             print("Created admin user: admin/admin123")
 
         if not User.query.filter_by(username='user').first():
-            regular_user = User(username='user', role='user', ext1="", ext2="")
+            regular_user = User(username='user', role='user')
             regular_user.set_password('user123')
             db.session.add(regular_user)
             print("Created regular user: user/user123")
@@ -1092,7 +1090,7 @@ def users():
                     return redirect(url_for('users'))
 
                 try:
-                    new_user = User(username=username, role=role, ext1='', ext2='')
+                    new_user = User(username=username, role=role)
                     new_user.set_password(password)
                     db.session.add(new_user)
                     db.session.commit()
