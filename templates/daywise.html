@@ -20,6 +20,7 @@
         <th data-i18n="table_day">Day</th>
         <th data-i18n="table_date">Date</th>
         <th data-i18n="table_mortality">Mortality</th>
+        <th data-i18n="birds_survived">Birds Survived</th> <!-- Added column -->
         <th data-i18n="table_feed_consumed">Feed Consumed</th>
         <th data-i18n="table_feed_added">Feed Added</th>
         <th data-i18n="table_avg_weight">Avg Weight</th>
@@ -37,6 +38,7 @@
         <td>Day {{ loop.revindex }}</td>
         <td>{{ r.entry_date }}</td>
         <td>{{ r.mortality }}</td>
+        <td>{{ r.birds_survived }}</td> <!-- Added value -->
         <td>{{ r.feed_bags_consumed }}</td>
         <td>{{ r.feed_bags_added }}</td>
         <td>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
@@ -56,7 +58,7 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="{% if session.role == 'admin' %}10{% else %}9{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
+        <td colspan="{% if session.role == 'admin' %}11{% else %}10{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
       </tr>
       {% endfor %}
       </tbody>

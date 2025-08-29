@@ -6,12 +6,14 @@ from datetime import datetime, date
 from io import BytesIO
 from functools import wraps
 import hashlib
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poultry.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # ---------------- Models ----------------
 class User(db.Model):
@@ -19,10 +21,10 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), default='user')  # 'user' or 'admin'
-    
+
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
-    
+
     def check_password(self, password):
         return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
 
@@ -41,10 +43,11 @@ class Cycle(db.Model):
 class Daily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cycle_id = db.Column(db.Integer)
+    birds_survived = db.Column(db.Integer, default=0)  # New column
     entry_date = db.Column(db.String(20))
     mortality = db.Column(db.Integer, default=0)
-    feed_bags_consumed = db.Column(db.Float, default=0.0)
-    feed_bags_added = db.Column(db.Float, default=0.0)
+    feed_bags_consumed = db.Column(db.Float, default=0)
+    feed_bags_added = db.Column(db.Integer, default=0)
     avg_weight = db.Column(db.Float, default=0.0)      # kg
     avg_feed_per_bird_g = db.Column(db.Float, default=0.0)
     fcr = db.Column(db.Float, default=0.0)
@@ -63,20 +66,20 @@ def init_database():
         # Always ensure tables exist
         db.create_all()
         print("Database tables created successfully")
-        
+
         # Check if default users exist, create them if they don't
         if not User.query.filter_by(username='admin').first():
             admin_user = User(username='admin', role='admin')
             admin_user.set_password('admin123')
             db.session.add(admin_user)
             print("Created admin user: admin/admin123")
-            
+
         if not User.query.filter_by(username='user').first():
             regular_user = User(username='user', role='user')
             regular_user.set_password('user123')
             db.session.add(regular_user)
             print("Created regular user: user/user123")
-            
+
         db.session.commit()
         print("Default users created successfully")
     except Exception as e:
@@ -120,12 +123,12 @@ def get_active_cycle():
 def calc_cumulative_stats(cycle_id):
     rows = Daily.query.filter_by(cycle_id=cycle_id).all()
     cycle = Cycle.query.get(cycle_id)
-    
+
     total_feed = sum(r.feed_bags_consumed for r in rows)
     avg_fcr = round(sum(r.fcr for r in rows if r.fcr>0)/max(1,len([r for r in rows if r.fcr>0])),3) if rows else 0
     avg_weight = round(sum(r.avg_weight for r in rows if r.avg_weight>0)/max(1,len([r for r in rows if r.avg_weight>0])),3) if rows else 0
     total_mort = sum(r.mortality for r in rows)
-    
+
     # Calculate cumulative FCR = total feed consumed (kg) / total weight gained (kg)
     cumulative_fcr = 0
     if cycle and cycle.current_birds > 0 and avg_weight > 0:
@@ -135,12 +138,12 @@ def calc_cumulative_stats(cycle_id):
         total_weight_gained_kg = cycle.current_birds * (avg_weight - starting_weight_kg)
         if total_weight_gained_kg > 0:
             cumulative_fcr = round(total_feed_kg / total_weight_gained_kg, 3)
-    
+
     return {
-        "total_feed_bags": total_feed, 
-        "avg_fcr": avg_fcr, 
+        "total_feed_bags": total_feed,
+        "avg_fcr": avg_fcr,
         "cumulative_fcr": cumulative_fcr,
-        "avg_weight": avg_weight, 
+        "avg_weight": avg_weight,
         "total_mortality": total_mort
     }
 
@@ -148,45 +151,45 @@ def calc_todays_fcr(cycle_id):
     """Calculate today's FCR by comparing today's values with yesterday's values"""
     today = date.today().isoformat()
     yesterday = (date.today() - pd.Timedelta(days=1)).isoformat()
-    
+
     today_row = Daily.query.filter_by(cycle_id=cycle_id, entry_date=today).first()
     yesterday_row = Daily.query.filter_by(cycle_id=cycle_id, entry_date=yesterday).first()
-    
+
     if not today_row:
         return None
-        
+
     cycle = Cycle.query.get(cycle_id)
     if not cycle:
         return None
-    
+
     # Calculate today's feed consumption and weight gain
     todays_feed_kg = today_row.feed_bags_consumed * 50  # Convert bags to kg
-    
+
     if yesterday_row and yesterday_row.avg_weight > 0 and today_row.avg_weight > 0:
         # Calculate weight gain from yesterday to today
         weight_gain_per_bird = today_row.avg_weight - yesterday_row.avg_weight
         total_weight_gain_kg = cycle.current_birds * weight_gain_per_bird
-        
+
         if total_weight_gain_kg > 0:
             todays_fcr = round(todays_feed_kg / total_weight_gain_kg, 3)
             return todays_fcr
-    
+
     # Fallback: if no yesterday data, use traditional FCR calculation for today
     if today_row.avg_weight > 0 and cycle.current_birds > 0:
         # Estimate weight gain assuming 45g starting weight and linear growth
         cycle_start_date = datetime.fromisoformat(cycle.start_date).date() if cycle.start_date else date.today()
         days_running = (date.today() - cycle_start_date).days + 1
-        
+
         if days_running > 1:
             # Estimate daily weight gain
             starting_weight_kg = 0.045
             total_weight_gain = today_row.avg_weight - starting_weight_kg
             daily_weight_gain = total_weight_gain / days_running
             estimated_todays_gain = cycle.current_birds * daily_weight_gain
-            
+
             if estimated_todays_gain > 0:
                 return round(todays_feed_kg / estimated_todays_gain, 3)
-    
+
     return None
 
 # ---------- Routes ----------
@@ -195,9 +198,9 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
+
         user = User.query.filter_by(username=username).first()
-        
+
         if user and user.check_password(password):
             session['user_id'] = user.id
             session['username'] = user.username
@@ -206,7 +209,7 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'error')
-    
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -223,22 +226,22 @@ def dashboard():
     fcr_series = []
     dates = []
     dashboard_metrics = {}
-    
+
     if cycle:
         today = date.today().isoformat()
         today_row = Daily.query.filter_by(cycle_id=cycle.id, entry_date=today).first()
         rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
-        
+
         # Basic calculations
         total_consumed = sum(r.feed_bags_consumed for r in rows)
         total_mort = sum(r.mortality for r in rows)
         total_feed_added = sum(r.feed_bags_added for r in rows)
-        
+
         # Chart data
         for r in rows:
             dates.append(r.entry_date)
             fcr_series.append(round(r.fcr,3) if r.fcr else None)
-            
+
         # Advanced metrics
         stats = calc_cumulative_stats(cycle.id)
         survival_rate = round(((cycle.current_birds / cycle.start_birds) * 100), 2) if cycle.start_birds > 0 else 0
@@ -454,7 +457,8 @@ def import_daily_data(df, cycle):
                     avg_weight=float(row.get('avg_weight', 0)),
                     avg_feed_per_bird_g=auto_avg_feed_per_bird_g,
                     fcr=float(row.get('fcr', 0)),
-                    medicines=str(row.get('medicines', ''))
+                    medicines=str(row.get('medicines', '')),
+                    birds_survived=live_after
                 )
                 db.session.add(daily_entry)
                 imported_count += 1
@@ -607,8 +611,19 @@ def daily():
             fcr = round((total_feed_kg / (avg_weight * live_after)),3) if (avg_weight>0 and live_after>0) else 0
         except Exception:
             fcr = 0
-        row = Daily(cycle_id=cycle.id, entry_date=entry_date, mortality=mortality, feed_bags_consumed=feed_bags_consumed, feed_bags_added=feed_bags_added, avg_weight=avg_weight, avg_feed_per_bird_g=avg_feed_per_bird_g, fcr=fcr, medicines=medicines)
-        cycle.current_birds = cycle.current_birds - mortality
+        row = Daily(
+            cycle_id=cycle.id,
+            entry_date=entry_date,
+            mortality=mortality,
+            feed_bags_consumed=feed_bags_consumed,
+            feed_bags_added=feed_bags_added,
+            avg_weight=avg_weight,
+            avg_feed_per_bird_g=avg_feed_per_bird_g,
+            fcr=fcr,
+            medicines=medicines,
+            birds_survived=live_after
+        )
+        cycle.current_birds = live_after
         cycle.start_feed_bags = cycle.start_feed_bags + feed_bags_added - feed_bags_consumed
         db.session.add(row)
         db.session.commit()
@@ -638,18 +653,18 @@ def stats():
     cycle = get_active_cycle()
     if not cycle:
         return redirect(url_for('setup'))
-    
+
     # Get basic stats
     stats = calc_cumulative_stats(cycle.id)
-    
+
     # Get daily entries for trend analysis
     daily_entries = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
-    
+
     # Calculate additional statistics for enhanced dashboard
     total_feed_added = sum(entry.feed_bags_added for entry in daily_entries)
     # Use the cycle's current feed bags value which is updated with each daily entry
     current_feed_bags = max(0, round(cycle.start_feed_bags))  # Round to integer for display
-    
+
     # Calculate cycle duration and performance metrics
     if cycle.start_date:
         try:
@@ -659,27 +674,27 @@ def stats():
             days_running = 1
     else:
         days_running = 1
-    
+
     # Performance metrics
     survival_rate = round(((cycle.current_birds / cycle.start_birds) * 100), 2) if cycle.start_birds > 0 else 0
     mortality_rate = round(((stats["total_mortality"] / cycle.start_birds) * 100), 2) if cycle.start_birds > 0 else 0
     feed_efficiency = round((stats["total_feed_bags"] / cycle.current_birds), 2) if cycle.current_birds > 0 else 0
     avg_daily_mortality = round((stats["total_mortality"] / max(days_running, 1)), 2)
-    
+
     # Cost calculations (₹40 per kg, 50kg per bag = ₹2000 per bag)
     feed_cost_per_bag = 2000
     total_feed_cost = stats["total_feed_bags"] * feed_cost_per_bag
     feed_cost_per_bird = round((total_feed_cost / cycle.current_birds), 2) if cycle.current_birds > 0 else 0
-    
+
     # Medicine costs
     medicines = Medicine.query.all()
     total_medicine_cost = sum(med.price for med in medicines if med.price)
-    
+
     # Weight gain analysis
     starting_weight_kg = 0.045  # 45g day-old chicks
     weight_gain_per_bird = stats["avg_weight"] - starting_weight_kg if stats["avg_weight"] > 0 else 0
     total_weight_gain = weight_gain_per_bird * cycle.current_birds
-    
+
     # Prepare data for charts
     chart_data = {
         'survival_vs_mortality': {
@@ -700,7 +715,7 @@ def stats():
             'weight_gain_score': min(100, max(0, (weight_gain_per_bird / 0.002) * 100))  # 2kg target weight gain
         }
     }
-    
+
     # Enhanced stats object
     enhanced_stats = {
         **stats,
@@ -719,7 +734,7 @@ def stats():
         'target_days': 42,  # Standard broiler cycle
         'days_remaining': max(0, 42 - days_running)
     }
-    
+
     return render_template('stats.html', cycle=cycle, stats=enhanced_stats, chart_data=chart_data)
 
 @app.route('/medicines', methods=['GET','POST'])
@@ -744,7 +759,7 @@ def export():
     cycle = get_active_cycle()
     if not cycle:
         return redirect(url_for('setup'))
-    
+
     # Get daily data
     daily_rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
     daily_data = [{
@@ -757,7 +772,7 @@ def export():
         'fcr': r.fcr,
         'medicines': r.medicines
     } for r in daily_rows]
-    
+
     # Get medicines data
     medicines = Medicine.query.order_by(Medicine.id.desc()).all()
     medicines_data = [{
@@ -766,7 +781,7 @@ def export():
         'quantity': med.qty if med.qty is not None else 0,
         'total_value': med.price * (med.qty if med.qty is not None else 1)
     } for med in medicines]
-    
+
     # Add medicines total
     total_medicine_cost = sum(med.price for med in medicines if med.price)
     total_medicine_value = sum(med.price * (med.qty if med.qty is not None else 1) for med in medicines if med.price)
@@ -776,7 +791,7 @@ def export():
         'quantity': '',
         'total_value': total_medicine_value
     })
-    
+
     # Get cycle summary data
     cycle_summary = [{
         'metric': 'Cycle ID',
@@ -797,13 +812,13 @@ def export():
         'metric': 'Notes',
         'value': cycle.notes or ''
     }]
-    
+
     # Calculate current stats
     current_birds = cycle.start_birds - sum(r.mortality for r in daily_rows)
     total_feed_consumed = sum(r.feed_bags_consumed for r in daily_rows)
     total_feed_added = sum(r.feed_bags_added for r in daily_rows)
     current_feed_bags = cycle.start_feed_bags + total_feed_added - total_feed_consumed
-    
+
     cycle_summary.extend([{
         'metric': 'Current Live Birds',
         'value': current_birds
@@ -823,22 +838,22 @@ def export():
         'metric': 'Total Medicine Cost (₹)',
         'value': total_medicine_cost
     }])
-    
+
     # Create DataFrames
     daily_df = pd.DataFrame(daily_data)
     medicines_df = pd.DataFrame(medicines_data)
     summary_df = pd.DataFrame(cycle_summary)
-    
+
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         # Write each sheet
         summary_df.to_excel(writer, index=False, sheet_name='Cycle Summary')
         daily_df.to_excel(writer, index=False, sheet_name='Daily Data')
         medicines_df.to_excel(writer, index=False, sheet_name='Medicines')
-        
+
         # Get workbook and worksheets for formatting
         workbook = writer.book
-        
+
         # Format medicines sheet - highlight total row
         medicines_sheet = writer.sheets['Medicines']
         total_format = workbook.add_format({
@@ -846,15 +861,15 @@ def export():
             'bg_color': '#D3D3D3',
             'border': 1
         })
-        
+
         # Apply formatting to the last row (total row) in medicines
         if len(medicines_data) > 0:
             last_row = len(medicines_data)
             medicines_sheet.set_row(last_row, None, total_format)
-    
+
     output.seek(0)
-    
-    return send_file(output, 
+
+    return send_file(output,
                      download_name=f"complete_farm_data_{cycle.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
                      as_attachment=True,
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -865,7 +880,7 @@ def export_cycle(cycle_id):
     """Export data for a specific cycle"""
     cycle = Cycle.query.get_or_404(cycle_id)
     rows = Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date).all()
-    
+
     data = [{
         'date': r.entry_date,
         'mortality': r.mortality,
@@ -876,12 +891,12 @@ def export_cycle(cycle_id):
         'fcr': r.fcr,
         'medicines': r.medicines
     } for r in rows]
-    
+
     df = pd.DataFrame(data)
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Daily Data')
-        
+
         # Add cycle summary sheet
         cycle_summary = pd.DataFrame([{
             'Cycle ID': cycle.id,
@@ -895,7 +910,7 @@ def export_cycle(cycle_id):
             'Notes': cycle.notes or ''
         }])
         cycle_summary.to_excel(writer, index=False, sheet_name='Cycle Summary')
-    
+
     output.seek(0)
     return send_file(output,
                      download_name=f"cycle_{cycle_id}_export.xlsx",
@@ -923,40 +938,40 @@ def recalculate_feed_averages():
     if not cycle:
         flash('No active cycle found', 'error')
         return redirect(url_for('setup'))
-    
+
     try:
         # Get all entries ordered by date
         rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
-        
+
         for i, row in enumerate(rows):
             # Calculate cumulative feed consumption up to this entry
             previous_rows = rows[:i]  # All entries before current
             cumulative_feed_consumed = sum(r.feed_bags_consumed for r in previous_rows) + row.feed_bags_consumed
-            
+
             # Calculate live birds (we need to work backwards from current to this point)
             birds_at_this_point = cycle.start_birds
             for prev_row in previous_rows:
                 birds_at_this_point -= prev_row.mortality
             birds_at_this_point -= row.mortality  # After current entry's mortality
-            
+
             if birds_at_this_point > 0:
                 # Calculate days elapsed
                 cycle_start_date = datetime.fromisoformat(cycle.start_date).date()
                 entry_date = datetime.fromisoformat(row.entry_date).date()
                 days_elapsed = (entry_date - cycle_start_date).days + 1
-                
+
                 # Calculate avg feed per bird in grams
                 total_feed_grams = cumulative_feed_consumed * 50 * 1000  # bags to grams
                 row.avg_feed_per_bird_g = round((total_feed_grams / birds_at_this_point / days_elapsed), 1) if days_elapsed > 0 else 0
             else:
                 row.avg_feed_per_bird_g = 0
-        
+
         db.session.commit()
         flash('Average feed per bird values recalculated successfully!', 'success')
-        
+
     except Exception as e:
         flash(f'Error recalculating feed averages: {str(e)}', 'error')
-    
+
     return redirect(url_for('daywise'))
 
 @app.route('/delete_daily/<int:entry_id>', methods=['POST'])
@@ -966,21 +981,21 @@ def delete_daily(entry_id):
     try:
         entry = Daily.query.get_or_404(entry_id)
         cycle = get_active_cycle()
-        
+
         if cycle and entry.cycle_id == cycle.id:
             # Restore bird count and feed bags before deleting
             cycle.current_birds += entry.mortality
             cycle.start_feed_bags += entry.feed_bags_consumed - entry.feed_bags_added
-            
+
             db.session.delete(entry)
             db.session.commit()
             flash('Daily entry deleted successfully!', 'success')
         else:
             flash('Entry not found or not part of current cycle', 'error')
-            
+
     except Exception as e:
         flash(f'Error deleting entry: {str(e)}', 'error')
-    
+
     return redirect(url_for('daywise'))
 
 @app.route('/delete_medicine/<int:medicine_id>', methods=['POST'])
@@ -994,7 +1009,7 @@ def delete_medicine(medicine_id):
         flash('Medicine deleted successfully!', 'success')
     except Exception as e:
         flash(f'Error deleting medicine: {str(e)}', 'error')
-    
+
     return redirect(url_for('medicines'))
 
 @app.route('/users', methods=['GET', 'POST'])
@@ -1004,22 +1019,22 @@ def users():
     try:
         if request.method == 'POST':
             action = request.form.get('action')
-            
+
             if action == 'create':
                 username = request.form.get('username')
                 password = request.form.get('password')
                 role = request.form.get('role', 'user')
-                
+
                 if not username or not password:
                     flash('Username and password are required / उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं', 'error')
                     return redirect(url_for('users'))
-                
+
                 # Check if username already exists
                 existing_user = User.query.filter_by(username=username).first()
                 if existing_user:
                     flash('Username already exists / उपयोगकर्ता नाम पहले से मौजूद है', 'error')
                     return redirect(url_for('users'))
-                
+
                 try:
                     new_user = User(username=username, role=role)
                     new_user.set_password(password)
@@ -1029,16 +1044,16 @@ def users():
                 except Exception as e:
                     db.session.rollback()
                     flash(f'Error creating user: {str(e)} / उपयोगकर्ता बनाने में त्रुटि: {str(e)}', 'error')
-            
+
             elif action == 'update':
                 user_id = request.form.get('user_id')
                 new_username = request.form.get('new_username')
                 new_password = request.form.get('new_password')
                 new_role = request.form.get('new_role')
-                
+
                 try:
                     user = User.query.get_or_404(user_id)
-                    
+
                     # Check if new username already exists (excluding current user)
                     if new_username and new_username != user.username:
                         existing_user = User.query.filter_by(username=new_username).first()
@@ -1046,31 +1061,31 @@ def users():
                             flash('Username already exists / उपयोगकर्ता नाम पहले से मौजूद है', 'error')
                             return redirect(url_for('users'))
                         user.username = new_username
-                    
+
                     if new_password:
                         user.set_password(new_password)
-                    
+
                     if new_role:
                         user.role = new_role
-                    
+
                     db.session.commit()
-                    
+
                     # Update session if user changed their own info
                     if user.id == session.get('user_id'):
                         session['username'] = user.username
                         session['role'] = user.role
-                    
+
                     flash(f'User {user.username} updated successfully! / उपयोगकर्ता {user.username} सफलतापूर्वक अपडेट किया गया!', 'success')
                 except Exception as e:
                     db.session.rollback()
                     flash(f'Error updating user: {str(e)} / उपयोगकर्ता अपडेट करने में त्रुटि: {str(e)}', 'error')
-            
+
             return redirect(url_for('users'))
-        
+
         # GET request - fetch all users
         all_users = User.query.order_by(User.username).all()
         return render_template('users.html', users=all_users)
-        
+
     except Exception as e:
         # Log the full error for debugging
         print(f"Error in users route: {str(e)}")
@@ -1085,26 +1100,26 @@ def delete_user(user_id):
     """Delete a user (admin only)"""
     try:
         user = User.query.get_or_404(user_id)
-        
+
         # Prevent admin from deleting themselves
         if user.id == session.get('user_id'):
             flash('You cannot delete your own account / आप अपना खाता नहीं हटा सकते', 'error')
             return redirect(url_for('users'))
-        
+
         # Prevent deletion of the last admin
         admin_count = User.query.filter_by(role='admin').count()
         if user.role == 'admin' and admin_count <= 1:
             flash('Cannot delete the last admin user / अंतिम व्यवस्थापक उपयोगकर्ता को नहीं हटा सकते', 'error')
             return redirect(url_for('users'))
-        
+
         username = user.username
         db.session.delete(user)
         db.session.commit()
         flash(f'User {username} deleted successfully! / उपयोगकर्ता {username} सफलतापूर्वक हटाया गया!', 'success')
-        
+
     except Exception as e:
         flash(f'Error deleting user: {str(e)} / उपयोगकर्ता हटाने में त्रुटि: {str(e)}', 'error')
-    
+
     return redirect(url_for('users'))
 
 @app.route('/cycle_history')
@@ -1113,7 +1128,7 @@ def cycle_history():
     """View all cycles (active and archived) for comparison"""
     # Get all cycles ordered by most recent first
     cycles = Cycle.query.order_by(Cycle.id.desc()).all()
-    
+
     cycle_data = []
     for cycle in cycles:
         # Calculate cycle duration
@@ -1123,7 +1138,7 @@ def cycle_history():
                 start_date_obj = datetime.strptime(cycle.start_date, '%Y-%m-%d').date()
             else:
                 start_date_obj = cycle.start_date
-        
+
         if cycle.end_date:
             if isinstance(cycle.end_date, str):
                 end_date_obj = datetime.strptime(cycle.end_date, '%Y-%m-%d').date()
@@ -1131,30 +1146,30 @@ def cycle_history():
                 end_date_obj = cycle.end_date
         else:
             end_date_obj = date.today()
-            
+
         duration_days = (end_date_obj - start_date_obj).days + 1 if start_date_obj else 0
-        
+
         # Get daily entries for this cycle
         daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
-        
+
         # Calculate cycle statistics
         total_mortality = sum(entry.mortality for entry in daily_entries)
         total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
         total_feed_added = sum(entry.feed_bags_added for entry in daily_entries)
         final_birds = cycle.current_birds
         survival_rate = round((final_birds / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
-        
+
         # Calculate average FCR
         valid_fcr_entries = [entry.fcr for entry in daily_entries if entry.fcr and entry.fcr > 0]
         avg_fcr = round(sum(valid_fcr_entries) / len(valid_fcr_entries), 3) if valid_fcr_entries else 0
-        
+
         # Calculate final weight
         weight_entries = [entry.avg_weight for entry in daily_entries if entry.avg_weight > 0]
         final_weight = max(weight_entries) if weight_entries else 0
-        
+
         # Feed efficiency (total feed per bird)
         feed_per_bird = round(total_feed_consumed / final_birds, 2) if final_birds > 0 else 0
-        
+
         cycle_info = {
             'cycle': cycle,
             'duration_days': duration_days,
@@ -1169,7 +1184,7 @@ def cycle_history():
             'total_entries': len(daily_entries)
         }
         cycle_data.append(cycle_info)
-    
+
     return render_template('cycle_history.html', cycle_data=cycle_data)
 
 @app.route('/cycle_details/<int:cycle_id>')
@@ -1177,14 +1192,14 @@ def cycle_history():
 def cycle_details(cycle_id):
     """View detailed information for a specific cycle"""
     cycle = Cycle.query.get_or_404(cycle_id)
-    
+
     # Calculate duration
     if cycle.start_date:
         if isinstance(cycle.start_date, str):
             start_date = datetime.strptime(cycle.start_date, '%Y-%m-%d').date()
         else:
             start_date = cycle.start_date
-            
+
         if cycle.end_date:
             if isinstance(cycle.end_date, str):
                 end_date = datetime.strptime(cycle.end_date, '%Y-%m-%d').date()
@@ -1198,27 +1213,27 @@ def cycle_details(cycle_id):
     else:
         duration = None
         current_duration = 0
-    
+
     # Get all daily entries for this cycle
     daily_entries = Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date).all()
-    
+
     # Calculate detailed statistics
     stats = calc_cumulative_stats(cycle_id)
-    
+
     # Prepare chart data
     dates = []
     fcr_series = []
     weight_series = []
     mortality_series = []
-    
+
     for entry in daily_entries:
         dates.append(entry.entry_date)
         fcr_series.append(round(entry.fcr, 3) if entry.fcr else None)
         weight_series.append(entry.avg_weight if entry.avg_weight else None)
         mortality_series.append(entry.mortality)
-    
-    return render_template('cycle_details.html', 
-                         cycle=cycle, 
+
+    return render_template('cycle_details.html',
+                         cycle=cycle,
                          daily_entries=daily_entries,
                          stats=stats,
                          dates=dates,
@@ -1234,26 +1249,26 @@ def unarchive_cycle(cycle_id):
     """Unarchive a cycle and make it active (admin only)"""
     try:
         cycle = Cycle.query.get_or_404(cycle_id)
-        
+
         # Check if there's already an active cycle
         active_cycle = get_active_cycle()
         if active_cycle:
             flash('Cannot unarchive: There is already an active cycle. Please archive the current cycle first. / सक्रिय चक्र पहले से मौजूद है। पहले वर्तमान चक्र को संग्रहीत करें। / ఇప్పటికే యాక్టివ్ సైకిల్ ఉంది. మొదట ప్రస్తుత సైకిల్‌ను ఆర్కైవ్ చేయండి।', 'error')
             return redirect(url_for('cycle_history'))
-        
+
         # Unarchive the cycle
         cycle.status = 'active'
         cycle.end_date = None  # Clear end date since it's active again
         cycle.notes = f"Unarchived on {datetime.now().isoformat()} - {cycle.notes or ''}"
-        
+
         db.session.commit()
         flash(f'✅ Cycle #{cycle_id} has been unarchived and is now active! / ✅ चक्र #{cycle_id} को अनआर्काइव किया गया और अब सक्रिय है! / ✅ సైకిల్ #{cycle_id} అన్‌ఆర్కైవ్ చేయబడింది మరియు ఇప్పుడు యాక్టివ్!', 'success')
-        
+
     except Exception as e:
         flash(f'Error unarchiving cycle: {str(e)} / चक्र अनआर्काइव करने में त्रुटि: {str(e)} / సైకిల్ అన్‌ఆర్కైవ్ చేయడంలో లోపం: {str(e)}', 'error')
-    
+
     return redirect(url_for('cycle_history'))
-   
+
 @app.route('/delete_cycle/<int:cycle_id>', methods=['POST'])
 @admin_required
 def delete_cycle(cycle_id):

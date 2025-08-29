@@ -125,6 +125,7 @@
         <tr>
           <th data-i18n="table_day">Day</th>
           <th data-i18n="table_date">Date</th>
+          <th data-i18n="table_birds_survived">Birds Survived</th>
           <th data-i18n="table_mortality">Mortality</th>
           <th data-i18n="table_feed_consumed">Feed Consumed</th>
           <th data-i18n="table_feed_added">Feed Added</th>
@@ -139,6 +140,7 @@
         <tr>
           <td>{{ total_days - loop.index0 }}</td>
           <td>{{ entry.entry_date }}</td>
+          <td>{{ entry.birds_survived }}</td>
           <td>
             {% if entry.mortality > 0 %}
             <span class="text-danger">{{ entry.mortality }}</span>
@@ -189,6 +191,8 @@
         <span class="badge bg-secondary ms-2">Day {{ total_days - loop.index0 }}</span>
       </div>
       <div>
+        <span class="text-secondary" data-i18n="table_birds_survived">Birds Survived:</span>
+        <span class="fw-bold text-success">{{ entry.birds_survived }}</span><br>
         <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
         <span class="fw-bold text-danger">{{ entry.mortality }}</span><br>
         <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span>
