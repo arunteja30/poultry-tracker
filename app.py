@@ -23,8 +23,6 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), default='user')  # 'user' or 'admin'
-    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
-    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
 
@@ -78,6 +76,7 @@ def init_database():
     try:
 
         # Always ensure tables exist
+        db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
