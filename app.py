@@ -77,7 +77,7 @@ def init_database():
     try:
 
         # Always ensure tables exist
-        db.drop_all()
+#         db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
@@ -529,7 +529,7 @@ def import_medicines_data(df):
                     qty=quantity,
                     notes=notes,
                     med_ext1='',
-                    med_ext1=''
+                    med_ext2=''
                 )
                 db.session.add(medicine)
                 imported_count += 1
