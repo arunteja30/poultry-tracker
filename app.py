@@ -41,8 +41,8 @@ class Cycle(db.Model):
     notes = db.Column(db.String(500))
     status = db.Column(db.String(20), default='active')  # 'active' or 'archived'
     end_date = db.Column(db.String(50))  # Date when cycle was completed/archived
-    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
-    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
+    cycle_ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    cycle_ext2 = db.Column(db.String(120), default="")   # Added extension column 2
 
 class Daily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,16 +57,16 @@ class Daily(db.Model):
     fcr = db.Column(db.Float, default=0.0)
     medicines = db.Column(db.String(250), default="")
     daily_notes = db.Column(db.String(500), default="")  # Added daily_notes column
-    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
-    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
+    daily_ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    daily_ext2 = db.Column(db.String(120), default="")   # Added extension column 2
 
 class Medicine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     price = db.Column(db.Float, default=0.0)
     qty = db.Column(db.Integer, default=0)
-    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
-    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
+    med_ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    med_ext2 = db.Column(db.String(120), default="")   # Added extension column 2
 
 
 # ---------------- Safe DB creation ----------------
@@ -77,7 +77,7 @@ def init_database():
     try:
 
         # Always ensure tables exist
-#         db.drop_all()
+        db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
@@ -364,7 +364,7 @@ def setup():
         driver = request.form.get('driver','')
         notes = request.form.get('notes','')
 
-        c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active', ext1="", ext2="")
+        c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active', cycle_ext1='', cycle_ext2='')
         db.session.add(c)
         db.session.commit()
 
@@ -495,8 +495,8 @@ def import_daily_data(df, cycle):
                     medicines=str(row.get('medicines', '')),
                     birds_survived=live_after,
                     daily_notes=str(row.get('daily_notes', '')),
-                    ext1="",
-                    ext2=""
+                    daily_ext1='',
+                    daily_ext2=''
                 )
                 db.session.add(daily_entry)
                 imported_count += 1
@@ -528,8 +528,8 @@ def import_medicines_data(df):
                     price=price,
                     qty=quantity,
                     notes=notes,
-                    ext1="",
-                    ext2=""
+                    med_ext1='',
+                    med_ext1=''
                 )
                 db.session.add(medicine)
                 imported_count += 1
@@ -793,8 +793,8 @@ def medicines():
         name = request.form.get('name')
         price = float(request.form.get('price',0) or 0)
         qty = int(request.form.get('qty',0) or 0)
-        notes = str(request.form.get('ext1', '')).strip()
-        m = Medicine(name=name, price=price, qty=qty, ext1=notes)
+        notes = str(request.form.get('med_ext1', '')).strip()
+        m = Medicine(name=name, price=price, qty=qty, med_ext1=notes, med_ext2='')
         db.session.add(m)
         db.session.commit()
         return redirect(url_for('medicines'))
