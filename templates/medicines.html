@@ -17,14 +17,17 @@
       <label for="med-qty" class="form-label" data-i18n="medicine_qty">Quantity</label>
       <input id="med-qty" data-i18n-placeholder="med_qty_ph" name="qty" class="form-control" placeholder="Qty" type="number">
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-      <button class="btn btn-success w-100" type="submit" data-i18n="add_med">Add</button>
-    </div>
+
+
     <div class="col-12">
       <label for="med-notes" class="form-label" data-i18n="medicine_notes">Notes</label>
       <textarea id="med-notes" name="ext1" class="form-control" rows="2" placeholder="Enter notes for this medicine..."></textarea>
     </div>
-  </form>
+    <div class="col-12 d-flex align-items-end">
+      <button class="btn btn-success w-100" type="submit" data-i18n="add_med">Add</button>
+    </div>
+</div>
+</form>
 </div>
 
 <!-- Desktop Table View -->
@@ -33,9 +36,10 @@
     <table class="table table-hover">
       <thead>
       <tr>
-        <th class="text-center" data-i18n="table_medicine_name">Name</th>
-        <th class="text-center" data-i18n="table_medicine_price">Price</th>
-        <th class="text-center" data-i18n="table_medicine_qty">Quantity</th>
+        <th class="text-center" style="width: 25%;" data-i18n="table_medicine_name">Name</th>
+        <th class="text-center" style="width: 25%;" data-i18n="table_medicine_price">Price</th>
+        <th class="text-center" style="width: 25%;" data-i18n="table_medicine_qty">Quantity</th>
+        <th class="text-center" style="width: 25%;" data-i18n="table_medicine_notes">Notes</th>
         {% if session.role == 'admin' %}
         <th class="text-center" data-i18n="table_actions">Actions</th>
         {% endif %}
@@ -47,6 +51,7 @@
         <td class="text-center">{{ m.name }}</td>
         <td class="text-center">₹{{ m.price }}</td>
         <td class="text-center">{{ m.qty }}</td>
+        <td class="text-center">{{ m.ext1 }}</td>
         {% if session.role == 'admin' %}
         <td class="text-center">
           <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;"
@@ -67,6 +72,7 @@
     </table>
   </div>
   <div class="card-footer">
+
     <div class="row">
       <div class="col-md-8"></div>
       <div class="col-md-4">
@@ -87,7 +93,11 @@
         <span class="badge bg-info text-dark"> ₹{{ m.price }} <span ></span></span>
       </div>
       <div>
-        <span data-i18n="table_medicine_qty">Qty:</span> {{ m.qty }}<br>
+        <span style="color: #11ce40; font-weight: bold;" data-i18n="table_medicine_qty">Qty:</span> {{ m.qty }}<br>
+      </div>
+      <div>
+        <span style="color: #210cde; font-weight: bold;" data-i18n="table_medicine_notes">Notes:</span><br>
+        <span style="margin-left:1em;white-space:pre-line">{{ m.ext1 or '-' }}</span>
 
       </div>
       {% if session.role == 'admin' %}

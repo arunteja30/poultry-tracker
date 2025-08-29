@@ -53,12 +53,20 @@
           </div>
         </div>
         <div class="col-12">
-          <button class="btn btn-success btn-lg" type="submit" data-i18n="save">
+          <button class="btn btn-success btn-lg my-3" type="submit" data-i18n="save">
             {% if existing_cycle %}
             🔄 Start New Cycle
             {% else %}
             🐔 Create Cycle
             {% endif %}
+          </button>
+          <style>
+            @media (max-width: 767px) {
+              .btn-success.btn-lg.my-3 {
+                margin-bottom: 2.5rem !important;
+              }
+            }
+          </style>
           </button>
         </div>
       </form>
@@ -99,6 +107,12 @@
             <strong data-i18n="feed_bags">Feed Bags:</strong> {{ existing_cycle.start_feed_bags|round|int }}<br>
             <strong data-i18n="driver">Driver:</strong> {{ existing_cycle.driver or 'N/A' }}
           </small>
+          <hr>
+          {% if session.role == 'admin' %}
+          <form method="POST" action="{{ url_for('reset_cycle') }}" onsubmit="return confirm('Are you sure you want to end the current cycle? This will archive the cycle and set the end date to today. This action cannot be undone.')">
+            <button type="submit" class="btn btn-danger w-100 mt-3" data-i18n="end_cycle_btn">🛑 End Current Cycle</button>
+          </form>
+          {% endif %}
         </div>
       </div>
       {% else %}
