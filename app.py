@@ -78,7 +78,6 @@ def init_database():
     try:
 
         # Always ensure tables exist
-        db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
@@ -1332,6 +1331,10 @@ def delete_cycle(cycle_id):
     db.session.commit()
     flash('Cycle deleted successfully!', 'success')
     return redirect(url_for('setup'))
+
+@app.route('/no_cycle')
+def no_cycle():
+    return render_template('no_cycle.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
