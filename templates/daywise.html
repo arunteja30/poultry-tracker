@@ -32,9 +32,9 @@
       </tr>
       </thead>
       <tbody>
-      {% for r in rows %}
+      {% for r in rows|reverse %}
       <tr>
-        <td>Day {{ loop.index }}</td>
+        <td>Day {{ loop.revindex }}</td>
         <td>{{ r.entry_date }}</td>
         <td>{{ r.mortality }}</td>
         <td>{{ r.feed_bags_consumed }}</td>
@@ -66,11 +66,11 @@
 
 <!-- Mobile Card View -->
 <div class="d-block d-md-none">
-  {% for r in rows %}
+  {% for r in rows|reverse %}
   <div class="card mb-3 shadow-sm">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong>Day {{ loop.index }}</strong>
+        <strong>Day {{ loop.revindex }}</strong>
         <span class="text-muted">{{ r.entry_date }}</span>
       </div>
       <div>

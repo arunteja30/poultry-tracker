@@ -529,7 +529,11 @@ def daily():
         feed_bags_consumed = float(request.form.get('feed_bags_consumed',0))
         feed_bags_added = float(request.form.get('feed_bags_added',0))
         avg_weight_grams = float(request.form.get('avg_weight_grams',0) or 0)
-        avg_weight = round(((avg_weight_grams / 1000)+latest_daily.avg_weight)/2, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
+        if latest_daily != None:
+           avg_weight = round(((avg_weight_grams / 1000)+latest_daily.avg_weight if latest_daily.avg_weight else 0)/2, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
+        else:
+           avg_weight = round(avg_weight_grams / 1000, 3) if avg_weight_grams > 0 else 0
+
         medicines = request.form.get('medicines','')
 
         # Validate form data
@@ -608,13 +612,13 @@ def daily():
         cycle.start_feed_bags = cycle.start_feed_bags + feed_bags_added - feed_bags_consumed
         db.session.add(row)
         db.session.commit()
-        
+
         # Success message
         if feed_bags_added > 0:
             flash(f'✅ Daily entry saved successfully! Added {feed_bags_added:.1f} bags, consumed {feed_bags_consumed:.1f} bags. Remaining: {cycle.start_feed_bags:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_added:.1f} बैग जोड़े गए, {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {cycle.start_feed_bags:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_added:.1f} బ్యాగులు జోడించబడ్డాయి, {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {cycle.start_feed_bags:.1f} బ్యాగులు।', 'success')
         else:
             flash(f'✅ Daily entry saved successfully! Consumed {feed_bags_consumed:.1f} bags. Remaining: {cycle.start_feed_bags:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {cycle.start_feed_bags:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {cycle.start_feed_bags:.1f} బ్యాగులు।', 'success')
-        
+
         return redirect(url_for('dashboard'))
     meds = Medicine.query.order_by(Medicine.name).all()
     return render_template('daily.html', cycle=cycle, meds=meds)
@@ -625,7 +629,7 @@ def daywise():
     cycle = get_active_cycle()
     if not cycle:
         return redirect(url_for('setup'))
-    rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date.desc()).all()
+    rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date.asc()).all()
     return render_template('daywise.html', rows=rows, cycle=cycle)
 
 @app.route('/stats')

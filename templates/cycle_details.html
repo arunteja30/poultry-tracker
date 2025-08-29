@@ -123,6 +123,7 @@
       <table class="table table-sm table-striped">
         <thead>
         <tr>
+          <th data-i18n="table_day">Day</th>
           <th data-i18n="table_date">Date</th>
           <th data-i18n="table_mortality">Mortality</th>
           <th data-i18n="table_feed_consumed">Feed Consumed</th>
@@ -133,8 +134,10 @@
         </tr>
         </thead>
         <tbody>
-        {% for entry in daily_entries %}
+        {% set total_days = daily_entries|length %}
+        {% for entry in daily_entries|reverse %}
         <tr>
+          <td>{{ total_days - loop.index0 }}</td>
           <td>{{ entry.entry_date }}</td>
           <td>
             {% if entry.mortality > 0 %}
@@ -155,8 +158,8 @@
           <td>
             {% if entry.fcr > 0 %}
             <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
-                  {{ "%.3f"|format(entry.fcr) }}
-                </span>
+          {{ "%.3f"|format(entry.fcr) }}
+        </span>
             {% else %}
             N/A
             {% endif %}
@@ -165,6 +168,7 @@
         </tr>
         {% endfor %}
         </tbody>
+
       </table>
     </div>
     {% else %}
@@ -176,12 +180,13 @@
 <!-- Daily Entries Card View (Mobile) -->
 <div class="d-block d-md-none">
   {% if daily_entries %}
-  {% for entry in daily_entries %}
+  {% set total_days = daily_entries|length %}
+  {% for entry in daily_entries|reverse %}
   <div class="card mb-3 shadow-sm">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <strong class="text-primary">{{ entry.entry_date }}</strong>
-
+        <span class="badge bg-secondary ms-2">Day {{ total_days - loop.index0 }}</span>
       </div>
       <div>
         <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
