@@ -23,6 +23,9 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), default='user')  # 'user' or 'admin'
+    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
+
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
 
@@ -38,10 +41,10 @@ class Cycle(db.Model):
     start_feed_bags = db.Column(db.Float)
     driver = db.Column(db.String(120))
     notes = db.Column(db.String(500))
-    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
-    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
     status = db.Column(db.String(20), default='active')  # 'active' or 'archived'
     end_date = db.Column(db.String(50))  # Date when cycle was completed/archived
+    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
 
 class Daily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -76,19 +79,19 @@ def init_database():
     try:
 
         # Always ensure tables exist
-#         db.drop_all()
+        # db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
         # Check if default users exist, create them if they don't
         if not User.query.filter_by(username='admin').first():
-            admin_user = User(username='admin', role='admin')
+            admin_user = User(username='admin', role='admin', ext1="", ext2="")
             admin_user.set_password('admin123')
             db.session.add(admin_user)
             print("Created admin user: admin/admin123")
 
         if not User.query.filter_by(username='user').first():
-            regular_user = User(username='user', role='user')
+            regular_user = User(username='user', role='user', ext1="", ext2="")
             regular_user.set_password('user123')
             db.session.add(regular_user)
             print("Created regular user: user/user123")
@@ -363,7 +366,7 @@ def setup():
         driver = request.form.get('driver','')
         notes = request.form.get('notes','')
 
-        c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active')
+        c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active', ext1="", ext2="")
         db.session.add(c)
         db.session.commit()
 
@@ -492,7 +495,10 @@ def import_daily_data(df, cycle):
                     avg_feed_per_bird_g=auto_avg_feed_per_bird_g,
                     fcr=float(row.get('fcr', 0)),
                     medicines=str(row.get('medicines', '')),
-                    birds_survived=live_after
+                    birds_survived=live_after,
+                    daily_notes=str(row.get('daily_notes', '')),
+                    ext1="",
+                    ext2=""
                 )
                 db.session.add(daily_entry)
                 imported_count += 1
@@ -523,7 +529,9 @@ def import_medicines_data(df):
                     name=medicine_name,
                     price=price,
                     qty=quantity,
-                    notes=notes
+                    notes=notes,
+                    ext1="",
+                    ext2=""
                 )
                 db.session.add(medicine)
                 imported_count += 1
@@ -1072,6 +1080,7 @@ def users():
                 password = request.form.get('password')
                 role = request.form.get('role', 'user')
 
+
                 if not username or not password:
                     flash('Username and password are required / उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं', 'error')
                     return redirect(url_for('users'))
@@ -1083,7 +1092,7 @@ def users():
                     return redirect(url_for('users'))
 
                 try:
-                    new_user = User(username=username, role=role)
+                    new_user = User(username=username, role=role, ext1='', ext2='')
                     new_user.set_password(password)
                     db.session.add(new_user)
                     db.session.commit()
