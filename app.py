@@ -72,9 +72,10 @@ class Medicine(db.Model):
 # ---------------- Safe DB creation ----------------
 def init_database():
     """Initialize database tables and default users"""
-     db.drop_all()      # Drops all table
+     
     try:
         # Always ensure tables exist
+        db.drop_all()      # Drops all table
         db.create_all()
         print("Database tables created successfully")
 
