@@ -14,8 +14,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poultry.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
-if os.path.exists("poultry.db"):
-    os.remove("poultry.db")
+# if os.path.exists("poultry.db"):
+#     os.remove("poultry.db")
 migrate = Migrate(app, db)
 
 
@@ -79,7 +79,7 @@ def init_database():
     try:
 
         # Always ensure tables exist
-        db.drop_all()
+#         db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
