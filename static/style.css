@@ -179,9 +179,7 @@ body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi
 }
 
 .navbar .container-fluid {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
+  justify-content: flex-start !important;
 }
 
 .navbar-collapse {
@@ -204,6 +202,7 @@ body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi
   text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   font-size: 2rem !important;
   letter-spacing: 1px;
+  margin-left: 0 !important;
   display: flex;
   align-items: center;
   margin-bottom: 0;
@@ -211,6 +210,9 @@ body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi
   padding-bottom: 0.3125rem;
 }
 
+.navbar-toggler {
+  margin-left: 0 !important;
+}
 .navbar-nav .nav-link {
   color: #ffffff !important;
   transition: all 0.3s ease;
