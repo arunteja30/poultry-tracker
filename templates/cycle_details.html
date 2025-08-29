@@ -132,6 +132,7 @@
           <th data-i18n="table_avg_weight">Avg Weight (kg)</th>
           <th data-i18n="table_fcr">FCR</th>
           <th data-i18n="table_medicines">Medicines</th>
+          <th data-i18n="table_notes">Notes</th>
         </tr>
         </thead>
         <tbody>
@@ -167,6 +168,7 @@
             {% endif %}
           </td>
           <td>{{ entry.medicines or '-' }}</td>
+          <td>{{ entry.daily_notes or '-' }}</td>
         </tr>
         {% endfor %}
         </tbody>

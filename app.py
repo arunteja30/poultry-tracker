@@ -37,6 +37,8 @@ class Cycle(db.Model):
     start_feed_bags = db.Column(db.Float)
     driver = db.Column(db.String(120))
     notes = db.Column(db.String(500))
+    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
     status = db.Column(db.String(20), default='active')  # 'active' or 'archived'
     end_date = db.Column(db.String(50))  # Date when cycle was completed/archived
 
@@ -52,12 +54,18 @@ class Daily(db.Model):
     avg_feed_per_bird_g = db.Column(db.Float, default=0.0)
     fcr = db.Column(db.Float, default=0.0)
     medicines = db.Column(db.String(250), default="")
+    daily_notes = db.Column(db.String(500), default="")  # Added daily_notes column
+    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
 
 class Medicine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     price = db.Column(db.Float, default=0.0)
     qty = db.Column(db.Integer, default=0)
+    ext1 = db.Column(db.String(120), default="")   # Added extension column 1
+    ext2 = db.Column(db.String(120), default="")   # Added extension column 2
+
 
 # ---------------- Safe DB creation ----------------
 def init_database():
@@ -328,7 +336,7 @@ def setup():
         start_date = request.form.get('start_date') or date.today().isoformat()
         start_time = request.form.get('start_time') or datetime.now().time().isoformat(timespec='minutes')
         driver = request.form.get('driver','')
-        notes = request.form.get('notes','')
+        notes = request.form.get('notes') or ''
 
         c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active')
         db.session.add(c)
@@ -533,6 +541,10 @@ def daily():
         feed_bags_consumed = float(request.form.get('feed_bags_consumed',0))
         feed_bags_added = float(request.form.get('feed_bags_added',0))
         avg_weight_grams = float(request.form.get('avg_weight_grams',0) or 0)
+        daily_notes = request.form.get('daily_notes') or ''
+        ext1 = request.form.get('ext1') or ''
+        ext2 = request.form.get('ext2') or ''
+
         if latest_daily != None:
            avg_weight = round(((avg_weight_grams / 1000)+latest_daily.avg_weight if latest_daily.avg_weight else 0)/2, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
         else:
@@ -620,7 +632,10 @@ def daily():
             avg_weight=avg_weight,
             avg_feed_per_bird_g=avg_feed_per_bird_g,
             fcr=fcr,
+            daily_notes=daily_notes,
             medicines=medicines,
+            ext1=ext1,
+            ext2=ext2,
             birds_survived=live_after
         )
         cycle.current_birds = live_after

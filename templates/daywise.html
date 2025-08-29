@@ -2,14 +2,22 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 data-i18n="daywise_title">Daywise Entries</h2>
-  {% if session.role == 'admin' %}
-  <form method="POST" action="{{ url_for('recalculate_feed_averages') }}" style="display: inline;">
-    <button type="submit" class="btn btn-sm btn-outline-primary" onclick="return confirm('Recalculate all average feed per bird values? This will overwrite existing values.')">
-      🔄 Recalculate Feed Averages
-    </button>
-  </form>
-  {% endif %}
+  <div class="d-none d-md-block">
+    <a href="{{ url_for('daily') }}" class="btn btn-sm btn-success me-2" data-i18n="add_report_btn">➕ Add Report</a>
+    {% if session.role == 'admin' %}
+    <form method="POST" action="{{ url_for('recalculate_feed_averages') }}" style="display: inline;">
+      <button type="submit" class="btn btn-sm btn-outline-primary" onclick="return confirm('Recalculate all average feed per bird values? This will overwrite existing values.')">
+        🔄 Recalculate Feed Averages
+      </button>
+    </form>
+    {% endif %}
+  </div>
 </div>
+
+<!-- Floating Add Button for Mobile -->
+<a href="{{ url_for('daily') }}" class="d-md-none btn btn-success rounded-circle shadow" style="position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; z-index: 1000; font-size: 2rem;" data-i18n="add_report_btn_mobile">
+  <span aria-label="Add Report">+</span>
+</a>
 
 <!-- Desktop Table View -->
 <div class="card d-none d-md-block">
@@ -27,6 +35,7 @@
         <th data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
         <th data-i18n="table_fcr">FCR</th>
         <th data-i18n="table_medicines">Medicines</th>
+        <th data-i18n="table_notes">Notes</th>
         {% if session.role == 'admin' %}
         <th>Actions</th>
         {% endif %}
@@ -45,6 +54,7 @@
         <td>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
         <td>{{ r.fcr }}</td>
         <td>{{ r.medicines or '-' }}</td>
+        <td>{{ r.daily_notes or '-' }}</td>
         {% if session.role == 'admin' %}
         <td>
           <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
@@ -90,6 +100,8 @@
         <span class="fw-bold text-success">{{ r.fcr }}</span><br>
         <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
         <span class="fw-bold text-dark">{{ r.medicines or '-' }}</span>
+        <span class="text-secondary" data-i18n="table_notes">Notes:</span>
+        <span class="fw-bold text-dark">{{ r.daily_notes or '-' }}</span>
       </div>
       {% if session.role == 'admin' %}
       <div class="mt-2">

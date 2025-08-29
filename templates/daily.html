@@ -57,6 +57,11 @@
     </div>
 
     <div class="col-12">
+      <label for="daily-notes" class="form-label" data-i18n="notes">Notes</label>
+      <textarea id="daily-notes" name="daily_notes" class="form-control" rows="2" placeholder="Enter notes for today...">{{ error_data.daily_notes if error_data else '' }}</textarea>
+    </div>
+
+    <div class="col-12">
       <label for="medicines" class="form-label" data-i18n="medicines">Medicines Given</label>
       <select id="medicines" name="medicines" class="form-select">
         <option value="" data-i18n="none">None</option>
