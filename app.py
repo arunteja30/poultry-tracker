@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-   
+
 
 # ---------------- Models ----------------
 class User(db.Model):
@@ -74,9 +74,9 @@ class Medicine(db.Model):
 
 def init_database():
     """Initialize database tables and default users"""
-     
+
     try:
-        db.drop_all()
+
         # Always ensure tables exist
         db.create_all()
         print("Database tables created successfully")
@@ -256,6 +256,8 @@ def dashboard():
     fcr_series = []
     dates = []
     dashboard_metrics = {}
+    if not cycle:
+        return redirect(url_for('no_cycle'))
 
     if cycle:
         today = date.today().isoformat()
@@ -340,6 +342,8 @@ def dashboard():
         }
     return render_template('dashboard.html', cycle=cycle, summary=summary, fcr_series=fcr_series, dates=dates, metrics=dashboard_metrics)
 
+
+
 @app.route('/setup', methods=['GET','POST'])
 @admin_required
 def setup():
@@ -358,7 +362,7 @@ def setup():
         start_date = request.form.get('start_date') or date.today().isoformat()
         start_time = request.form.get('start_time') or datetime.now().time().isoformat(timespec='minutes')
         driver = request.form.get('driver','')
-        notes = request.form.get('notes') or ''
+        notes = request.form.get('notes','')
 
         c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active')
         db.session.add(c)
@@ -370,6 +374,7 @@ def setup():
         return redirect(url_for('dashboard'))
 
     return render_template('setup.html', existing_cycle=existing_cycle)
+
 
 @app.route('/import_data', methods=['GET', 'POST'])
 @admin_required
@@ -512,12 +517,14 @@ def import_medicines_data(df):
 
             if not existing:
                 price = float(row.get('price', 0))
+                notes = str(row.get('notes', '')).strip()
                 quantity = int(row.get('quantity', 0)) if pd.notna(row.get('quantity', 0)) else 0
 
                 medicine = Medicine(
                     name=medicine_name,
                     price=price,
-                    qty=quantity
+                    qty=quantity,
+                    notes=notes
                 )
                 db.session.add(medicine)
                 imported_count += 1
@@ -556,7 +563,7 @@ def daily():
     cycle = get_active_cycle()
     latest_daily = get_latest_daily(cycle.id) if cycle else None
     if not cycle:
-        return redirect(url_for('setup'))
+        return redirect(url_for('no_cycle'))
     if request.method=='POST':
         entry_date = request.form.get('entry_date') or date.today().isoformat()
         mortality = int(request.form.get('mortality',0))
@@ -680,7 +687,7 @@ def daily():
 def daywise():
     cycle = get_active_cycle()
     if not cycle:
-        return redirect(url_for('setup'))
+        return redirect(url_for('no_cycle'))
     rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date.asc()).all()
     return render_template('daywise.html', rows=rows, cycle=cycle)
 
@@ -689,7 +696,7 @@ def daywise():
 def stats():
     cycle = get_active_cycle()
     if not cycle:
-        return redirect(url_for('setup'))
+        return redirect(url_for('no_cycle'))
 
     # Get basic stats
     stats = calc_cumulative_stats(cycle.id)
@@ -781,10 +788,14 @@ def medicines():
         name = request.form.get('name')
         price = float(request.form.get('price',0) or 0)
         qty = int(request.form.get('qty',0) or 0)
-        m = Medicine(name=name, price=price, qty=qty)
+        notes = str(request.form.get('ext1', '')).strip()
+        m = Medicine(name=name, price=price, qty=qty, ext1=notes)
         db.session.add(m)
         db.session.commit()
         return redirect(url_for('medicines'))
+    cycle = get_active_cycle()
+    if not cycle:
+        return redirect(url_for('no_cycle'))
     meds = Medicine.query.order_by(Medicine.id.desc()).all()
     total_amount = sum(med.price for med in meds)
     return render_template('medicines.html', meds=meds, total_amount=total_amount)
@@ -795,7 +806,7 @@ def medicines():
 def export():
     cycle = get_active_cycle()
     if not cycle:
-        return redirect(url_for('setup'))
+        return redirect(url_for('no_cycle'))
 
     # Get daily data
     daily_rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
@@ -916,6 +927,7 @@ def export():
 def export_cycle(cycle_id):
     """Export data for a specific cycle"""
     cycle = Cycle.query.get_or_404(cycle_id)
+    # Only allow export if cycle is active or archived, no redirect needed
     rows = Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date).all()
 
     data = [{
@@ -973,8 +985,7 @@ def recalculate_feed_averages():
     """Utility route to recalculate avg_feed_per_bird_g for all existing entries"""
     cycle = get_active_cycle()
     if not cycle:
-        flash('No active cycle found', 'error')
-        return redirect(url_for('setup'))
+        return redirect(url_for('no_cycle'))
 
     try:
         # Get all entries ordered by date
@@ -1222,6 +1233,7 @@ def cycle_history():
         }
         cycle_data.append(cycle_info)
 
+    # cycle_history shows all cycles, no redirect needed
     return render_template('cycle_history.html', cycle_data=cycle_data)
 
 @app.route('/cycle_details/<int:cycle_id>')

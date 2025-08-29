@@ -18,7 +18,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-md-3 col-sm-6 mb-3">
     <div class="card h-100 border-primary">
       <div class="card-body text-center">
@@ -28,7 +28,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-md-3 col-sm-6 mb-3">
     <div class="card h-100 border-warning">
       <div class="card-body text-center">
@@ -38,7 +38,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="col-md-3 col-sm-6 mb-3">
     <div class="card h-100 border-info">
       <div class="card-body text-center">
@@ -84,7 +84,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Mortality Statistics -->
   <div class="col-lg-6 mb-4">
     <div class="card h-100">
@@ -136,7 +136,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Feed Distribution Chart -->
   <div class="col-lg-4 mb-4">
     <div class="card h-100">
@@ -153,7 +153,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Cost Breakdown Chart -->
   <div class="col-lg-4 mb-4">
     <div class="card h-100">
@@ -184,7 +184,7 @@
           <div class="col-md-4 mb-3">
             <label data-i18n="survival_performance">Survival Performance</label>
             <div class="progress" style="height: 25px;">
-              <div class="progress-bar bg-success" role="progressbar" 
+              <div class="progress-bar bg-success" role="progressbar"
                    style="width: {{ chart_data.performance_scores.survival_rate }}%">
                 {{ chart_data.performance_scores.survival_rate }}%
               </div>
@@ -193,7 +193,7 @@
           <div class="col-md-4 mb-3">
             <label data-i18n="feed_efficiency_score">Feed Efficiency Score</label>
             <div class="progress" style="height: 25px;">
-              <div class="progress-bar bg-primary" role="progressbar" 
+              <div class="progress-bar bg-primary" role="progressbar"
                    style="width: {{ chart_data.performance_scores.feed_efficiency_score }}%">
                 {{ "{:.0f}".format(chart_data.performance_scores.feed_efficiency_score) }}%
               </div>
@@ -202,7 +202,7 @@
           <div class="col-md-4 mb-3">
             <label data-i18n="weight_gain_score">Weight Gain Score</label>
             <div class="progress" style="height: 25px;">
-              <div class="progress-bar bg-warning" role="progressbar" 
+              <div class="progress-bar bg-warning" role="progressbar"
                    style="width: {{ chart_data.performance_scores.weight_gain_score }}%">
                 {{ "{:.0f}".format(chart_data.performance_scores.weight_gain_score) }}%
               </div>
@@ -247,76 +247,76 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Chart.js configurations
-Chart.defaults.responsive = true;
-Chart.defaults.maintainAspectRatio = true;
+  // Chart.js configurations
+  Chart.defaults.responsive = true;
+  Chart.defaults.maintainAspectRatio = true;
 
-// Common chart options for doughnut charts
-const commonDoughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 1,
-    plugins: {
-        legend: {
-            position: 'bottom',
-            labels: {
-                padding: 15,
-                usePointStyle: true,
-                font: {
-                    size: 12
-                }
-            }
-        }
-    }
-};
+  // Common chart options for doughnut charts
+  const commonDoughnutOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1,
+      plugins: {
+          legend: {
+              position: 'bottom',
+              labels: {
+                  padding: 15,
+                  usePointStyle: true,
+                  font: {
+                      size: 12
+                  }
+              }
+          }
+      }
+  };
 
-// Birds Distribution Chart
-const birdsCtx = document.getElementById('birdsChart').getContext('2d');
-new Chart(birdsCtx, {
-    type: 'doughnut',
-    data: {
-        labels: {{ chart_data.survival_vs_mortality.labels|tojson }},
-        datasets: [{
-            data: {{ chart_data.survival_vs_mortality.data|tojson }},
-            backgroundColor: ['#28a745', '#dc3545'],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: commonDoughnutOptions
-});
+  // Birds Distribution Chart
+  const birdsCtx = document.getElementById('birdsChart').getContext('2d');
+  new Chart(birdsCtx, {
+      type: 'doughnut',
+      data: {
+          labels: {{ chart_data.survival_vs_mortality.labels|tojson }},
+          datasets: [{
+              data: {{ chart_data.survival_vs_mortality.data|tojson }},
+              backgroundColor: ['#28a745', '#dc3545'],
+              borderWidth: 2,
+              borderColor: '#fff'
+          }]
+      },
+      options: commonDoughnutOptions
+  });
 
-// Feed Distribution Chart
-const feedCtx = document.getElementById('feedChart').getContext('2d');
-new Chart(feedCtx, {
-    type: 'doughnut',
-    data: {
-        labels: {{ chart_data.feed_distribution.labels|tojson }},
-        datasets: [{
-            data: {{ chart_data.feed_distribution.data|tojson }},
-            backgroundColor: ['#ffc107', '#28a745'],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: commonDoughnutOptions
-});
+  // Feed Distribution Chart
+  const feedCtx = document.getElementById('feedChart').getContext('2d');
+  new Chart(feedCtx, {
+      type: 'doughnut',
+      data: {
+          labels: {{ chart_data.feed_distribution.labels|tojson }},
+          datasets: [{
+              data: {{ chart_data.feed_distribution.data|tojson }},
+              backgroundColor: ['#ffc107', '#28a745'],
+              borderWidth: 2,
+              borderColor: '#fff'
+          }]
+      },
+      options: commonDoughnutOptions
+  });
 
-// Cost Breakdown Chart
-const costCtx = document.getElementById('costChart').getContext('2d');
-new Chart(costCtx, {
-    type: 'doughnut',
-    data: {
-        labels: {{ chart_data.cost_breakdown.labels|tojson }},
-        datasets: [{
-            data: {{ chart_data.cost_breakdown.data|tojson }},
-            backgroundColor: ['#007bff', '#17a2b8'],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: commonDoughnutOptions
-});
+  // Cost Breakdown Chart
+  const costCtx = document.getElementById('costChart').getContext('2d');
+  new Chart(costCtx, {
+      type: 'doughnut',
+      data: {
+          labels: {{ chart_data.cost_breakdown.labels|tojson }},
+          datasets: [{
+              data: {{ chart_data.cost_breakdown.data|tojson }},
+              backgroundColor: ['#007bff', '#17a2b8'],
+              borderWidth: 2,
+              borderColor: '#fff'
+          }]
+      },
+      options: commonDoughnutOptions
+  });
 </script>
 
 {% endblock %}
