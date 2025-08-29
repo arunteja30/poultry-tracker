@@ -10,52 +10,52 @@
       <table class="table table-hover">
         <thead class="table-light">
         <tr>
-          <th data-i18n="table_cycle_id">Cycle ID</th>
-          <th data-i18n="table_start_date">Start Date</th>
-          <th data-i18n="table_duration">Duration (Days)</th>
-          <th data-i18n="table_status">Status</th>
-          <th data-i18n="table_initial_birds">Initial Birds</th>
-          <th data-i18n="table_final_birds">Final Birds</th>
-          <th data-i18n="table_survival_rate">Survival Rate</th>
-          <th data-i18n="table_avg_fcr">Avg FCR</th>
-          <th data-i18n="table_final_weight">Final Weight (kg)</th>
-          <th data-i18n="table_feed_efficiency">Feed/Bird (bags)</th>
-          <th data-i18n="table_actions">Actions</th>
+          <th class="text-center" data-i18n="table_cycle_id">Cycle ID</th>
+          <th class="text-center" data-i18n="table_start_date">Start Date</th>
+          <th class="text-center" data-i18n="table_duration">Duration (Days)</th>
+          <th class="text-center" data-i18n="table_status">Status</th>
+          <th class="text-center" data-i18n="table_initial_birds">Initial Birds</th>
+          <th class="text-center" data-i18n="table_final_birds">Final Birds</th>
+          <th class="text-center" data-i18n="table_survival_rate">Survival Rate</th>
+          <th class="text-center" data-i18n="table_avg_fcr">Avg FCR</th>
+          <th class="text-center" data-i18n="table_final_weight">Final Weight (kg)</th>
+          <th class="text-center" data-i18n="table_feed_efficiency">Feed/Bird (bags)</th>
+          <th class="text-center" data-i18n="table_actions">Actions</th>
         </tr>
         </thead>
         <tbody>
         {% for data in cycle_data %}
         <tr class="{% if data.cycle.status == 'active' %}table-success{% endif %}">
-          <td>
+          <td class="text-center">
             <strong>#{{ data.cycle.id }}</strong>
             {% if data.cycle.status == 'active' %}
             <span class="badge bg-success ms-1" data-i18n="status_active">Active</span>
             {% endif %}
           </td>
-          <td>{{ data.cycle.start_date }}</td>
-          <td>{{ data.duration_days }}</td>
-          <td>
+          <td class="text-center">{{ data.cycle.start_date }}</td>
+          <td class="text-center">{{ data.duration_days }}</td>
+          <td class="text-center">
             {% if data.cycle.status == 'active' %}
             <span class="badge bg-success" data-i18n="status_active">Active</span>
             {% else %}
             <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
             {% endif %}
           </td>
-          <td>{{ data.cycle.start_birds }}</td>
-          <td>{{ data.final_birds }}</td>
-          <td>
+          <td class="text-center">{{ data.cycle.start_birds }}</td>
+          <td class="text-center">{{ data.final_birds }}</td>
+          <td class="text-center">
               <span class="{% if data.survival_rate >= 95 %}text-success{% elif data.survival_rate >= 90 %}text-warning{% else %}text-danger{% endif %}">
                 {{ data.survival_rate }}%
               </span>
           </td>
-          <td>
+          <td class="text-center">
               <span class="{% if data.avg_fcr > 0 and data.avg_fcr <= 1.8 %}text-success{% elif data.avg_fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
                 {{ data.avg_fcr if data.avg_fcr > 0 else 'N/A' }}
               </span>
           </td>
-          <td>{{ "%.3f"|format(data.final_weight) if data.final_weight > 0 else 'N/A' }}</td>
-          <td>{{ data.feed_per_bird }}</td>
-          <td>
+          <td class="text-center">{{ "%.3f"|format(data.final_weight) if data.final_weight > 0 else 'N/A' }}</td>
+          <td class="text-center">{{ data.feed_per_bird }}</td>
+          <td class="text-center">
             <div class="btn-group btn-group-sm">
               <a href="{{ url_for('cycle_details', cycle_id=data.cycle.id) }}"
                  class="btn btn-outline-primary btn-sm"
@@ -79,9 +79,11 @@
               <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}"
                     style="display: inline;"
                     onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.');">
+                {% if session.role == 'admin' %}
                 <button type="submit" class="btn btn-outline-danger btn-sm" data-i18n="btn_delete">
                   🗑️ Delete
                 </button>
+                {% endif %}
               </form>
             </div>
           </td>
@@ -134,7 +136,9 @@
         </form>
         {% endif %}
         <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.');">
+          {% if session.role == 'admin' %}
           <button type="submit" class="btn btn-outline-danger btn-sm" data-i18n="btn_delete">🗑️ Delete</button>
+          {% endif %}
         </form>
       </div>
     </div>

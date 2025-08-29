@@ -44,19 +44,19 @@
       <tbody>
       {% for r in rows|reverse %}
       <tr>
-        <td>Day {{ loop.revindex }}</td>
-        <td>{{ r.entry_date }}</td>
-        <td>{{ r.mortality }}</td>
-        <td>{{ r.birds_survived }}</td> <!-- Added value -->
-        <td>{{ r.feed_bags_consumed }}</td>
-        <td>{{ r.feed_bags_added }}</td>
-        <td>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
-        <td>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
-        <td>{{ r.fcr }}</td>
-        <td>{{ r.medicines or '-' }}</td>
+        <td class="text-center">Day {{ loop.revindex }}</td>
+        <td class="text-center">{{ r.entry_date }}</td>
+        <td class="text-center">{{ r.mortality }}</td>
+        <td class="text-center">{{ r.birds_survived }}</td> <!-- Added value -->
+        <td class="text-center">{{ r.feed_bags_consumed }}</td>
+        <td class="text-center">{{ r.feed_bags_added }}</td>
+        <td class="text-center">{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
+        <td class="text-center">{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
+        <td class="text-center">{{ r.fcr }}</td>
+        <td class="text-center">{{ r.medicines or '-' }}</td>
         <td>{{ r.daily_notes or '-' }}</td>
         {% if session.role == 'admin' %}
-        <td>
+        <td class="text-center">
           <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
                 onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
             <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
@@ -99,7 +99,7 @@
         <span class="text-secondary" data-i18n="table_fcr">FCR:</span>
         <span class="fw-bold text-success">{{ r.fcr }}</span><br>
         <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
-        <span class="fw-bold text-dark">{{ r.medicines or '-' }}</span>
+        <span class="fw-bold text-dark">{{ r.medicines or '-' }}</span><br>
         <span class="text-secondary" data-i18n="table_notes">Notes:</span>
         <span class="fw-bold text-dark">{{ r.daily_notes or '-' }}</span>
       </div>
@@ -123,4 +123,3 @@
   </div>
   {% endfor %}
 </div>
-{% endblock %}

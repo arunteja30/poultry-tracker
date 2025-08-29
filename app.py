@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash, session
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
@@ -70,10 +71,12 @@ class Medicine(db.Model):
 
 
 # ---------------- Safe DB creation ----------------
+
 def init_database():
     """Initialize database tables and default users"""
      
     try:
+        db.drop_all()
         # Always ensure tables exist
         db.create_all()
         print("Database tables created successfully")
@@ -204,6 +207,22 @@ def calc_todays_fcr(cycle_id):
     return None
 
 # ---------- Routes ----------
+
+@app.route('/end_current_cycle', methods=['POST'])
+@admin_required
+def end_current_cycle():
+    cycle = get_active_cycle()
+    if cycle:
+        cycle.status = 'archived'
+        cycle.end_date = date.today().isoformat()
+        cycle.notes = f"Ended on {datetime.now().isoformat()} - {cycle.notes or ''}"
+        db.session.commit()
+        flash('Current cycle ended and archived. You can now start a new cycle.', 'info')
+    else:
+        flash('No active cycle found to end.', 'error')
+    return redirect(url_for('setup'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -1292,7 +1311,10 @@ def unarchive_cycle(cycle_id):
 def delete_cycle(cycle_id):
     cycle = Cycle.query.get_or_404(cycle_id)
     Daily.query.filter_by(cycle_id=cycle_id).delete()
-    # If you have other related tables, delete them here as needed
+    # Delete related medicines if you have a cycle_id field in Medicine (add if needed)
+    if hasattr(Medicine, 'cycle_id'):
+        Medicine.query.filter_by(cycle_id=cycle_id).delete()
+    # If you have other related tables with cycle_id, delete them here as needed
     db.session.delete(cycle)
     db.session.commit()
     flash('Cycle deleted successfully!', 'success')

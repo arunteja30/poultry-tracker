@@ -123,15 +123,15 @@
       <table class="table table-sm table-striped">
         <thead>
         <tr>
-          <th data-i18n="table_day">Day</th>
-          <th data-i18n="table_date">Date</th>
-          <th data-i18n="table_birds_survived">Birds Survived</th>
-          <th data-i18n="table_mortality">Mortality</th>
-          <th data-i18n="table_feed_consumed">Feed Consumed</th>
-          <th data-i18n="table_feed_added">Feed Added</th>
-          <th data-i18n="table_avg_weight">Avg Weight (kg)</th>
-          <th data-i18n="table_fcr">FCR</th>
-          <th data-i18n="table_medicines">Medicines</th>
+          <th class="text-center" data-i18n="table_day">Day</th>
+          <th class="text-center" data-i18n="table_date">Date</th>
+          <th class="text-center" data-i18n="table_birds_survived">Birds Survived</th>
+          <th class="text-center" data-i18n="table_mortality">Mortality</th>
+          <th class="text-center" data-i18n="table_feed_consumed">Feed Consumed</th>
+          <th class="text-center" data-i18n="table_feed_added">Feed Added</th>
+          <th class="text-center" data-i18n="table_avg_weight">Avg Weight (kg)</th>
+          <th class="text-center" data-i18n="table_fcr">FCR</th>
+          <th class="text-center" data-i18n="table_medicines">Medicines</th>
           <th data-i18n="table_notes">Notes</th>
         </tr>
         </thead>
@@ -139,26 +139,26 @@
         {% set total_days = daily_entries|length %}
         {% for entry in daily_entries|reverse %}
         <tr>
-          <td>{{ total_days - loop.index0 }}</td>
-          <td>{{ entry.entry_date }}</td>
-          <td>{{ entry.birds_survived }}</td>
-          <td>
+          <td class="text-center">{{ total_days - loop.index0 }}</td>
+          <td class="text-center">{{ entry.entry_date }}</td>
+          <td class="text-center">{{ entry.birds_survived }}</td>
+          <td class="text-center">
             {% if entry.mortality > 0 %}
             <span class="text-danger">{{ entry.mortality }}</span>
             {% else %}
             {{ entry.mortality }}
             {% endif %}
           </td>
-          <td>{{ entry.feed_bags_consumed }}</td>
-          <td>
+          <td class="text-center">{{ entry.feed_bags_consumed }}</td>
+          <td class="text-center">
             {% if entry.feed_bags_added > 0 %}
             <span class="text-success">+{{ entry.feed_bags_added }}</span>
             {% else %}
             {{ entry.feed_bags_added }}
             {% endif %}
           </td>
-          <td>{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</td>
-          <td>
+          <td class="text-center">{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</td>
+          <td class="text-center">
             {% if entry.fcr > 0 %}
             <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
           {{ "%.3f"|format(entry.fcr) }}
@@ -167,7 +167,7 @@
             N/A
             {% endif %}
           </td>
-          <td>{{ entry.medicines or '-' }}</td>
+          <td class="text-center">{{ entry.medicines or '-' }}</td>
           <td>{{ entry.daily_notes or '-' }}</td>
         </tr>
         {% endfor %}
@@ -216,7 +216,9 @@
         <span class="fw-bold text-dark">N/A</span>
         {% endif %}<br>
         <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
-        <span class="fw-bold text-primary">{{ entry.medicines or '-' }}</span>
+        <span class="fw-bold text-primary">{{ entry.medicines or '-' }}</span><br>
+        <span class="text-secondary" data-i18n="table_notes">Notes:</span>
+        <span class="fw-bold text-dark">{{ entry.daily_notes or '-' }}</span>
       </div>
     </div>
   </div>

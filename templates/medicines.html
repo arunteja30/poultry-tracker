@@ -28,37 +28,37 @@
   <div class="table-responsive">
     <table class="table table-hover">
       <thead>
-        <tr>
-          <th data-i18n="table_medicine_name">Name</th>
-          <th data-i18n="table_medicine_price">Price</th>
-          <th data-i18n="table_medicine_qty">Quantity</th>
-          {% if session.role == 'admin' %}
-          <th data-i18n="table_actions">Actions</th>
-          {% endif %}
-        </tr>
+      <tr>
+        <th class="text-center" data-i18n="table_medicine_name">Name</th>
+        <th class="text-center" data-i18n="table_medicine_price">Price</th>
+        <th class="text-center" data-i18n="table_medicine_qty">Quantity</th>
+        {% if session.role == 'admin' %}
+        <th class="text-center" data-i18n="table_actions">Actions</th>
+        {% endif %}
+      </tr>
       </thead>
       <tbody>
-        {% for m in meds %}
-          <tr>
-            <td>{{ m.name }}</td>
-            <td>₹{{ m.price }}</td>
-            <td>{{ m.qty }}</td>
-            {% if session.role == 'admin' %}
-            <td>
-              <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;" 
-                    onsubmit="return confirm('Are you sure you want to delete this medicine?');">
-                <button type="submit" class="btn btn-danger btn-sm">
-                  <i class="fas fa-trash"></i> Delete
-                </button>
-              </form>
-            </td>
-            {% endif %}
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="{% if session.role == 'admin' %}4{% else %}3{% endif %}" class="text-center" data-i18n="no_meds">No medicines yet</td>
-          </tr>
-        {% endfor %}
+      {% for m in meds %}
+      <tr>
+        <td class="text-center">{{ m.name }}</td>
+        <td class="text-center">₹{{ m.price }}</td>
+        <td class="text-center">{{ m.qty }}</td>
+        {% if session.role == 'admin' %}
+        <td class="text-center">
+          <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;"
+                onsubmit="return confirm('Are you sure you want to delete this medicine?');">
+            <button type="submit" class="btn btn-danger btn-sm">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="{% if session.role == 'admin' %}4{% else %}3{% endif %}" class="text-center" data-i18n="no_meds">No medicines yet</td>
+      </tr>
+      {% endfor %}
       </tbody>
     </table>
   </div>
@@ -76,34 +76,34 @@
 <!-- Mobile Card View -->
 <div class="d-block d-md-none">
   {% for m in meds %}
-    <div class="card mb-3 shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <strong>{{ m.name }}</strong>
-          <span class="badge bg-info text-dark"> ₹{{ m.price }} <span ></span></span>
-        </div>
-        <div>
-          <span data-i18n="table_medicine_qty">Qty:</span> {{ m.qty }}<br>
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>{{ m.name }}</strong>
+        <span class="badge bg-info text-dark"> ₹{{ m.price }} <span ></span></span>
+      </div>
+      <div>
+        <span data-i18n="table_medicine_qty">Qty:</span> {{ m.qty }}<br>
 
-        </div>
-        {% if session.role == 'admin' %}
-        <div class="mt-2">
-          <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;" 
-                onsubmit="return confirm('Are you sure you want to delete this medicine?');">
-            <button type="submit" class="btn btn-danger btn-sm w-100">
-              <i class="fas fa-trash"></i> <span data-i18n="btn_delete">Delete</span>
-            </button>
-          </form>
-        </div>
-        {% endif %}
       </div>
+      {% if session.role == 'admin' %}
+      <div class="mt-2">
+        <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;"
+              onsubmit="return confirm('Are you sure you want to delete this medicine?');">
+          <button type="submit" class="btn btn-danger btn-sm w-100">
+            <i class="fas fa-trash"></i> <span data-i18n="btn_delete">Delete</span>
+          </button>
+        </form>
+      </div>
+      {% endif %}
     </div>
+  </div>
   {% else %}
-    <div class="card mb-3">
-      <div class="card-body text-center text-muted" data-i18n="no_meds">
-        No medicines yet
-      </div>
+  <div class="card mb-3">
+    <div class="card-body text-center text-muted" data-i18n="no_meds">
+      No medicines yet
     </div>
+  </div>
   {% endfor %}
   <div class="card">
     <div class="card-body text-end">
