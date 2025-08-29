@@ -677,7 +677,7 @@ def daily():
         else:
             flash(f'✅ Daily entry saved successfully! Consumed {feed_bags_consumed:.1f} bags. Remaining: {cycle.start_feed_bags:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {cycle.start_feed_bags:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {cycle.start_feed_bags:.1f} బ్యాగులు।', 'success')
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('load_daywise'))
     meds = Medicine.query.order_by(Medicine.name).all()
     return render_template('daily.html', cycle=cycle, meds=meds)
 
@@ -1334,6 +1334,10 @@ def delete_cycle(cycle_id):
 @app.route('/no_cycle')
 def no_cycle():
     return render_template('no_cycle.html')
+
+@app.route('/daywise')
+def load_daywise():
+    return render_template('daywise.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
