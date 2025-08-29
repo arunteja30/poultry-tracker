@@ -77,7 +77,7 @@ def init_database():
     try:
 
         # Always ensure tables exist
-#         db.drop_all()
+        # db.drop_all()
         db.create_all()
         print("Database tables created successfully")
 
@@ -668,8 +668,8 @@ def daily():
             fcr=fcr,
             daily_notes=daily_notes,
             medicines=medicines,
-            ext1=ext1,
-            ext2=ext2,
+            daily_ext1=ext1,
+            daily_ext2=ext2,
             birds_survived=live_after
         )
         cycle.current_birds = live_after
