@@ -75,7 +75,6 @@ def init_database():
      
     try:
         # Always ensure tables exist
-        db.drop_all()      # Drops all table
         db.create_all()
         print("Database tables created successfully")
 
