@@ -96,10 +96,7 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="mb-2">💰</div>
-        <h3 class="text-primary mb-1">
-          <input type="number" class="form-control form-control-lg text-center border-0 bg-transparent text-primary fw-bold"
-                 value="{{ summary.current_birds }}" id="liveBirds" style="box-shadow: none;">
-        </h3>
+        <h3 class="text-success mb-1">₹{{ "{:,.0f}".format(metrics.total_feed_cost) }}</h3>
         <h6 class="card-title" data-i18n="total_feed_cost">Feed Cost</h6>
         <small class="text-muted">₹{{ metrics.feed_cost_per_bird }}/bird</small>
       </div>

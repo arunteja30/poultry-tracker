@@ -2,76 +2,67 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 data-i18n="daywise_title">Daywise Entries</h2>
-  <div class="d-none d-md-block">
-    <a href="{{ url_for('daily') }}" class="btn btn-sm btn-success me-2" data-i18n="add_report_btn">➕ Add Report</a>
-    {% if session.role == 'admin' %}
-    <form method="POST" action="{{ url_for('recalculate_feed_averages') }}" style="display: inline;">
-      <button type="submit" class="btn btn-sm btn-outline-primary" onclick="return confirm('Recalculate all average feed per bird values? This will overwrite existing values.')">
-        🔄 Recalculate Feed Averages
-      </button>
-    </form>
-    {% endif %}
-  </div>
 </div>
-
-<!-- Floating Add Button for Mobile -->
-<a href="{{ url_for('daily') }}" class="d-md-none btn btn-success rounded-circle shadow" style="position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; z-index: 1000; font-size: 2rem;" data-i18n="add_report_btn_mobile">
-  <span aria-label="Add Report">+</span>
-</a>
 
 <!-- Desktop Table View -->
 <div class="card d-none d-md-block">
   <div class="table-responsive">
     <table class="table table-hover">
-      <thead>
-      <tr>
-        <th data-i18n="table_day">Day</th>
-        <th data-i18n="table_date">Date</th>
-        <th data-i18n="table_mortality">Mortality</th>
-        <th data-i18n="birds_survived">Birds Survived</th> <!-- Added column -->
-        <th data-i18n="table_feed_consumed">Feed Consumed</th>
-        <th data-i18n="table_feed_added">Feed Added</th>
-        <th data-i18n="table_avg_weight">Avg Weight</th>
-        <th data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
-        <th data-i18n="table_fcr">FCR</th>
-        <th data-i18n="table_medicines">Medicines</th>
-        <th data-i18n="table_notes">Notes</th>
-        {% if session.role == 'admin' %}
-        <th>Actions</th>
-        {% endif %}
-      </tr>
-      </thead>
-      <tbody>
-      {% for r in rows|reverse %}
-      <tr>
-        <td class="text-center">Day {{ loop.revindex }}</td>
-        <td class="text-center">{{ r.entry_date }}</td>
-        <td class="text-center">{{ r.mortality }}</td>
-        <td class="text-center">{{ r.birds_survived }}</td> <!-- Added value -->
-        <td class="text-center">{{ r.feed_bags_consumed }}</td>
-        <td class="text-center">{{ r.feed_bags_added }}</td>
-        <td class="text-center">{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
-        <td class="text-center">{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
-        <td class="text-center">{{ r.fcr }}</td>
-        <td class="text-center">{{ r.medicines or '-' }}</td>
-        <td>{{ r.daily_notes or '-' }}</td>
-        {% if session.role == 'admin' %}
-        <td class="text-center">
-          <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
-                onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
-            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
-              🗑️
-            </button>
-          </form>
-        </td>
-        {% endif %}
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="{% if session.role == 'admin' %}11{% else %}10{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
-      </tr>
-      {% endfor %}
-      </tbody>
+     <thead>
+  <tr>
+    <th data-i18n="table_day">Day</th>
+    <th data-i18n="table_date">Date</th>
+    <th data-i18n="table_mortality">Mortality</th>
+    <th data-i18n="table_total_mortality">Total Mortality</th>
+    <th data-i18n="table_mortality_rate">Mortality Rate (%)</th>
+    <th data-i18n="birds_survived">Birds Survived</th>
+    <th data-i18n="table_feed_consumed">Feed Consumed (bags)</th>
+    <th data-i18n="table_feed_added">Feed Added (bags)</th>
+    <th data-i18n="table_avg_weight">Avg Weight</th>
+    <th data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
+    <th data-i18n="table_fcr">FCR</th>
+    <th data-i18n="table_medicines">Medicines</th>
+    <th data-i18n="table_remaining_bags">Remaining Bags</th>
+   
+  
+    {% if session.role == 'admin' %}
+    <th>Actions</th>
+    {% endif %}
+  </tr>
+</thead>
+<tbody>
+  {% for r in rows|reverse %}
+  <tr>
+    <td>Day {{ loop.revindex }}</td>
+    <td>{{ r.entry_date }}</td>
+    <td>{{ r.mortality }}</td>
+    <td>{{ r.total_mortality }}</td>
+    <td>{{ r.mortality_rate }}%</td>
+    <td>{{ r.birds_survived }}</td>
+    <td>{{ r.feed_bags_consumed }}</td>
+    <td>{{ r.feed_bags_added }}</td>
+    <td>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
+    <td>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
+    <td>{{ r.fcr }}</td>
+    <td>{{ r.medicines or '-' }}</td>
+    <td>{{ r.remaining_bags }}</td>
+    {% if session.role == 'admin' %}
+    <td>
+      <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
+            onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
+        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
+          🗑️
+        </button>
+      </form>
+    </td>
+    {% endif %}
+  </tr>
+  {% else %}
+  <tr>
+    <td colspan="{% if session.role == 'admin' %}11{% else %}10{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
+  </tr>
+  {% endfor %}
+</tbody>
     </table>
   </div>
 </div>
@@ -88,6 +79,12 @@
       <div>
         <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
         <span class="fw-bold text-danger">{{ r.mortality }}</span><br>
+        <span class="text-secondary" data-i18n="table_total_mortality">Total Mortality:</span>
+        <span class="fw-bold text-danger">{{ r.total_mortality }}</span><br>
+        <span class="text-secondary" data-i18n="table_mortality_rate">Mortality Rate:</span>
+        <span class="fw-bold text-danger">{{ r.mortality_rate }}%</span><br>
+        <span class="text-secondary" data-i18n="birds_survived">Birds Survived:</span>
+        <span class="fw-bold text-success">{{ r.birds_survived }}</span><br>
         <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span>
         <span class="fw-bold text-info">{{ r.feed_bags_consumed }}</span><br>
         <span class="text-secondary" data-i18n="table_feed_added">Feed Added:</span>
@@ -100,8 +97,8 @@
         <span class="fw-bold text-success">{{ r.fcr }}</span><br>
         <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
         <span class="fw-bold text-dark">{{ r.medicines or '-' }}</span><br>
-        <span class="text-secondary" data-i18n="table_notes">Notes:</span>
-        <span class="fw-bold text-dark">{{ r.daily_notes or '-' }}</span>
+        <span class="text-secondary" data-i18n="table_remaining_bags">Remaining Bags:</span>
+        <span class="fw-bold text-info">{{ r.remaining_bags }}</span>
       </div>
       {% if session.role == 'admin' %}
       <div class="mt-2">

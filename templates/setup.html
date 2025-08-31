@@ -18,19 +18,17 @@
       <h5 data-i18n="setup_subtitle">Configure your poultry cycle</h5>
       <form method="POST" class="row g-3">
         {% if existing_cycle %}
-        <input type="hidden" name="action" value="reset">
+          <input type="hidden" name="action" value="reset">
         {% else %}
-        <input type="hidden" name="action" value="new">
+          <input type="hidden" name="action" value="new">
         {% endif %}
-
+        
         <div class="col-md-4">
           <label for="start-birds" class="form-label" data-i18n="start_birds">Start Birds</label>
           <input id="start-birds" data-i18n-placeholder="start_birds_ph" type="number" name="start_birds" class="form-control" required min="1">
         </div>
-        <div class="col-md-4">
-          <label for="start-feed" class="form-label" data-i18n="start_feed">Start Feed Bags</label>
-          <input id="start-feed" data-i18n-placeholder="start_feed_ph" type="number" step="0.1" name="start_feed_bags" class="form-control" required min="0">
-        </div>
+        <!-- Hide Start Feed Bags field -->
+        <input id="start-feed" type="hidden" name="start_feed_bags" value="0">
         <div class="col-md-4">
           <label for="start-date" class="form-label" data-i18n="arrival_dt">Arrival Date</label>
           <input id="start-date" type="date" name="start_date" class="form-control" value="{{ today }}">
@@ -38,6 +36,18 @@
         <div class="col-md-4">
           <label for="start-time" class="form-label" data-i18n="arrival_time">Arrival Time</label>
           <input id="start-time" type="time" name="start_time" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label for="hatchery_name" class="form-label">Hatchery Name</label>
+          <input id="hatchery_name" type="text" name="hatchery_name" class="form-control" placeholder="Enter hatchery name">
+        </div>
+        <div class="col-md-4">
+          <label for="avg_chicks_weight" class="form-label">Avg Chicks Weight (g)</label>
+          <input id="avg_chicks_weight" type="number" step="0.01" name="avg_chicks_weight" class="form-control" placeholder="e.g. 45">
+        </div>
+        <div class="col-md-4">
+          <label for="farm_owner" class="form-label">Farm Owner</label>
+          <input id="farm_owner" type="text" name="farm_owner" class="form-control" placeholder="Enter farm owner name">
         </div>
         <div class="col-md-8">
           <label for="driver" class="form-label" data-i18n="driver">Driver Name</label>
@@ -55,9 +65,9 @@
         <div class="col-12">
           <button class="btn btn-success btn-lg my-3" type="submit" data-i18n="save">
             {% if existing_cycle %}
-            🔄 Start New Cycle
+              🔄 Start New Cycle
             {% else %}
-            🐔 Create Cycle
+              🐔 Create Cycle
             {% endif %}
           </button>
           <style>
@@ -71,7 +81,7 @@
         </div>
       </form>
     </div>
-
+    
     <div class="col-md-4">
       <div class="card bg-info bg-opacity-10 border-info">
         <div class="card-body">
@@ -96,7 +106,7 @@
           </div>
         </div>
       </div>
-
+      
       {% if existing_cycle %}
       <div class="card bg-warning bg-opacity-10 border-warning mt-3">
         <div class="card-body">

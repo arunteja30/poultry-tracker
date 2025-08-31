@@ -1,282 +1,301 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ title or 'Ramesh Farms' }}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Google Fonts for Telugu Support -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐔</text></svg>">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg bg-light">
-  <div class="container-fluid">
-    <!-- Mobile Offcanvas Toggle (left side) -->
-    <button class="navbar-toggler d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand chicken-icon d-inline-block align-middle" href="{{ url_for('dashboard') }}" data-i18n="app_title">Ramesh</a>
-    <!-- Desktop Navbar -->
-    <div class="collapse navbar-collapse d-none d-lg-block" id="navmenu">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a></li>
-        {% if session.role == 'admin' %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a></li>
-        {% endif %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
-        {% if session.role == 'admin' %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
-        {% endif %}
-      </ul>
-      <div class="d-flex align-items-center">
-        {% if session.role == 'admin' %}
-        <a href="{{ url_for('export') }}" class="btn btn-outline-secondary btn-sm me-3" data-i18n="export_excel">Export Excel</a>
-        {% endif %}
-        <select id="langSelect" class="form-select form-select-sm me-2" style="width:130px;">
-          <option value="en">🇺🇸 English</option>
-          <option value="hi">🇮🇳 हिन्दी</option>
-          <option value="te">🇮🇳 తెలుగు</option>
-        </select>
-        <select id="fontSizeSelect" class="form-select form-select-sm me-3" style="width:110px;" title="Font Size">
-          <option value="small" data-i18n="font_size_small">🔤 Small</option>
-          <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
-          <option value="large" data-i18n="font_size_large">🔤 Large</option>
-          <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
-        </select>
-        <div class="dropdown">
-          <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            {% if session.role == 'admin' %}👑{% else %}👤{% endif %} {{ session.username }}
-          </button>
-          <ul class="dropdown-menu">
-            <li><span class="dropdown-item-text">Role: {{ session.role.title() }}</span></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title or 'Ramesh Farms' }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts for Telugu Support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐔</text></svg>">
+  </head>
+  <body>
+            <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+              <!-- Mobile Offcanvas Toggle (left side) -->
+              <button class="navbar-toggler d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <a class="navbar-brand chicken-icon d-inline-block align-middle" href="{{ url_for('dashboard') }}" data-i18n="app_title">Ramesh</a>
+              <!-- Desktop Navbar -->
+              <div class="collapse navbar-collapse d-none d-lg-block" id="navmenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a></li>
+                  {% if session.role == 'admin' %}
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a></li>
+                  {% endif %}
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">Feed Management</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
+                  {% if session.role == 'admin' %}
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
+                  {% endif %}
+                </ul>
+                <div class="d-flex align-items-center">
+                  {% if session.role == 'admin' %}
+                  <a href="{{ url_for('export') }}" class="btn btn-outline-secondary btn-sm me-3" data-i18n="export_excel">Export Excel</a>
+                  {% endif %}
+                  <select id="langSelect" class="form-select form-select-sm me-2" style="width:130px;">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="hi">🇮🇳 हिन्दी</option>
+                    <option value="te">🇮🇳 తెలుగు</option>
+                  </select>
+                  <select id="fontSizeSelect" class="form-select form-select-sm me-3" style="width:110px;" title="Font Size">
+                    <option value="small" data-i18n="font_size_small">🔤 Small</option>
+                    <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
+                    <option value="large" data-i18n="font_size_large">🔤 Large</option>
+                    <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
+                  </select>
+                  <div class="dropdown">
+                    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      {% if session.role == 'admin' %}👑{% else %}👤{% endif %} {{ session.username }}
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><span class="dropdown-item-text">Role: {{ session.role.title() }}</span></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <!-- ...mobile offcanvas code continues... -->
+          <!-- Mobile Offcanvas Navigation -->
+        <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel"
+     style="width:75vw;max-width:400px;background-color:#1976d2;">
+            <div class="offcanvas-header justify-content-between align-items-center">
+              <div style="width:100%">
+                <h5 class="offcanvas-title" id="mobileNavLabel" style="color:#ffffff;font-weight:bold;">Ramesh Farms</h5>
+                <hr style="margin:8px 0 0 0; border-color:#ffffff; border-width:2px; width:100%;">
+              </div>
+              <button type="button" class="btn btn-link text-danger fs-3 p-0" data-bs-dismiss="offcanvas" aria-label="Close" style="text-decoration:none;">
+                &times;
+              </button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            {% if session.role == 'admin' %}
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">Feed Management</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            {% if session.role == 'admin' %}
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            {% endif %}
+            <li class="nav-item mt-3">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('logout') }}">Logout</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
           </ul>
+            <hr>
+            <div>
+              <select id="langSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;">
+                <option value="en">🇺🇸 English</option>
+                <option value="hi">🇮🇳 हिन्दी</option>
+                <option value="te">🇮🇳 తెలుగు</option>
+              </select>
+              <select id="fontSizeSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;" title="Font Size">
+                <option value="small" data-i18n="font_size_small">🔤 Small</option>
+                <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
+                <option value="large" data-i18n="font_size_large">🔤 Large</option>
+                <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
+        </div>
+      </nav>
+     <main class="container my-4"> {% block content %}
+      <!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mt-4">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
     </div>
-    <!-- ...mobile offcanvas code continues... -->
-    <!-- Mobile Offcanvas Navigation -->
-    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel"
-         style="width:75vw;max-width:400px;background-color:#1976d2;">
-      <div class="offcanvas-header justify-content-between align-items-center">
-        <div style="width:100%">
-          <h5 class="offcanvas-title" id="mobileNavLabel" style="color:#ffffff;font-weight:bold;">Ramesh Farms</h5>
-          <hr style="margin:8px 0 0 0; border-color:#ffffff; border-width:2px; width:100%;">
+  {% endif %}
+{% endwith %}
+      {% endblock %} </main>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+  
+    function showLoading() {
+    if (!document.getElementById('loadingOverlay')) {
+      const overlay = document.createElement('div');
+      overlay.id = 'loadingOverlay';
+      overlay.style.position = 'fixed';
+      overlay.style.top = 0;
+      overlay.style.left = 0;
+      overlay.style.width = '100vw';
+      overlay.style.height = '100vh';
+      overlay.style.background = 'rgba(0,0,0,0.3)';
+      overlay.style.zIndex = 9999;
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.innerHTML = `
+        <div style="background:#fff;padding:32px 40px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;flex-direction:column;align-items:center;">
+          <div style="position:relative;width:3.5rem;height:3.5rem;display:flex;align-items:center;justify-content:center;">
+            <div class="spinner-border text-warning" style="width:3.5rem;height:3.5rem;" role="status"></div>
+            <span style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;">🐔</span>
+          </div>
+          <div style="font-size:1.3rem;font-weight:bold;margin-top:16px;">Loading...</div>
         </div>
-        <button type="button" class="btn btn-link text-danger fs-3 p-0" data-bs-dismiss="offcanvas" aria-label="Close" style="text-decoration:none;">
-          &times;
-        </button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          {% if session.role == 'admin' %}
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          {% endif %}
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          {% if session.role == 'admin' %}
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-          {% endif %}
-          <li class="nav-item mt-3">
-            <a class="nav-link" style="color:#ffffff;" href="{{ url_for('logout') }}">Logout</a>
-            <hr style="margin:0; border-color:#ffffff;">
-          </li>
-        </ul>
-        <hr>
-        <div>
-          <select id="langSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;">
-            <option value="en">🇺🇸 English</option>
-            <option value="hi">🇮🇳 हिन्दी</option>
-            <option value="te">🇮🇳 తెలుగు</option>
-          </select>
-          <select id="fontSizeSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;" title="Font Size">
-            <option value="small" data-i18n="font_size_small">🔤 Small</option>
-            <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
-            <option value="large" data-i18n="font_size_large">🔤 Large</option>
-            <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
-<main class="container my-4"> {% block content %}{% endblock %} </main>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-
-
-  function showLoading() {
-  if (!document.getElementById('loadingOverlay')) {
-    const overlay = document.createElement('div');
-    overlay.id = 'loadingOverlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = 0;
-    overlay.style.left = 0;
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(0,0,0,0.3)';
-    overlay.style.zIndex = 9999;
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.innerHTML = `
-      <div style="background:#fff;padding:32px 40px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;flex-direction:column;align-items:center;">
-        <div style="position:relative;width:3.5rem;height:3.5rem;display:flex;align-items:center;justify-content:center;">
-          <div class="spinner-border text-warning" style="width:3.5rem;height:3.5rem;" role="status"></div>
-          <span style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;">🐔</span>
-        </div>
-        <div style="font-size:1.3rem;font-weight:bold;margin-top:16px;">Loading...</div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-  } else {
-    document.getElementById('loadingOverlay').style.display = 'flex';
+      `;
+      document.body.appendChild(overlay);
+    } else {
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
   }
-}
 
-function hideLoading() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (overlay) overlay.style.display = 'none';
-}
+  function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+  }
 
-document.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', function(e) {
-    showLoading();
-    setTimeout(hideLoading, 2000);
-  });
-});
-
-document.getElementById('mobileNav').addEventListener('shown.bs.offcanvas', function () {
-  document.querySelectorAll('#mobileNav .nav-link').forEach(link => {
-    link.onclick = function() {
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
       showLoading();
       setTimeout(hideLoading, 2000);
-    };
+    });
   });
-});
 
-    async function loadLang(lang){
-      try{
-        const res = await fetch('/static/i18n/' + lang + '.json');
-        if(!res.ok) return;
-        const dict = await res.json();
-        document.querySelectorAll('[data-i18n]').forEach(el=>{
-          const key = el.getAttribute('data-i18n');
-          if(dict[key]) {
-            if(el.tagName === 'OPTION') {
-              // For option elements, preserve the emoji and add translation
-              const emoji = el.innerText.split(' ')[0]; // Get emoji part
-              el.innerText = emoji + ' ' + dict[key];
-            } else {
-              el.innerText = dict[key];
+  document.getElementById('mobileNav').addEventListener('shown.bs.offcanvas', function () {
+    document.querySelectorAll('#mobileNav .nav-link').forEach(link => {
+      link.onclick = function() {
+        showLoading();
+        setTimeout(hideLoading, 2000);
+      };
+    });
+  });
+     
+      async function loadLang(lang){
+        try{
+          const res = await fetch('/static/i18n/' + lang + '.json');
+          if(!res.ok) return;
+          const dict = await res.json();
+          document.querySelectorAll('[data-i18n]').forEach(el=>{
+            const key = el.getAttribute('data-i18n');
+            if(dict[key]) {
+              if(el.tagName === 'OPTION') {
+                // For option elements, preserve the emoji and add translation
+                const emoji = el.innerText.split(' ')[0]; // Get emoji part
+                el.innerText = emoji + ' ' + dict[key];
+              } else {
+                el.innerText = dict[key];
+              }
             }
-          }
-        });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
-          const key = el.getAttribute('data-i18n-placeholder');
-          if(dict[key]) el.setAttribute('placeholder', dict[key]);
-        });
+          });
+          document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+            const key = el.getAttribute('data-i18n-placeholder');
+            if(dict[key]) el.setAttribute('placeholder', dict[key]);
+          });
+          
+          // Apply language-specific fonts
+          document.body.className = document.body.className.replace(/\blang-\w+/g, '');
+          document.body.classList.add('lang-' + lang);
+          
+        }catch(e){ console.error('Translation loading failed:', e); }
+      }
+      
+      document.getElementById('langSelect').addEventListener('change', (e)=> {
+        loadLang(e.target.value);
+        localStorage.setItem('selectedLang', e.target.value);
+      });
+      
+      // Font size management
+      function applyFontSize(size) {
+        // Remove existing font size classes
+        document.body.className = document.body.className.replace(/\bfont-size-\w+/g, '');
+        // Add new font size class
+        document.body.classList.add('font-size-' + size);
+      }
+      
+      document.getElementById('fontSizeSelect').addEventListener('change', (e)=> {
+        applyFontSize(e.target.value);
+        localStorage.setItem('selectedFontSize', e.target.value);
+      });
+      
+      // Load saved language and font size or defaults
+      const savedLang = localStorage.getItem('selectedLang') || 'en';
+      const savedFontSize = localStorage.getItem('selectedFontSize') || 'medium';
+      
+      document.getElementById('langSelect').value = savedLang;
+      document.getElementById('fontSizeSelect').value = savedFontSize;
+      
+      loadLang(savedLang);
+      applyFontSize(savedFontSize);
 
-        // Apply language-specific fonts
-        document.body.className = document.body.className.replace(/\blang-\w+/g, '');
-        document.body.classList.add('lang-' + lang);
+       // Mobile language selector
+  document.getElementById('langSelectMobile').addEventListener('change', (e)=> {
+    loadLang(e.target.value);
+    localStorage.setItem('selectedLang', e.target.value);
+    // Sync desktop selector
+    document.getElementById('langSelect').value = e.target.value;
+  });
 
-      }catch(e){ console.error('Translation loading failed:', e); }
-    }
+  // Mobile font size selector
+  document.getElementById('fontSizeSelectMobile').addEventListener('change', (e)=> {
+    applyFontSize(e.target.value);
+    localStorage.setItem('selectedFontSize', e.target.value);
+    // Sync desktop selector
+    document.getElementById('fontSizeSelect').value = e.target.value;
+  });
 
-    document.getElementById('langSelect').addEventListener('change', (e)=> {
-      loadLang(e.target.value);
-      localStorage.setItem('selectedLang', e.target.value);
-    });
-
-    // Font size management
-    function applyFontSize(size) {
-      // Remove existing font size classes
-      document.body.className = document.body.className.replace(/\bfont-size-\w+/g, '');
-      // Add new font size class
-      document.body.classList.add('font-size-' + size);
-    }
-
-    document.getElementById('fontSizeSelect').addEventListener('change', (e)=> {
-      applyFontSize(e.target.value);
-      localStorage.setItem('selectedFontSize', e.target.value);
-    });
-
-    // Load saved language and font size or defaults
-    const savedLang = localStorage.getItem('selectedLang') || 'en';
-    const savedFontSize = localStorage.getItem('selectedFontSize') || 'medium';
-
-    document.getElementById('langSelect').value = savedLang;
-    document.getElementById('fontSizeSelect').value = savedFontSize;
-
-    loadLang(savedLang);
-    applyFontSize(savedFontSize);
-
-     // Mobile language selector
-document.getElementById('langSelectMobile').addEventListener('change', (e)=> {
-  loadLang(e.target.value);
-  localStorage.setItem('selectedLang', e.target.value);
-  // Sync desktop selector
-  document.getElementById('langSelect').value = e.target.value;
-});
-
-// Mobile font size selector
-document.getElementById('fontSizeSelectMobile').addEventListener('change', (e)=> {
-  applyFontSize(e.target.value);
-  localStorage.setItem('selectedFontSize', e.target.value);
-  // Sync desktop selector
-  document.getElementById('fontSizeSelect').value = e.target.value;
-});
-
-// Sync mobile selectors on page load
-document.getElementById('langSelectMobile').value = savedLang;
-
-</script>
-{% block scripts %}{% endblock %}
-</body>
+  // Sync mobile selectors on page load
+  document.getElementById('langSelectMobile').value = savedLang;
+  
+    </script>
+    {% block scripts %}{% endblock %}
+  </body>
 </html>

@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% block content %}
 <h2 data-i18n="daily_title">Daily Input</h2>
@@ -6,10 +5,11 @@
 <!-- Current Feed Bags Status -->
 <div class="alert alert-info mb-4">
   <h6 data-i18n="current_feed_status">📦 Current Feed Status:</h6>
-  <strong><span data-i18n="available_bags">Available Bags:</span> {{ cycle.start_feed_bags|round|int }}</strong>
-  {% if cycle.start_feed_bags <= 3 %}
+  {% set available_bags = feeds|sum(attribute='feed_bags') if feeds is defined else 0 %}
+  <strong><span data-i18n="available_bags">Available Bags:</span> {{ available_bags|round|int }}</strong>
+  {% if available_bags <= 3 %}
   <span class="badge bg-warning ms-2" data-i18n="warning_low_stock">Low Stock!</span>
-  {% elif cycle.start_feed_bags <= 1 %}
+  {% elif available_bags <= 1 %}
   <span class="badge bg-danger ms-2" data-i18n="warning_critical_stock">Critical Stock!</span>
   {% endif %}
 </div>
@@ -31,19 +31,17 @@
       <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control"
              value="{{ error_data.feed_bags_consumed if error_data else 0 }}" min="0" required
              onchange="validateFeedBags()">
-      <small class="text-muted">Available: {{ cycle.start_feed_bags|round|int }} bags</small>
+      <small class="text-muted">Available: {{ bags_available|round|int }} bags</small>
       {% if error_data and (error_data.feed_bags_consumed == 0 or error_data.feed_bags_consumed is none) %}
       <div class="text-danger mt-1" id="feed-bags-error">
         <span data-i18n="error_feed_bags_zero">Feed bags consumed cannot be zero. Please enter a valid value.</span>
       </div>
       {% endif %}
     </div>
-    <div class="col-md-4">
-      <label for="bags-added" class="form-label" data-i18n="bags_added">Feed Bags Added</label>
-      <input id="bags-added" type="number" step="0.1" name="feed_bags_added" class="form-control"
-             value="{{ error_data.feed_bags_added if error_data else 0 }}" min="0"
-             onchange="validateFeedBags()">
-    </div>
+
+    <!-- Feed Bags Added hidden field -->
+    <input id="bags-added" type="hidden" name="feed_bags_added" value="{{ error_data.feed_bags_added if error_data else 0 }}">
+
     <div class="col-md-4">
       <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (grams)</label>
       <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control"
@@ -148,16 +146,10 @@
 
 
   function validateFeedBags() {
-   const currentBags = {{ cycle.start_feed_bags }};
+    const currentBags = {{ bags_available|default(0) | int }};
     const consumed = safeFloat(document.getElementById('feed-consumed').value);
     const added = safeFloat(document.getElementById('bags-added').value);
-    console.log("currentBags: " + currentBags);
-    console.log("added: " + added);
-    console.log("consumed: " + consumed);
     const remaining = (currentBags + added) - consumed;
-
-    console.log("remaining: " + remaining);
-
 
     const alertDiv = document.getElementById('feed-validation-alert');
     const messageSpan = document.getElementById('validation-message');
@@ -180,15 +172,13 @@
       submitBtn.disabled = true;
       submitBtn.textContent = messages.button_cannot_save_minimum;
     } else if (remaining <= 3) {
-      console.log("Low feed bags warning");
       const params = {remaining: remaining.toFixed(0)};
       messageSpan.textContent = formatMessage(messages.feed_validation_low, params);
       alertDiv.className = 'alert alert-warning';
-      alertDiv.classList.add('d-none');
+      alertDiv.classList.remove('d-none');
       submitBtn.disabled = false;
       submitBtn.textContent = messages.save_daily;
     } else {
-      console.log("Sufficient feed bags");
       alertDiv.classList.add('d-none');
       submitBtn.disabled = false;
       submitBtn.textContent = messages.save_daily;
@@ -199,9 +189,13 @@
   document.getElementById('entry-date').value = new Date().toISOString().split('T')[0];
 
   // Validate on page load if there's error data
-  {% if error_data %}
-  setTimeout(validateFeedBags, 100);
-  {% endif %}
+  var errorDataPresent = "{{ 1 if error_data is defined and error_data != None else 0 }}";
+  if (errorDataPresent === "1") {
+    setTimeout(validateFeedBags, 100);
+  }
+  if (errorDataPresent) {
+    setTimeout(validateFeedBags, 100);
+  }
 </script>
 
 {% endblock %}

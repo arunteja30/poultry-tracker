@@ -4,12 +4,12 @@
   <div>
     <h2 data-i18n="cycle_details_title">📊 Cycle Details</h2>
     <p class="text-muted">
-      <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} |
-      <span data-i18n="status_label">Status:</span>
+      <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
+      <span data-i18n="status_label">Status:</span> 
       {% if cycle.status == 'active' %}
-      <span class="badge bg-success" data-i18n="status_active">Active</span>
+        <span class="badge bg-success" data-i18n="status_active">Active</span>
       {% else %}
-      <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+        <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
       {% endif %}
     </p>
   </div>
@@ -22,6 +22,7 @@
 </div>
 
 <!-- Cycle Overview -->
+
 <div class="row mb-4">
   <div class="col-md-8">
     <div class="card">
@@ -47,9 +48,9 @@
               <dt class="col-sm-5" data-i18n="duration">Duration:</dt>
               <dd class="col-sm-7">
                 {% if cycle.end_date %}
-                {{ duration }} days
+                  {{ duration }} days
                 {% else %}
-                {{ current_duration }} days (ongoing)
+                  {{ current_duration }} days (ongoing)
                 {% endif %}
               </dd>
               <dt class="col-sm-5" data-i18n="notes">Notes:</dt>
@@ -60,30 +61,34 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header">
-        <h5 data-i18n="key_metrics">📊 Key Metrics</h5>
-      </div>
-      <div class="card-body">
-        <div class="text-center">
-          <h4 class="text-primary">{{ cycle.start_birds }} → {{ cycle.current_birds }}</h4>
-          <small class="text-muted" data-i18n="birds_start_to_final">Birds (Start → Final)</small>
-        </div>
-        <hr>
-        <div class="row text-center">
-          <div class="col-6">
-            <h5 class="text-success">{{ "%.1f"|format((cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0) }}%</h5>
-            <small class="text-muted" data-i18n="survival_rate">Survival Rate</small>
-          </div>
-          <div class="col-6">
-            <h5 class="text-info">{{ "%.2f"|format(stats.avg_fcr) if stats.avg_fcr > 0 else 'N/A' }}</h5>
-            <small class="text-muted" data-i18n="avg_fcr">Avg FCR</small>
-          </div>
+</div>
+
+<!-- Key Metrics Tiles -->
+
+<!-- Key Metrics Tiles: Responsive 2 columns per row on mobile, 4 columns per row on desktop -->
+<div class="row mb-4">
+{% set metrics = [
+    {"title": "Survival Rate", "i18n": "key_survival_rate", "value": "%.1f"|format((cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0), "class": "text-success"},
+    {"title": "Avg FCR", "i18n": "key_avg_fcr", "value": "%.2f"|format(stats.avg_fcr) if stats.avg_fcr > 0 else 'N/A', "class": "text-info"},
+    {"title": "Feed Cost", "i18n": "key_feed_cost", "value": "₹%s" % total_feed_cost, "class": "text-dark"},
+    {"title": "Feed Cost per Bird", "i18n": "key_feed_cost_per_bird", "value": "₹%s" % ((total_feed_cost / cycle.current_birds)|round(2) if cycle.current_birds > 0 else 'N/A'), "class": "text-success"},
+    {"title": "Avg Weight (kg)", "i18n": "key_avg_weight", "value": "%.3f"|format(stats.avg_weight) if stats.avg_weight > 0 else 'N/A', "class": "text-primary"},
+    {"title": "Mortality No.", "i18n": "key_mortality_no", "value": stats.total_mortality, "class": "text-danger"},
+    {"title": "Total Bags Consumed", "i18n": "key_total_bags_consumed", "value": total_bags_consumed, "class": "text-info"},
+    {"title": "Feed to Weight Ratio", "i18n": "key_feed_to_weight_ratio", "value": feed_to_weight_ratio if feed_to_weight_ratio is not none else 'N/A', "class": "text-info"},
+    {"title": "Mortality Rate", "i18n": "key_mortality_rate", "value": (stats.total_mortality / cycle.start_birds * 100)|round(2) if cycle.start_birds > 0 else 'N/A', "class": "text-danger", "suffix": "%"},
+    {"title": "Avg feed by Each Bird (kg)", "i18n": "key_avg_feed_per_bird", "value": ((total_bags_consumed * 50) / cycle.current_birds)|round(3) if cycle.current_birds > 0 else 'N/A', "class": "text-info"}
+  ] %}
+  {% for metric in metrics %}
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card text-center h-100">
+        <div class="card-header bg-primary" style="color: white;" data-i18n="{{ metric.i18n }}">{{ metric.title }}</div>
+        <div class="card-body">
+          <h4 class="card-title {{ metric.class }}">{{ metric.value }}{% if metric.suffix %}{{ metric.suffix }}{% endif %}</h4>
         </div>
       </div>
     </div>
-  </div>
+  {% endfor %}
 </div>
 
 <!-- Performance Charts -->
@@ -112,8 +117,9 @@
 
 
 
+
 <!-- Daily Entries Table (Desktop) -->
-<div class="card d-none d-md-block">
+<div class="card d-none d-md-block mb-4">
   <div class="card-header">
     <h5 data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
   </div>
@@ -121,7 +127,7 @@
     {% if daily_entries %}
     <div class="table-responsive">
       <table class="table table-sm table-striped">
-        <thead>
+      <thead>
         <tr>
           <th class="text-center" data-i18n="table_day">Day</th>
           <th class="text-center" data-i18n="table_date">Date</th>
@@ -134,8 +140,8 @@
           <th class="text-center" data-i18n="table_medicines">Medicines</th>
           <th data-i18n="table_notes">Notes</th>
         </tr>
-        </thead>
-        <tbody>
+      </thead>
+      <tbody>
         {% set total_days = daily_entries|length %}
         {% for entry in daily_entries|reverse %}
         <tr>
@@ -144,35 +150,34 @@
           <td class="text-center">{{ entry.birds_survived }}</td>
           <td class="text-center">
             {% if entry.mortality > 0 %}
-            <span class="text-danger">{{ entry.mortality }}</span>
+              <span class="text-danger">{{ entry.mortality }}</span>
             {% else %}
-            {{ entry.mortality }}
+              {{ entry.mortality }}
             {% endif %}
           </td>
           <td class="text-center">{{ entry.feed_bags_consumed }}</td>
           <td class="text-center">
             {% if entry.feed_bags_added > 0 %}
-            <span class="text-success">+{{ entry.feed_bags_added }}</span>
+              <span class="text-success">+{{ entry.feed_bags_added }}</span>
             {% else %}
-            {{ entry.feed_bags_added }}
+              {{ entry.feed_bags_added }}
             {% endif %}
           </td>
           <td class="text-center">{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</td>
           <td class="text-center">
             {% if entry.fcr > 0 %}
-            <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
-          {{ "%.3f"|format(entry.fcr) }}
-        </span>
+              <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
+                {{ "%.3f"|format(entry.fcr) }}
+              </span>
             {% else %}
-            N/A
+              N/A
             {% endif %}
           </td>
           <td class="text-center">{{ entry.medicines or '-' }}</td>
           <td>{{ entry.daily_notes or '-' }}</td>
         </tr>
         {% endfor %}
-        </tbody>
-
+      </tbody>
       </table>
     </div>
     {% else %}
@@ -181,55 +186,104 @@
   </div>
 </div>
 
+<!-- Feed List Section (Desktop) -->
+
+<div class="card d-none d-md-block mb-4">
+  <div class="card-header">
+    <h5 class="mb-0" data-i18n="feed_list_header">Feed List</h5>
+  </div>
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th data-i18n="feed_bill_no">Bill No</th>
+          <th data-i18n="feed_date">Date</th>
+          <th data-i18n="feed_name">Feed Name</th>
+          <th data-i18n="feed_bags">Bags</th>
+          <th data-i18n="feed_bag_weight">Bag Weight (kg)</th>
+          <th data-i18n="feed_total_feed">Total Feed (kg)</th>
+          <th data-i18n="feed_price_per_kg">Price/kg (₹)</th>
+          <th data-i18n="feed_total_cost">Total Cost (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for feed in feeds %}
+        <tr>
+          <td>{{ feed.bill_number }}</td>
+          <td>{{ feed.date }}</td>
+          <td>{{ feed.feed_name }}</td>
+          <td>{{ feed.feed_bags }}</td>
+          <td>{{ feed.bag_weight }}</td>
+          <td>{{ feed.total_feed_kg }}</td>
+          <td>{{ feed.price_per_kg }}</td>
+          <td>{{ feed.total_cost }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="mt-3 text-end">
+      <h5 data-i18n="feed_total_feed_cost">Total Feed Cost: <span class="text-success">₹{{ total_feed_cost }}</span></h5>
+    </div>
+  </div>
+</div>
+
 <!-- Daily Entries Card View (Mobile) -->
 <div class="d-block d-md-none">
-  {% if daily_entries %}
-  {% set total_days = daily_entries|length %}
-  {% for entry in daily_entries|reverse %}
-  <div class="card mb-3 shadow-sm">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong class="text-primary">{{ entry.entry_date }}</strong>
-        <span class="badge bg-secondary ms-2">Day {{ total_days - loop.index0 }}</span>
-      </div>
-      <div>
-        <span class="text-secondary" data-i18n="table_birds_survived">Birds Survived:</span>
-        <span class="fw-bold text-success">{{ entry.birds_survived }}</span><br>
-        <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
-        <span class="fw-bold text-danger">{{ entry.mortality }}</span><br>
-        <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span>
-        <span class="fw-bold text-info">{{ entry.feed_bags_consumed }}</span><br>
-        <span class="text-secondary" data-i18n="table_feed_added">Feed Added:</span>
-        {% if entry.feed_bags_added > 0 %}
-        <span class="fw-bold text-success">+{{ entry.feed_bags_added }}</span>
-        {% else %}
-        <span class="fw-bold text-dark">{{ entry.feed_bags_added }}</span>
-        {% endif %}<br>
-        <span class="text-secondary" data-i18n="table_avg_weight">Avg Weight:</span>
-        <span class="fw-bold text-warning">{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }} kg</span><br>
-        <span class="text-secondary" data-i18n="table_fcr">FCR:</span>
-        {% if entry.fcr > 0 %}
-        <span class="fw-bold {% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
-                {{ "%.3f"|format(entry.fcr) }}
-              </span>
-        {% else %}
-        <span class="fw-bold text-dark">N/A</span>
-        {% endif %}<br>
-        <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
-        <span class="fw-bold text-primary">{{ entry.medicines or '-' }}</span><br>
-        <span class="text-secondary" data-i18n="table_notes">Notes:</span>
-        <span class="fw-bold text-dark">{{ entry.daily_notes or '-' }}</span>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
-  {% else %}
+  <!-- Daily Entries for Mobile View -->
   <div class="card mb-3">
-    <div class="card-body text-center text-muted" data-i18n="no_daily_entries">
-      No daily entries found for this cycle.
+    <div class="card-header">
+      <h5 class="mb-0">Daily Entries</h5>
+    </div>
+    <div class="card-body">
+      {% if daily_entries %}
+        {% set total_days = daily_entries|length %}
+        {% for entry in daily_entries|reverse %}
+          <div class="border rounded p-2 mb-2">
+            <div style="color: #cc470e;font-weight:bold;"><strong>Day:</strong> {{ total_days - loop.index0 }}</div>
+            <div><strong>Date:</strong> {{ entry.entry_date }}</div>
+            <div><strong>Birds Survived:</strong> {{ entry.birds_survived }}</div>
+            <div><strong>Mortality:</strong> {{ entry.mortality }}</div>
+            <div><strong>Feed Consumed:</strong> {{ entry.feed_bags_consumed }}</div>
+            <div><strong>Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added }}{% else %}{{ entry.feed_bags_added }}{% endif %}</div>
+            <div><strong>Avg Weight (kg):</strong> {{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</div>
+            <div><strong>FCR:</strong> {% if entry.fcr > 0 %}{{ "%.3f"|format(entry.fcr) }}{% else %}N/A{% endif %}</div>
+            <div><strong>Medicines:</strong> {{ entry.medicines or '-' }}</div>
+            <div><strong>Notes:</strong> {{ entry.daily_notes or '-' }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-muted text-center" data-i18n="no_daily_entries">No daily entries found for this cycle.</div>
+      {% endif %}
     </div>
   </div>
-  {% endif %}
+
+  <!-- Feed List for Mobile View -->
+  <div class="card mb-3">
+    <div class="card-header">
+      <h5 class="mb-0" data-i18n="feed_list_header">Feed List</h5>
+    </div>
+    <div class="card-body">
+      {% if feeds %}
+        {% for feed in feeds %}
+          <div class="border rounded p-2 mb-2">
+            <div><strong data-i18n="feed_bill_no">Bill No:</strong> {{ feed.bill_number }}</div>
+            <div><strong data-i18n="feed_date">Date:</strong> {{ feed.date }}</div>
+            <div><strong data-i18n="feed_name">Feed Name:</strong> {{ feed.feed_name }}</div>
+            <div><strong data-i18n="feed_bags">Bags:</strong> {{ feed.feed_bags }}</div>
+            <div><strong data-i18n="feed_bag_weight">Bag Weight (kg):</strong> {{ feed.bag_weight }}</div>
+            <div><strong data-i18n="feed_total_feed">Total Feed (kg):</strong> {{ feed.total_feed_kg }}</div>
+            <div><strong data-i18n="feed_price_per_kg">Price/kg (₹):</strong> {{ feed.price_per_kg }}</div>
+            <div><strong data-i18n="feed_total_cost">Total Cost (₹):</strong> {{ feed.total_cost }}</div>
+          </div>
+        {% endfor %}
+        <div class="mt-2 text-end">
+          <strong data-i18n="feed_total_feed_cost">Total Feed Cost:</strong> <span class="text-success">₹{{ total_feed_cost }}</span>
+        </div>
+      {% else %}
+        <div class="text-muted text-center" data-i18n="feed_no_entries">No feed entries found.</div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -237,69 +291,69 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // FCR Chart
-  const fcrSeries = {{ fcr_series|tojson | safe }};
-  const dates = {{ dates|tojson | safe }};
-  const fcrCtx = document.getElementById('fcrChart').getContext('2d');
-  new Chart(fcrCtx, {
-    type: 'line',
-    data: {
-      labels: dates,
-      datasets: [{
-        label: 'FCR',
-        data: fcrSeries,
-        tension: 0.2,
-        borderWidth: 2,
-        borderColor: '#1877f2',
-        backgroundColor: 'rgba(24, 119, 242, 0.1)',
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'FCR Value'
-          }
+// FCR Chart
+const fcrSeries = {{ fcr_series|tojson | safe }};
+const dates = {{ dates|tojson | safe }};
+const fcrCtx = document.getElementById('fcrChart').getContext('2d');
+new Chart(fcrCtx, {
+  type: 'line',
+  data: {
+    labels: dates,
+    datasets: [{
+      label: 'FCR',
+      data: fcrSeries,
+      tension: 0.2,
+      borderWidth: 2,
+      borderColor: '#1877f2',
+      backgroundColor: 'rgba(24, 119, 242, 0.1)',
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'FCR Value'
         }
       }
     }
-  });
+  }
+});
 
-  // Weight Chart
-  const weightSeries = {{ weight_series|tojson }};
-  const weightCtx = document.getElementById('weightChart').getContext('2d');
-  new Chart(weightCtx, {
-    type: 'line',
-    data: {
-      labels: dates,
-      datasets: [{
-        label: 'Weight (kg)',
-        data: weightSeries,
-        tension: 0.2,
-        borderWidth: 2,
-        borderColor: '#28a745',
-        backgroundColor: 'rgba(40, 167, 69, 0.1)',
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Weight (kg)'
-          }
+// Weight Chart
+const weightSeries = {{ weight_series|tojson }};
+const weightCtx = document.getElementById('weightChart').getContext('2d');
+new Chart(weightCtx, {
+  type: 'line',
+  data: {
+    labels: dates,
+    datasets: [{
+      label: 'Weight (kg)',
+      data: weightSeries,
+      tension: 0.2,
+      borderWidth: 2,
+      borderColor: '#28a745',
+      backgroundColor: 'rgba(40, 167, 69, 0.1)',
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Weight (kg)'
         }
       }
     }
-  });
+  }
+});
 </script>
 {% endblock %}
