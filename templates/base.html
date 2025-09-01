@@ -24,24 +24,29 @@
               <div class="collapse navbar-collapse d-none d-lg-block" id="navmenu">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a></li>
-                  {% if session.role == 'admin' %}
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a></li>
-                  {% endif %}
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">Feed Management</a></li>
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a></li>
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">Bird Dispatch</a></li>
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a></li>
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
                   <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">Expenses</a></li>
                   {% if session.role == 'admin' %}
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_setup_data">
+                      Setup Data
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">Cycle Setup</a></li>
+                      <li><a class="dropdown-item" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
+                      <li><a class="dropdown-item" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
+                       <li><a class="dropdown-item" href="{{ url_for('export') }}" data-i18n="nav_export">Export</a></li>
+                    </ul>
+                  </li>
                   {% endif %}
                 </ul>
                 <div class="d-flex align-items-center">
-                  {% if session.role == 'admin' %}
-                  <a href="{{ url_for('export') }}" class="btn btn-outline-secondary btn-sm me-3" data-i18n="export_excel">Export Excel</a>
-                  {% endif %}
                   <select id="langSelect" class="form-select form-select-sm me-2" style="width:130px;">
                     <option value="en">🇺🇸 English</option>
                     <option value="hi">🇮🇳 हिन्दी</option>
@@ -84,12 +89,6 @@
               <a class="nav-link" style="color:#ffffff;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a>
               <hr style="margin:0; border-color:#ffffff;">
             </li>
-            {% if session.role == 'admin' %}
-            <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('setup') }}" data-i18n="nav_setup">Setup</a>
-              <hr style="margin:0; border-color:#ffffff;">
-            </li>
-            {% endif %}
             <li class="nav-item">
               <a class="nav-link" style="color:#ffffff;" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">Feed Management</a>
               <hr style="margin:0; border-color:#ffffff;">
@@ -100,6 +99,10 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">Bird Dispatch</a>
               <hr style="margin:0; border-color:#ffffff;">
             </li>
             <li class="nav-item">
@@ -114,13 +117,36 @@
               <a class="nav-link" style="color:#ffffff;" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a>
               <hr style="margin:0; border-color:#ffffff;">
             </li>
-            {% if session.role == 'admin' %}
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a>
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">Expenses</a>
               <hr style="margin:0; border-color:#ffffff;">
             </li>
+            {% if session.role == 'admin' %}
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a>
+              <div class="accordion accordion-flush" id="setupAccordion">
+                <div class="accordion-item" style="background-color: transparent; border: none;">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#setupCollapse" aria-expanded="false" aria-controls="setupCollapse" style="background-color: transparent; color: #ffffff; border: none; padding: 8px 0;" data-i18n="nav_setup">
+                      Setup
+                    </button>
+                  </h2>
+                  <div id="setupCollapse" class="accordion-collapse collapse" data-bs-parent="#setupAccordion">
+                    <div class="accordion-body" style="padding: 0;">
+                      <ul class="navbar-nav">
+                        <li class="nav-item">
+                          <a class="nav-link" style="color:#ffffff; padding-left: 20px;" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">Cycle Setup</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" style="color:#ffffff; padding-left: 20px;" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" style="color:#ffffff; padding-left: 20px;" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <hr style="margin:0; border-color:#ffffff;">
             </li>
             {% endif %}

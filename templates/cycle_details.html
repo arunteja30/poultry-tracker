@@ -91,6 +91,46 @@
   {% endfor %}
 </div>
 
+<!-- Dispatch & Medical Summary Tiles -->
+{% if bird_dispatches %}
+<div class="row mb-4">
+  <div class="col-6 col-md-3 mb-3">
+    <div class="card text-center h-100">
+      <div class="card-header bg-success" style="color: white;">Dispatched Birds</div>
+      <div class="card-body">
+        <h4 class="card-title text-success">{{ dispatch_summary.total_birds_dispatched }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 mb-3">
+    <div class="card text-center h-100">
+      <div class="card-header bg-info" style="color: white;">Dispatched Weight</div>
+      <div class="card-body">
+        <h4 class="card-title text-info">{{ "%.1f"|format(dispatch_summary.total_weight_dispatched) }} kg</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 mb-3">
+    <div class="card text-center h-100">
+      <div class="card-header bg-warning" style="color: white;">Medical Expenses</div>
+      <div class="card-body">
+        <h4 class="card-title text-warning">
+          ₹{{ "%.0f"|format(total_medical_cost) if total_medical_cost > 0 else 'N/A' }}
+        </h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 mb-3">
+    <div class="card text-center h-100">
+      <div class="card-header bg-secondary" style="color: white;">Avg Dispatch Weight</div>
+      <div class="card-body">
+        <h4 class="card-title text-secondary">{{ "%.3f"|format(dispatch_summary.avg_weight_per_bird) }} kg</h4>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- Performance Charts -->
 <div class="row mb-4">
   <div class="col-md-6">
@@ -115,8 +155,300 @@
   </div>
 </div>
 
+<!-- Bird Dispatch Summary -->
+{% if bird_dispatches %}
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>🚚 Bird Dispatch Summary</h5>
+      </div>
+      <div class="card-body">
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-md-block">
+          <table class="table table-sm table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th>Vehicle</th>
+                <th>Driver</th>
+                <th>Vendor</th>
+                <th>Date</th>
+                <th>Birds</th>
+                <th>Weight (kg)</th>
+                <th>Avg/Bird (kg)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dispatch in bird_dispatches %}
+              <tr class="{{ 'table-success' if dispatch.status == 'completed' else 'table-warning' }}">
+                <td><strong>{{ dispatch.vehicle_no }}</strong></td>
+                <td>{{ dispatch.driver_name }}</td>
+                <td>{{ dispatch.vendor_name or '-' }}</td>
+                <td>
+                  {{ dispatch.dispatch_date }}<br>
+                  <small class="text-muted">{{ dispatch.dispatch_time }}</small>
+                </td>
+                <td>
+                  {% if dispatch.status == 'completed' %}
+                    <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                  {% else %}
+                    <span class="badge bg-warning">In Progress</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if dispatch.status == 'completed' %}
+                    {{ "%.1f"|format(dispatch.total_weight) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if dispatch.status == 'completed' %}
+                    {{ "%.3f"|format(dispatch.avg_weight_per_bird) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if dispatch.status == 'completed' %}
+                    <span class="badge bg-success">✅ Completed</span>
+                  {% else %}
+                    <span class="badge bg-warning">⏳ Active</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
+        <!-- Mobile Cards -->
+        <div class="d-md-none">
+          {% for dispatch in bird_dispatches %}
+          <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0">
+                  <strong>{{ dispatch.vehicle_no }}</strong>
+                </h6>
+                {% if dispatch.status == 'completed' %}
+                  <span class="badge bg-success">✅ Completed</span>
+                {% else %}
+                  <span class="badge bg-warning">⏳ Active</span>
+                {% endif %}
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <small class="text-muted">Driver:</small><br>
+                  <strong>{{ dispatch.driver_name }}</strong>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">Vendor:</small><br>
+                  <strong>{{ dispatch.vendor_name or '-' }}</strong>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-6">
+                  <small class="text-muted">Date & Time:</small><br>
+                  <strong>{{ dispatch.dispatch_date }}</strong><br>
+                  <small>{{ dispatch.dispatch_time }}</small>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">Birds:</small><br>
+                  {% if dispatch.status == 'completed' %}
+                    <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                  {% else %}
+                    <span class="badge bg-warning">In Progress</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% if dispatch.status == 'completed' %}
+              <div class="row mt-2">
+                <div class="col-6">
+                  <small class="text-muted">Weight:</small><br>
+                  <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">Avg/Bird:</small><br>
+                  <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
+<!-- Medicines Summary -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>💊 Medicines Summary</h5>
+      </div>
+      <div class="card-body">
+        {% if medicines %}
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-md-block">
+          <table class="table table-sm table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th>Medicine Name</th>
+                <th>Price per Unit (₹)</th>
+                <th>Quantity Used</th>
+                <th>Total Cost (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for medicine in medicines %}
+              <tr>
+                <td><strong>{{ medicine.name }}</strong></td>
+                <td>₹{{ "%.2f"|format(medicine.price) }}</td>
+                <td>{{ medicine.qty }}</td>
+                <td><strong class="text-warning">₹{{ "%.2f"|format(medicine.price) }}</strong></td>
+              </tr>
+              {% endfor %}
+              <tr class="table-info">
+                <td colspan="3"><strong>Total Medical Expenses</strong></td>
+                <td><strong class="text-success">₹{{ "%.2f"|format(total_medical_cost) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="d-md-none">
+          {% for medicine in medicines %}
+          <div class="card mb-3 border-info">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0">
+                  <strong>{{ medicine.name }}</strong>
+                </h6>
+                <span class="badge bg-warning text-dark">₹{{ "%.2f"|format(medicine.price * medicine.qty) }}</span>
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <small class="text-muted">Price per Unit:</small><br>
+                  <strong>₹{{ "%.2f"|format(medicine.price) }}</strong>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted">Quantity Used:</small><br>
+                  <strong>{{ medicine.qty }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          
+          <!-- Total Summary Card -->
+          <div class="card border-success">
+            <div class="card-body text-center">
+              <h6 class="card-title text-success">Total Medical Expenses</h6>
+              <h4 class="text-success">₹{{ "%.2f"|format(total_medical_cost) }}</h4>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+          <p class="mb-0">No medicine records found.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expenses Summary -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">💰 Expenses Summary</h5>
+        <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
+          <i class="fas fa-chevron-down" id="expensesToggle"></i>
+        </button>
+      </div>
+      <div class="collapse" id="expensesCollapse">
+        <div class="card-body">
+          {% if expenses %}
+          <!-- Desktop Table -->
+          <div class="table-responsive d-none d-md-block">
+            <table class="table table-sm table-striped">
+              <thead class="table-dark">
+                <tr>
+                  <th>Expense Name</th>
+                  <th>Date</th>
+                  <th>Amount (₹)</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for expense in expenses %}
+                <tr>
+                  <td><strong>{{ expense.name }}</strong></td>
+                  <td>{{ expense.date }}</td>
+                  <td><span class="text-danger">₹{{ "%.2f"|format(expense.amount) }}</span></td>
+                  <td>{{ expense.notes or '-' }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="table-info">
+                  <td colspan="3"><strong>Total Expenses</strong></td>
+                  <td><strong class="text-danger">₹{{ "%.2f"|format(total_expense_cost) }}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile Cards -->
+          <div class="d-md-none">
+            {% for expense in expenses %}
+            <div class="card mb-3 border-warning">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-title mb-0">
+                    <strong>{{ expense.name }}</strong>
+                  </h6>
+                  <span class="badge bg-danger">₹{{ "%.2f"|format(expense.amount) }}</span>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted">Date:</small><br>
+                    <strong>{{ expense.date }}</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Notes:</small><br>
+                    <strong>{{ expense.notes or '-' }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Total Summary Card -->
+            <div class="card border-danger">
+              <div class="card-body text-center">
+                <h6 class="card-title text-danger">Total Expenses</h6>
+                <h4 class="text-danger">₹{{ "%.2f"|format(total_expense_cost) }}</h4>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            <p class="mb-0">No expenses recorded yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Daily Entries Table (Desktop) -->
 <div class="card d-none d-md-block mb-4">
@@ -354,6 +686,14 @@ new Chart(weightCtx, {
       }
     }
   }
+});
+
+// Expenses collapse toggle
+document.getElementById('expensesCollapse').addEventListener('shown.bs.collapse', function () {
+  document.getElementById('expensesToggle').className = 'fas fa-chevron-up';
+});
+document.getElementById('expensesCollapse').addEventListener('hidden.bs.collapse', function () {
+  document.getElementById('expensesToggle').className = 'fas fa-chevron-down';
 });
 </script>
 {% endblock %}

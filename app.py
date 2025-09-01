@@ -74,6 +74,37 @@ class Feed(db.Model):
     price_per_kg = db.Column(db.Float, default=0.0)
     total_cost = db.Column(db.Float, default=0.0)
 
+class BirdDispatch(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cycle_id = db.Column(db.Integer, nullable=False)
+    vehicle_no = db.Column(db.String(50), nullable=False)
+    driver_name = db.Column(db.String(120), nullable=False)
+    dispatch_date = db.Column(db.String(20), nullable=False)
+    dispatch_time = db.Column(db.String(20), nullable=False)
+    vendor_name = db.Column(db.String(120))
+    total_birds = db.Column(db.Integer, default=0)
+    total_weight = db.Column(db.Float, default=0.0)  # kg
+    avg_weight_per_bird = db.Column(db.Float, default=0.0)  # kg
+    notes = db.Column(db.String(500))
+    status = db.Column(db.String(20), default='active')  # 'active', 'completed'
+
+class WeighingRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dispatch_id = db.Column(db.Integer, nullable=False)
+    serial_no = db.Column(db.Integer, nullable=False)
+
+    no_of_birds = db.Column(db.Integer, nullable=False)
+    weight = db.Column(db.Float, nullable=False)  # kg
+    avg_weight_per_bird = db.Column(db.Float, default=0.0)  # kg
+    timestamp = db.Column(db.String(20), nullable=False)
+
+class Expense(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    date = db.Column(db.String(20), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    notes = db.Column(db.String(500))
+
 # ---------------- Safe DB creation ----------------
 def init_database():
     """Initialize database tables and default users"""
@@ -832,6 +863,232 @@ def medicines():
     total_amount = sum(med.price for med in meds)
     return render_template('medicines.html', meds=meds, total_amount=total_amount)
 
+@app.route('/expenses', methods=['GET', 'POST'])
+@login_required
+def expenses():
+    """Expense management"""
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        expense_date = request.form.get('date') or date.today().isoformat()
+        amount = float(request.form.get('amount', 0) or 0)
+        notes = request.form.get('notes', '').strip()
+        
+        if not name or amount <= 0:
+            flash('Name and valid amount are required!', 'error')
+            return redirect(url_for('expenses'))
+        
+        expense = Expense(name=name, date=expense_date, amount=amount, notes=notes)
+        db.session.add(expense)
+        db.session.commit()
+        flash(f'Expense "{name}" added successfully!', 'success')
+        return redirect(url_for('expenses'))
+    
+    # Get all expenses ordered by date descending
+    all_expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+    total_amount = sum(expense.amount for expense in all_expenses)
+    
+    return render_template('expenses.html', expenses=all_expenses, total_amount=total_amount, date=date)
+
+@app.route('/delete_expense/<int:expense_id>', methods=['POST'])
+@admin_required
+def delete_expense(expense_id):
+    """Delete an expense (admin only)"""
+    try:
+        expense = Expense.query.get_or_404(expense_id)
+        expense_name = expense.name
+        db.session.delete(expense)
+        db.session.commit()
+        flash(f'Expense "{expense_name}" deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting expense: {str(e)}', 'error')
+    
+    return redirect(url_for('expenses'))
+
+@app.route('/bird_dispatch', methods=['GET', 'POST'])
+@login_required
+def bird_dispatch():
+    """Bird dispatch/lifting management"""
+    cycle = get_active_cycle()
+    if not cycle:
+        flash('No active cycle found. Please setup a cycle first.', 'error')
+        return redirect(url_for('setup'))
+    
+    if request.method == 'POST':
+        vehicle_no = request.form.get('vehicle_no', '').strip()
+        driver_name = request.form.get('driver_name', '').strip()
+        vendor_name = request.form.get('vendor_name', '').strip()
+        dispatch_date = request.form.get('dispatch_date') or date.today().isoformat()
+        dispatch_time = request.form.get('dispatch_time') or datetime.now().time().isoformat(timespec='minutes')
+        notes = request.form.get('notes', '').strip()
+        
+        if not vehicle_no or not driver_name:
+            flash('Vehicle number and driver name are required!', 'error')
+            return redirect(url_for('bird_dispatch'))
+        
+        # Create new dispatch record
+        dispatch = BirdDispatch(
+            cycle_id=cycle.id,
+            vehicle_no=vehicle_no,
+            driver_name=driver_name,
+            vendor_name=vendor_name,
+            dispatch_date=dispatch_date,
+            dispatch_time=dispatch_time,
+            notes=notes,
+            status='active'
+        )
+        db.session.add(dispatch)
+        db.session.commit()
+        
+        flash(f'Vehicle {vehicle_no} registered for dispatch!', 'success')
+        return redirect(url_for('weighing_screen', dispatch_id=dispatch.id))
+    
+    # Get recent dispatches for current cycle
+    recent_dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).order_by(BirdDispatch.id.desc()).limit(10).all()
+    
+    return render_template('bird_dispatch.html', cycle=cycle, recent_dispatches=recent_dispatches, date=date)
+
+@app.route('/weighing_screen/<int:dispatch_id>')
+@login_required
+def weighing_screen(dispatch_id):
+    """Weighing screen for recording bird weights"""
+    dispatch = BirdDispatch.query.get_or_404(dispatch_id)
+    cycle = get_active_cycle()
+    
+    if not cycle or dispatch.cycle_id != cycle.id:
+        flash('Invalid dispatch record!', 'error')
+        return redirect(url_for('bird_dispatch'))
+    
+    # Get existing weighing records
+    weighing_records = WeighingRecord.query.filter_by(dispatch_id=dispatch_id).order_by(WeighingRecord.serial_no).all()
+    
+    # Calculate totals
+    total_birds = sum(record.no_of_birds for record in weighing_records)
+    total_weight = sum(record.weight for record in weighing_records)
+    avg_weight_per_bird = round(total_weight / total_birds, 3) if total_birds > 0 else 0
+    
+    return render_template('weighing_screen.html', 
+                         dispatch=dispatch, 
+                         weighing_records=weighing_records,
+                         total_birds=total_birds,
+                         total_weight=total_weight,
+                         avg_weight_per_bird=avg_weight_per_bird)
+
+@app.route('/add_weighing_record/<int:dispatch_id>', methods=['POST'])
+@login_required
+def add_weighing_record(dispatch_id):
+    """Add a weighing record"""
+    BirdDispatch.query.get_or_404(dispatch_id)  # Verify dispatch exists
+    
+    no_of_birds = int(request.form.get('no_of_birds', 0))
+    weight = float(request.form.get('weight', 0))
+    
+    if no_of_birds <= 0 or weight <= 0:
+        flash('Please enter valid number of birds and weight!', 'error')
+        return redirect(url_for('weighing_screen', dispatch_id=dispatch_id))
+    
+    # Get next serial number
+    last_record = WeighingRecord.query.filter_by(dispatch_id=dispatch_id).order_by(WeighingRecord.serial_no.desc()).first()
+    next_serial = (last_record.serial_no + 1) if last_record else 1
+    
+    # Calculate average weight per bird for this record
+    avg_weight_per_bird = round(weight / no_of_birds, 3)
+    
+    # Create weighing record
+    record = WeighingRecord(
+        dispatch_id=dispatch_id,
+        serial_no=next_serial,
+        no_of_birds=no_of_birds,
+        weight=weight,
+        avg_weight_per_bird=avg_weight_per_bird,
+        timestamp=datetime.now().isoformat(timespec='seconds')
+    )
+    
+    db.session.add(record)
+    db.session.commit()
+    
+    flash(f'Weighing record #{next_serial} added successfully!', 'success')
+    return redirect(url_for('weighing_screen', dispatch_id=dispatch_id))
+
+@app.route('/complete_dispatch/<int:dispatch_id>', methods=['POST'])
+@login_required
+def complete_dispatch(dispatch_id):
+    """Complete the dispatch and update cycle bird count"""
+    dispatch = BirdDispatch.query.get_or_404(dispatch_id)
+    cycle = get_active_cycle()
+    
+    if not cycle or dispatch.cycle_id != cycle.id:
+        flash('Invalid dispatch record!', 'error')
+        return redirect(url_for('bird_dispatch'))
+    
+    # Get all weighing records
+    weighing_records = WeighingRecord.query.filter_by(dispatch_id=dispatch_id).all()
+    
+    if not weighing_records:
+        flash('No weighing records found! Please add weighing records before completing dispatch.', 'error')
+        return redirect(url_for('weighing_screen', dispatch_id=dispatch_id))
+    
+    # Calculate totals
+    total_birds = sum(record.no_of_birds for record in weighing_records)
+    total_weight = sum(record.weight for record in weighing_records)
+    avg_weight_per_bird = round(total_weight / total_birds, 3) if total_birds > 0 else 0
+    
+    # Update dispatch record
+    dispatch.total_birds = total_birds
+    dispatch.total_weight = total_weight
+    dispatch.avg_weight_per_bird = avg_weight_per_bird
+    dispatch.status = 'completed'
+    
+    # Update cycle bird count
+    cycle.current_birds = max(0, cycle.current_birds - total_birds)
+    
+    db.session.commit()
+    
+    flash(f'Dispatch completed! {total_birds} birds ({total_weight:.1f} kg) sent in vehicle {dispatch.vehicle_no}. Remaining birds: {cycle.current_birds}', 'success')
+    return redirect(url_for('bird_dispatch'))
+
+@app.route('/dispatch_history')
+@login_required
+def dispatch_history():
+    """View dispatch history"""
+    cycle = get_active_cycle()
+    if not cycle:
+        flash('No active cycle found.', 'error')
+        return redirect(url_for('setup'))
+    
+    # Get all dispatches for current cycle
+    dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).order_by(BirdDispatch.id.desc()).all()
+    
+    # Calculate summary statistics
+    total_birds_dispatched = sum(d.total_birds for d in dispatches if d.status == 'completed')
+    total_weight_dispatched = sum(d.total_weight for d in dispatches if d.status == 'completed')
+    completed_dispatches = len([d for d in dispatches if d.status == 'completed'])
+    
+    summary = {
+        'total_birds_dispatched': total_birds_dispatched,
+        'total_weight_dispatched': total_weight_dispatched,
+        'completed_dispatches': completed_dispatches,
+        'avg_weight_per_bird': round(total_weight_dispatched / total_birds_dispatched, 3) if total_birds_dispatched > 0 else 0
+    }
+    
+    return render_template('dispatch_history.html', 
+                         cycle=cycle, 
+                         dispatches=dispatches, 
+                         summary=summary,
+                         date=date)
+
+@app.route('/delete_weighing_record/<int:record_id>', methods=['POST'])
+@admin_required
+def delete_weighing_record(record_id):
+    """Delete a weighing record"""
+    record = WeighingRecord.query.get_or_404(record_id)
+    dispatch_id = record.dispatch_id
+    
+    db.session.delete(record)
+    db.session.commit()
+    
+    flash('Weighing record deleted successfully!', 'success')
+    return redirect(url_for('weighing_screen', dispatch_id=dispatch_id))
+
 # ---------------- In-memory Excel export for Render ----------------
 @app.route('/export')
 @admin_required
@@ -961,6 +1218,7 @@ def export_cycle(cycle_id):
     cycle = Cycle.query.get_or_404(cycle_id)
     rows = Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date).all()
     
+    # Daily entries data
     data = [{
         'date': r.entry_date,
         'mortality': r.mortality,
@@ -972,10 +1230,52 @@ def export_cycle(cycle_id):
         'medicines': r.medicines
     } for r in rows]
     
+    # Bird dispatch data
+    bird_dispatches = BirdDispatch.query.filter_by(cycle_id=cycle_id).order_by(BirdDispatch.dispatch_date.desc()).all()
+    dispatch_data = []
+    weighing_data = []
+    
+    for dispatch in bird_dispatches:
+        dispatch_data.append({
+            'Vehicle No': dispatch.vehicle_no,
+            'Driver Name': dispatch.driver_name,
+            'Vendor Name': dispatch.vendor_name or '-',
+            'Dispatch Date': dispatch.dispatch_date,
+            'Dispatch Time': dispatch.dispatch_time,
+            'Total Birds': dispatch.total_birds if dispatch.status == 'completed' else 'In Progress',
+            'Total Weight (kg)': round(dispatch.total_weight, 1) if dispatch.status == 'completed' else '-',
+            'Avg Weight per Bird (kg)': round(dispatch.avg_weight_per_bird, 3) if dispatch.status == 'completed' else '-',
+            'Status': 'Completed' if dispatch.status == 'completed' else 'Active'
+        })
+        
+        # Get weighing records for this dispatch
+        weighing_records = WeighingRecord.query.filter_by(dispatch_id=dispatch.id).order_by(WeighingRecord.serial_no).all()
+        for record in weighing_records:
+            weighing_data.append({
+                'Vehicle No': dispatch.vehicle_no,
+                'Dispatch Date': dispatch.dispatch_date,
+                'Serial No': record.serial_no,
+                'No of Birds': record.no_of_birds,
+                'Weight (kg)': round(record.weight, 1),
+                'Avg Weight per Bird (kg)': round(record.avg_weight_per_bird, 3),
+                'Timestamp': record.timestamp
+            })
+    
     df = pd.DataFrame(data)
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        # Daily data sheet
         df.to_excel(writer, index=False, sheet_name='Daily Data')
+        
+        # Bird dispatch sheet
+        if dispatch_data:
+            dispatch_df = pd.DataFrame(dispatch_data)
+            dispatch_df.to_excel(writer, index=False, sheet_name='Bird Dispatches')
+        
+        # Weighing records sheet
+        if weighing_data:
+            weighing_df = pd.DataFrame(weighing_data)
+            weighing_df.to_excel(writer, index=False, sheet_name='Weighing Records')
         
         # Add cycle summary sheet
         cycle_summary = pd.DataFrame([{
@@ -987,7 +1287,10 @@ def export_cycle(cycle_id):
             'Initial Feed Bags': cycle.start_feed_bags,
             'Driver': cycle.driver or '',
             'Status': cycle.status,
-            'Notes': cycle.notes or ''
+            'Notes': cycle.notes or '',
+            'Total Dispatches': len(bird_dispatches),
+            'Birds Dispatched': sum(d.total_birds for d in bird_dispatches if d.status == 'completed'),
+            'Weight Dispatched (kg)': round(sum(d.total_weight for d in bird_dispatches if d.status == 'completed'), 1) if bird_dispatches else 0
         }])
         cycle_summary.to_excel(writer, index=False, sheet_name='Cycle Summary')
     
@@ -1371,6 +1674,33 @@ def cycle_details(cycle_id):
     if cycle.current_birds > 0 and stats["avg_weight"] > 0:
         feed_to_weight_ratio = round((total_bags_consumed * 50) / (cycle.current_birds * stats["avg_weight"]), 3)
 
+    # Get bird dispatch data for this cycle
+    bird_dispatches = BirdDispatch.query.filter_by(cycle_id=cycle_id).order_by(BirdDispatch.dispatch_date.desc(), BirdDispatch.dispatch_time.desc()).all()
+    
+    # Calculate dispatch summary statistics
+    total_birds_dispatched = sum(dispatch.total_birds for dispatch in bird_dispatches if dispatch.status == 'completed')
+    total_weight_dispatched = sum(dispatch.total_weight for dispatch in bird_dispatches if dispatch.status == 'completed')
+    avg_dispatch_weight_per_bird = round(total_weight_dispatched / total_birds_dispatched, 3) if total_birds_dispatched > 0 else 0
+    completed_dispatches = len([d for d in bird_dispatches if d.status == 'completed'])
+    active_dispatches = len([d for d in bird_dispatches if d.status == 'active'])
+    
+    dispatch_summary = {
+        'total_birds_dispatched': total_birds_dispatched,
+        'total_weight_dispatched': total_weight_dispatched,
+        'avg_weight_per_bird': avg_dispatch_weight_per_bird,
+        'completed_dispatches': completed_dispatches,
+        'active_dispatches': active_dispatches,
+        'total_dispatches': len(bird_dispatches)
+    }
+
+    # Calculate total medical expenses from Medicine model
+    medicines = Medicine.query.all()
+    total_medical_cost = sum(medicine.price for medicine in medicines) if medicines else 0
+
+    # Get expenses data
+    expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+    total_expense_cost = sum(expense.amount for expense in expenses)
+
     return render_template(
         'cycle_details.html',
         cycle=cycle,
@@ -1384,7 +1714,13 @@ def cycle_details(cycle_id):
         current_duration=current_duration,
         fcr_series=fcr_series,
         dates=dates,
-        weight_series=weight_series
+        weight_series=weight_series,
+        bird_dispatches=bird_dispatches,
+        dispatch_summary=dispatch_summary,
+        medicines=medicines,
+        total_medical_cost=total_medical_cost,
+        expenses=expenses,
+        total_expense_cost=total_expense_cost
     )
 
 
@@ -1425,6 +1761,109 @@ def delete_cycle(cycle_id):
     db.session.commit()
     flash('Cycle deleted successfully!', 'success')
     return redirect(url_for('setup'))
+
+@app.route('/export_dispatch_excel')
+@login_required
+def export_dispatch_excel():
+    """Export dispatch history to Excel file"""
+    import pandas as pd
+    from io import BytesIO
+    from flask import send_file
+    
+    cycle = get_active_cycle()
+    if not cycle:
+        flash('No active cycle found!', 'error')
+        return redirect(url_for('dispatch_history'))
+    
+    # Get all dispatches for current cycle
+    dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).order_by(BirdDispatch.dispatch_date.desc(), BirdDispatch.dispatch_time.desc()).all()
+    
+    if not dispatches:
+        flash('No dispatch data to export!', 'error')
+        return redirect(url_for('dispatch_history'))
+    
+    # Prepare data for Excel
+    data = []
+    for i, dispatch in enumerate(dispatches, 1):
+        data.append({
+            'Sr. No.': i,
+            'Vehicle No': dispatch.vehicle_no,
+            'Driver Name': dispatch.driver_name,
+            'Vendor Name': dispatch.vendor_name or '-',
+            'Dispatch Date': dispatch.dispatch_date,
+            'Dispatch Time': dispatch.dispatch_time,
+            'Total Birds': dispatch.total_birds if dispatch.status == 'completed' else 'In Progress',
+            'Total Weight (kg)': round(dispatch.total_weight, 1) if dispatch.status == 'completed' else '-',
+            'Avg Weight per Bird (kg)': round(dispatch.avg_weight_per_bird, 3) if dispatch.status == 'completed' else '-',
+            'Status': 'Completed' if dispatch.status == 'completed' else 'Active'
+        })
+    
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    
+    # Create Excel file in memory
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        # Write main dispatch data
+        df.to_excel(writer, sheet_name='Dispatch History', index=False)
+        
+        # Get weighing records for detailed sheet
+        weighing_data = []
+        for dispatch in dispatches:
+            if dispatch.status == 'completed':
+                weighing_records = WeighingRecord.query.filter_by(dispatch_id=dispatch.id).order_by(WeighingRecord.serial_no).all()
+                for record in weighing_records:
+                    weighing_data.append({
+                        'Vehicle No': dispatch.vehicle_no,
+                        'Dispatch Date': dispatch.dispatch_date,
+                        'Serial No': record.serial_no,
+                        'No of Birds': record.no_of_birds,
+                        'Weight (kg)': round(record.weight, 1),
+                        'Avg Weight per Bird (kg)': round(record.avg_weight_per_bird, 3),
+                        'Timestamp': record.timestamp
+                    })
+        
+        if weighing_data:
+            weighing_df = pd.DataFrame(weighing_data)
+            weighing_df.to_excel(writer, sheet_name='Weighing Records', index=False)
+        
+        # Add summary sheet
+        summary_data = {
+            'Metric': [
+                'Total Dispatches',
+                'Completed Dispatches', 
+                'Active Dispatches',
+                'Total Birds Dispatched',
+                'Total Weight Dispatched (kg)',
+                'Overall Average Weight per Bird (kg)'
+            ],
+            'Value': [
+                len(dispatches),
+                len([d for d in dispatches if d.status == 'completed']),
+                len([d for d in dispatches if d.status == 'active']),
+                sum(d.total_birds for d in dispatches if d.status == 'completed'),
+                round(sum(d.total_weight for d in dispatches if d.status == 'completed'), 1),
+                round(sum(d.total_weight for d in dispatches if d.status == 'completed') / 
+                      sum(d.total_birds for d in dispatches if d.status == 'completed'), 3) 
+                      if sum(d.total_birds for d in dispatches if d.status == 'completed') > 0 else 0
+            ]
+        }
+        summary_df = pd.DataFrame(summary_data)
+        summary_df.to_excel(writer, sheet_name='Summary', index=False)
+    
+    output.seek(0)
+    
+    # Generate filename with current date
+    from datetime import datetime
+    today = datetime.now().strftime('%Y-%m-%d')
+    filename = f'dispatch_history_cycle_{cycle.id}_{today}.xlsx'
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=filename
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

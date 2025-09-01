@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 data-i18n="feed_management_title">Feed Management</h2>
+<div class="card p-4 mb-4">
+  <form method="POST" class="row g-3">
+    <div class="col-md-3">
+      <label for="bill_number" class="form-label" data-i18n="feed_bill_no">Bill Number</label>
+      <input id="bill_number" name="bill_number" type="text" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+      <label for="date" class="form-label" data-i18n="feed_date">Date</label>
+      <input id="date" name="date" type="date" class="form-control" value="{{ current_date }}" required>
+    </div>
+    <div class="col-md-3">
+      <label for="feed_name" class="form-label" data-i18n="feed_name">Feed Name</label>
+      <input id="feed_name" name="feed_name" type="text" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+      <label for="feed_bags" class="form-label" data-i18n="feed_bags">Feed Bags</label>
+      <input id="feed_bags" name="feed_bags" type="number" min="1" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+      <label for="bag_weight" class="form-label" data-i18n="feed_bag_weight">Each Bag Weight (kg)</label>
+      <input id="bag_weight" name="bag_weight" type="number" step="0.01" class="form-control" value="50" required>
+    </div>
+    <div class="col-md-2">
+      <label for="price_per_kg" class="form-label" data-i18n="feed_price_per_kg">Feed Price per kg (₹)</label>
+      <input id="price_per_kg" name="price_per_kg" type="number" step="0.01" class="form-control" value="45" required>
+    </div>
+    <div class="col-md-2 align-self-end">
+      <button type="submit" class="btn btn-success w-100" data-i18n="feed_add_btn">Add Feed</button>
+    </div>
+  </form>
+</div>
+
+
+<div class="card">
+  <div class="card-body">
+    <h5 data-i18n="feed_list_header">Feed List</h5>
+    <!-- Desktop Table View -->
+    <div class="d-none d-md-block">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th data-i18n="feed_bill_no">Bill No</th>
+            <th data-i18n="feed_date">Date</th>
+            <th data-i18n="feed_name">Feed Name</th>
+            <th data-i18n="feed_bags">Bags</th>
+            <th data-i18n="feed_bag_weight">Bag Weight (kg)</th>
+            <th data-i18n="feed_total_feed">Total Feed (kg)</th>
+            <th data-i18n="feed_price_per_kg">Price/kg (₹)</th>
+            <th data-i18n="feed_total_cost">Total Cost (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for feed in feeds %}
+          <tr>
+            <td>{{ feed.bill_number }}</td>
+            <td>{{ feed.date }}</td>
+            <td>{{ feed.feed_name }}</td>
+            <td>{{ feed.feed_bags }}</td>
+            <td>{{ feed.bag_weight }}</td>
+            <td>{{ feed.total_feed_kg }}</td>
+            <td>{{ feed.price_per_kg }}</td>
+            <td>{{ feed.total_cost }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Mobile Card View -->
+    <div class="d-block d-md-none">
+      {% if feeds %}
+        {% for feed in feeds %}
+          <div class="border rounded p-2 mb-2">
+            <div><strong data-i18n="feed_bill_no">Bill No:</strong> {{ feed.bill_number }}</div>
+            <div><strong data-i18n="feed_date">Date:</strong> {{ feed.date }}</div>
+            <div><strong data-i18n="feed_name">Feed Name:</strong> {{ feed.feed_name }}</div>
+            <div><strong data-i18n="feed_bags">Bags:</strong> {{ feed.feed_bags }}</div>
+            <div><strong data-i18n="feed_bag_weight">Bag Weight (kg):</strong> {{ feed.bag_weight }}</div>
+            <div><strong data-i18n="feed_total_feed">Total Feed (kg):</strong> {{ feed.total_feed_kg }}</div>
+            <div><strong data-i18n="feed_price_per_kg">Price/kg (₹):</strong> {{ feed.price_per_kg }}</div>
+            <div><strong data-i18n="feed_total_cost">Total Cost (₹):</strong> {{ feed.total_cost }}</div>
+          </div>
+        {% endfor %}
+        <div class="mt-2 text-end">
+          <strong data-i18n="feed_total_feed_cost">Total Feed Cost:</strong> <span class="text-success">₹{{ total_cost }}</span>
+        </div>
+      {% else %}
+        <div class="text-muted text-center" data-i18n="feed_no_entries">No feed entries found.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

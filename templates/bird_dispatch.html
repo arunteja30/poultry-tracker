@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🚚 Bird Dispatch Management</h2>
+        <div>
+          <a href="{{ url_for('dispatch_history') }}" class="btn btn-info btn-sm">📋 Dispatch History</a>
+        </div>
+      </div>
+
+      <!-- Current Cycle Info -->
+      {% if cycle %}
+      <div class="alert alert-info">
+        <strong>Current Cycle:</strong> Started {{ cycle.start_date }} | 
+        <strong>Available Birds:</strong> {{ cycle.current_birds }} | 
+        <strong>Driver:</strong> {{ cycle.driver or 'N/A' }}
+      </div>
+      {% endif %}
+
+      <!-- Summary Statistics -->
+      {% if recent_dispatches %}
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary">
+            <div class="card-body text-center">
+              <h4 style="color: rgb(230, 229, 233);">{{ recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_birds') }}</h4>
+              <p class="mb-0" style="color: rgb(230, 229, 233);">Total Birds Dispatched</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body text-center">
+              <h4 style="color: white;">{{ "%.1f"|format(recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_weight')) }} kg</h4>
+              <p class="mb-0" style="color: white;">Total Weight</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body text-center">
+              <h4 style="color: rgb(62, 5, 219);">{{ recent_dispatches | length }}</h4>
+              <p class="mb-0" style="color: rgb(44, 12, 225);">Number of Vehicles</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+              <h4 style="color: rgb(215, 27, 27);">
+                {% set completed_dispatches = recent_dispatches | selectattr('status', 'equalto', 'completed') | list %}
+                {% set total_birds = completed_dispatches | sum(attribute='total_birds') %}
+                {% set total_weight = completed_dispatches | sum(attribute='total_weight') %}
+                {% if total_birds > 0 %}
+                  {{ "%.3f"|format(total_weight / total_birds) }} kg
+                {% else %}
+                  0.000 kg
+                {% endif %}
+              </h4>
+              <p class="mb-0" style="color: rgb(174, 16, 16);">Avg Bird Weight</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- New Dispatch Form -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">🚛 Register New Vehicle for Dispatch</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            <div class="row">
+              <div class="col-md-3 col-sm-6 mb-3">
+                <label for="vehicle_no" class="form-label">Vehicle Number *</label>
+                <input type="text" class="form-control" id="vehicle_no" name="vehicle_no" 
+                       placeholder="e.g., AP01AB1234" required style="text-transform: uppercase;">
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <label for="driver_name" class="form-label">Driver Name *</label>
+                <input type="text" class="form-control" id="driver_name" name="driver_name" 
+                       placeholder="Driver Name" required>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <label for="vendor_name" class="form-label">Vendor/Buyer Name</label>
+                <input type="text" class="form-control" id="vendor_name" name="vendor_name" 
+                       placeholder="Vendor Name">
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <label for="dispatch_date" class="form-label">Dispatch Date</label>
+                <input type="date" class="form-control" id="dispatch_date" name="dispatch_date" 
+                       value="">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3 col-sm-6 mb-3">
+                <label for="dispatch_time" class="form-label">Dispatch Time</label>
+                <input type="time" class="form-control" id="dispatch_time" name="dispatch_time">
+              </div>
+              <div class="col-md-6 col-sm-6 mb-3">
+                <label for="notes" class="form-label">Notes</label>
+                <input type="text" class="form-control" id="notes" name="notes" 
+                       placeholder="Any additional notes">
+              </div>
+              <div class="col-md-3 col-12 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                  🚚 Register Vehicle & Start Weighing
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Recent Dispatches -->
+      {% if recent_dispatches %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">📋 Recent Dispatches</h5>
+        </div>
+        <div class="card-body">
+          <!-- Desktop Table -->
+          <div class="table-responsive d-none d-md-block">
+            <table class="table table-sm table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>Vehicle No</th>
+                  <th>Driver</th>
+                  <th>Vendor</th>
+                  <th>Date & Time</th>
+                  <th>Birds</th>
+                  <th>Weight (kg)</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in recent_dispatches %}
+                <tr class="{{ 'table-success' if dispatch.status == 'completed' else 'table-warning' }}">
+                  <td><strong>{{ dispatch.vehicle_no }}</strong></td>
+                  <td>{{ dispatch.driver_name }}</td>
+                  <td>{{ dispatch.vendor_name or '-' }}</td>
+                  <td>{{ dispatch.dispatch_date }}<br><small class="text-muted">{{ dispatch.dispatch_time }}</small></td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                    {% else %}
+                      <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      {{ "%.1f"|format(dispatch.total_weight) }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">✅ Completed</span>
+                    {% else %}
+                      <span class="badge bg-warning">⏳ Active</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'active' %}
+                      <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                         class="btn btn-sm btn-primary">⚖️ Weigh Birds</a>
+                    {% else %}
+                      <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                         class="btn btn-sm btn-info">👁️ View Details</a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile Cards -->
+          <div class="d-md-none">
+            {% for dispatch in recent_dispatches %}
+            <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-title mb-0">
+                    <strong>{{ dispatch.vehicle_no }}</strong>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success ms-2">✅ Completed</span>
+                    {% else %}
+                      <span class="badge bg-warning ms-2">⏳ Active</span>
+                    {% endif %}
+                  </h6>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted">Driver:</small><br>
+                    <strong>{{ dispatch.driver_name }}</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Vendor:</small><br>
+                    <strong>{{ dispatch.vendor_name or '-' }}</strong>
+                  </div>
+                </div>
+                <div class="row mt-2">
+                  <div class="col-6">
+                    <small class="text-muted">Date & Time:</small><br>
+                    <strong>{{ dispatch.dispatch_date }}</strong><br>
+                    <small>{{ dispatch.dispatch_time }}</small>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Birds:</small><br>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                    {% else %}
+                      <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% if dispatch.status == 'completed' %}
+                <div class="row mt-2">
+                  <div class="col-6">
+                    <small class="text-muted">Weight:</small><br>
+                    <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Avg/Bird:</small><br>
+                    <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
+                  </div>
+                </div>
+                {% endif %}
+                <div class="mt-3">
+                  {% if dispatch.status == 'active' %}
+                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                       class="btn btn-primary btn-sm w-100">⚖️ Weigh Birds</a>
+                  {% else %}
+                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                       class="btn btn-info btn-sm w-100">👁️ View Details</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-info">
+        <h5>🚚 No dispatches yet</h5>
+        <p class="mb-0">Register your first vehicle above to start dispatching birds to vendors.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-uppercase vehicle number
+  document.getElementById('vehicle_no').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+  });
+  
+  // Set current time as default
+  document.addEventListener('DOMContentLoaded', function() {
+    const timeInput = document.getElementById('dispatch_time');
+    const dateInput = document.getElementById('dispatch_date');
+    
+    // Set current date
+    if (!dateInput.value) {
+      const today = new Date();
+      const dateString = today.toISOString().split('T')[0];
+      dateInput.value = dateString;
+    }
+    
+    // Set current time
+    if (!timeInput.value) {
+      const now = new Date();
+      const timeString = now.toTimeString().slice(0, 5);
+      timeInput.value = timeString;
+    }
+  });
+</script>
+{% endblock %}

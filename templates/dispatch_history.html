@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Dispatch History</h2>
+        <div>
+          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary btn-sm">← Back to Dispatch</a>
+        </div>
+      </div>
+
+      <!-- Current Cycle Info -->
+      {% if cycle %}
+      <div class="alert alert-info">
+        <strong>Current Cycle:</strong> Started {{ cycle.start_date }} | 
+        <strong>Remaining Birds:</strong> {{ cycle.current_birds }}
+      </div>
+      {% endif %}
+
+      <!-- Summary Statistics -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+              <h4>{{ summary.total_birds_dispatched }}</h4>
+              <p class="mb-0">Total Birds Dispatched</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body text-center">
+              <h4>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</h4>
+              <p class="mb-0">Total Weight Dispatched</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+              <h4>{{ "%.3f"|format(summary.avg_weight_per_bird) }} kg</h4>
+              <p class="mb-0">Overall Avg Weight/Bird</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body text-center">
+              <h4>{{ summary.completed_dispatches }}</h4>
+              <p class="mb-0">Completed Dispatches</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dispatch History Table -->
+      {% if dispatches %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">🚚 All Dispatches for Current Cycle</h5>
+        </div>
+        <div class="card-body">
+          <!-- Desktop Table -->
+          <div class="table-responsive d-none d-md-block">
+            <table class="table table-sm table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Vehicle No</th>
+                  <th scope="col">Driver</th>
+                  <th scope="col">Vendor</th>
+                  <th scope="col">Date & Time</th>
+                  <th scope="col">Birds</th>
+                  <th scope="col">Weight (kg)</th>
+                  <th scope="col">Avg/Bird (kg)</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in dispatches %}
+                <tr class="{{ 'table-success' if dispatch.status == 'completed' else 'table-warning' }}">
+                  <td>{{ loop.index }}</td>
+                  <td><strong>{{ dispatch.vehicle_no }}</strong></td>
+                  <td>{{ dispatch.driver_name }}</td>
+                  <td>{{ dispatch.vendor_name or '-' }}</td>
+                  <td>
+                    {{ dispatch.dispatch_date }}<br>
+                    <small class="text-muted">{{ dispatch.dispatch_time }}</small>
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                    {% else %}
+                      <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      {{ "%.1f"|format(dispatch.total_weight) }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      {{ "%.3f"|format(dispatch.avg_weight_per_bird) }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">✅ Completed</span>
+                    {% else %}
+                      <span class="badge bg-warning">⏳ Active</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                       class="btn btn-sm {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }}">
+                      {{ '👁️ View' if dispatch.status == 'completed' else '⚖️ Weigh' }}
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              {% if summary.total_birds_dispatched > 0 %}
+              <tfoot class="table-info">
+                <tr>
+                  <th scope="row" colspan="5">TOTAL</th>
+                  <th scope="col">{{ summary.total_birds_dispatched }}</th>
+                  <th scope="col">{{ "%.1f"|format(summary.total_weight_dispatched) }}</th>
+                  <th scope="col">{{ "%.3f"|format(summary.avg_weight_per_bird) }}</th>
+                  <th scope="col" colspan="2">{{ summary.completed_dispatches }} Completed</th>
+                </tr>
+              </tfoot>
+              {% endif %}
+            </table>
+          </div>
+
+          <!-- Mobile Cards -->
+          <div class="d-md-none">
+            {% for dispatch in dispatches %}
+            <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-title mb-0">
+                    <span class="badge bg-secondary me-2">#{{ loop.index }}</span>
+                    <strong>{{ dispatch.vehicle_no }}</strong>
+                  </h6>
+                  {% if dispatch.status == 'completed' %}
+                    <span class="badge bg-success">✅ Completed</span>
+                  {% else %}
+                    <span class="badge bg-warning">⏳ Active</span>
+                  {% endif %}
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted">Driver:</small><br>
+                    <strong>{{ dispatch.driver_name }}</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Vendor:</small><br>
+                    <strong>{{ dispatch.vendor_name or '-' }}</strong>
+                  </div>
+                </div>
+                <div class="row mt-2">
+                  <div class="col-6">
+                    <small class="text-muted">Date & Time:</small><br>
+                    <strong>{{ dispatch.dispatch_date }}</strong><br>
+                    <small>{{ dispatch.dispatch_time }}</small>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Birds:</small><br>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                    {% else %}
+                      <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% if dispatch.status == 'completed' %}
+                <div class="row mt-2">
+                  <div class="col-6">
+                    <small class="text-muted">Weight:</small><br>
+                    <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Avg/Bird:</small><br>
+                    <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
+                  </div>
+                </div>
+                {% endif %}
+                <div class="mt-3">
+                  <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                     class="btn {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }} btn-sm w-100">
+                    {{ '👁️ View Details' if dispatch.status == 'completed' else '⚖️ Weigh Birds' }}
+                  </a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Mobile Summary Card -->
+            {% if summary.total_birds_dispatched > 0 %}
+            <div class="card bg-info text-white">
+              <div class="card-body">
+                <h6 class="card-title">📊 Summary</h6>
+                <div class="row text-center">
+                  <div class="col-4">
+                    <strong>{{ summary.total_birds_dispatched }}</strong><br>
+                    <small>Total Birds</small>
+                  </div>
+                  <div class="col-4">
+                    <strong>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</strong><br>
+                    <small>Total Weight</small>
+                  </div>
+                  <div class="col-4">
+                    <strong>{{ summary.completed_dispatches }}</strong><br>
+                    <small>Completed</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-info">
+        <h5>📋 No dispatches yet</h5>
+        <p class="mb-0">No dispatches have been recorded for the current cycle yet.</p>
+        <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary mt-2">🚚 Start First Dispatch</a>
+      </div>
+      {% endif %}
+
+      <!-- Export Options -->
+      {% if dispatches %}
+      <div class="card mt-4">
+        <div class="card-body">
+          <h6 class="card-title">📊 Export Options</h6>
+          <p class="text-muted">Export dispatch data for analysis and record keeping.</p>
+          <div class="btn-group">
+            <button class="btn btn-outline-primary btn-sm" onclick="printTable()">🖨️ Print Report</button>
+            <a href="{{ url_for('export_dispatch_excel') }}" class="btn btn-outline-success btn-sm">📊 Export Excel</a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  function printTable() {
+    window.print();
+  }
+</script>
+
+<style>
+  @media print {
+    .btn, .card-header, .alert {
+      display: none !important;
+    }
+    .card {
+      border: none !important;
+      box-shadow: none !important;
+    }
+  }
+</style>
+{% endblock %}
