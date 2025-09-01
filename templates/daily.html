@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 data-i18n="daily_title">Daily Input</h2>
+<h2 class="mb-3" data-i18n="daily_title">Daily Input</h2>
 
 {% if not cycle %}
 <!-- No Active Cycle -->
-<div class="row">
-  <div class="col-12">
-    <div class="card text-center p-5">
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card text-center p-4 p-md-5 shadow rounded-4">
       <div class="card-body">
         <div class="mb-4" style="font-size: 4rem;">🐔</div>
         <h3 data-i18n="no_cycle">No Active Cycle</h3>
         <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
-        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg w-100" data-i18n="setup_new_cycle">Setup New Cycle</a>
       </div>
     </div>
   </div>
@@ -19,8 +19,8 @@
 {% else %}
 
 <!-- Current Feed Bags Status -->
-<div class="alert alert-info mb-4">
-  <h6 data-i18n="current_feed_status">📦 Current Feed Status:</h6>
+<div class="alert alert-info mb-4 rounded-3 shadow-sm">
+  <h6 class="mb-2" data-i18n="current_feed_status">📦 Current Feed Status:</h6>
   {% set available_bags = feeds|sum(attribute='feed_bags') if feeds is defined else 0 %}
   <strong><span data-i18n="available_bags">Available Bags:</span> {{ bags_available|round|int }}</strong>
   {% if bags_available <= 3 %}
@@ -30,24 +30,24 @@
   {% endif %}
 </div>
 
-<div class="card p-4">
+<div class="card p-3 p-md-4 shadow rounded-4 mb-4">
   <form method="POST" class="row g-3">
-    <div class="col-md-4">
+    <div class="col-12 col-md-6">
       <label for="entry-date" class="form-label" data-i18n="entry_date">Date</label>
       <input id="entry-date" type="date" name="entry_date" class="form-control"
              value="{{ error_data.entry_date if error_data else '' }}">
     </div>
-    <div class="col-md-4">
+    <div class="col-12 col-md-6">
       <label for="mortality" class="form-label" data-i18n="mortality">Mortality</label>
       <input id="mortality" type="number" name="mortality" class="form-control"
              value="{{ error_data.mortality if error_data else 0 }}" min="0">
     </div>
-    <div class="col-md-4">
+    <div class="col-12 col-md-6">
       <label for="feed-consumed" class="form-label" data-i18n="feed_consumed">Feed Bags Consumed</label>
       <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control"
              value="{{ error_data.feed_bags_consumed if error_data else 0 }}" min="0" required
              onchange="validateFeedBags()">
-      <small class="text-muted">Available: {{ bags_available|round|int }} bags</small>
+      <small class="text-muted" data-i18n="available_bags_info">Available: {{ bags_available|round|int }} bags</small>
       {% if error_data and (error_data.feed_bags_consumed == 0 or error_data.feed_bags_consumed is none) %}
       <div class="text-danger mt-1" id="feed-bags-error">
         <span data-i18n="error_feed_bags_zero">Feed bags consumed cannot be zero. Please enter a valid value.</span>
@@ -58,11 +58,11 @@
     <!-- Feed Bags Added hidden field -->
     <input id="bags-added" type="hidden" name="feed_bags_added" value="{{ error_data.feed_bags_added if error_data else 0 }}">
 
-    <div class="col-md-4">
+    <div class="col-12 col-md-6">
       <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (grams)</label>
       <input id="avg-weight" type="number" step="1" name="avg_weight_grams" class="form-control"
              value="{{ error_data.avg_weight_grams if error_data else 0 }}" min="0" required>
-      <small class="text-muted">Will be converted to kg automatically</small>
+      <small class="text-muted" data-i18n="auto_weight_convert">Will be converted to kg automatically</small>
       {% if error_data and (error_data.avg_weight_grams == 0 or error_data.avg_weight_grams is none) %}
       <div class="text-danger mt-1" id="avg-weight-error">
         <span data-i18n="error_avg_weight_zero">Average weight gain cannot be zero. Please enter a valid value.</span>
@@ -72,7 +72,7 @@
 
     <div class="col-12">
       <label for="daily-notes" class="form-label" data-i18n="notes">Notes</label>
-      <textarea id="daily-notes" name="daily_notes" class="form-control" rows="2" placeholder="Enter notes for today...">{{ error_data.daily_notes if error_data else '' }}</textarea>
+      <textarea id="daily-notes" name="daily_notes" class="form-control" rows="2" placeholder="Enter notes for today..." data-i18n-placeholder="notes_placeholder">{{ error_data.daily_notes if error_data else '' }}</textarea>
     </div>
 
     <div class="col-12">
@@ -100,7 +100,7 @@
       </div>
     </div>
     <div class="col-12">
-      <button id="submit-btn" class="btn btn-primary btn-lg" type="submit" data-i18n="save_daily">Save Daily Entry</button>
+      <button id="submit-btn" class="btn btn-primary btn-lg w-100" type="submit" data-i18n="save_daily">Save Daily Entry</button>
     </div>
   </form>
 </div>
