@@ -1688,22 +1688,22 @@ def cycle_history():
     cycle_data = []
     for cycle in cycles:
         # Calculate cycle duration
-        start_date_obj = None
+        start_date = None
         if cycle.start_date:
             if isinstance(cycle.start_date, str):
-                start_date_obj = datetime.strptime(cycle.start_date, '%Y-%m-%d').date()
+                start_date = datetime.strptime(cycle.start_date, '%Y-%m-%d').date()
             else:
-                start_date_obj = cycle.start_date
+                start_date = cycle.start_date
         
+        end_date = date.today()  # Default to today if no end date
         if cycle.end_date:
             if isinstance(cycle.end_date, str):
-                end_date_obj = datetime.strptime(cycle.end_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(cycle.end_date, '%Y-%m-%d').date()
             else:
-                end_date_obj = cycle.end_date
+                end_date = cycle.end_date
+            duration_days = (end_date - start_date).days + 1 if start_date else 0
         else:
-            end_date_obj = date.today()
-            
-        duration_days = (end_date_obj - start_date_obj).days + 1 if start_date_obj else 0
+            duration_days = 0  # Ongoing cycles
         
         # Get daily entries for this cycle
         daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
@@ -1714,19 +1714,12 @@ def cycle_history():
         total_feed_added = sum(entry.feed_bags_added for entry in daily_entries)
         final_birds = cycle.current_birds
         survival_rate = round((final_birds / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
-        
-        # Calculate average FCR
-        valid_fcr_entries = [entry.fcr for entry in daily_entries if entry.fcr and entry.fcr > 0]
-        avg_fcr = round(sum(valid_fcr_entries) / len(valid_fcr_entries), 3) if valid_fcr_entries else 0
-        
-        # Calculate final weight
-        weight_entries = [entry.avg_weight for entry in daily_entries if entry.avg_weight > 0]
-        final_weight = max(weight_entries) if weight_entries else 0
-        
-        # Feed efficiency (total feed per bird)
-        feed_per_bird = round(total_feed_consumed / final_birds, 2) if final_birds > 0 else 0
-        
-        cycle_info = {
+        avg_fcr = round(sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0])), 2) if daily_entries else 0
+        final_weight = daily_entries[-1].avg_weight if daily_entries and daily_entries[-1].avg_weight > 0 else 0
+        feed_per_bird = round(total_feed_consumed / cycle.start_birds, 2) if cycle.start_birds > 0 else 0
+        mortality_rate = round((total_mortality / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
+
+        cycle_data.append({
             'cycle': cycle,
             'duration_days': duration_days,
             'total_mortality': total_mortality,
@@ -1737,9 +1730,8 @@ def cycle_history():
             'avg_fcr': avg_fcr,
             'final_weight': final_weight,
             'feed_per_bird': feed_per_bird,
-            'total_entries': len(daily_entries)
-        }
-        cycle_data.append(cycle_info)
+            'mortality_rate': mortality_rate
+        })
     
     return render_template('cycle_history.html', cycle_data=cycle_data)
 
@@ -1872,7 +1864,7 @@ def cycle_details(cycle_id):
 
     # Get expenses data for this cycle
     expenses = Expense.query.filter_by(cycle_id=cycle.id).order_by(Expense.date.desc(), Expense.id.desc()).all()
-    total_expense_cost = sum(expense.amount for expense in expenses)
+    total_expense_cost = sum(exp.amount for exp in expenses)
 
     return render_template(
         'cycle_details.html',
@@ -2050,6 +2042,213 @@ def export_dispatch_excel():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         as_attachment=True,
         download_name=filename
+    )
+
+@app.route('/income_estimate', methods=['GET', 'POST'])
+def income_estimate():
+    cycle = get_active_cycle()
+    all_cycles = Cycle.query.all()
+    chick_cost = feed_cost = other_expenses = chick_price = 0.0
+    feed_per_kg_price = 40  # Default feed price per kg
+    bag_weight = 50  # Default bag weight in kg
+    market_price_per_bird = 0.0
+    if request.method == 'POST':
+        chick_cost = float(request.form.get('chick_cost', 0))
+        feed_cost = float(request.form.get('feed_cost', 0))
+        other_expenses = float(request.form.get('other_expenses', 0))
+        chick_price = chick_cost  # Use chick_cost from form as chick_price internally
+        feed_per_kg_price = float(request.form.get('feed_per_kg_price', 40))
+        bag_weight = float(request.form.get('bag_weight', 50))
+        market_price_per_bird = float(request.form.get('market_price_per_bird', 0))
+    else:
+        # For GET requests, set chick_price same as chick_cost
+        chick_price = chick_cost
+    # Helper to get stats
+    def get_stats(cycle):
+        if not cycle:
+            return {'total_birds': 0, 'avg_weight': 0, 'total_feed': 0, 'fcr': 0}
+        entries = Daily.query.filter_by(cycle_id=cycle.id).all()
+        avg_weight = sum(e.avg_weight for e in entries if e.avg_weight) / max(len(entries),1)
+        total_feed = sum(e.feed_bags_consumed for e in entries if e.feed_bags_consumed) * bag_weight
+        fcr = sum(e.fcr for e in entries if e.fcr) / max(len(entries),1)
+        return {
+            'total_birds': cycle.current_birds,
+            'avg_weight': avg_weight,
+            'total_feed': total_feed,
+            'fcr': fcr
+        }
+    selected_cycle_id = request.args.get('cycle_id', 'all')
+    if selected_cycle_id == 'all':
+        selected_cycle = None
+    else:
+        try:
+            selected_cycle = Cycle.query.get(int(selected_cycle_id))
+        except:
+            selected_cycle = None
+    # Use selected cycle for stats
+    cycle_for_stats = selected_cycle if selected_cycle else cycle
+    cycle_stats = get_stats(cycle_for_stats)
+    # Calculate direct feed cost from Feed table
+    direct_feed_cost = 0
+    if cycle:
+        feeds = Feed.query.filter_by(cycle_id=cycle.id).all()
+        direct_feed_cost = sum(feed.total_cost for feed in feeds if hasattr(feed, 'total_cost') and feed.total_cost)
+    # If direct feed cost not available, fallback to bags*weight*price
+    fallback_feed_cost = 0
+    if cycle:
+        daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
+        total_feed_bags = sum(entry.feed_bags_consumed for entry in daily_entries)
+        fallback_feed_cost = total_feed_bags * bag_weight * feed_per_kg_price
+    # Use direct feed cost if available, else fallback
+    total_feed_cost = direct_feed_cost if direct_feed_cost > 0 else fallback_feed_cost
+    # Calculate costs based on selected cycle or current cycle
+    cycle_for_costs = cycle_for_stats if cycle_for_stats else cycle
+    
+    # Calculate total medical expenses for selected cycle
+    total_medical_cost = 0
+    if cycle_for_costs:
+        medicines = Medicine.query.filter_by(cycle_id=cycle_for_costs.id).all()
+        total_medical_cost = sum(med.price for med in medicines if med.price)
+    
+    # Calculate total expenses for selected cycle
+    total_expense_cost = 0
+    if cycle_for_costs:
+        expenses = Expense.query.filter_by(cycle_id=cycle_for_costs.id).all()
+        total_expense_cost = sum(exp.amount for exp in expenses if exp.amount)
+    
+    # Calculate chick cost from input and cycle start birds
+    chick_production_cost = 0
+    if cycle_for_costs and chick_price > 0:
+        chick_production_cost = (cycle_for_costs.start_birds or 0) * chick_price
+    
+    # Calculate feed cost for selected cycle
+    selected_cycle_feed_cost = 0
+    if cycle_for_costs:
+        # Try direct feed cost first
+        feeds = Feed.query.filter_by(cycle_id=cycle_for_costs.id).all()
+        direct_cost = sum(feed.total_cost for feed in feeds if hasattr(feed, 'total_cost') and feed.total_cost)
+        
+        if direct_cost > 0:
+            selected_cycle_feed_cost = direct_cost
+        else:
+            # Fallback to calculated cost
+            daily_entries = Daily.query.filter_by(cycle_id=cycle_for_costs.id).all()
+            total_bags = sum(entry.feed_bags_consumed for entry in daily_entries)
+            selected_cycle_feed_cost = total_bags * bag_weight * feed_per_kg_price
+    
+    # Cumulative stats and income calculation for all cycles
+    cumu_stats = {'total_birds': 0, 'avg_weight': 0, 'total_feed': 0, 'fcr': 0}
+    total_entries = 0
+    all_cycles_total_cost = 0
+    all_cycles_total_income = 0
+    previous_cycles_market_prices = []
+    
+    for c in all_cycles:
+        s = get_stats(c)
+        cumu_stats['total_birds'] += s['total_birds']
+        cumu_stats['avg_weight'] += s['avg_weight'] * (len(Daily.query.filter_by(cycle_id=c.id).all()))
+        cumu_stats['total_feed'] += s['total_feed']
+        cumu_stats['fcr'] += s['fcr'] * (len(Daily.query.filter_by(cycle_id=c.id).all()))
+        total_entries += len(Daily.query.filter_by(cycle_id=c.id).all())
+        
+        # Calculate costs for this cycle
+        cycle_medicines = Medicine.query.filter_by(cycle_id=c.id).all()
+        cycle_medical_cost = sum(med.price for med in cycle_medicines if med.price)
+        
+        cycle_expenses = Expense.query.filter_by(cycle_id=c.id).all()
+        cycle_expense_cost = sum(exp.amount for exp in cycle_expenses if exp.amount)
+        
+        cycle_chick_cost = (c.start_birds or 0) * chick_price if chick_price > 0 else 0
+        
+        # Calculate feed cost for this cycle
+        cycle_feeds = Feed.query.filter_by(cycle_id=c.id).all()
+        cycle_feed_direct = sum(feed.total_cost for feed in cycle_feeds if hasattr(feed, 'total_cost') and feed.total_cost)
+        
+        if cycle_feed_direct > 0:
+            cycle_feed_cost = cycle_feed_direct
+        else:
+            cycle_daily_entries = Daily.query.filter_by(cycle_id=c.id).all()
+            cycle_total_bags = sum(entry.feed_bags_consumed for entry in cycle_daily_entries)
+            cycle_feed_cost = cycle_total_bags * bag_weight * feed_per_kg_price
+        
+        cycle_total_cost = cycle_feed_cost + cycle_chick_cost + cycle_medical_cost + cycle_expense_cost
+        all_cycles_total_cost += cycle_total_cost
+        
+        # For income calculation: use current market price for active cycle, average for others
+        if c.status == 'active' and market_price_per_bird > 0:
+            # Market price is per kg, so multiply by average weight
+            cycle_avg_weight = s['avg_weight'] if s['avg_weight'] > 0 else 0
+            cycle_income = s['total_birds'] * market_price_per_bird * cycle_avg_weight
+            previous_cycles_market_prices.append(market_price_per_bird)
+        else:
+            # Use average of previous market prices if available
+            if previous_cycles_market_prices:
+                avg_market_price = sum(previous_cycles_market_prices) / len(previous_cycles_market_prices)
+                cycle_avg_weight = s['avg_weight'] if s['avg_weight'] > 0 else 0
+                cycle_income = s['total_birds'] * avg_market_price * cycle_avg_weight
+            else:
+                cycle_income = 0
+        
+        all_cycles_total_income += cycle_income
+    
+    if total_entries > 0:
+        cumu_stats['avg_weight'] /= total_entries
+        cumu_stats['fcr'] /= total_entries
+    
+    # Calculate estimated income for selected cycle
+    estimated_income = 0
+    if cycle_for_stats and market_price_per_bird > 0:
+        # Market price is per kg, so multiply by average weight
+        avg_weight = cycle_stats.get('avg_weight', 0)
+        estimated_income = (cycle_for_stats.current_birds or 0) * market_price_per_bird * avg_weight
+    
+    # Calculate estimated income for all cycles
+    estimated_income_all_cycles = all_cycles_total_income
+    
+    # Calculate profit for selected cycle
+    total_cycle_cost = selected_cycle_feed_cost + chick_production_cost + total_medical_cost + total_expense_cost + other_expenses
+    estimated_profit = estimated_income - total_cycle_cost
+    
+    # Calculate profit for all cycles
+    estimated_profit_all_cycles = all_cycles_total_income - (all_cycles_total_cost + other_expenses)
+    
+    # Get expenses list for selected cycle
+    selected_cycle_expenses = []
+    if cycle_for_costs:
+        selected_cycle_expenses = Expense.query.filter_by(cycle_id=cycle_for_costs.id).order_by(Expense.date.desc()).all()
+    
+    # Get all expenses for all cycles
+    all_expenses = []
+    for c in all_cycles:
+        cycle_expenses = Expense.query.filter_by(cycle_id=c.id).all()
+        all_expenses.extend(cycle_expenses)
+    return render_template('income_estimate.html',
+        cycle_stats=cycle_stats,
+        cumu_stats=cumu_stats,
+        chick_cost=chick_cost,
+        feed_cost=feed_cost,
+        other_expenses=other_expenses,
+        total_birds=cycle_for_stats.current_birds if cycle_for_stats else 0,
+        total_feed_cost=selected_cycle_feed_cost,
+        total_medical_cost=total_medical_cost,
+        total_expense_cost=total_expense_cost,
+        chick_production_cost=chick_production_cost,
+        direct_feed_cost=direct_feed_cost,
+        fallback_feed_cost=fallback_feed_cost,
+        chick_price=chick_price,
+        feed_per_kg_price=feed_per_kg_price,
+        bag_weight=bag_weight,
+        market_price_per_bird=market_price_per_bird,
+        estimated_income=estimated_income,
+        estimated_profit=estimated_profit,
+        estimated_income_all_cycles=estimated_income_all_cycles,
+        estimated_profit_all_cycles=estimated_profit_all_cycles,
+        all_cycles_total_cost=all_cycles_total_cost,
+        total_cycle_cost=total_cycle_cost,
+        all_cycles=all_cycles,
+        selected_cycle_id=selected_cycle_id,
+        selected_cycle_expenses=selected_cycle_expenses,
+        all_expenses=all_expenses
     )
 
 if __name__ == '__main__':

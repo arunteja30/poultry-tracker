@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title or 'Ramesh Farms' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts for Telugu Support -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,6 +54,7 @@
                       <li><a class="dropdown-item py-2" href="{{ url_for('stats') }}" data-i18n="nav_stats"><i class="me-2">📊</i>Statistics</a></li>
                       <li><a class="dropdown-item py-2" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history"><i class="me-2">🔄</i>Cycle History</a></li>
                       <li><a class="dropdown-item py-2" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history"><i class="me-2">📋</i>Dispatch History</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate"><i class="me-2">💹</i>Income Estimate</a></li>
                     </ul>
                   </li>
                   {% if session.role == 'admin' %}
@@ -173,6 +176,11 @@
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history">
                 <i class="me-3">📋</i>Dispatch History
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate">
+                <i class="me-3">💹</i>Income Estimate
               </a>
             </li>
             {% if session.role == 'admin' %}

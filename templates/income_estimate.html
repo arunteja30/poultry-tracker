@@ -1,0 +1,1760 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-3">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Income Estimate</h4>
+          <span class="badge bg-info">Cycle & Cumulative</span>
+        </div>
+        <div class="card-body">
+          <form method="GET" class="row g-3 align-items-end mb-3">
+            <div class="col-md-4 col-12">
+              <label for="cycle_id" class="form-label">Select Cycle</label>
+              <select class="form-select" name="cycle_id" id="cycle_id" onchange="this.form.submit()">
+                <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %}>All Cycles</option>
+                {% for c in all_cycles %}
+                  <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>Cycle #{{ c.id }} ({{ c.start_date }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </form>
+          <form method="POST" class="row g-3 align-items-end">
+            <div class="col-md-3 col-6">
+              <label for="chick_cost" class="form-label">Chick Cost (per bird)</label>
+              <input type="number" step="0.01" min="0" class="form-control" name="chick_cost" id="chick_cost" value="{{ chick_price }}" required>
+            </div>
+            <div class="col-md-3 col-6">
+              <label for="feed_cost" class="form-label">Feed Cost (per kg)</label>
+              <input type="number" step="0.01" min="0" class="form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost }}" required>
+            </div>
+            <div class="col-md-3 col-6">
+              <label for="other_expenses" class="form-label">Other Expenses (total)</label>
+              <input type="number" step="0.01" min="0" class="form-control" name="other_expenses" id="other_expenses" value="{{ other_expenses }}" required>
+            </div>
+            <div class="col-md-3 col-6">
+              <label for="market_price_per_bird" class="form-label">Market Price (per kg)</label>
+              <input type="number" step="0.01" min="0" class="form-control" name="market_price_per_bird" id="market_price_per_bird" value="{{ market_price_per_bird }}" required>
+            </div>
+            <div class="col-md-3 col-12 text-end">
+              <button type="submit" class="btn btn-primary w-100">Estimate</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row g-4">
+    <!-- Current Cycle Estimate -->
+    <div class="{% if selected_cycle_id == 'all' %}col-lg-6{% else %}col-12{% endif %}">
+      <div class="card shadow-lg border-0 modern-card">
+        <div class="card-header bg-gradient-primary text-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold" style="color: white;">
+              {% if selected_cycle_id == 'all' %}
+                All Cycles Overview
+              {% else %}
+                Cycle #{{ selected_cycle_id }} Estimate
+              {% endif %}
+            </h5>
+            <div class="badge bg-light text-primary fs-6 px-3 py-2">
+              {% if selected_cycle_id == 'all' %}
+                {{ all_cycles|length }} Cycles
+              {% else %}
+                {{ cycle_stats.total_birds }} Birds
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <!-- Enhanced Cost Breakdown Chart -->
+          <div class="chart-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="chart-title mb-0">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Cost Breakdown Analysis
+              </h6>
+              <span class="badge bg-light text-dark">
+                <i class="fas fa-calculator me-1"></i>
+                ₹{{ '%.0f'|format(total_cycle_cost) }}
+              </span>
+            </div>
+            
+            <!-- Cost Categories Grid -->
+            <div class="cost-breakdown-grid mb-3">
+              <div class="cost-item feed-cost">
+                <div class="cost-icon">
+                  <i class="fas fa-seedling"></i>
+                </div>
+                <div class="cost-details">
+                  <div class="cost-category">Feed Cost</div>
+                  <div class="cost-amount">₹{{ '%.0f'|format(total_feed_cost) }}</div>
+                  <div class="cost-percentage">
+                    {{ '%.1f'|format((total_feed_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
+                  </div>
+                </div>
+              </div>
+              
+              <div class="cost-item chick-cost">
+                <div class="cost-icon">
+                  <i class="fas fa-egg"></i>
+                </div>
+                <div class="cost-details">
+                  <div class="cost-category">Chick Cost</div>
+                  <div class="cost-amount">₹{{ '%.0f'|format(chick_production_cost) }}</div>
+                  <div class="cost-percentage">
+                    {{ '%.1f'|format((chick_production_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
+                  </div>
+                </div>
+              </div>
+              
+              <div class="cost-item medical-cost">
+                <div class="cost-icon">
+                  <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="cost-details">
+                  <div class="cost-category">Medical Cost</div>
+                  <div class="cost-amount">₹{{ '%.0f'|format(total_medical_cost) }}</div>
+                  <div class="cost-percentage">
+                    {{ '%.1f'|format((total_medical_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
+                  </div>
+                </div>
+              </div>
+              
+              <div class="cost-item other-cost">
+                <div class="cost-icon">
+                  <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <div class="cost-details">
+                  <div class="cost-category">Other Expenses</div>
+                  <div class="cost-amount">₹{{ '%.0f'|format(total_expense_cost + other_expenses) }}</div>
+                  <div class="cost-percentage">
+                    {{ '%.1f'|format(((total_expense_cost + other_expenses) / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Chart Container -->
+            <div class="chart-container-modern position-relative">
+              <div id="cycleChartLoader" class="chart-loader-modern d-flex justify-content-center align-items-center position-absolute w-100 h-100">
+                <div class="loading-spinner">
+                  <div class="spinner"></div>
+                  <span class="loading-text">Analyzing data...</span>
+                </div>
+              </div>
+              <canvas id="cycleChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cumulative Estimate (Show only when All Cycles selected) -->
+    {% if selected_cycle_id == 'all' %}
+    <div class="col-lg-6">
+      <div class="card shadow-lg border-0 modern-card">
+        <div class="card-header bg-gradient-secondary text-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Financial Performance</h5>
+            <div class="badge bg-light text-secondary fs-6 px-3 py-2">
+              Trend Analysis
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <!-- Performance Metrics -->
+          <div class="performance-grid mb-4">
+            <div class="performance-item total-cost">
+              <div class="performance-icon">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="performance-content">
+                <div class="performance-label">Total Investment</div>
+                <div class="performance-value">₹{{ '%.0f'|format(all_cycles_total_cost + other_expenses) }}</div>
+              </div>
+            </div>
+            <div class="performance-item total-income">
+              <div class="performance-icon">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <div class="performance-content">
+                <div class="performance-label">Total Revenue</div>
+                <div class="performance-value">₹{{ '%.0f'|format(estimated_income_all_cycles) }}</div>
+              </div>
+            </div>
+            <div class="performance-item net-profit">
+              <div class="performance-icon">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <div class="performance-content">
+                <div class="performance-label">Net Profit</div>
+                <div class="performance-value {% if estimated_profit_all_cycles >= 0 %}text-success{% else %}text-danger{% endif %}">
+                  ₹{{ '%.0f'|format(estimated_profit_all_cycles) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comparative Chart -->
+          <div class="chart-section">
+            <h6 class="chart-title mb-3">Revenue vs Cost Analysis</h6>
+            <div class="chart-container-modern position-relative">
+              <div id="cumuChartLoader" class="chart-loader-modern d-flex justify-content-center align-items-center position-absolute w-100 h-100">
+                <div class="loading-spinner">
+                  <div class="spinner"></div>
+                  <span class="loading-text">Processing data...</span>
+                </div>
+              </div>
+              <canvas id="cumuChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Enhanced Calculation Breakdown Section -->
+  <div class="row g-4 mt-2">
+    <div class="col-12">
+      <div class="card shadow-sm modern-calc-card">
+        <div class="card-header bg-gradient-info">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0" style="color: white;">
+              <i class="fas fa-calculator me-2" style="color: white;"></i>
+              Detailed Financial Breakdown
+            </h5>
+            <div class="calc-summary-badge" style="color: white;">
+              <i class="fas fa-chart-line me-1" style="color: white;"></i>
+              Complete Analysis
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="row g-0">
+            <!-- Selected Cycle Details -->
+            <div class="col-lg-6">
+              <div class="calc-section selected-cycle">
+                <div class="calc-header">
+                  <div class="calc-title">
+                    <i class="fas fa-focus me-2"></i>
+                    {% if selected_cycle_id == 'all' %}
+                      Combined Cycles Analysis
+                    {% else %}
+                      Cycle #{{ selected_cycle_id }} Analysis
+                    {% endif %}
+                  </div>
+                  <div class="calc-badge">
+                    {% if selected_cycle_id == 'all' %}
+                      {{ all_cycles|length }} Cycles
+                    {% else %}
+                      Single Cycle
+                    {% endif %}
+                  </div>
+                </div>
+                
+                <div class="calc-content">
+                  <div class="calc-breakdown">
+                    <!-- Cost Items -->
+                    <div class="calc-group costs">
+                      <div class="calc-group-title">
+                        <i class="fas fa-money-bill-wave text-danger me-2"></i>
+                        Cost Components
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Feed Cost</span>
+                          <span class="calc-description">Primary nutrition expense</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(total_feed_cost) }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Chick Cost</span>
+                          <span class="calc-description">Initial stock investment</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(chick_production_cost) }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Medical Cost</span>
+                          <span class="calc-description">Healthcare & vaccines</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(total_medical_cost) }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Other Expenses</span>
+                          <span class="calc-description">Miscellaneous costs</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(total_expense_cost + other_expenses) }}</div>
+                      </div>
+                      
+                      <div class="calc-subtotal">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Total Investment</span>
+                          <span class="calc-description">Complete cost breakdown</span>
+                        </div>
+                        <div class="calc-value total-cost">₹{{ '%.0f'|format(total_cycle_cost) }}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Revenue & Profit -->
+                    <div class="calc-group revenue">
+                      <div class="calc-group-title">
+                        <i class="fas fa-chart-line text-success me-2"></i>
+                        Revenue Analysis
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Market Rate Calculation</span>
+                          <span class="calc-description">₹{{ market_price_per_bird }}/kg × {{ '%.2f'|format(cycle_stats.avg_weight) }}kg average</span>
+                        </div>
+                        <div class="calc-value revenue-value">₹{{ '%.0f'|format(estimated_income) }}</div>
+                      </div>
+                      
+                      <div class="calc-subtotal profit-summary">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Net Profit/Loss</span>
+                          <span class="calc-description">Revenue minus total costs</span>
+                        </div>
+                        <div class="calc-value profit-value {% if estimated_profit >= 0 %}positive-profit{% else %}negative-profit{% endif %}">
+                          ₹{{ '%.0f'|format(estimated_profit) }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- All Cycles Summary -->
+            <div class="col-lg-6">
+              <div class="calc-section all-cycles">
+                <div class="calc-header">
+                  <div class="calc-title">
+                    <i class="fas fa-layer-group me-2"></i>
+                    Cumulative Performance
+                  </div>
+                  <div class="calc-badge cumulative">
+                    {{ all_cycles|length }} Total Cycles
+                  </div>
+                </div>
+                
+                <div class="calc-content">
+                  <div class="calc-breakdown">
+                    <!-- Summary Stats -->
+                    <div class="calc-group stats">
+                      <div class="calc-group-title">
+                        <i class="fas fa-chart-bar text-info me-2"></i>
+                        Production Summary
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Total Cycles</span>
+                          <span class="calc-description">Complete production runs</span>
+                        </div>
+                        <div class="calc-value stat-value">{{ all_cycles|length }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Total Birds</span>
+                          <span class="calc-description">Cumulative livestock count</span>
+                        </div>
+                        <div class="calc-value stat-value">{{ cumu_stats.total_birds }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Average Weight</span>
+                          <span class="calc-description">Per bird at market</span>
+                        </div>
+                        <div class="calc-value stat-value">{{ '%.2f'|format(cumu_stats.avg_weight) }} kg</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Average FCR</span>
+                          <span class="calc-description">Feed conversion ratio</span>
+                        </div>
+                        <div class="calc-value stat-value">{{ '%.2f'|format(cumu_stats.fcr) }}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Financial Summary -->
+                    <div class="calc-group financial">
+                      <div class="calc-group-title">
+                        <i class="fas fa-coins text-warning me-2"></i>
+                        Cumulative Financial Summary
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Total Feed Cost</span>
+                          <span class="calc-description">All cycles feed expense</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(all_cycles_total_cost - (cumu_stats.total_birds * chick_price if chick_price > 0 else 0)) }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Total Chick Cost</span>
+                          <span class="calc-description">Initial stock investment</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(cumu_stats.total_birds * chick_price if chick_price > 0 else 0) }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Total Investment</span>
+                          <span class="calc-description">All cycles combined cost</span>
+                        </div>
+                        <div class="calc-value cost-value">₹{{ '%.0f'|format(all_cycles_total_cost + other_expenses) }}</div>
+                      </div>
+                      
+                      <div class="calc-item">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Expected Revenue</span>
+                          <span class="calc-description">₹{{ market_price_per_bird }}/kg × {{ '%.1f'|format(cumu_stats.avg_weight) }}kg</span>
+                        </div>
+                        <div class="calc-value revenue-value">₹{{ '%.0f'|format(estimated_income_all_cycles) }}</div>
+                      </div>
+                      
+                      <div class="calc-subtotal profit-summary">
+                        <div class="calc-item-info">
+                          <span class="calc-label">Net Profit/Loss</span>
+                          <span class="calc-description">Overall business performance</span>
+                        </div>
+                        <div class="calc-value profit-value {% if estimated_profit_all_cycles >= 0 %}positive-profit{% else %}negative-profit{% endif %}">
+                          ₹{{ '%.0f'|format(estimated_profit_all_cycles) }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expenses Details Section -->
+  <div class="row g-4 mt-2">
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">Selected Cycle Expenses</h5>
+        </div>
+        <div class="card-body">
+          {% if selected_cycle_expenses %}
+            <div class="table-responsive">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for expense in selected_cycle_expenses %}
+                  <tr>
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.name }}</td>
+                    <td>₹{{ '%.0f'|format(expense.amount) }}</td>
+                    <td>{{ expense.notes or '-' }}</td>
+                  </tr>
+                  {% endfor %}
+                  <tr class="table-warning">
+                    <td colspan="2"><strong>Total Expenses:</strong></td>
+                    <td><strong>₹{{ '%.0f'|format(total_expense_cost) }}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No expenses recorded for selected cycle</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary ">
+          <h5 class="mb-0 "style="color: white;">All Cycles Expenses</h5>
+        </div>
+        <div class="card-body">
+          {% if all_expenses %}
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>Cycle</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for expense in all_expenses %}
+                  <tr>
+                    <td>#{{ expense.cycle_id }}</td>
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.name }}</td>
+                    <td>₹{{ '%.0f'|format(expense.amount) }}</td>
+                  </tr>
+                  {% endfor %}
+                  <tr class="table-secondary">
+                    <td colspan="3"><strong>Total All Expenses:</strong></td>
+                    <td><strong>₹{{ '%.0f'|format(all_expenses|sum(attribute='amount')) }}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No expenses recorded</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+<script>
+// Wait for DOM and Chart.js to be ready
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // Add loading indicators
+  const cycleCanvas = document.getElementById('cycleChart');
+  const cumuCanvas = document.getElementById('cumuChart');
+  
+  // Show loading state
+  if (cycleCanvas) {
+    const cycleCtx = cycleCanvas.getContext('2d');
+    cycleCtx.fillStyle = '#f8f9fa';
+    cycleCtx.fillRect(0, 0, cycleCanvas.width, cycleCanvas.height);
+    cycleCtx.fillStyle = '#6c757d';
+    cycleCtx.font = '16px Segoe UI';
+    cycleCtx.textAlign = 'center';
+    cycleCtx.fillText('Loading chart...', cycleCanvas.width/2, cycleCanvas.height/2);
+  }
+  
+  if (cumuCanvas) {
+    const cumuCtx = cumuCanvas.getContext('2d');
+    cumuCtx.fillStyle = '#f8f9fa';
+    cumuCtx.fillRect(0, 0, cumuCanvas.width, cumuCanvas.height);
+    cumuCtx.fillStyle = '#6c757d';
+    cumuCtx.font = '16px Segoe UI';
+    cumuCtx.textAlign = 'center';
+    cumuCtx.fillText('Loading chart...', cumuCanvas.width/2, cumuCanvas.height/2);
+  }
+
+  // Use requestAnimationFrame for smooth loading
+  requestAnimationFrame(function() {
+    initializeCharts();
+  });
+
+function initializeCharts() {
+  // Modern Chart Configuration with performance optimizations
+  Chart.defaults.font.family = 'Segoe UI';
+  Chart.defaults.font.size = 12;
+  Chart.defaults.animation = {
+    duration: 1000,
+    easing: 'easeInOutQuart'
+  };
+
+  // Selected Cycle Chart - Doughnut with detailed breakdown
+  const cycleData = {
+    labels: ['Feed Cost', 'Chick Cost', 'Medical Cost', 'Other Expenses'],
+    datasets: [{
+      label: 'Cost Breakdown (₹)',
+      data: [
+        {{ total_feed_cost|round(0) }}, 
+        {{ chick_production_cost|round(0) }}, 
+        {{ total_medical_cost|round(0) }}, 
+        {{ (total_expense_cost + other_expenses)|round(0) }}
+      ],
+      backgroundColor: [
+        'rgba(251, 191, 36, 0.7)',   // Feed - Amber
+        'rgba(59, 130, 246, 0.7)',   // Chick - Blue
+        'rgba(239, 68, 68, 0.7)',    // Medical - Red
+        'rgba(107, 114, 128, 0.7)'   // Other - Gray
+      ],
+      borderColor: [
+        'rgba(251, 191, 36, 1)',
+        'rgba(59, 130, 246, 1)',
+        'rgba(239, 68, 68, 1)',
+        'rgba(107, 114, 128, 1)'
+      ],
+      borderWidth: 2,
+      hoverOffset: 4
+    }]
+  };
+
+  // Create cycle chart with performance optimizations
+  let cycleChart;
+  if (cycleCanvas) {
+    // Initially hide canvas for smooth fade-in
+    cycleCanvas.style.opacity = '0';
+    
+    cycleChart = new Chart(cycleCanvas, {
+      type: 'doughnut',
+      data: cycleData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1500,
+          easing: 'easeInOutCubic'
+        },
+        plugins: {
+          legend: {
+            display: false // We'll use custom legend
+          },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            titleColor: '#374151',
+            bodyColor: '#374151',
+            borderColor: 'rgba(229,231,235,0.8)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return [
+                  label + ': ₹' + value.toLocaleString(),
+                  percentage + '% of total cost'
+                ];
+              }
+            }
+          },
+          // Custom plugin to display values on chart
+          datalabels: false
+        },
+        elements: {
+          arc: {
+            borderWidth: 3,
+            hoverBorderWidth: 4,
+            borderColor: '#fff'
+          }
+        }
+      },
+      plugins: [{
+        id: 'centerText',
+        afterDraw: function(chart) {
+          const ctx = chart.ctx;
+          const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+          const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+          
+          ctx.save();
+          ctx.font = 'bold 16px Segoe UI';
+          ctx.fillStyle = '#374151';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+          ctx.fillText('Total Cost', centerX, centerY - 8);
+          
+          ctx.font = 'bold 20px Segoe UI';
+          ctx.fillStyle = '#ef4444';
+          ctx.fillText('₹' + total.toLocaleString(), centerX, centerY + 12);
+          ctx.restore();
+        }
+      }]
+    });
+    
+    // Hide loading indicator for cycle chart
+    setTimeout(function() {
+      const cycleLoader = document.getElementById('cycleChartLoader');
+      if (cycleLoader) {
+        cycleLoader.style.opacity = '0';
+        cycleLoader.style.transition = 'opacity 0.3s ease';
+        setTimeout(function() {
+          cycleLoader.style.display = 'none';
+        }, 300);
+      }
+      // Fade in the canvas
+      if (cycleCanvas) {
+        cycleCanvas.style.transition = 'opacity 0.4s ease';
+        cycleCanvas.style.opacity = '1';
+      }
+    }, 800);
+  }
+
+  // All Cycles Chart - Bar chart with smooth loading
+  setTimeout(function() {
+    const cumuData = {
+      labels: ['Total Cost', 'Total Income', 'Net Profit'],
+      datasets: [{
+        label: 'All Cycles Financial Summary (₹)',
+        data: [
+          {{ (all_cycles_total_cost + other_expenses)|round(0) }}, 
+          {{ estimated_income_all_cycles|round(0) }}, 
+          {{ estimated_profit_all_cycles|round(0) }}
+        ],
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.7)',   // Cost - Red
+          'rgba(16, 185, 129, 0.7)',  // Income - Green
+          {% if estimated_profit_all_cycles >= 0 %}'rgba(34, 197, 94, 0.7)'{% else %}'rgba(239, 68, 68, 0.7)'{% endif %}  // Profit - Green/Red
+        ],
+        borderColor: [
+          'rgba(239, 68, 68, 1)',
+          'rgba(16, 185, 129, 1)',
+          {% if estimated_profit_all_cycles >= 0 %}'rgba(34, 197, 94, 1)'{% else %}'rgba(239, 68, 68, 1)'{% endif %}
+        ],
+        borderWidth: 2,
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    };
+
+    // Create cumulative chart
+    let cumuChart;
+    if (cumuCanvas) {
+      // Initially hide canvas for smooth fade-in
+      cumuCanvas.style.opacity = '0';
+      
+      cumuChart = new Chart(cumuCanvas, {
+        type: 'bar',
+        data: cumuData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          animation: {
+            duration: 2000,
+            easing: 'easeInOutQuart',
+            delay: function(context) {
+              return context.dataIndex * 300; // Staggered animation
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              titleColor: '#374151',
+              bodyColor: '#374151',
+              borderColor: 'rgba(229,231,235,0.8)',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed.y;
+                  return context.label + ': ₹' + value.toLocaleString();
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(229,231,235,0.5)',
+                lineWidth: 1
+              },
+              ticks: {
+                callback: function(value) {
+                  return '₹' + (value / 1000).toFixed(0) + 'K';
+                },
+                color: '#6b7280',
+                font: {
+                  size: 12,
+                  weight: '500'
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: '#374151',
+                font: {
+                  size: 12,
+                  weight: '600'
+                }
+              }
+            }
+          },
+          elements: {
+            bar: {
+              borderRadius: 6,
+              borderSkipped: false
+            }
+          }
+        },
+        plugins: [{
+          id: 'dataLabels',
+          afterDatasetsDraw: function(chart) {
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+              const meta = chart.getDatasetMeta(datasetIndex);
+              meta.data.forEach((element, index) => {
+                const value = dataset.data[index];
+                const x = element.x;
+                const y = element.y - 10;
+                
+                ctx.save();
+                ctx.font = 'bold 13px Segoe UI';
+                ctx.fillStyle = '#374151';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                
+                const displayValue = '₹' + (value / 1000).toFixed(0) + 'K';
+                ctx.fillText(displayValue, x, y);
+                ctx.restore();
+              });
+            });
+          }
+        }]
+      });
+
+      // Hide loading indicator for cumulative chart
+      setTimeout(function() {
+        const cumuLoader = document.getElementById('cumuChartLoader');
+        if (cumuLoader) {
+          cumuLoader.style.opacity = '0';
+          cumuLoader.style.transition = 'opacity 0.3s ease';
+          setTimeout(function() {
+            cumuLoader.style.display = 'none';
+          }, 300);
+        }
+        // Fade in the canvas
+        if (cumuCanvas) {
+          cumuCanvas.style.transition = 'opacity 0.4s ease';
+          cumuCanvas.style.opacity = '1';
+        }
+      }, 1200); // Slightly later than first chart
+
+      // Add smooth interactions
+      if (cycleChart && cycleChart.canvas) {
+        cycleChart.canvas.style.cursor = 'pointer';
+        cycleChart.canvas.style.transition = 'transform 0.2s ease';
+      }
+
+      if (cumuChart && cumuChart.canvas) {
+        cumuChart.canvas.style.cursor = 'pointer';
+        cumuChart.canvas.style.transition = 'transform 0.2s ease';
+      }
+
+      // Optimized resize handler with debouncing
+      let resizeTimeout;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+          if (cycleChart) {
+            cycleChart.resize('none'); // Skip animation on resize for performance
+          }
+          if (cumuChart) {
+            cumuChart.resize('none');
+          }
+        }, 150);
+      });
+    }
+  }, 300); // Slight delay for staggered loading
+}
+
+}); // End of DOMContentLoaded
+</script>
+</script>
+<style>
+/* Modern Card Styling with Light Theme */
+.modern-card {
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.modern-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  border-color: #d1d5db;
+}
+
+/* Gradient Headers - Light Theme */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+}
+
+/* Metric Cards - Reduced Size with Light Theme */
+.metric-card {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 90px;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #cbd5e0;
+}
+
+.metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.metric-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Profit Card Styling - Light Theme */
+.profit-card {
+  padding: 1.2rem;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.profit-positive {
+  border-left: 4px solid #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.profit-negative {
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%);
+}
+
+.profit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.profit-header h6 {
+  color: #374151;
+  font-weight: 600;
+}
+
+.profit-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.profit-positive .profit-trend {
+  color: #10b981;
+}
+
+.profit-negative .profit-trend {
+  color: #ef4444;
+}
+
+.profit-amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.profit-positive .profit-amount {
+  color: #10b981;
+}
+
+.profit-negative .profit-amount {
+  color: #ef4444;
+}
+
+.profit-percentage {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Chart Section - Uniform Size and Light Theme */
+.chart-section {
+  margin-top: 1.5rem;
+}
+
+.chart-title {
+  color: #374151;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-container-modern {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  height: 280px;
+  position: relative;
+}
+
+/* Loading Animation - Light Theme */
+.chart-loader-modern {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Custom Chart Legend - Light Theme */
+.chart-legend-modern {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-content {
+  flex: 1;
+}
+
+.legend-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.2rem;
+}
+
+.legend-value {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Performance Grid - Reduced Size and Light Theme */
+.performance-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.performance-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  min-height: 80px;
+}
+
+.total-cost {
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.03) 0%, rgba(239, 68, 68, 0.08) 100%);
+}
+
+.total-income {
+  border-left: 4px solid #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, rgba(16, 185, 129, 0.08) 100%);
+}
+
+.net-profit {
+  border-left: 4px solid #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(59, 130, 246, 0.08) 100%);
+}
+
+.performance-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #d1d5db;
+}
+
+.performance-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.total-cost .performance-icon {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.total-income .performance-icon {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.net-profit .performance-icon {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.performance-content {
+  flex: 1;
+}
+
+.performance-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.performance-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Enhanced Card Styling - Light Theme */
+.card {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0 !important;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  background: #f9fafb;
+  color: #374151;
+}
+
+/* Chart Container Styling with Light Theme */
+.chart-container {
+  min-height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.chart-loader {
+  border-radius: 8px;
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease-in-out;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.chart-loader .spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 0.15em;
+  color: #3b82f6;
+}
+
+/* Smooth chart animations */
+canvas {
+  border-radius: 8px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Cost Breakdown Grid */
+.cost-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cost-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cost-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #d1d5db;
+}
+
+.cost-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 2px 0 0 2px;
+}
+
+.feed-cost::before { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+.chick-cost::before { background: linear-gradient(180deg, #3b82f6, #2563eb); }
+.medical-cost::before { background: linear-gradient(180deg, #ef4444, #dc2626); }
+.other-cost::before { background: linear-gradient(180deg, #6b7280, #4b5563); }
+
+.cost-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.feed-cost .cost-icon { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.chick-cost .cost-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.medical-cost .cost-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.other-cost .cost-icon { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+.cost-details {
+  flex: 1;
+}
+
+.cost-category {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.cost-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.cost-percentage {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  color: #374151;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+/* Modern Table Styling - Light Theme */
+.table {
+  margin-bottom: 0;
+  color: #374151;
+}
+
+.table td, .table th {
+  border-top: 1px solid #e5e7eb;
+  padding: 0.5rem;
+}
+
+.table-sm td, .table-sm th {
+  padding: 0.4rem;
+}
+
+/* Enhanced Badge-like Cards - Light Theme */
+.card.bg-light {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb;
+}
+
+.card.bg-success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.card.bg-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.1) 100%) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Form Enhancement - Light Theme */
+.form-select, .form-control {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+/* Mobile Responsive Design - Light Theme */
+@media (max-width: 768px) {
+  .metric-card, .performance-item {
+    padding: 0.8rem;
+    min-height: 75px;
+  }
+  
+  .metric-value, .performance-value {
+    font-size: 1.2rem;
+  }
+  
+  .profit-amount {
+    font-size: 1.5rem;
+  }
+  
+  .chart-container-modern {
+    padding: 0.8rem;
+    height: 300px;
+  }
+  
+  .chart-legend-modern {
+    grid-template-columns: 1fr;
+  }
+  
+  .modern-card {
+    border-radius: 12px;
+  }
+  
+  .metric-icon, .performance-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .cost-breakdown-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  
+  .cost-item {
+    padding: 0.6rem;
+    min-height: 60px;
+  }
+  
+  .cost-amount {
+    font-size: 0.9rem;
+  }
+  
+  .cost-category {
+    font-size: 0.8rem;
+  }
+  
+  .calc-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .calc-title {
+    font-size: 1rem;
+  }
+  .btn, .btn-sm, .btn-lg {
+    font-size: 0.85rem !important;
+    padding: 0.3rem 0.7rem !important;
+    border-radius: 6px !important;
+  }
+  
+  .card-header h5, h4, h2, h3, h5, .card-title {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .card-header {
+    padding: 0.6rem 1rem !important;
+  }
+  
+  .card-body {
+    padding: 0.8rem !important;
+  }
+  
+  .list-group-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .chart-container-modern {
+    height: 250px !important;
+    padding: 0.6rem;
+  }
+  
+  .chart-container-modern {
+    height: 250px !important;
+    padding: 0.6rem;
+  }
+  
+  .cost-breakdown-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+  }
+  
+  .cost-item {
+    padding: 0.8rem;
+  }
+  
+  .cost-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .cost-amount {
+    font-size: 1rem;
+  }
+  
+  .calc-section {
+    padding: 0.8rem;
+  }
+  
+  .calc-item {
+    padding: 0.4rem 0;
+  }
+  
+  .calc-label {
+    font-size: 0.75rem;
+  }
+  
+  .calc-value {
+    font-size: 0.8rem;
+    min-width: 70px;
+  }
+  
+  .calc-group-title {
+    font-size: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .calc-subtotal {
+    padding: 0.6rem 0.5rem;
+    margin: 0.3rem -0.3rem;
+  }
+  
+  .metric-card, .performance-item {
+    padding: 0.6rem;
+    min-height: 65px;
+  }
+  
+  .profit-card {
+    padding: 0.8rem;
+  }
+}
+
+/* Remove Dark Mode Support for Light Theme Only */
+/* Enhanced Calculation Breakdown */
+.modern-calc-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.bg-gradient-info {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+}
+
+.calc-summary-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.calc-section {
+  padding: 1rem;
+  height: 100%;
+}
+
+.selected-cycle {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-right: 1px solid #e5e7eb;
+}
+
+.all-cycles {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(16, 185, 129, 0.05) 100%);
+}
+
+.calc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.calc-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.calc-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.25rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+}
+
+.calc-badge.cumulative {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.2) 100%);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.calc-group {
+  margin-bottom: 1rem;
+}
+
+.calc-group-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.8rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.calc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.calc-item:hover {
+  background: rgba(59, 130, 246, 0.02);
+  margin: 0 -0.4rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  border-radius: 6px;
+}
+
+.calc-item:last-child {
+  border-bottom: none;
+}
+
+.calc-item-info {
+  flex: 1;
+}
+
+.calc-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.1rem;
+}
+
+.calc-description {
+  display: block;
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.calc-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: right;
+  min-width: 80px;
+}
+
+.cost-value {
+  color: #dc2626;
+}
+
+.revenue-value {
+  color: #059669;
+}
+
+.stat-value {
+  color: #0284c7;
+}
+
+.profit-value.positive-profit {
+  color: #059669;
+}
+
+.profit-value.negative-profit {
+  color: #dc2626;
+}
+
+.calc-subtotal {
+  background: linear-gradient(135deg, rgba(243, 244, 246, 0.5) 0%, rgba(243, 244, 246, 0.8) 100%);
+  margin: 0.4rem -0.4rem;
+  padding: 0.8rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.calc-subtotal .calc-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.calc-subtotal .calc-value {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.profit-summary {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.total-cost {
+  color: #dc2626 !important;
+  font-size: 1.1rem !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
