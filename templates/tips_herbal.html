@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4" data-i18n="herbal_title">🌿 Herbal Treatment (Day Wise, With Dose)</h2>
+      
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0" data-i18n="treatment_schedule">📅 Treatment Schedule</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th data-i18n="day_range">Day Range</th>
+                  <th data-i18n="treatment">Treatment</th>
+                  <th data-i18n="ingredients_dose">Ingredients & Dose</th>
+                  <th data-i18n="frequency">Frequency</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="table-primary">
+                  <td><span class="badge bg-primary">1–7</span></td>
+                  <td data-i18n="sugar_electrolytes">Sugar + Electrolytes</td>
+                  <td data-i18n="sugar_electrolytes_dose">1 tsp sugar + 1 g electrolyte per 1L water</td>
+                  <td><span class="badge bg-success" data-i18n="daily_first_2_days">Daily (first 2 days)</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-primary">1–7</span></td>
+                  <td data-i18n="garlic_water">Garlic Water</td>
+                  <td data-i18n="garlic_water_dose">1–2 crushed garlic cloves per 1L water</td>
+                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
+                </tr>
+                <tr class="table-info">
+                  <td><span class="badge bg-info">8–14</span></td>
+                  <td data-i18n="apple_cider_vinegar">Apple Cider Vinegar</td>
+                  <td data-i18n="apple_cider_vinegar_dose">5–10 ml ACV per 1L water</td>
+                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-info">8–14</span></td>
+                  <td data-i18n="turmeric_water">Turmeric Water</td>
+                  <td data-i18n="turmeric_water_dose">½ tsp turmeric per 1L water</td>
+                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
+                </tr>
+                <tr class="table-warning">
+                  <td><span class="badge bg-warning">15–21</span></td>
+                  <td data-i18n="amla_extract">Amla Extract</td>
+                  <td data-i18n="amla_extract_dose">1–2 tsp amla juice per 1L water</td>
+                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-warning">15–21</span></td>
+                  <td data-i18n="fenugreek_seeds">Fenugreek Seeds</td>
+                  <td data-i18n="fenugreek_seeds_dose">1 tsp seeds soaked overnight in 250ml water, give water next day</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+                <tr class="table-success">
+                  <td><span class="badge bg-success">22–28</span></td>
+                  <td data-i18n="aloe_vera_juice">Aloe Vera Juice</td>
+                  <td data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-success">22–28</span></td>
+                  <td data-i18n="neem_leaves">Neem Leaves</td>
+                  <td data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+                <tr class="table-secondary">
+                  <td><span class="badge bg-secondary">29–35</span></td>
+                  <td data-i18n="sprouted_grains">Sprouted Grains</td>
+                  <td data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</td>
+                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-secondary">29–35</span></td>
+                  <td data-i18n="sesame_seeds">Sesame Seeds</td>
+                  <td data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</td>
+                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
+                </tr>
+                <tr class="table-danger">
+                  <td><span class="badge bg-danger">36–42</span></td>
+                  <td data-i18n="tulsi_water">Tulsi Water</td>
+                  <td data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-danger">36–42</span></td>
+                  <td data-i18n="ginger_water">Ginger Water</td>
+                  <td data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-secondary">43–50</span></td>
+                  <td data-i18n="curd_yogurt">Curd (Yogurt)</td>
+                  <td data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+                <tr class="table-light">
+                  <td><span class="badge bg-primary">43–50</span></td>
+                  <td data-i18n="coriander_seeds">Coriander Seeds</td>
+                  <td data-i18n="coriander_seeds_dose">½ tsp crushed per 10 birds, mixed in feed</td>
+                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <p class="mb-0 text-muted"><strong data-i18n="note_supplements">Note:</strong> Use clean water, observe birds for reactions, and do not overdose. These are supplements, not replacements for balanced feed or veterinary care.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

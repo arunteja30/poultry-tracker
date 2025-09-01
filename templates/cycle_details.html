@@ -160,10 +160,15 @@
 <div class="row mb-4">
   <div class="col-12">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header d-flex justify-content-between align-items-center">
         <h5>🚚 Bird Dispatch Summary</h5>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchSummaryCollapse" aria-expanded="true">
+          <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+          <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+        </button>
       </div>
-      <div class="card-body">
+      <div class="collapse show" id="dispatchSummaryCollapse">
+        <div class="card-body">
         <!-- Desktop Table -->
         <div class="table-responsive d-none d-md-block">
           <table class="table table-sm table-striped">
@@ -279,6 +284,7 @@
           </div>
           {% endfor %}
         </div>
+        </div>
       </div>
     </div>
   </div>
@@ -289,10 +295,15 @@
 <div class="row mb-4">
   <div class="col-12">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header d-flex justify-content-between align-items-center">
         <h5>💊 Medicines Summary</h5>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="true">
+          <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+          <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+        </button>
       </div>
-      <div class="card-body">
+      <div class="collapse show" id="medicinesSummaryCollapse">
+        <div class="card-body">
         {% if medicines %}
         <!-- Desktop Table -->
         <div class="table-responsive d-none d-md-block">
@@ -451,70 +462,66 @@
 </div>
 
 <!-- Daily Entries Table (Desktop) -->
-<div class="card d-none d-md-block mb-4">
-  <div class="card-header">
+<div class="card d-none d-lg-block mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <h5 data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
+    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
+      <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+      <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+    </button>
   </div>
-  <div class="card-body">
-    {% if daily_entries %}
-    <div class="table-responsive">
-      <table class="table table-sm table-striped">
-      <thead>
-        <tr>
-          <th class="text-center" data-i18n="table_day">Day</th>
-          <th class="text-center" data-i18n="table_date">Date</th>
-          <th class="text-center" data-i18n="table_birds_survived">Birds Survived</th>
-          <th class="text-center" data-i18n="table_mortality">Mortality</th>
-          <th class="text-center" data-i18n="table_feed_consumed">Feed Consumed</th>
-          <th class="text-center" data-i18n="table_feed_added">Feed Added</th>
-          <th class="text-center" data-i18n="table_avg_weight">Avg Weight (kg)</th>
-          <th class="text-center" data-i18n="table_fcr">FCR</th>
-          <th class="text-center" data-i18n="table_medicines">Medicines</th>
-          <th data-i18n="table_notes">Notes</th>
-        </tr>
-      </thead>
-      <tbody>
+  <div class="collapse show" id="dailyEntriesDesktopCollapse">
+    <div class="card-body">
+      {% if daily_entries %}
+      <div class="table-responsive" style="overflow-x: auto; max-width: 100vw;">
+        <table class="table table-sm table-striped" style="min-width: 1200px; width: 100%;">
+        <thead class="table-dark">
+          <tr>
+            <th class="text-center" data-i18n="table_day">Day</th>
+            <th class="text-center" data-i18n="table_date">Date</th>
+            <th class="text-center" data-i18n="table_mortality">Mortality</th>
+            <th class="text-center" data-i18n="table_total_mortality">Total Mortality</th>
+            <th class="text-center" data-i18n="table_mortality_rate">Mortality Rate (%)</th>
+            <th class="text-center" data-i18n="birds_survived">Birds Survived</th>
+            <th class="text-center" data-i18n="table_feed_consumed">Feed Consumed</th>
+            <th class="text-center" data-i18n="total_bags_consumed">Total Consumed</th>
+            <th class="text-center" data-i18n="table_feed_added">Feed Added</th>
+            <th class="text-center" data-i18n="table_avg_weight">Avg Weight</th>
+            <th class="text-center" data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
+            <th class="text-center" data-i18n="table_fcr">FCR</th>
+            <th class="text-center" data-i18n="table_remaining_bags">Remaining Bags</th>
+            <th class="text-center" data-i18n="table_medicines">Medicines</th>
+            <th class="text-center" data-i18n="notes">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
         {% set total_days = daily_entries|length %}
         {% for entry in daily_entries|reverse %}
         <tr>
-          <td class="text-center">{{ total_days - loop.index0 }}</td>
-          <td class="text-center">{{ entry.entry_date }}</td>
-          <td class="text-center">{{ entry.birds_survived }}</td>
-          <td class="text-center">
-            {% if entry.mortality > 0 %}
-              <span class="text-danger">{{ entry.mortality }}</span>
-            {% else %}
-              {{ entry.mortality }}
-            {% endif %}
-          </td>
-          <td class="text-center">{{ entry.feed_bags_consumed }}</td>
-          <td class="text-center">
-            {% if entry.feed_bags_added > 0 %}
-              <span class="text-success">+{{ entry.feed_bags_added }}</span>
-            {% else %}
-              {{ entry.feed_bags_added }}
-            {% endif %}
-          </td>
-          <td class="text-center">{{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</td>
-          <td class="text-center">
-            {% if entry.fcr > 0 %}
-              <span class="{% if entry.fcr <= 1.8 %}text-success{% elif entry.fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
-                {{ "%.3f"|format(entry.fcr) }}
-              </span>
-            {% else %}
-              N/A
-            {% endif %}
-          </td>
-          <td class="text-center">{{ entry.medicines or '-' }}</td>
-          <td>{{ entry.daily_notes or '-' }}</td>
+          <td class="text-center"><strong>{{ total_days - loop.index0 }}</strong></td>
+          <td class="text-center text-nowrap">{{ entry.entry_date }}</td>
+          <td class="text-center text-danger"><strong>{{ entry.mortality }}</strong></td>
+          <td class="text-center text-danger"><strong>{{ entry.total_mortality }}</strong></td>
+          <td class="text-center text-danger"><strong>{{ entry.mortality_rate }}%</strong></td>
+          <td class="text-center text-success"><strong>{{ entry.birds_survived }}</strong></td>
+          <td class="text-center text-info"><strong>{{ entry.feed_bags_consumed }}</strong></td>
+          <td class="text-center text-primary"><strong>{{ entry.total_bags_consumed }}</strong></td>
+          <td class="text-center text-success"><strong>{{ entry.feed_bags_added }}</strong></td>
+          <td class="text-center text-nowrap text-success"><small>{{ "{:,.0f}".format(entry.avg_weight * 1000) }}g</small></td>
+          <td class="text-center text-nowrap text-primary"><small>{{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</small></td>
+          <td class="text-center text-success"><strong>{{ entry.fcr }}</strong></td>
+          <td class="text-center text-info"><strong>{{ entry.remaining_bags }}</strong></td>
+          <td class="text-center text-truncate" style="max-width: 120px;" title="{{ entry.medicines or '-' }}">{{ entry.medicines or '-' }}</td>
+          <td class="text-center text-truncate" style="max-width: 150px;" title="{{ entry.daily_notes or '-' }}">{{ entry.daily_notes or '-' }}</td>
         </tr>
         {% endfor %}
       </tbody>
       </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center" data-i18n="no_daily_entries">No daily entries found for this cycle.</p>
+      {% endif %}
     </div>
-    {% else %}
-    <p class="text-muted text-center" data-i18n="no_daily_entries">No daily entries found for this cycle.</p>
-    {% endif %}
   </div>
 </div>
 
@@ -571,16 +578,21 @@
         {% set total_days = daily_entries|length %}
         {% for entry in daily_entries|reverse %}
           <div class="border rounded p-2 mb-2">
-            <div style="color: #cc470e;font-weight:bold;"><strong>Day:</strong> {{ total_days - loop.index0 }}</div>
-            <div><strong>Date:</strong> {{ entry.entry_date }}</div>
-            <div><strong>Birds Survived:</strong> {{ entry.birds_survived }}</div>
-            <div><strong>Mortality:</strong> {{ entry.mortality }}</div>
-            <div><strong>Feed Consumed:</strong> {{ entry.feed_bags_consumed }}</div>
-            <div><strong>Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added }}{% else %}{{ entry.feed_bags_added }}{% endif %}</div>
-            <div><strong>Avg Weight (kg):</strong> {{ "%.3f"|format(entry.avg_weight) if entry.avg_weight > 0 else 'N/A' }}</div>
-            <div><strong>FCR:</strong> {% if entry.fcr > 0 %}{{ "%.3f"|format(entry.fcr) }}{% else %}N/A{% endif %}</div>
-            <div><strong>Medicines:</strong> {{ entry.medicines or '-' }}</div>
-            <div><strong>Notes:</strong> {{ entry.daily_notes or '-' }}</div>
+            <div style="color: #cc470e;font-weight:bold;"><strong data-i18n="table_day">Day:</strong> {{ total_days - loop.index0 }}</div>
+            <div><strong data-i18n="table_date">Date:</strong> {{ entry.entry_date }}</div>
+            <div class="text-danger"><strong data-i18n="table_mortality">Mortality:</strong> {{ entry.mortality }}</div>
+            <div class="text-danger"><strong data-i18n="table_total_mortality">Total Mortality:</strong> {{ entry.total_mortality }}</div>
+            <div class="text-danger"><strong data-i18n="table_mortality_rate">Mortality Rate:</strong> {{ entry.mortality_rate }}%</div>
+            <div class="text-success"><strong data-i18n="birds_survived">Birds Survived:</strong> {{ entry.birds_survived }}</div>
+            <div class="text-info"><strong data-i18n="table_feed_consumed">Feed Consumed:</strong> {{ entry.feed_bags_consumed }}</div>
+            <div class="text-primary"><strong data-i18n="total_bags_consumed">Total Consumed:</strong> {{ entry.total_bags_consumed }}</div>
+            <div class="text-success"><strong data-i18n="table_feed_added">Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added }}{% else %}{{ entry.feed_bags_added }}{% endif %}</div>
+            <div class="text-success"><strong data-i18n="table_avg_weight">Avg Weight:</strong> {{ "{:,.0f}".format(entry.avg_weight * 1000) }}g</div>
+            <div class="text-primary"><strong data-i18n="avg_feed_per_bird">Avg Feed/Bird:</strong> {{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</div>
+            <div class="text-success"><strong data-i18n="table_fcr">FCR:</strong> {% if entry.fcr > 0 %}{{ "%.3f"|format(entry.fcr) }}{% else %}N/A{% endif %}</div>
+            <div class="text-info"><strong data-i18n="table_remaining_bags">Remaining Bags:</strong> {{ entry.remaining_bags }}</div>
+            <div><strong data-i18n="table_medicines">Medicines:</strong> {{ entry.medicines or '-' }}</div>
+            <div><strong data-i18n="notes">Notes:</strong> {{ entry.daily_notes or '-' }}</div>
           </div>
         {% endfor %}
       {% else %}
@@ -688,6 +700,30 @@ new Chart(weightCtx, {
   }
 });
 
+// Daily Entries collapse toggle
+document.getElementById('dailyEntriesCollapse').addEventListener('shown.bs.collapse', function () {
+  document.getElementById('dailyEntriesToggle').className = 'fas fa-chevron-up';
+});
+document.getElementById('dailyEntriesCollapse').addEventListener('hidden.bs.collapse', function () {
+  document.getElementById('dailyEntriesToggle').className = 'fas fa-chevron-down';
+});
+
+// Dispatch History collapse toggle
+document.getElementById('dispatchCollapse').addEventListener('shown.bs.collapse', function () {
+  document.getElementById('dispatchToggle').className = 'fas fa-chevron-up';
+});
+document.getElementById('dispatchCollapse').addEventListener('hidden.bs.collapse', function () {
+  document.getElementById('dispatchToggle').className = 'fas fa-chevron-down';
+});
+
+// Medicines collapse toggle
+document.getElementById('medicinesCollapse').addEventListener('shown.bs.collapse', function () {
+  document.getElementById('medicinesToggle').className = 'fas fa-chevron-up';
+});
+document.getElementById('medicinesCollapse').addEventListener('hidden.bs.collapse', function () {
+  document.getElementById('medicinesToggle').className = 'fas fa-chevron-down';
+});
+
 // Expenses collapse toggle
 document.getElementById('expensesCollapse').addEventListener('shown.bs.collapse', function () {
   document.getElementById('expensesToggle').className = 'fas fa-chevron-up';
@@ -697,3 +733,26 @@ document.getElementById('expensesCollapse').addEventListener('hidden.bs.collapse
 });
 </script>
 {% endblock %}
+
+<style>
+@media (max-width: 576px) {
+  .btn, .btn-sm, .btn-lg {
+    font-size: 0.85rem !important;
+    padding: 0.3rem 0.7rem !important;
+    border-radius: 0.3rem !important;
+  }
+  .card-header h5, h2, h3, h5, .card-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .card-header {
+    padding: 0.5rem 1rem !important;
+  }
+  .card-body {
+    padding: 0.7rem 0.7rem !important;
+  }
+  .expand-text, .collapse-text {
+    font-size: 0.95rem !important;
+  }
+}
+</style>

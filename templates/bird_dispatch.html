@@ -10,6 +10,22 @@
         </div>
       </div>
 
+      {% if not cycle %}
+      <!-- No Active Cycle -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card text-center p-5">
+            <div class="card-body">
+              <div class="mb-4" style="font-size: 4rem;">🐔</div>
+              <h3 data-i18n="no_cycle">No Active Cycle</h3>
+              <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
+              <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+
       <!-- Current Cycle Info -->
       {% if cycle %}
       <div class="alert alert-info">
@@ -25,31 +41,31 @@
         <div class="col-md-3">
           <div class="card bg-primary">
             <div class="card-body text-center">
-              <h4 style="color: rgb(230, 229, 233);">{{ recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_birds') }}</h4>
-              <p class="mb-0" style="color: rgb(230, 229, 233);">Total Birds Dispatched</p>
+              <h4 style="color: rgb(62, 13, 207);">{{ recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_birds') }}</h4>
+              <p class="mb-0" style="color: rgb(56, 10, 195);">Total Birds Dispatched</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card bg-success text-white">
             <div class="card-body text-center">
-              <h4 style="color: white;">{{ "%.1f"|format(recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_weight')) }} kg</h4>
-              <p class="mb-0" style="color: white;">Total Weight</p>
+              <h4 style="color: rgb(182, 14, 14);">{{ "%.1f"|format(recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_weight')) }} kg</h4>
+              <p class="mb-0" style="color: rgb(219, 16, 16);">Total Weight</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card bg-info text-white">
             <div class="card-body text-center">
-              <h4 style="color: rgb(62, 5, 219);">{{ recent_dispatches | length }}</h4>
-              <p class="mb-0" style="color: rgb(44, 12, 225);">Number of Vehicles</p>
+              <h4 style="color: rgb(4, 64, 23);">{{ recent_dispatches | length }}</h4>
+              <p class="mb-0" style="color: rgb(4, 84, 3);">Number of Vehicles</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card bg-warning text-white">
             <div class="card-body text-center">
-              <h4 style="color: rgb(215, 27, 27);">
+              <h4 style="color: rgb(221, 151, 10);">
                 {% set completed_dispatches = recent_dispatches | selectattr('status', 'equalto', 'completed') | list %}
                 {% set total_birds = completed_dispatches | sum(attribute='total_birds') %}
                 {% set total_weight = completed_dispatches | sum(attribute='total_weight') %}
@@ -59,7 +75,7 @@
                   0.000 kg
                 {% endif %}
               </h4>
-              <p class="mb-0" style="color: rgb(174, 16, 16);">Avg Bird Weight</p>
+              <p class="mb-0" style="color: rgb(226, 172, 9);">Avg Bird Weight</p>
             </div>
           </div>
         </div>
@@ -283,4 +299,5 @@
     }
   });
 </script>
+{% endif %}
 {% endblock %}

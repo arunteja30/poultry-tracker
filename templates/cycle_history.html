@@ -5,8 +5,16 @@
 
 {% if cycle_data %}
 <div class="card d-none d-md-block">
-  <div class="card-body">
-    <div class="table-responsive">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0" data-i18n="cycle_history_table">Cycle History Table</h5>
+    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#cycleHistoryDesktopCollapse" aria-expanded="true">
+      <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+      <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+    </button>
+  </div>
+  <div class="collapse show" id="cycleHistoryDesktopCollapse">
+    <div class="card-body">
+      <div class="table-responsive">
       <table class="table table-hover">
         <thead class="table-light">
           <tr>
@@ -89,13 +97,24 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="d-block d-md-none">
-  {% for data in cycle_data %}
-  <div class="card mb-3 shadow-sm">
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0" data-i18n="cycle_history_cards">Cycle History Cards</h5>
+      <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#cycleHistoryMobileCollapse" aria-expanded="true">
+        <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+        <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+      </button>
+    </div>
+  </div>
+  <div class="collapse show" id="cycleHistoryMobileCollapse">
+    {% for data in cycle_data %}
+    <div class="card mb-3 shadow-sm">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <strong>#{{ data.cycle.id }}</strong>
@@ -140,6 +159,7 @@
     </div>
   </div>
   {% endfor %}
+  </div>
 </div>
 
 <!-- Performance Comparison Section -->
@@ -194,5 +214,50 @@
   </div>
 </div>
 {% endif %}
+
+<script>
+// Expand/Collapse functionality for cycle history
+document.addEventListener('DOMContentLoaded', function() {
+  // Desktop cycle history collapse
+  const cycleDesktopToggle = document.querySelector('[data-bs-target="#cycleHistoryDesktopCollapse"]');
+  const cycleDesktopCollapse = document.getElementById('cycleHistoryDesktopCollapse');
+  
+  if (cycleDesktopToggle && cycleDesktopCollapse) {
+    cycleDesktopCollapse.addEventListener('shown.bs.collapse', function() {
+      const expandText = cycleDesktopToggle.querySelector('.expand-text');
+      const collapseText = cycleDesktopToggle.querySelector('.collapse-text');
+      expandText.classList.remove('d-none');
+      collapseText.classList.add('d-none');
+    });
+    
+    cycleDesktopCollapse.addEventListener('hidden.bs.collapse', function() {
+      const expandText = cycleDesktopToggle.querySelector('.expand-text');
+      const collapseText = cycleDesktopToggle.querySelector('.collapse-text');
+      expandText.classList.add('d-none');
+      collapseText.classList.remove('d-none');
+    });
+  }
+  
+  // Mobile cycle history collapse
+  const cycleMobileToggle = document.querySelector('[data-bs-target="#cycleHistoryMobileCollapse"]');
+  const cycleMobileCollapse = document.getElementById('cycleHistoryMobileCollapse');
+  
+  if (cycleMobileToggle && cycleMobileCollapse) {
+    cycleMobileCollapse.addEventListener('shown.bs.collapse', function() {
+      const expandText = cycleMobileToggle.querySelector('.expand-text');
+      const collapseText = cycleMobileToggle.querySelector('.collapse-text');
+      expandText.classList.remove('d-none');
+      collapseText.classList.add('d-none');
+    });
+    
+    cycleMobileCollapse.addEventListener('hidden.bs.collapse', function() {
+      const expandText = cycleMobileToggle.querySelector('.expand-text');
+      const collapseText = cycleMobileToggle.querySelector('.collapse-text');
+      expandText.classList.add('d-none');
+      collapseText.classList.remove('d-none');
+    });
+  }
+});
+</script>
 
 {% endblock %}

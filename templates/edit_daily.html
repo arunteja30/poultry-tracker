@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>✏️ Edit Daily Entry</h2>
+  <a href="{{ url_for('daywise') }}" class="btn btn-secondary btn-sm">← Back to Daily Reports</a>
+</div>
+
+<!-- Entry Info -->
+<div class="alert alert-info mb-4">
+  <h6>📅 Editing Entry:</h6>
+  <strong>Date:</strong> {{ entry.entry_date }} | 
+  <strong>Day:</strong> {{ loop.index if loop else 'N/A' }} | 
+  <strong>Cycle ID:</strong> {{ cycle.id }}
+</div>
+
+<div class="card p-4">
+  <form method="POST" class="row g-3">
+    <div class="col-md-6">
+      <label for="mortality" class="form-label">Mortality</label>
+      <input id="mortality" type="number" name="mortality" class="form-control"
+             value="{{ entry.mortality }}" min="0" required>
+      <small class="text-muted">Current: {{ entry.mortality }}</small>
+    </div>
+    
+    <div class="col-md-6">
+      <label for="feed-consumed" class="form-label">Feed Bags Consumed</label>
+      <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control"
+             value="{{ entry.feed_bags_consumed }}" min="0" required>
+      <small class="text-muted">Current: {{ entry.feed_bags_consumed }}</small>
+    </div>
+
+    <div class="col-md-6">
+      <label for="feed-added" class="form-label">Feed Bags Added</label>
+      <input id="feed-added" type="number" step="0.1" name="feed_bags_added" class="form-control"
+             value="{{ entry.feed_bags_added }}" min="0">
+      <small class="text-muted">Current: {{ entry.feed_bags_added }}</small>
+    </div>
+
+    <div class="col-md-6">
+      <label for="avg-weight" class="form-label">Avg Weight (kg)</label>
+      <input id="avg-weight" type="number" step="0.001" name="avg_weight" class="form-control"
+             value="{{ entry.avg_weight }}" min="0" required>
+      <small class="text-muted">Current: {{ entry.avg_weight }} kg ({{ (entry.avg_weight * 1000)|int }} g)</small>
+    </div>
+
+    <div class="col-12">
+      <label for="medicines" class="form-label">Medicines Given</label>
+      <textarea id="medicines" name="medicines" class="form-control" rows="3" 
+                placeholder="List any medicines given today...">{{ entry.medicines or '' }}</textarea>
+      <small class="text-muted">Current: {{ entry.medicines or 'None' }}</small>
+    </div>
+
+    <div class="col-12">
+      <label for="daily-notes" class="form-label" data-i18n="notes">Notes</label>
+      <textarea id="daily-notes" name="daily_notes" class="form-control" rows="3" 
+                placeholder="Enter notes for today...">{{ entry.daily_notes or '' }}</textarea>
+      <small class="text-muted">Current: {{ entry.daily_notes or 'No notes' }}</small>
+    </div>
+
+    <!-- Current calculated values display -->
+    <div class="col-12">
+      <div class="alert alert-secondary">
+        <h6>Current Calculated Values:</h6>
+        <div class="row">
+          <div class="col-md-4">
+            <strong>FCR:</strong> {{ entry.fcr }}
+          </div>
+          <div class="col-md-4">
+            <strong>Avg Feed/Bird:</strong> {{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g
+          </div>
+          <div class="col-md-4">
+            <strong>Birds at time:</strong> {{ entry.birds_survived if entry.birds_survived else 'N/A' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="col-12">
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <a href="{{ url_for('daywise') }}" class="btn btn-secondary me-md-2">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          ✏️ Update Entry
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Warning Note -->
+<div class="alert alert-warning mt-4">
+  <h6>⚠️ Important Notes:</h6>
+  <ul class="mb-0">
+    <li>Changing values will affect cycle totals and calculations</li>
+    <li>FCR and Avg Feed/Bird will be recalculated automatically</li>
+    <li>Bird count changes will affect current cycle bird count</li>
+    <li>Feed bag changes will affect available feed inventory</li>
+  </ul>
+</div>
+
+<script>
+  // Auto-focus on first input
+  document.getElementById('mortality').focus();
+  
+  // Add input validation and preview
+  function updatePreview() {
+    const mortality = parseFloat(document.getElementById('mortality').value) || 0;
+    const feedConsumed = parseFloat(document.getElementById('feed-consumed').value) || 0;
+    const feedAdded = parseFloat(document.getElementById('feed-added').value) || 0;
+    const avgWeight = parseFloat(document.getElementById('avg-weight').value) || 0;
+    
+    // Calculate changes
+    const mortalityChange = mortality - {{ entry.mortality }};
+    const feedConsumedChange = feedConsumed - {{ entry.feed_bags_consumed }};
+    const feedAddedChange = feedAdded - {{ entry.feed_bags_added }};
+    
+    // Update preview if needed
+    if (mortalityChange !== 0 || feedConsumedChange !== 0 || feedAddedChange !== 0) {
+      // Could add real-time preview here
+    }
+  }
+  
+  // Add event listeners
+  ['mortality', 'feed-consumed', 'feed-added', 'avg-weight'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+</script>
+{% endblock %}

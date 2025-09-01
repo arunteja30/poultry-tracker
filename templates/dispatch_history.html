@@ -11,6 +11,22 @@
         </div>
       </div>
 
+      {% if not cycle %}
+      <!-- No Active Cycle -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card text-center p-5">
+            <div class="card-body">
+              <div class="mb-4" style="font-size: 4rem;">🐔</div>
+              <h3 data-i18n="no_cycle">No Active Cycle</h3>
+              <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
+              <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+
       <!-- Current Cycle Info -->
       {% if cycle %}
       <div class="alert alert-info">
@@ -58,12 +74,17 @@
       <!-- Dispatch History Table -->
       {% if dispatches %}
       <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="card-title mb-0">🚚 All Dispatches for Current Cycle</h5>
+          <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="true">
+            <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+            <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+          </button>
         </div>
-        <div class="card-body">
-          <!-- Desktop Table -->
-          <div class="table-responsive d-none d-md-block">
+        <div class="collapse show" id="dispatchHistoryCollapse">
+          <div class="card-body">
+            <!-- Desktop Table -->
+            <div class="table-responsive d-none d-md-block">
             <table class="table table-sm table-hover">
               <thead class="table-dark">
                 <tr>
@@ -119,10 +140,19 @@
                     {% endif %}
                   </td>
                   <td>
-                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                       class="btn btn-sm {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }}">
-                      {{ '👁️ View' if dispatch.status == 'completed' else '⚖️ Weigh' }}
-                    </a>
+                    <fieldset class="btn-group">
+                      <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                         class="btn btn-sm {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }}">
+                        {{ '👁️ View' if dispatch.status == 'completed' else '⚖️ Weigh' }}
+                      </a>
+                      {% if session.role == 'admin' %}
+                      <form method="POST" action="{{ url_for('delete_dispatch', dispatch_id=dispatch.id) }}" 
+                            style="display: inline-block;" 
+                            onsubmit="return confirm('Are you sure you want to delete this dispatch? This action cannot be undone.')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Dispatch">🗑️</button>
+                      </form>
+                      {% endif %}
+                    </fieldset>
                   </td>
                 </tr>
                 {% endfor %}
@@ -195,10 +225,20 @@
                 </div>
                 {% endif %}
                 <div class="mt-3">
-                  <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                     class="btn {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }} btn-sm w-100">
-                    {{ '👁️ View Details' if dispatch.status == 'completed' else '⚖️ Weigh Birds' }}
-                  </a>
+                  <div class="d-grid gap-2">
+                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                       class="btn {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }} btn-sm">
+                      {{ '👁️ View Details' if dispatch.status == 'completed' else '⚖️ Weigh Birds' }}
+                    </a>
+                    {% if session.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_dispatch', dispatch_id=dispatch.id) }}" 
+                          onsubmit="return confirm('Are you sure you want to delete this dispatch? This action cannot be undone.')">
+                      <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete Dispatch">
+                        🗑️ Delete Dispatch
+                      </button>
+                    </form>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -227,6 +267,7 @@
             </div>
             {% endif %}
           </div>
+        </div>
         </div>
       </div>
       {% else %}
@@ -270,5 +311,51 @@
       box-shadow: none !important;
     }
   }
+
+  @media (max-width: 576px) {
+    .btn, .btn-sm, .btn-lg {
+      font-size: 0.85rem !important;
+      padding: 0.3rem 0.7rem !important;
+      border-radius: 0.3rem !important;
+    }
+    .card-header h5, h2, h3, h5, .card-title {
+      font-size: 1.1rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+    .card-header {
+      padding: 0.5rem 1rem !important;
+    }
+    .card-body {
+      padding: 0.7rem 0.7rem !important;
+    }
+    .expand-text, .collapse-text {
+      font-size: 0.95rem !important;
+    }
+  }
 </style>
-{% endblock %}
+
+<script>
+// Expand/Collapse functionality for dispatch history
+document.addEventListener('DOMContentLoaded', function() {
+  const dispatchToggle = document.querySelector('[data-bs-target="#dispatchHistoryCollapse"]');
+  const dispatchCollapse = document.getElementById('dispatchHistoryCollapse');
+  
+  if (dispatchToggle && dispatchCollapse) {
+    dispatchCollapse.addEventListener('shown.bs.collapse', function() {
+      const expandText = dispatchToggle.querySelector('.expand-text');
+      const collapseText = dispatchToggle.querySelector('.collapse-text');
+      expandText.classList.remove('d-none');
+      collapseText.classList.add('d-none');
+    });
+    
+    dispatchCollapse.addEventListener('hidden.bs.collapse', function() {
+      const expandText = dispatchToggle.querySelector('.expand-text');
+      const collapseText = dispatchToggle.querySelector('.collapse-text');
+      expandText.classList.add('d-none');
+      collapseText.classList.remove('d-none');
+    });
+  }
+});
+</script>
+{% endif %}
+{% endblock %

@@ -1,65 +1,486 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3 ">
   <h2 data-i18n="daywise_title">Daywise Entries</h2>
 </div>
 
-<!-- Desktop Table View -->
-<div class="card d-none d-md-block">
-  <div class="table-responsive">
-    <table class="table table-hover">
-     <thead>
-  <tr>
-    <th data-i18n="table_day">Day</th>
-    <th data-i18n="table_date">Date</th>
-    <th data-i18n="table_mortality">Mortality</th>
-    <th data-i18n="table_total_mortality">Total Mortality</th>
-    <th data-i18n="table_mortality_rate">Mortality Rate (%)</th>
-    <th data-i18n="birds_survived">Birds Survived</th>
-    <th data-i18n="table_feed_consumed">Feed Consumed (bags)</th>
-    <th data-i18n="table_feed_added">Feed Added (bags)</th>
-    <th data-i18n="table_avg_weight">Avg Weight</th>
-    <th data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
-    <th data-i18n="table_fcr">FCR</th>
-    <th data-i18n="table_medicines">Medicines</th>
-    <th data-i18n="table_remaining_bags">Remaining Bags</th>
-   
+{% if not cycle %}
+<!-- No Active Cycle -->
+<div class="row">
+  <div class="col-12">
+    <div class="card text-center p-5">
+      <div class="card-body">
+        <div class="mb-4" style="font-size: 4rem;">🐔</div>
+        <h3 data-i18n="no_cycle">No Active Cycle</h3>
+        <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
+        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<!-- Mobile Card View -->
+<div class="d-block d-lg-none">
+  {% if rows|length > 0 %}
+    {% for r in rows|reverse %}
+    <div class="card mb-3 shadow-sm ">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2" >
+          <strong class="text-primary text-center">Day {{ loop.revindex }}</strong>
+          <span class="text-muted text-center">{{ r.entry_date }}</span>
+        </div>
+        <!-- Mortality Section -->
+        <div class="row mb-2 text-center">
+          <div class="col-6">
+            <span class="text-secondary" data-i18n="table_mortality">Mortality:</span><br>
+            <span class="fw-bold text-danger text-center">{{ r.mortality }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary" data-i18n="table_total_mortality">Total Mortality:</span><br>
+            <span class="fw-bold text-danger text-center">{{ r.total_mortality }}</span>
+          </div>
+        </div>
+        <div class="row mb-2 text-center">
+          <div class="col-6">
+            <span class="text-secondary" data-i18n="table_mortality_rate">Mortality Rate:</span><br>
+            <span class="fw-bold text-danger text-center">{{ r.mortality_rate }}%</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary" data-i18n="birds_survived">Birds Survived:</span><br>
+            <span class="fw-bold text-success text-center">{{ r.birds_survived }}</span>
+          </div>
+        </div>
+        <!-- Feed Section -->
+        <div class="row mb-2 text-center">
+          <div class="col-4">
+            <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span><br>
+            <span class="fw-bold text-info text-center">{{ r.feed_bags_consumed }}</span>
+          </div>
+          <div class="col-4">
+            <span class="text-secondary" data-i18n="total_bags_consumed">Total Consumed:</span><br>
+            <span class="fw-bold text-primary text-center">{{ r.total_bags_consumed }}</span>
+          </div>
+          <div class="col-4">
+            <span class="text-secondary" data-i18n="table_feed_added">Feed Added:</span><br>
+            <span class="fw-bold text-success text-center">{{ r.feed_bags_added }}</span>
+          </div>
+        </div>
+        <!-- Weight and Performance Section -->
+        <div class="row mb-2 text-center">
+          <div class="col-6">
+            <span class="text-secondary" data-i18n="table_avg_weight">Avg Weight:</span><br>
+            <span class="fw-bold text-success text-center">{{ "{:,.0f}".format(r.avg_weight * 1000) }}g</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary" data-i18n="avg_feed_per_bird">Avg Feed/Bird:</span><br>
+            <span class="fw-bold text-primary text-center">{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</span>
+          </div>
+        </div>
+        <div class="row mb-2 text-center">
+          <div class="col-4">
+            <span class="text-secondary" data-i18n="table_fcr">FCR:</span><br>
+            <span class="fw-bold text-success text-center">{{ r.fcr }}</span>
+          </div>
+          <div class="col-4">
+            <span class="text-secondary" data-i18n="table_remaining_bags">Remaining:</span><br>
+            <span class="fw-bold text-info text-center">{{ r.remaining_bags }}</span>
+          </div>
+          <div class="col-4">
+            <span class="text-secondary" data-i18n="table_medicines">Medicines:</span><br>
+            <span class="fw-bold text-dark text-center" style="font-size: 0.85em;">{{ (r.medicines[:15] + '...') if r.medicines and r.medicines|length > 15 else (r.medicines or '-') }}</span>
+          </div>
+        </div>
+        <!-- Notes Section -->
+        {% if r.daily_notes %}
+        <div class="row mb-2">
+          <div class="col-12">
+            <div class="card bg-light border-0">
+              <div class="card-body p-2">
+                <h6 class="card-title mb-1 text-secondary" data-i18n="notes">📝 Notes:</h6>
+                <p class="card-text mb-0 text-dark" style="font-size: 0.9em;">{{ r.daily_notes }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% if session.role == 'admin' %}
+        <div class="mt-3 pt-2 border-top">
+          <div class="row g-2">
+            <div class="col-6">
+              <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-primary btn-sm w-100" title="Edit Entry">
+                ✏️ Edit Entry
+              </a>
+            </div>
+            <div class="col-6">
+              <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" class="w-100"
+                    onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
+                <button type="submit" class="btn btn-danger btn-sm w-100" title="Delete Entry">
+                  🗑️ Delete Entry
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="card mb-3">
+      <div class="card-body text-center text-muted" data-i18n="no_entries">
+        No entries found
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Charts Section -->
+<div class="row mb-4">
+  <!-- Chart Type Controls -->
+  <div class="col-12 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="card-title mb-0">Chart Controls</h6>
+          <fieldset>
+            <legend class="visually-hidden">Chart Type Selection</legend>
+            <div class="btn-group" role="group" aria-label="Chart type selection">
+              <input type="radio" class="btn-check" name="chartType" id="lineChart" value="line" checked>
+              <label class="btn btn-outline-primary btn-sm" for="lineChart">📈 Line</label>
+              
+              <input type="radio" class="btn-check" name="chartType" id="barChart" value="bar">
+              <label class="btn btn-outline-primary btn-sm" for="barChart">📊 Bar</label>
+              
+              <input type="radio" class="btn-check" name="chartType" id="tilesView" value="tiles">
+              <label class="btn btn-outline-success btn-sm" for="tilesView">🔢 Tiles</label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
   
-    {% if session.role == 'admin' %}
-    <th>Actions</th>
-    {% endif %}
-  </tr>
-</thead>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title text-center">FCR Trend</h6>
+        <canvas id="fcrChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title text-center">Avg Weight (g)</h6>
+        <canvas id="weightChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title text-center">Feed Bags Consumed</h6>
+        <canvas id="feedChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title text-center">Mortality</h6>
+        <canvas id="mortalityChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+  // Data from backend
+  const days = [{% for r in rows|reverse %}{{ loop.revindex }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const fcrData = [{% for r in rows|reverse %}{{ r.fcr }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const weightData = [{% for r in rows|reverse %}{{ (r.avg_weight * 1000)|int }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const feedData = [{% for r in rows|reverse %}{{ r.feed_bags_consumed }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const mortalityData = [{% for r in rows|reverse %}{{ r.mortality }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+  // Chart instances
+  let fcrChart, weightChart, feedChart, mortalityChart;
+
+  // Register the datalabels plugin
+  Chart.register(ChartDataLabels);
+
+  // Common chart options with data labels
+  const getChartOptions = (yAxisTitle, chartType = 'line') => ({
+    responsive: true,
+    plugins: { 
+      legend: { display: false },
+      datalabels: {
+        display: true,
+        anchor: 'end',
+        align: 'top',
+        formatter: (value) => value,
+        font: {
+          size: 10,
+          weight: 'bold'
+        },
+        color: '#333'
+      }
+    },
+    scales: { 
+      x: { title: { display: true, text: 'Day' } }, 
+      y: { title: { display: true, text: yAxisTitle } } 
+    }
+  });
+
+  // Chart creation function
+  function createCharts(chartType = 'line') {
+    // Hide/show charts container based on view type
+    const chartsContainer = document.querySelector('.row.mb-4');
+    const chartsRow = chartsContainer.querySelectorAll('.col-lg-3');
+    
+    if (chartType === 'tiles') {
+      // Hide charts and show tiles view
+      chartsRow.forEach(chart => chart.style.display = 'none');
+      showTilesView();
+      return;
+    } else {
+      // Show charts and hide tiles view
+      chartsRow.forEach(chart => chart.style.display = 'block');
+      hideTilesView();
+    }
+
+    // Destroy existing charts
+    if (fcrChart) fcrChart.destroy();
+    if (weightChart) weightChart.destroy();
+    if (feedChart) feedChart.destroy();
+    if (mortalityChart) mortalityChart.destroy();
+
+    // FCR Chart
+    fcrChart = new Chart(document.getElementById('fcrChart'), {
+      type: chartType,
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'FCR',
+          data: fcrData,
+          borderColor: '#0d6efd',
+          backgroundColor: chartType === 'line' ? 'rgba(13,110,253,0.1)' : '#0d6efd',
+          fill: chartType === 'line',
+          tension: 0.3,
+          pointRadius: chartType === 'line' ? 4 : 0,
+          borderWidth: chartType === 'bar' ? 1 : 2
+        }]
+      },
+      options: getChartOptions('FCR', chartType)
+    });
+
+    // Weight Chart
+    weightChart = new Chart(document.getElementById('weightChart'), {
+      type: chartType,
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Avg Weight (g)',
+          data: weightData,
+          borderColor: '#198754',
+          backgroundColor: chartType === 'line' ? 'rgba(25,135,84,0.1)' : '#198754',
+          fill: chartType === 'line',
+          tension: 0.3,
+          pointRadius: chartType === 'line' ? 4 : 0,
+          borderWidth: chartType === 'bar' ? 1 : 2
+        }]
+      },
+      options: getChartOptions('Weight (g)', chartType)
+    });
+
+    // Feed Chart - now respects chart type
+    feedChart = new Chart(document.getElementById('feedChart'), {
+      type: chartType,
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Feed Bags',
+          data: feedData,
+          borderColor: '#ffc107',
+          backgroundColor: chartType === 'line' ? 'rgba(255,193,7,0.1)' : '#ffc107',
+          fill: chartType === 'line',
+          tension: 0.3,
+          pointRadius: chartType === 'line' ? 4 : 0,
+          borderWidth: chartType === 'bar' ? 1 : 2
+        }]
+      },
+      options: getChartOptions('Bags', chartType)
+    });
+
+    // Mortality Chart - now respects chart type
+    mortalityChart = new Chart(document.getElementById('mortalityChart'), {
+      type: chartType,
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Mortality',
+          data: mortalityData,
+          borderColor: '#dc3545',
+          backgroundColor: chartType === 'line' ? 'rgba(220,53,69,0.1)' : '#dc3545',
+          fill: chartType === 'line',
+          tension: 0.3,
+          pointRadius: chartType === 'line' ? 4 : 0,
+          borderWidth: chartType === 'bar' ? 1 : 2
+        }]
+      },
+      options: getChartOptions('Count', chartType)
+    });
+  }
+
+  // Tiles view functions
+  function showTilesView() {
+    let tilesContainer = document.getElementById('tilesContainer');
+    if (!tilesContainer) {
+      tilesContainer = document.createElement('div');
+      tilesContainer.id = 'tilesContainer';
+      tilesContainer.className = 'row';
+      
+      const chartsRow = document.querySelector('.row.mb-4');
+      chartsRow.appendChild(tilesContainer);
+    }
+    
+    // Calculate averages
+    const avgFCR = (fcrData.reduce((a, b) => a + b, 0) / fcrData.length).toFixed(2);
+    const avgWeight = (weightData.reduce((a, b) => a + b, 0) / weightData.length).toFixed(0);
+    const avgFeed = (feedData.reduce((a, b) => a + b, 0) / feedData.length).toFixed(1);
+    const avgMortality = (mortalityData.reduce((a, b) => a + b, 0) / mortalityData.length).toFixed(1);
+    const totalFeed = feedData.reduce((a, b) => a + b, 0).toFixed(1);
+    const totalMortality = mortalityData.reduce((a, b) => a + b, 0);
+    
+    tilesContainer.innerHTML = `
+      <div class="col-12">
+        <div class="row">
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card shadow-sm border-primary">
+              <div class="card-body text-center">
+                <h6 class="card-title text-primary">FCR Average</h6>
+                <h2 class="text-primary mb-2">${avgFCR}</h2>
+                <small class="text-muted">Average FCR across ${fcrData.length} days</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card shadow-sm border-success">
+              <div class="card-body text-center">
+                <h6 class="card-title text-success">Avg Weight</h6>
+                <h2 class="text-success mb-2">${avgWeight}g</h2>
+                <small class="text-muted">Average weight across ${weightData.length} days</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card shadow-sm border-warning">
+              <div class="card-body text-center">
+                <h6 class="card-title text-warning">Feed Summary</h6>
+                <h2 class="text-warning mb-2">${avgFeed}</h2>
+                <small class="text-muted">Avg per day | Total: ${totalFeed} bags</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card shadow-sm border-danger">
+              <div class="card-body text-center">
+                <h6 class="card-title text-danger">Mortality Summary</h6>
+                <h2 class="text-danger mb-2">${avgMortality}</h2>
+                <small class="text-muted">Avg per day | Total: ${totalMortality} birds</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    tilesContainer.style.display = 'block';
+  }
+
+  function hideTilesView() {
+    const tilesContainer = document.getElementById('tilesContainer');
+    if (tilesContainer) {
+      tilesContainer.style.display = 'none';
+    }
+  }
+
+  // Initialize charts
+  createCharts('line');
+
+  // Chart type change handlers
+  document.querySelectorAll('input[name="chartType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      createCharts(this.value);
+    });
+  });
+</script>
+
+<!-- Desktop Table View -->
+<div class="card d-none d-lg-block">
+  <div class="position-relative">
+    <div class="table-responsive" style="overflow-x: auto; max-width: 100vw;">
+      <table class="table table-hover table-sm mb-0" style="min-width: 1200px; width: 100%;">
+        <thead class="table-dark sticky-top">
+          <tr>
+            <th class="text-center sticky-column day-col" data-i18n="table_day">Day</th>
+            <th class="text-center" data-i18n="table_date" style="min-width: 100px;">Date</th>
+            <th class="text-center" data-i18n="table_mortality" style="min-width: 80px;">Mortality</th>
+            <th class="text-center" data-i18n="table_total_mortality" style="min-width: 90px;">Total Mortality</th>
+            <th class="text-center" data-i18n="table_mortality_rate" style="min-width: 100px;">Mortality Rate (%)</th>
+            <th class="text-center" data-i18n="birds_survived" style="min-width: 100px;">Birds Survived</th>
+            <th class="text-center" data-i18n="table_feed_consumed" style="min-width: 120px;">Feed Consumed in day</th>
+            <th class="text-center" data-i18n="total_bags_consumed" style="min-width: 100px;">Total Consumed</th>
+            <th class="text-center" data-i18n="table_feed_added" style="min-width: 90px;">Feed Added</th>
+            <th class="text-center" data-i18n="table_avg_weight" style="min-width: 90px;">Avg Weight</th>
+            <th class="text-center" data-i18n="avg_feed_per_bird" style="min-width: 100px;">Avg Feed/Bird</th>
+            <th class="text-center" data-i18n="table_fcr" style="min-width: 70px;">FCR</th>
+            <th class="text-center" data-i18n="table_remaining_bags" style="min-width: 90px;">Remaining Bags</th>
+            <th class="text-center" data-i18n="table_medicines" style="min-width: 120px;">Medicines</th>
+            <th class="text-center" data-i18n="notes" style="min-width: 150px;">Notes</th>
+            {% if session.role == 'admin' %}
+            <th class="text-center sticky-column actions-col">Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
 <tbody>
   {% for r in rows|reverse %}
   <tr>
-    <td>Day {{ loop.revindex }}</td>
-    <td>{{ r.entry_date }}</td>
-    <td>{{ r.mortality }}</td>
-    <td>{{ r.total_mortality }}</td>
-    <td>{{ r.mortality_rate }}%</td>
-    <td>{{ r.birds_survived }}</td>
-    <td>{{ r.feed_bags_consumed }}</td>
-    <td>{{ r.feed_bags_added }}</td>
-    <td>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</td>
-    <td>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</td>
-    <td>{{ r.fcr }}</td>
-    <td>{{ r.medicines or '-' }}</td>
-    <td>{{ r.remaining_bags }}</td>
+    <td class="text-center sticky-column day-col"><strong>{{ loop.revindex }}</strong></td>
+    <td class="text-center text-nowrap">{{ r.entry_date }}</td>
+    <td class="text-center text-danger"><strong>{{ r.mortality }}</strong></td>
+    <td class="text-center text-danger"><strong>{{ r.total_mortality }}</strong></td>
+    <td class="text-center text-danger"><strong>{{ r.mortality_rate }}%</strong></td>
+    <td class="text-center text-success"><strong>{{ r.birds_survived }}</strong></td>
+    <td class="text-center text-info"><strong>{{ r.feed_bags_consumed }}</strong></td>
+    <td class="text-center text-primary"><strong>{{ r.total_bags_consumed }}</strong></td>
+    <td class="text-center text-success"><strong>{{ r.feed_bags_added }}</strong></td>
+    <td class="text-center text-nowrap text-success"><small>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g</small></td>
+    <td class="text-center text-nowrap text-primary"><small>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</small></td>
+    <td class="text-center text-success"><strong>{{ r.fcr }}</strong></td>
+    <td class="text-center text-info"><strong>{{ r.remaining_bags }}</strong></td>
+    <td class="text-center text-truncate" style="max-width: 120px;" title="{{ r.medicines or '-' }}">{{ r.medicines or '-' }}</td>
+    <td class="text-center text-truncate" style="max-width: 150px;" title="{{ r.daily_notes or '-' }}">{{ r.daily_notes or '-' }}</td>
     {% if session.role == 'admin' %}
-    <td>
-      <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
-            onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
-        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
-          🗑️
-        </button>
-      </form>
+    <td class="text-center sticky-column actions-col">
+      <div class="d-flex flex-column gap-1">
+        <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-primary" title="Edit Entry" style="font-size: 12px;">
+          ✏️ Edit
+        </a>
+        <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" class="mb-0"
+              onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
+          <button type="submit" class="btn btn-sm btn-danger w-100" title="Delete Entry" style="font-size: 12px;">
+            🗑️ Del
+          </button>
+        </form>
+      </div>
     </td>
     {% endif %}
   </tr>
   {% else %}
   <tr>
-    <td colspan="{% if session.role == 'admin' %}11{% else %}10{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
+    <td colspan="{% if session.role == 'admin' %}16{% else %}15{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
   </tr>
   {% endfor %}
 </tbody>
@@ -67,57 +488,94 @@
   </div>
 </div>
 
-<!-- Mobile Card View -->
-<div class="d-block d-md-none">
-  {% for r in rows|reverse %}
-  <div class="card mb-3 shadow-sm">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong>Day {{ loop.revindex }}</strong>
-        <span class="text-muted">{{ r.entry_date }}</span>
-      </div>
-      <div>
-        <span class="text-secondary" data-i18n="table_mortality">Mortality:</span>
-        <span class="fw-bold text-danger">{{ r.mortality }}</span><br>
-        <span class="text-secondary" data-i18n="table_total_mortality">Total Mortality:</span>
-        <span class="fw-bold text-danger">{{ r.total_mortality }}</span><br>
-        <span class="text-secondary" data-i18n="table_mortality_rate">Mortality Rate:</span>
-        <span class="fw-bold text-danger">{{ r.mortality_rate }}%</span><br>
-        <span class="text-secondary" data-i18n="birds_survived">Birds Survived:</span>
-        <span class="fw-bold text-success">{{ r.birds_survived }}</span><br>
-        <span class="text-secondary" data-i18n="table_feed_consumed">Feed Consumed:</span>
-        <span class="fw-bold text-info">{{ r.feed_bags_consumed }}</span><br>
-        <span class="text-secondary" data-i18n="table_feed_added">Feed Added:</span>
-        <span class="fw-bold text-success">{{ r.feed_bags_added }}</span><br>
-        <span class="text-secondary" data-i18n="table_avg_weight">Avg Weight:</span>
-        <span class="fw-bold text-warning">{{ "{:,.0f}".format(r.avg_weight * 1000) }}g ({{ r.avg_weight }}kg)</span><br>
-        <span class="text-secondary" data-i18n="avg_feed_per_bird">Avg Feed/Bird:</span>
-        <span class="fw-bold text-primary">{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</span><br>
-        <span class="text-secondary" data-i18n="table_fcr">FCR:</span>
-        <span class="fw-bold text-success">{{ r.fcr }}</span><br>
-        <span class="text-secondary" data-i18n="table_medicines">Medicines:</span>
-        <span class="fw-bold text-dark">{{ r.medicines or '-' }}</span><br>
-        <span class="text-secondary" data-i18n="table_remaining_bags">Remaining Bags:</span>
-        <span class="fw-bold text-info">{{ r.remaining_bags }}</span>
-      </div>
-      {% if session.role == 'admin' %}
-      <div class="mt-2">
-        <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" style="display: inline;"
-              onsubmit="return confirm('Are you sure you want to delete this entry? This action cannot be undone.')">
-          <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Delete Entry">
-            🗑️ Delete
-          </button>
-        </form>
-      </div>
-      {% endif %}
-    </div>
-  </div>
-  {% else %}
-  <div class="card mb-3">
-    <div class="card-body text-center text-muted" data-i18n="no_entries">
-      No entries found
-    </div>
-  </div>
-  {% endfor %}
-</div>
+<!-- Custom CSS for sticky columns -->
+<style>
+.sticky-column {
+  position: sticky;
+  z-index: 10;
+  background-color: inherit;
+}
+
+.day-col {
+  left: 0;
+  min-width: 60px;
+  background-color: #212529 !important; /* Dark header color */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.actions-col {
+  right: 0;
+  min-width: 100px;
+  background-color: #212529 !important; /* Dark header color */
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+
+/* Body cell styling for sticky columns */
+tbody .sticky-column.day-col {
+  background-color: #f8f9fa !important;
+  font-weight: bold;
+}
+
+tbody .sticky-column.actions-col {
+  background-color: #f8f9fa !important;
+}
+
+/* Hover effects */
+tr:hover .sticky-column {
+  background-color: #e9ecef !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+  
+  .actions-col {
+    min-width: 90px;
+  }
+}
+
+@media (max-width: 992px) {
+  .table-responsive {
+    font-size: 0.8rem;
+  }
+  
+  .actions-col {
+    min-width: 80px;
+  }
+  
+  /* Ensure mobile view is visible */
+  .d-block.d-lg-none {
+    display: block !important;
+  }
+  
+  .d-none.d-lg-block {
+    display: none !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .btn, .btn-sm, .btn-lg {
+    font-size: 0.85rem !important;
+    padding: 0.3rem 0.7rem !important;
+    border-radius: 0.3rem !important;
+  }
+  .card-header h5, h2, h3, h5, .card-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .card-header {
+    padding: 0.5rem 1rem !important;
+  }
+  .card-body {
+    padding: 0.7rem 0.7rem !important;
+  }
+  .expand-text, .collapse-text {
+    font-size: 0.95rem !important;
+  }
+}
+</style>
+
+{% endif %}
 {% endblock %}

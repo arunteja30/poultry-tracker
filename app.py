@@ -1,4 +1,5 @@
 import re
+import traceback
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash, session
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
@@ -51,20 +52,34 @@ class Daily(db.Model):
     avg_feed_per_bird_g = db.Column(db.Float, default=0.0)
     fcr = db.Column(db.Float, default=0.0)
     medicines = db.Column(db.String(250), default="")
+    daily_notes = db.Column(db.String(500), nullable=True)
     # New fields for analytics
     mortality_rate = db.Column(db.Float, default=0.0)
-    total_mortality = db.Column(db.Integer, default=0)
+    total_mortality = db.Column(db.Integer, default=0.0)
     remaining_bags = db.Column(db.Float, default=0.0)
     total_bags_consumed = db.Column(db.Float, default=0.0)
+    # Extension fields for future use (avoid migration problems)
+    daily_ext1 = db.Column(db.String(500), nullable=True)  # For daily screen extensions
+    daily_ext2 = db.Column(db.String(500), nullable=True)
+    daily_ext3 = db.Column(db.Float, nullable=True)
+    daily_ext4 = db.Column(db.Float, nullable=True)
 
 class Medicine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    cycle_id = db.Column(db.Integer, nullable=True)  # Allow null for existing data
     name = db.Column(db.String(120))
     price = db.Column(db.Float, default=0.0)
     qty = db.Column(db.Integer, default=0)
+    # Extension fields for medicines screen
+    medicine_ext1 = db.Column(db.String(500), nullable=True)  # For medicines screen extensions
+    medicine_ext2 = db.Column(db.String(500), nullable=True)
+    medicine_ext3 = db.Column(db.Float, nullable=True)
+    medicine_ext4 = db.Column(db.Float, nullable=True)
+
 
 class Feed(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    cycle_id = db.Column(db.Integer, nullable=True)  # Allow null for existing data
     bill_number = db.Column(db.String(50))
     date = db.Column(db.String(20))
     feed_name = db.Column(db.String(120))
@@ -73,6 +88,11 @@ class Feed(db.Model):
     total_feed_kg = db.Column(db.Float, default=0.0)
     price_per_kg = db.Column(db.Float, default=0.0)
     total_cost = db.Column(db.Float, default=0.0)
+    # Extension fields for feed management screen
+    feed_ext1 = db.Column(db.String(500), nullable=True)  # For feed management screen extensions
+    feed_ext2 = db.Column(db.String(500), nullable=True)
+    feed_ext3 = db.Column(db.Float, nullable=True)
+    feed_ext4 = db.Column(db.Float, nullable=True)
 
 class BirdDispatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -87,23 +107,38 @@ class BirdDispatch(db.Model):
     avg_weight_per_bird = db.Column(db.Float, default=0.0)  # kg
     notes = db.Column(db.String(500))
     status = db.Column(db.String(20), default='active')  # 'active', 'completed'
+    # Extension fields for bird dispatch screen
+    dispatch_ext1 = db.Column(db.String(500), nullable=True)  # For bird dispatch screen extensions
+    dispatch_ext2 = db.Column(db.String(500), nullable=True)
+    dispatch_ext3 = db.Column(db.Float, nullable=True)
+    dispatch_ext4 = db.Column(db.Float, nullable=True)
 
 class WeighingRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dispatch_id = db.Column(db.Integer, nullable=False)
     serial_no = db.Column(db.Integer, nullable=False)
-
     no_of_birds = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Float, nullable=False)  # kg
     avg_weight_per_bird = db.Column(db.Float, default=0.0)  # kg
     timestamp = db.Column(db.String(20), nullable=False)
+    # Extension fields for weighing screen
+    weighing_ext1 = db.Column(db.String(500), nullable=True)  # For weighing screen extensions
+    weighing_ext2 = db.Column(db.String(500), nullable=True)
+    weighing_ext3 = db.Column(db.Float, nullable=True)
+    weighing_ext4 = db.Column(db.Float, nullable=True)
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    cycle_id = db.Column(db.Integer, nullable=True)  # Allow null for existing data
     name = db.Column(db.String(120), nullable=False)
     date = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     notes = db.Column(db.String(500))
+    # Extension fields for expenses screen
+    expense_ext1 = db.Column(db.String(500), nullable=True)  # For expenses screen extensions
+    expense_ext2 = db.Column(db.String(500), nullable=True)
+    expense_ext3 = db.Column(db.Float, nullable=True)
+    expense_ext4 = db.Column(db.Float, nullable=True)
 
 # ---------------- Safe DB creation ----------------
 def init_database():
@@ -241,7 +276,12 @@ def calc_todays_fcr(cycle_id):
 # ---------- Routes ----------
 
 @app.route('/feed_management', methods=['GET', 'POST'])
+@login_required
 def feed_management():
+    cycle = get_active_cycle()
+    if not cycle:
+        return redirect(url_for('setup'))
+        
     if request.method == 'POST':
         bill_number = request.form.get('bill_number', '')
         feed_date = request.form.get('date', date.today().isoformat())
@@ -252,6 +292,7 @@ def feed_management():
         total_feed_kg = feed_bags * bag_weight
         total_cost = round(total_feed_kg * price_per_kg, 2)
         feed = Feed(
+            cycle_id=cycle.id,
             bill_number=bill_number,
             date=feed_date,
             feed_name=feed_name,
@@ -263,11 +304,13 @@ def feed_management():
         )
         db.session.add(feed)
         db.session.commit()
+        flash(f'Feed purchase added successfully for cycle #{cycle.id}!', 'success')
         return redirect(url_for('feed_management'))
 
-    feeds = Feed.query.order_by(Feed.date.desc()).all()
+    # Filter feeds by current cycle
+    feeds = Feed.query.filter_by(cycle_id=cycle.id).order_by(Feed.date.desc()).all()
     total_cost = sum(f.total_cost for f in feeds)
-    return render_template('feed_management.html', feeds=feeds, total_cost=total_cost)
+    return render_template('feed_management.html', feeds=feeds, total_cost=total_cost, cycle=cycle)
 
 @app.route('/end_current_cycle', methods=['POST'])
 @admin_required
@@ -277,8 +320,12 @@ def end_current_cycle():
         cycle.status = 'archived'
         cycle.end_date = date.today().isoformat()
         cycle.notes = f"Ended on {datetime.now().isoformat()} - {cycle.notes or ''}"
+        
+        # Feed management data is preserved (not deleted) for historical records
+        # This maintains consistency with daily data preservation
+        
         db.session.commit()
-        flash('Current cycle ended and archived. You can now start a new cycle.', 'info')
+        flash('Current cycle ended and archived. All data has been preserved for historical records. You can now start a new cycle.', 'info')
     else:
         flash('No active cycle found to end.', 'error')
     return redirect(url_for('setup'))
@@ -316,6 +363,9 @@ def dashboard():
     summary = None
     fcr_series = []
     dates = []
+    mortality_series = []
+    feedbags_series = []
+    weight_series = []
     dashboard_metrics = {}
     
     if cycle:
@@ -328,10 +378,14 @@ def dashboard():
         total_mort = sum(r.mortality for r in rows)
         total_feed_added = sum(r.feed_bags_added for r in rows)
         
-        # Chart data
+        # Chart data - arrays already initialized above
+        
         for r in rows:
             dates.append(r.entry_date)
             fcr_series.append(round(r.fcr,3) if r.fcr else None)
+            mortality_series.append(r.mortality)
+            feedbags_series.append(r.feed_bags_consumed)
+            weight_series.append(int(r.avg_weight * 1000) if r.avg_weight else 0)  # Convert kg to grams
             
         # Advanced metrics
         stats = calc_cumulative_stats(cycle.id)
@@ -386,7 +440,7 @@ def dashboard():
             "today_avg_weight": today_row.avg_weight if today_row else 0,
         }
         
-        bags_available = db.session.query(db.func.sum(Feed.feed_bags)).scalar() or 0
+        bags_available = db.session.query(db.func.sum(Feed.feed_bags)).filter_by(cycle_id=cycle.id).scalar() or 0
         summary = {
             "start_birds": cycle.start_birds,
             "current_birds": cycle.current_birds,
@@ -400,7 +454,7 @@ def dashboard():
             "avg_fcr": stats["avg_fcr"],
             "avg_weight": stats["avg_weight"]
         }
-    return render_template('dashboard.html', cycle=cycle, summary=summary, fcr_series=fcr_series, dates=dates, metrics=dashboard_metrics)
+    return render_template('dashboard.html', cycle=cycle, summary=summary, fcr_series=fcr_series, dates=dates, mortality_series=mortality_series, feedbags_series=feedbags_series, weight_series=weight_series, metrics=dashboard_metrics)
 
 @app.route('/setup', methods=['GET','POST'])
 @admin_required
@@ -414,6 +468,9 @@ def setup():
             existing_cycle.status = 'archived'
             existing_cycle.end_date = date.today().isoformat()
             existing_cycle.notes = f"Archived on {datetime.now().isoformat()} - {existing_cycle.notes}"
+            
+            # Feed management data is preserved (not deleted) for historical records
+            # This maintains consistency with daily data preservation
             
         start_birds = int(request.form.get('start_birds',0))
         start_feed_bags = float(request.form.get('start_feed_bags',0))
@@ -602,8 +659,12 @@ def reset_cycle():
         cycle.status = 'archived'
         cycle.end_date = date.today().isoformat()
         cycle.notes = f"Archived on {datetime.now().isoformat()} - {cycle.notes}"
+        
+        # Feed management data is preserved (not deleted) for historical records
+        # This maintains consistency with daily data preservation
+        
         db.session.commit()
-        flash('Current cycle archived. You can now start a new cycle. / वर्तमान चक्र संग्रहीत किया गया। अब आप नया चक्र शुरू कर सकते हैं।', 'info')
+        flash('Current cycle archived and all data preserved for historical records. You can now start a new cycle. / वर्तमान चक्र संग्रहीत किया गया और सभी डेटा ऐतिहासिक रिकॉर्ड के लिए संरक्षित किया गया। अब आप नया चक्र शुरू कर सकते हैं।', 'info')
     
     return redirect(url_for('setup'))
 
@@ -615,17 +676,25 @@ def get_latest_daily(cycle_id):
 @login_required
 def daily():
     cycle = get_active_cycle()
-    latest_daily = get_latest_daily(cycle.id) if cycle else None
-    bags_available = db.session.query(db.func.sum(Feed.feed_bags)).scalar() or 0
-    # Calculate bags added from Feed table for today's date
-    
-    if cycle:
-        today_str = date.today().isoformat()
-        # Sum all feed_bags added today from Feed table
-        feed_bags_added = db.session.query(db.func.sum(Feed.feed_bags)).filter(Feed.date == today_str).scalar() or 0
-
     if not cycle:
         return redirect(url_for('setup'))
+        
+    latest_daily = get_latest_daily(cycle.id)
+    
+    # Calculate total bags available from Feed table for current cycle only
+    total_feed_bags = db.session.query(db.func.sum(Feed.feed_bags)).filter_by(cycle_id=cycle.id).scalar() or 0
+    
+    # Calculate total bags consumed from Daily entries
+    total_consumed = db.session.query(db.func.sum(Daily.feed_bags_consumed)).filter_by(cycle_id=cycle.id).scalar() or 0
+    
+    # Available bags = Total feed bags - Total consumed
+    bags_available = total_feed_bags - total_consumed
+    
+    # Calculate bags added from Feed table for today's date and current cycle
+    today_str = date.today().isoformat()
+    # Sum all feed_bags added today from Feed table for current cycle
+    feed_bags_added = db.session.query(db.func.sum(Feed.feed_bags)).filter(Feed.date == today_str, Feed.cycle_id == cycle.id).scalar() or 0
+
     if request.method=='POST':
         entry_date = request.form.get('entry_date') or date.today().isoformat()
         mortality = int(request.form.get('mortality',0))
@@ -638,21 +707,28 @@ def daily():
            avg_weight = round(avg_weight_grams / 1000, 3) if avg_weight_grams > 0 else 0
 
         medicines = request.form.get('medicines','')
+        daily_notes = request.form.get('daily_notes', '').strip()
         # Calculate live_after for this entry
         live_after = cycle.current_birds - mortality
-        # Calculate total mortality for this cycle
-        total_mortality = latest_daily.mortality + mortality
-        # Calculate total bags consumed for this cycle
-        total_bags_consumed = latest_daily.feed_bags_consumed + feed_bags_consumed
+        
+        # Calculate total mortality for this cycle (including previous entries)
+        previous_mortality = db.session.query(db.func.sum(Daily.mortality)).filter_by(cycle_id=cycle.id).scalar() or 0
+        total_mortality = previous_mortality + mortality
+        
+        # Calculate total bags consumed for this cycle (including previous entries)
+        previous_consumed = db.session.query(db.func.sum(Daily.feed_bags_consumed)).filter_by(cycle_id=cycle.id).scalar() or 0
+        total_bags_consumed = previous_consumed + feed_bags_consumed
 
-        remaining_bags = latest_daily.feed_bags_added - (total_bags_consumed)
+        # Calculate remaining bags: Total feed bags - Total consumed
+        remaining_bags = total_feed_bags - total_bags_consumed
+        
         # Calculate mortality rate
         mortality_rate = round((total_mortality / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
 
         # Validate form data
         if not entry_date or not avg_weight_grams:
             error_message = '⚠️ Please fill in all required fields. / దయచేసి అన్ని అవసరమైన ఫీల్డ్‌లను పూరించండి।'
-            meds = Medicine.query.order_by(Medicine.name).all()
+            meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, bags_available=remaining_bags,
                                    error_data={
                                        'entry_date': entry_date,
@@ -669,7 +745,7 @@ def daily():
         if bags_after_consumption < 0:
             shortage = abs(bags_after_consumption)
             flash(f'⚠️ Insufficient feed bags! You need {round(shortage)} more bags. Current available: {round(bags_available)}, trying to consume: {round(feed_bags_consumed)}. Please add new bags first. / ⚠️ अपर्याप्त फ़ीड बैग! आपको {round(shortage)} और बैग चाहिए। वर्तमान उपलब्ध: {round(bags_available)}, उपयोग करने की कोशिश: {round(feed_bags_consumed)}। कृपया पहले नए बैग जोड़ें। / ⚠️ తగినంత ఫీడ్ బ్యాగులు లేవు! మీకు {round(shortage)} మరిన్ని బ్యాగులు కావాలి। అందుబాటులో: {round(bags_available)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}. దయచేసి మరిన్ని బ్యాగులు జోడించండి।', 'error')
-            meds = Medicine.query.order_by(Medicine.name).all()
+            meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, bags_available=bags_available,
                                    error_data={
                                        'entry_date': entry_date,
@@ -681,7 +757,7 @@ def daily():
                                    })
         elif bags_after_consumption < 0:
             flash(f'⚠️ Error: Must maintain at least 1 feed bag in inventory! Current available: {round(bags_available)}, trying to consume: {round(feed_bags_consumed)}, bags added: {round(feed_bags_added)}. This would leave only {round(bags_after_consumption)} bags. / ⚠️ त्रुटि: इन्वेंटरी में कम से कम 1 फ़ीड बैग बनाए रखना चाहिए! / ⚠️ లోపం: ఇన్వెంటరీలో కనీసం 1 ఫీడ్ బ్యాగ్ ఉంచాలి! ప్రస్తుతం అందుబాటులో: {round(bags_available)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}, జోడించిన బ్యాగులు: {round(feed_bags_added)}. దీని వలన కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలిపోతాయి।', 'error')
-            meds = Medicine.query.order_by(Medicine.name).all()
+            meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, bags_available=bags_available,
                                    error_data={
                                        'entry_date': entry_date,
@@ -729,6 +805,7 @@ def daily():
             birds_survived=live_after,
             fcr=fcr,
             medicines=medicines,
+            daily_notes=daily_notes,
             mortality_rate=mortality_rate,
             total_mortality=total_mortality,
             remaining_bags=remaining_bags,
@@ -746,7 +823,7 @@ def daily():
             flash(f'✅ Daily entry saved successfully! Consumed {feed_bags_consumed:.1f} bags. Remaining: {bags_after_consumption:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {bags_after_consumption:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {bags_after_consumption:.1f} బ్యాగులు।', 'success')
 
         return redirect(url_for('dashboard'))
-    meds = Medicine.query.order_by(Medicine.name).all()
+    meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
     return render_template('daily.html', cycle=cycle, meds=meds, bags_available=bags_available)
 
 @app.route('/daywise')
@@ -756,6 +833,17 @@ def daywise():
     if not cycle:
         return redirect(url_for('setup'))
     rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date.asc()).all()
+    
+    # Enhance rows with feed_bags_added from Feed table for each entry date
+    for row in rows:
+        # Get feed bags added on this specific date
+        feed_added_on_date = db.session.query(db.func.sum(Feed.feed_bags)).filter(
+            Feed.date == row.entry_date, 
+            Feed.cycle_id == cycle.id
+        ).scalar() or 0
+        # Add as attribute to the row object
+        row.feed_bags_added_calculated = feed_added_on_date
+    
     return render_template('daywise.html', rows=rows, cycle=cycle)
 
 @app.route('/stats')
@@ -797,8 +885,8 @@ def stats():
     total_feed_cost = stats["total_feed_bags"] * feed_cost_per_bag
     feed_cost_per_bird = round((total_feed_cost / cycle.current_birds), 2) if cycle.current_birds > 0 else 0
     
-    # Medicine costs
-    medicines = Medicine.query.all()
+    # Medicine costs for current cycle
+    medicines = Medicine.query.filter_by(cycle_id=cycle.id).all()
     total_medicine_cost = sum(med.price for med in medicines if med.price)
     
     # Weight gain analysis
@@ -851,22 +939,33 @@ def stats():
 @app.route('/medicines', methods=['GET','POST'])
 @login_required
 def medicines():
+    cycle = get_active_cycle()
+    if not cycle:
+        return redirect(url_for('setup'))
+        
     if request.method=='POST':
         name = request.form.get('name')
         price = float(request.form.get('price',0) or 0)
         qty = int(request.form.get('qty',0) or 0)
-        m = Medicine(name=name, price=price, qty=qty)
+        m = Medicine(cycle_id=cycle.id, name=name, price=price, qty=qty)
         db.session.add(m)
         db.session.commit()
+        flash(f'Medicine "{name}" added successfully for cycle #{cycle.id}!', 'success')
         return redirect(url_for('medicines'))
-    meds = Medicine.query.order_by(Medicine.id.desc()).all()
+        
+    # Filter medicines by current cycle
+    meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.id.desc()).all()
     total_amount = sum(med.price for med in meds)
-    return render_template('medicines.html', meds=meds, total_amount=total_amount)
+    return render_template('medicines.html', meds=meds, total_amount=total_amount, cycle=cycle)
 
 @app.route('/expenses', methods=['GET', 'POST'])
 @login_required
 def expenses():
     """Expense management"""
+    cycle = get_active_cycle()
+    if not cycle:
+        return redirect(url_for('setup'))
+        
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         expense_date = request.form.get('date') or date.today().isoformat()
@@ -877,17 +976,17 @@ def expenses():
             flash('Name and valid amount are required!', 'error')
             return redirect(url_for('expenses'))
         
-        expense = Expense(name=name, date=expense_date, amount=amount, notes=notes)
+        expense = Expense(cycle_id=cycle.id, name=name, date=expense_date, amount=amount, notes=notes)
         db.session.add(expense)
         db.session.commit()
-        flash(f'Expense "{name}" added successfully!', 'success')
+        flash(f'Expense "{name}" added successfully for cycle #{cycle.id}!', 'success')
         return redirect(url_for('expenses'))
     
-    # Get all expenses ordered by date descending
-    all_expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+    # Filter expenses by current cycle
+    all_expenses = Expense.query.filter_by(cycle_id=cycle.id).order_by(Expense.date.desc(), Expense.id.desc()).all()
     total_amount = sum(expense.amount for expense in all_expenses)
     
-    return render_template('expenses.html', expenses=all_expenses, total_amount=total_amount, date=date)
+    return render_template('expenses.html', expenses=all_expenses, total_amount=total_amount, date=date, cycle=cycle)
 
 @app.route('/delete_expense/<int:expense_id>', methods=['POST'])
 @admin_required
@@ -1089,6 +1188,28 @@ def delete_weighing_record(record_id):
     flash('Weighing record deleted successfully!', 'success')
     return redirect(url_for('weighing_screen', dispatch_id=dispatch_id))
 
+@app.route('/delete_dispatch/<int:dispatch_id>', methods=['POST'])
+@admin_required
+def delete_dispatch(dispatch_id):
+    """Delete a dispatch and all its weighing records"""
+    dispatch = BirdDispatch.query.get_or_404(dispatch_id)
+    
+    # If dispatch is completed, we need to add the birds back to the cycle
+    if dispatch.status == 'completed':
+        cycle = get_active_cycle()
+        if cycle:
+            cycle.current_birds += dispatch.total_birds
+    
+    # Delete all weighing records for this dispatch
+    WeighingRecord.query.filter_by(dispatch_id=dispatch.id).delete()
+    
+    # Delete the dispatch
+    db.session.delete(dispatch)
+    db.session.commit()
+    
+    flash(f'Dispatch for vehicle {dispatch.vehicle_no} deleted successfully!', 'success')
+    return redirect(url_for('dispatch_history'))
+
 # ---------------- In-memory Excel export for Render ----------------
 @app.route('/export')
 @admin_required
@@ -1110,8 +1231,8 @@ def export():
         'medicines': r.medicines
     } for r in daily_rows]
     
-    # Get medicines data
-    medicines = Medicine.query.order_by(Medicine.id.desc()).all()
+    # Get medicines data for current cycle
+    medicines = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.id.desc()).all()
     medicines_data = [{
         'medicine_name': med.name,
         'price': med.price,
@@ -1356,6 +1477,58 @@ def recalculate_feed_averages():
         flash(f'Error recalculating feed averages: {str(e)}', 'error')
     
     return redirect(url_for('daywise'))
+
+@app.route('/edit_daily/<int:entry_id>', methods=['GET', 'POST'])
+@admin_required
+def edit_daily(entry_id):
+    """Edit a daily entry (admin only)"""
+    entry = Daily.query.get_or_404(entry_id)
+    cycle = get_active_cycle()
+    
+    if not cycle or entry.cycle_id != cycle.id:
+        flash('Entry not found or not part of current cycle', 'error')
+        return redirect(url_for('daywise'))
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            mortality = int(request.form.get('mortality', 0))
+            feed_bags_consumed = float(request.form.get('feed_bags_consumed', 0))
+            feed_bags_added = float(request.form.get('feed_bags_added', 0))
+            avg_weight = float(request.form.get('avg_weight', 0))
+            medicines = request.form.get('medicines', '').strip()
+            daily_notes = request.form.get('daily_notes', '').strip()
+            
+            # Calculate differences for cycle updates
+            mortality_diff = mortality - entry.mortality
+            feed_consumed_diff = feed_bags_consumed - entry.feed_bags_consumed
+            feed_added_diff = feed_bags_added - entry.feed_bags_added
+            
+            # Update cycle current_birds and start_feed_bags
+            cycle.current_birds -= mortality_diff
+            cycle.start_feed_bags = cycle.start_feed_bags - feed_consumed_diff + feed_added_diff
+            
+            # Update the entry
+            entry.mortality = mortality
+            entry.feed_bags_consumed = feed_bags_consumed
+            entry.feed_bags_added = feed_bags_added
+            entry.avg_weight = avg_weight
+            entry.medicines = medicines
+            entry.daily_notes = daily_notes
+            
+            # Recalculate derived fields
+            entry.avg_feed_per_bird_g = (feed_bags_consumed * 50 * 1000) / cycle.current_birds if cycle.current_birds > 0 else 0
+            entry.fcr = round(feed_bags_consumed / (avg_weight * cycle.current_birds / 1000), 2) if avg_weight > 0 and cycle.current_birds > 0 else 0
+            
+            db.session.commit()
+            flash('Daily entry updated successfully!', 'success')
+            return redirect(url_for('daywise'))
+            
+        except Exception as e:
+            flash(f'Error updating entry: {str(e)}', 'error')
+    
+    # For GET request, render edit form with current values
+    return render_template('edit_daily.html', entry=entry, cycle=cycle)
 
 @app.route('/delete_daily/<int:entry_id>', methods=['POST'])
 @admin_required
@@ -1662,8 +1835,8 @@ def cycle_details(cycle_id):
     dates = [entry.entry_date for entry in daily_entries]
     weight_series = [entry.avg_weight for entry in daily_entries if entry.avg_weight > 0]
 
-    # Get all feeds for this cycle (or all feeds if not cycle-specific)
-    feeds = Feed.query.order_by(Feed.date.desc()).all()
+    # Get feeds for this specific cycle
+    feeds = Feed.query.filter_by(cycle_id=cycle.id).order_by(Feed.date.desc()).all()
 
     # Calculate total feed cost and total bags consumed
     total_bags_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
@@ -1693,12 +1866,12 @@ def cycle_details(cycle_id):
         'total_dispatches': len(bird_dispatches)
     }
 
-    # Calculate total medical expenses from Medicine model
-    medicines = Medicine.query.all()
+    # Calculate total medical expenses from Medicine model for this cycle
+    medicines = Medicine.query.filter_by(cycle_id=cycle.id).all()
     total_medical_cost = sum(medicine.price for medicine in medicines) if medicines else 0
 
-    # Get expenses data
-    expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+    # Get expenses data for this cycle
+    expenses = Expense.query.filter_by(cycle_id=cycle.id).order_by(Expense.date.desc(), Expense.id.desc()).all()
     total_expense_cost = sum(expense.amount for expense in expenses)
 
     return render_template(
@@ -1723,7 +1896,21 @@ def cycle_details(cycle_id):
         total_expense_cost=total_expense_cost
     )
 
+@app.route('/tips/bedding')
+def bedding_tips():
+    return render_template('tips_bedding.html')
 
+@app.route('/tips/herbal')
+def herbal_treatment_tips():
+    return render_template('tips_herbal.html')
+
+@app.route('/tips/growth')
+def growth_tips():
+    return render_template('tips_growth.html')
+
+@app.route('/tips/medical')
+def tips_medical():
+    return render_template('tips_medical.html')
 
 @app.route('/unarchive_cycle/<int:cycle_id>', methods=['POST'])
 @admin_required
@@ -1866,4 +2053,4 @@ def export_dispatch_excel():
     )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

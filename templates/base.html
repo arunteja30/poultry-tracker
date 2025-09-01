@@ -13,59 +13,93 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐔</text></svg>">
   </head>
   <body>
-            <nav class="navbar navbar-expand-lg bg-light">
+            <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
             <div class="container-fluid">
               <!-- Mobile Offcanvas Toggle (left side) -->
-              <button class="navbar-toggler d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
+              <button class="navbar-toggler d-lg-none me-2 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" style="box-shadow: none;">
                 <span class="navbar-toggler-icon"></span>
               </button>
-              <a class="navbar-brand chicken-icon d-inline-block align-middle" href="{{ url_for('dashboard') }}" data-i18n="app_title">Ramesh</a>
+              <a class="navbar-brand chicken-icon d-inline-block align-middle fw-bold" href="{{ url_for('dashboard') }}" data-i18n="app_title" style="color: #ffffff; font-size: 1.4rem;">
+                🐔 Ramesh
+              </a>
               <!-- Desktop Navbar -->
               <div class="collapse navbar-collapse d-none d-lg-block" id="navmenu">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">Feed Management</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">Bird Dispatch</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a></li>
-                  <li class="nav-item"><a class="nav-link" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">Expenses</a></li>
+                  <li class="nav-item">
+                    <a class="nav-link px-3 rounded-pill mx-1 transition-all" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard" style="color: rgba(255,255,255,0.9); transition: all 0.3s ease;">
+                      <i class="me-2">📊</i>Dashboard
+                    </a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_operations" style="color: rgba(255,255,255,0.9);">
+                      <i class="me-2">⚙️</i>Operations
+                    </a>
+                    <ul class="dropdown-menu shadow-lg border-0" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                      <li><a class="dropdown-item py-2" href="{{ url_for('daily') }}" data-i18n="nav_daily"><i class="me-2">📝</i>Daily Entry</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management"><i class="me-2">🌾</i>Feed Management</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('medicines') }}" data-i18n="nav_meds"><i class="me-2">💊</i>Medicines</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('expenses') }}" data-i18n="nav_expenses"><i class="me-2">💰</i>Expenses</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch"><i class="me-2">🚚</i>Bird Dispatch</a></li>
+                    </ul>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_reports" style="color: rgba(255,255,255,0.9);">
+                      <i class="me-2">📈</i>Reports
+                    </a>
+                    <ul class="dropdown-menu shadow-lg border-0" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                      <li><a class="dropdown-item py-2" href="{{ url_for('daywise') }}" data-i18n="nav_daywise"><i class="me-2">📅</i>Daywise</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('stats') }}" data-i18n="nav_stats"><i class="me-2">📊</i>Statistics</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history"><i class="me-2">🔄</i>Cycle History</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history"><i class="me-2">📋</i>Dispatch History</a></li>
+                    </ul>
+                  </li>
                   {% if session.role == 'admin' %}
                   <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_setup_data">
-                      Setup Data
+                    <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_admin" style="color: rgba(255,255,255,0.9);">
+                      <i class="me-2">👑</i>Admin
                     </a>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">Cycle Setup</a></li>
-                      <li><a class="dropdown-item" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a></li>
-                      <li><a class="dropdown-item" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a></li>
-                       <li><a class="dropdown-item" href="{{ url_for('export') }}" data-i18n="nav_export">Export</a></li>
+                    <ul class="dropdown-menu shadow-lg border-0" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                      <li><a class="dropdown-item py-2" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup"><i class="me-2">🔧</i>Cycle Setup</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('users') }}" data-i18n="nav_users"><i class="me-2">👥</i>Users</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('import_data') }}" data-i18n="nav_import"><i class="me-2">📥</i>Import Data</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('export') }}" data-i18n="nav_export"><i class="me-2">📤</i>Export Data</a></li>
                     </ul>
                   </li>
                   {% endif %}
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" id="tipsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="tips" style="color: rgba(255,255,255,0.9);">
+                      <i class="me-2">💡</i>Tips
+                    </a>
+                    <ul class="dropdown-menu shadow-lg border-0" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" aria-labelledby="tipsDropdown">
+                      <li><a class="dropdown-item py-2" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding"><i class="me-2">🛏️</i>Bedding Tips</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal"><i class="me-2">🌿</i>Herbal Treatment</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth"><i class="me-2">📈</i>Growth Tips</a></li>
+                      <li><a class="dropdown-item py-2" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical"><i class="me-2">🏥</i>Medical Tips</a></li>
+                    </ul>
+                  </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                  <select id="langSelect" class="form-select form-select-sm me-2" style="width:130px;">
-                    <option value="en">🇺🇸 English</option>
-                    <option value="hi">🇮🇳 हिन्दी</option>
-                    <option value="te">🇮🇳 తెలుగు</option>
+                  <select id="langSelect" class="form-select form-select-sm me-2 border-0" style="width:130px; background: rgba(255,255,255,0.1); color: white; border-radius: 20px;">
+                    <option value="en" style="color: #333;">🇺🇸 English</option>
+                    <option value="hi" style="color: #333;">🇮🇳 हिन्दी</option>
+                    <option value="te" style="color: #333;">🇮🇳 తెలుగు</option>
                   </select>
-                  <select id="fontSizeSelect" class="form-select form-select-sm me-3" style="width:110px;" title="Font Size">
-                    <option value="small" data-i18n="font_size_small">🔤 Small</option>
-                    <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
-                    <option value="large" data-i18n="font_size_large">🔤 Large</option>
-                    <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
+                  <select id="fontSizeSelect" class="form-select form-select-sm me-3 border-0" style="width:110px; background: rgba(255,255,255,0.1); color: white; border-radius: 20px;" title="Font Size">
+                    <option value="small" data-i18n="font_size_small" style="color: #333;">🔤 Small</option>
+                    <option value="medium" selected data-i18n="font_size_medium" style="color: #333;">🔤 Medium</option>
+                    <option value="large" data-i18n="font_size_large" style="color: #333;">🔤 Large</option>
+                    <option value="xlarge" data-i18n="font_size_xlarge" style="color: #333;">🔤 X-Large</option>
                   </select>
                   <div class="dropdown">
-                    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown" style="border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease;">
                       {% if session.role == 'admin' %}👑{% else %}👤{% endif %} {{ session.username }}
                     </button>
-                    <ul class="dropdown-menu">
-                      <li><span class="dropdown-item-text">Role: {{ session.role.title() }}</span></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 15px;">
+                      <li><span class="dropdown-item-text py-2"><strong>Role:</strong> {{ session.role.title() }}</span></li>
                       <li><hr class="dropdown-divider"></li>
-                      <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                      <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('logout') }}"><i class="me-2">🚪</i>Logout</a></li>
                     </ul>
                   </div>
                 </div>
@@ -73,83 +107,122 @@
               <!-- ...mobile offcanvas code continues... -->
           <!-- Mobile Offcanvas Navigation -->
         <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel"
-     style="width:75vw;max-width:400px;background-color:#1976d2;">
+     style="width:85vw;max-width:400px;background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div class="offcanvas-header justify-content-between align-items-center">
               <div style="width:100%">
-                <h5 class="offcanvas-title" id="mobileNavLabel" style="color:#ffffff;font-weight:bold;">Ramesh Farms</h5>
+                <h5 class="offcanvas-title" id="mobileNavLabel" style="color:#ffffff;font-weight:bold;font-size:1.4rem;">🐔 Ramesh Farms</h5>
                 <hr style="margin:8px 0 0 0; border-color:#ffffff; border-width:2px; width:100%;">
               </div>
-              <button type="button" class="btn btn-link text-danger fs-3 p-0" data-bs-dismiss="offcanvas" aria-label="Close" style="text-decoration:none;">
+              <button type="button" class="btn btn-link text-white fs-3 p-0" data-bs-dismiss="offcanvas" aria-label="Close" style="text-decoration:none;">
                 &times;
               </button>
             </div>
             <div class="offcanvas-body">
               <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">Dashboard</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-3" style="color:#ffffff; border-radius: 10px; margin-bottom: 5px;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">
+                <i class="me-3" style="font-size: 1.2rem;">📊</i>Dashboard
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">Feed Management</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <h6 class="text-white-50 mt-3 mb-2 px-3 small">OPERATIONS</h6>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daily') }}" data-i18n="nav_daily">Daily</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('daily') }}" data-i18n="nav_daily">
+                <i class="me-3">📝</i>Daily Entry
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">Daywise</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">
+                <i class="me-3">🌾</i>Feed Management
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">Bird Dispatch</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('medicines') }}" data-i18n="nav_meds">
+                <i class="me-3">💊</i>Medicines
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">Cycle History</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">
+                <i class="me-3">💰</i>Expenses
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('stats') }}" data-i18n="nav_stats">Stats</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">
+                <i class="me-3">🚚</i>Bird Dispatch
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('medicines') }}" data-i18n="nav_meds">Medicines</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <h6 class="text-white-50 mt-3 mb-2 px-3 small">REPORTS</h6>
             </li>
             <li class="nav-item">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">Expenses</a>
-              <hr style="margin:0; border-color:#ffffff;">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">
+                <i class="me-3">📅</i>Daywise
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('stats') }}" data-i18n="nav_stats">
+                <i class="me-3">📊</i>Statistics
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">
+                <i class="me-3">🔄</i>Cycle History
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history">
+                <i class="me-3">📋</i>Dispatch History
+              </a>
             </li>
             {% if session.role == 'admin' %}
             <li class="nav-item">
-              <div class="accordion accordion-flush" id="setupAccordion">
-                <div class="accordion-item" style="background-color: transparent; border: none;">
-                  <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#setupCollapse" aria-expanded="false" aria-controls="setupCollapse" style="background-color: transparent; color: #ffffff; border: none; padding: 8px 0;" data-i18n="nav_setup">
-                      Setup
-                    </button>
-                  </h2>
-                  <div id="setupCollapse" class="accordion-collapse collapse" data-bs-parent="#setupAccordion">
-                    <div class="accordion-body" style="padding: 0;">
-                      <ul class="navbar-nav">
-                        <li class="nav-item">
-                          <a class="nav-link" style="color:#ffffff; padding-left: 20px;" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">Cycle Setup</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" style="color:#ffffff; padding-left: 20px;" href="{{ url_for('users') }}" data-i18n="nav_users">Users</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" style="color:#ffffff; padding-left: 20px;" href="{{ url_for('import_data') }}" data-i18n="nav_import">Import</a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <hr style="margin:0; border-color:#ffffff;">
+              <h6 class="text-white-50 mt-3 mb-2 px-3 small">ADMIN</h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">
+                <i class="me-3">🔧</i>Cycle Setup
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('users') }}" data-i18n="nav_users">
+                <i class="me-3">👥</i>Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('import_data') }}" data-i18n="nav_import">
+                <i class="me-3">📥</i>Import Data
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('export') }}" data-i18n="nav_export">
+                <i class="me-3">📤</i>Export Data
+              </a>
             </li>
             {% endif %}
+            <li class="nav-item">
+              <h6 class="text-white-50 mt-3 mb-2 px-3 small">TIPS</h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding">
+                <i class="me-3">🛏️</i>Bedding Tips
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal">
+                <i class="me-3">🌿</i>Herbal Treatment
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth">
+                <i class="me-3">📈</i>Growth Tips
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical">
+                <i class="me-3">🏥</i>Medical Tips
+              </a>
+            </li>
             <li class="nav-item mt-3">
               <a class="nav-link" style="color:#ffffff;" href="{{ url_for('logout') }}">Logout</a>
               <hr style="margin:0; border-color:#ffffff;">
@@ -173,7 +246,7 @@
         </div>
         </div>
       </nav>
-     <main class="container my-4"> {% block content %}
+     <main class="container my-4" style="background-color: #f2f4f6;"> {% block content %}
       <!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -247,9 +320,15 @@
      
       async function loadLang(lang){
         try{
+          console.log('Loading language:', lang); // Debug log
           const res = await fetch('/static/i18n/' + lang + '.json');
-          if(!res.ok) return;
+          if(!res.ok) {
+            console.error('Failed to fetch language file:', lang);
+            return;
+          }
           const dict = await res.json();
+          console.log('Language dictionary loaded:', dict); // Debug log
+          
           document.querySelectorAll('[data-i18n]').forEach(el=>{
             const key = el.getAttribute('data-i18n');
             if(dict[key]) {
@@ -260,6 +339,8 @@
               } else {
                 el.innerText = dict[key];
               }
+            } else {
+              console.warn('Missing translation key:', key, 'for language:', lang);
             }
           });
           document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{

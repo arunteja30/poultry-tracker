@@ -34,24 +34,24 @@
         <div class="col-md-3">
           <div class="card bg-success text-white">
             <div class="card-body text-center">
-              <h4 style="color: white;">{{ "%.1f"|format(total_weight) }} kg</h4>
-              <p class="mb-0" style="color: white;">Total Weight</p>
+              <h4 style="color: rgb(185, 11, 11);">{{ "%.1f"|format(total_weight) }} kg</h4>
+              <p class="mb-0" style="color: rgb(189, 32, 32);">Total Weight</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card bg-danger text-dark">
             <div class="card-body text-center">
-              <h4 style="color: white;">{{ "%.3f"|format(avg_weight_per_bird) }} kg</h4>
-              <p class="mb-0" style="color: white;">Avg Weight/Bird</p>
+              <h4 style="color: rgb(2, 23, 2);">{{ "%.3f"|format(avg_weight_per_bird) }} kg</h4>
+              <p class="mb-0" style="color: rgb(35, 2, 2);">Avg Weight/Bird</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card bg-secondary text-white">
             <div class="card-body text-center">
-              <h4 style="color: white;">{{ weighing_records|length }}</h4>
-              <p class="mb-0" style="color: white;">Weighing Records</p>
+              <h4 style="color: rgb(219, 8, 22);">{{ weighing_records|length }}</h4>
+              <p class="mb-0" style="color: rgb(215, 9, 33);">Weighing Records</p>
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@
                   <th>Weight (kg)</th>
                   <th>Avg/Bird (kg)</th>
                   <th>Time</th>
-                  {% if session.role == 'admin' and dispatch.status == 'active' %}
+                  {% if session.role == 'admin' %}
                   <th>Actions</th>
                   {% endif %}
                 </tr>
@@ -120,13 +120,17 @@
                   <td>{{ "%.1f"|format(record.weight) }}</td>
                   <td>{{ "%.3f"|format(record.avg_weight_per_bird) }}</td>
                   <td><small>{{ record.timestamp.split('T')[1] if 'T' in record.timestamp else record.timestamp }}</small></td>
-                  {% if session.role == 'admin' and dispatch.status == 'active' %}
+                  {% if session.role == 'admin' %}
                   <td>
+                    {% if dispatch.status == 'active' %}
                     <form method="POST" action="{{ url_for('delete_weighing_record', record_id=record.id) }}" 
                           style="display: inline-block;" 
                           onsubmit="return confirm('Are you sure you want to delete this record?')">
-                      <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Record">🗑️</button>
                     </form>
+                    {% else %}
+                    <button class="btn btn-sm btn-outline-secondary" disabled title="Cannot delete - Dispatch completed">🔒</button>
+                    {% endif %}
                   </td>
                   {% endif %}
                 </tr>
@@ -138,7 +142,7 @@
                   <th style="color: white;">{{ total_birds }}</th>
                   <th style="color: white;">{{ "%.1f"|format(total_weight) }}</th>
                   <th style="color: white;">{{ "%.3f"|format(avg_weight_per_bird) }}</th>
-                  <th colspan="{{ '2' if session.role == 'admin' and dispatch.status == 'active' else '1' }}">-</th>
+                  <th colspan="{{ '2' if session.role == 'admin' else '1' }}">-</th>
                 </tr>
               </tfoot>
             </table>
@@ -153,12 +157,16 @@
                   <h6 class="card-title mb-0">
                     <span class="badge bg-primary">Serial #{{ record.serial_no }}</span>
                   </h6>
-                  {% if session.role == 'admin' and dispatch.status == 'active' %}
+                  {% if session.role == 'admin' %}
+                  {% if dispatch.status == 'active' %}
                   <form method="POST" action="{{ url_for('delete_weighing_record', record_id=record.id) }}" 
                         style="display: inline-block;" 
                         onsubmit="return confirm('Are you sure you want to delete this record?')">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Record">🗑️</button>
                   </form>
+                  {% else %}
+                  <button class="btn btn-sm btn-outline-secondary" disabled title="Cannot delete - Dispatch completed">🔒</button>
+                  {% endif %}
                   {% endif %}
                 </div>
                 <div class="row">

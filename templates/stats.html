@@ -2,10 +2,28 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 data-i18n="stats_title">📊 Comprehensive Statistics</h2>
+  {% if cycle %}
   <div class="text-muted">
     <small data-i18n="cycle_info">Cycle #{{ cycle.id }} | Day {{ stats.cycle_duration }} of {{ stats.target_days }}</small>
   </div>
+  {% endif %}
 </div>
+
+{% if not cycle %}
+<!-- No Active Cycle -->
+<div class="row">
+  <div class="col-12">
+    <div class="card text-center p-5">
+      <div class="card-body">
+        <div class="mb-4" style="font-size: 4rem;">🐔</div>
+        <h3 data-i18n="no_cycle">No Active Cycle</h3>
+        <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
+        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
 
 <!-- Performance Overview Cards -->
 <div class="row mb-4">
@@ -319,4 +337,5 @@ new Chart(costCtx, {
 });
 </script>
 
+{% endif %}
 {% endblock %}
