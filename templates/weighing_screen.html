@@ -5,19 +5,19 @@
     <div class="col-12">
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>⚖️ Weighing Screen</h2>
+        <h2 data-i18n="weighing_screen_title">⚖️ Weighing Screen</h2>
         <div>
-          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-secondary btn-sm">← Back to Dispatch</a>
+          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-secondary btn-sm" data-i18n="back_to_dispatch">← Back to Dispatch</a>
         </div>
       </div>
 
       <!-- Vehicle Info -->
       <div class="alert alert-primary">
         <div class="row">
-          <div class="col-md-3"><strong>Vehicle:</strong> {{ dispatch.vehicle_no }}</div>
-          <div class="col-md-3"><strong>Driver:</strong> {{ dispatch.driver_name }}</div>
-          <div class="col-md-3"><strong>Vendor:</strong> {{ dispatch.vendor_name or 'N/A' }}</div>
-          <div class="col-md-3"><strong>Date:</strong> {{ dispatch.dispatch_date }}</div>
+          <div class="col-md-3"><strong data-i18n="vehicle">Vehicle:</strong> {{ dispatch.vehicle_no }}</div>
+          <div class="col-md-3"><strong data-i18n="driver">Driver:</strong> {{ dispatch.driver_name }}</div>
+          <div class="col-md-3"><strong data-i18n="vendor">Vendor:</strong> {{ dispatch.vendor_name or ('na'|translate) }}</div>
+          <div class="col-md-3"><strong data-i18n="date">Date:</strong> {{ dispatch.dispatch_date }}</div>
         </div>
       </div>
 
@@ -27,7 +27,7 @@
           <div class="card bg-info text-white">
             <div class="card-body text-center">
               <h4 style="color: rgb(12, 0, 250);">{{ total_birds }}</h4>
-              <p class="mb-0" style="color: rgb(54, 7, 239);">Total Birds</p>
+              <p class="mb-0" style="color: rgb(54, 7, 239);" data-i18n="total_birds">Total Birds</p>
             </div>
           </div>
         </div>
@@ -35,7 +35,7 @@
           <div class="card bg-success text-white">
             <div class="card-body text-center">
               <h4 style="color: rgb(185, 11, 11);">{{ "%.1f"|format(total_weight) }} kg</h4>
-              <p class="mb-0" style="color: rgb(189, 32, 32);">Total Weight</p>
+              <p class="mb-0" style="color: rgb(189, 32, 32);" data-i18n="total_weight">Total Weight</p>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@
           <div class="card bg-danger text-dark">
             <div class="card-body text-center">
               <h4 style="color: rgb(2, 23, 2);">{{ "%.3f"|format(avg_weight_per_bird) }} kg</h4>
-              <p class="mb-0" style="color: rgb(35, 2, 2);">Avg Weight/Bird</p>
+              <p class="mb-0" style="color: rgb(35, 2, 2);" data-i18n="avg_weight_per_bird">Avg Weight/Bird</p>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
           <div class="card bg-secondary text-white">
             <div class="card-body text-center">
               <h4 style="color: rgb(219, 8, 22);">{{ weighing_records|length }}</h4>
-              <p class="mb-0" style="color: rgb(215, 9, 33);">Weighing Records</p>
+              <p class="mb-0" style="color: rgb(215, 9, 33);" data-i18n="weighing_records">Weighing Records</p>
             </div>
           </div>
         </div>
@@ -61,29 +61,29 @@
       {% if dispatch.status == 'active' %}
       <div class="card mb-4">
         <div class="card-header bg-primary">
-          <h5 class="card-title mb-0" style="color: white;">➕ Add New Weighing Record</h5>
+          <h5 class="card-title mb-0" style="color: white;" data-i18n="add_weighing_record">➕ Add New Weighing Record</h5>
         </div>
         <div class="card-body">
           <form method="POST" action="{{ url_for('add_weighing_record', dispatch_id=dispatch.id) }}">
             <div class="row">
               <div class="col-md-4">
-                <label for="no_of_birds" class="form-label">Number of Birds *</label>
+                <label for="no_of_birds" class="form-label" data-i18n="number_of_birds">Number of Birds *</label>
                 <input type="number" class="form-control" id="no_of_birds" name="no_of_birds" 
-                       min="1" placeholder="e.g., 50" required autofocus>
+                       min="1" placeholder="{{ 'number_of_birds_placeholder'|translate }}" required autofocus>
               </div>
               <div class="col-md-4">
-                <label for="weight" class="form-label">Total Weight (kg) *</label>
+                <label for="weight" class="form-label" data-i18n="total_weight_kg">Total Weight (kg) *</label>
                 <input type="number" class="form-control" id="weight" name="weight" 
-                       step="0.1" min="0.1" placeholder="e.g., 85.5" required>
+                       step="0.1" min="0.1" placeholder="{{ 'total_weight_placeholder'|translate }}" required>
               </div>
               <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-success w-100">
-                  ⚖️ Add Weighing Record
+                  <span data-i18n="add_weighing_record_btn">⚖️ Add Weighing Record</span>
                 </button>
               </div>
             </div>
             <div class="mt-2">
-              <small class="text-muted" id="avg_preview">Average weight per bird will be calculated automatically</small>
+              <small class="text-muted" id="avg_preview" data-i18n="avg_weight_auto">Average weight per bird will be calculated automatically</small>
             </div>
           </form>
         </div>
@@ -94,7 +94,7 @@
       {% if weighing_records %}
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="card-title mb-0">📋 Weighing Records</h5>
+          <h5 class="card-title mb-0" data-i18n="weighing_records_table">📋 Weighing Records</h5>
         </div>
         <div class="card-body">
           <!-- Desktop Table -->
@@ -171,21 +171,21 @@
                 </div>
                 <div class="row">
                   <div class="col-6">
-                    <small class="text-muted">Birds:</small><br>
+                    <small class="text-muted" data-i18n="birds">Birds:</small><br>
                     <strong>{{ record.no_of_birds }}</strong>
                   </div>
                   <div class="col-6">
-                    <small class="text-muted">Weight:</small><br>
+                    <small class="text-muted" data-i18n="weight">Weight:</small><br>
                     <strong>{{ "%.1f"|format(record.weight) }} kg</strong>
                   </div>
                 </div>
                 <div class="row mt-2">
                   <div class="col-6">
-                    <small class="text-muted">Avg/Bird:</small><br>
+                    <small class="text-muted" data-i18n="avg_bird">Avg/Bird:</small><br>
                     <strong>{{ "%.3f"|format(record.avg_weight_per_bird) }} kg</strong>
                   </div>
                   <div class="col-6">
-                    <small class="text-muted">Time:</small><br>
+                    <small class="text-muted" data-i18n="time">Time:</small><br>
                     <strong>{{ record.timestamp.split('T')[1] if 'T' in record.timestamp else record.timestamp }}</strong>
                   </div>
                 </div>
@@ -196,19 +196,19 @@
             <!-- Mobile Summary Card -->
             <div class="card bg-info text-white">
               <div class="card-body">
-                <h6 class="card-title">📊 Total Summary</h6>
+                <h6 class="card-title" data-i18n="total_summary">📊 Total Summary</h6>
                 <div class="row text-center">
                   <div class="col-4">
                     <strong>{{ total_birds }}</strong><br>
-                    <small>Total Birds</small>
+                    <small data-i18n="total_birds">Total Birds</small>
                   </div>
                   <div class="col-4">
                     <strong>{{ "%.1f"|format(total_weight) }} kg</strong><br>
-                    <small>Total Weight</small>
+                    <small data-i18n="total_weight">Total Weight</small>
                   </div>
                   <div class="col-4">
                     <strong>{{ "%.3f"|format(avg_weight_per_bird) }} kg</strong><br>
-                    <small>Avg/Bird</small>
+                    <small data-i18n="avg_weight_per_bird">Avg/Bird</small>
                   </div>
                 </div>
               </div>
@@ -219,7 +219,7 @@
       {% else %}
       <div class="alert alert-warning">
         <h5>⚖️ No weighing records yet</h5>
-        <p class="mb-0">Start adding weighing records using the form above.</p>
+        <p class="mb-0" data-i18n="no_weighing_records">Start adding weighing records using the form above.</p>
       </div>
       {% endif %}
 
@@ -227,23 +227,23 @@
       {% if dispatch.status == 'active' and weighing_records %}
       <div class="card border-success">
         <div class="card-body text-center">
-          <h5 class="text-success">Ready to Complete Dispatch</h5>
-          <p class="text-muted">
+          <h5 class="text-success" data-i18n="ready_to_complete_dispatch">Ready to Complete Dispatch</h5>
+          <p class="text-muted" data-i18n="complete_dispatch_info">
             Once you complete the dispatch, the bird count will be deducted from the current cycle 
             and this dispatch will be marked as completed.
           </p>
           <form method="POST" action="{{ url_for('complete_dispatch', dispatch_id=dispatch.id) }}" 
                 onsubmit="return confirm('Are you sure you want to complete this dispatch? This action cannot be undone.')">
             <button type="submit" class="btn btn-success btn-lg">
-              ✅ Complete Dispatch ({{ total_birds }} birds, {{ "%.1f"|format(total_weight) }} kg)
+              <span data-i18n="complete_dispatch_btn">✅ Complete Dispatch ({{ total_birds }} birds, {{ "%.1f"|format(total_weight) }} kg)</span>
             </button>
           </form>
         </div>
       </div>
       {% elif dispatch.status == 'completed' %}
       <div class="alert alert-success">
-        <h5>✅ Dispatch Completed</h5>
-        <p class="mb-0">
+        <h5 data-i18n="dispatch_completed">✅ Dispatch Completed</h5>
+        <p class="mb-0" data-i18n="dispatch_completed_info">
           This dispatch has been completed. <strong>{{ dispatch.total_birds }} birds</strong> 
           weighing <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong> were sent 
           in vehicle <strong>{{ dispatch.vehicle_no }}</strong>.

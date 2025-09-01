@@ -5,40 +5,42 @@
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h4 class="mb-0">Income Estimate</h4>
-          <span class="badge bg-info">Cycle & Cumulative</span>
+          <h4 class="mb-0" data-i18n="income_estimate_title">Income Estimate</h4>
+          <span class="badge bg-info" data-i18n="cycle_cumulative">Cycle & Cumulative</span>
         </div>
         <div class="card-body">
           <form method="GET" class="row g-3 align-items-end mb-3">
             <div class="col-md-4 col-12">
-              <label for="cycle_id" class="form-label">Select Cycle</label>
+              <label for="cycle_id" class="form-label" data-i18n="select_cycle">Select Cycle</label>
               <select class="form-select" name="cycle_id" id="cycle_id" onchange="this.form.submit()">
-                <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %}>All Cycles</option>
+                <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles">All Cycles</option>
                 {% for c in all_cycles %}
-                  <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>Cycle #{{ c.id }} ({{ c.start_date }})</option>
+                  <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>
+                    <span data-i18n="cycle">Cycle</span> #{{ c.id }} ({{ c.start_date }})
+                  </option>
                 {% endfor %}
               </select>
             </div>
           </form>
           <form method="POST" class="row g-3 align-items-end">
             <div class="col-md-3 col-6">
-              <label for="chick_cost" class="form-label">Chick Cost (per bird)</label>
+              <label for="chick_cost" class="form-label" data-i18n="chick_cost">Chick Cost (per bird)</label>
               <input type="number" step="0.01" min="0" class="form-control" name="chick_cost" id="chick_cost" value="{{ chick_price }}" required>
             </div>
             <div class="col-md-3 col-6">
-              <label for="feed_cost" class="form-label">Feed Cost (per kg)</label>
+              <label for="feed_cost" class="form-label" data-i18n="feed_cost">Feed Cost (per kg)</label>
               <input type="number" step="0.01" min="0" class="form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost }}" required>
             </div>
             <div class="col-md-3 col-6">
-              <label for="other_expenses" class="form-label">Other Expenses (total)</label>
+              <label for="other_expenses" class="form-label" data-i18n="other_expenses">Other Expenses (total)</label>
               <input type="number" step="0.01" min="0" class="form-control" name="other_expenses" id="other_expenses" value="{{ other_expenses }}" required>
             </div>
             <div class="col-md-3 col-6">
-              <label for="market_price_per_bird" class="form-label">Market Price (per kg)</label>
+              <label for="market_price_per_bird" class="form-label" data-i18n="market_price">Market Price (per kg)</label>
               <input type="number" step="0.01" min="0" class="form-control" name="market_price_per_bird" id="market_price_per_bird" value="{{ market_price_per_bird }}" required>
             </div>
             <div class="col-md-3 col-12 text-end">
-              <button type="submit" class="btn btn-primary w-100">Estimate</button>
+              <button type="submit" class="btn btn-primary w-100" data-i18n="estimate_btn">Estimate</button>
             </div>
           </form>
         </div>
@@ -53,16 +55,16 @@
           <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold" style="color: white;">
               {% if selected_cycle_id == 'all' %}
-                All Cycles Overview
+                <span data-i18n="all_cycles_overview">All Cycles Overview</span>
               {% else %}
-                Cycle #{{ selected_cycle_id }} Estimate
+                <span data-i18n="cycle_estimate">Cycle</span> #{{ selected_cycle_id }} <span data-i18n="estimate">Estimate</span>
               {% endif %}
             </h5>
             <div class="badge bg-light text-primary fs-6 px-3 py-2">
               {% if selected_cycle_id == 'all' %}
-                {{ all_cycles|length }} Cycles
+                {{ all_cycles|length }} <span data-i18n="cycles">Cycles</span>
               {% else %}
-                {{ cycle_stats.total_birds }} Birds
+                {{ cycle_stats.total_birds }} <span data-i18n="birds">Birds</span>
               {% endif %}
             </div>
           </div>
@@ -71,7 +73,7 @@
           <!-- Enhanced Cost Breakdown Chart -->
           <div class="chart-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="chart-title mb-0">
+              <h6 class="chart-title mb-0" data-i18n="cost_breakdown">
                 <i class="fas fa-chart-pie me-2 text-primary"></i>
                 Cost Breakdown Analysis
               </h6>
@@ -88,7 +90,7 @@
                   <i class="fas fa-seedling"></i>
                 </div>
                 <div class="cost-details">
-                  <div class="cost-category">Feed Cost</div>
+                  <div class="cost-category" data-i18n="feed_cost_label">Feed Cost</div>
                   <div class="cost-amount">₹{{ '%.0f'|format(total_feed_cost) }}</div>
                   <div class="cost-percentage">
                     {{ '%.1f'|format((total_feed_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
@@ -101,7 +103,7 @@
                   <i class="fas fa-egg"></i>
                 </div>
                 <div class="cost-details">
-                  <div class="cost-category">Chick Cost</div>
+                  <div class="cost-category" data-i18n="chick_cost_label">Chick Cost</div>
                   <div class="cost-amount">₹{{ '%.0f'|format(chick_production_cost) }}</div>
                   <div class="cost-percentage">
                     {{ '%.1f'|format((chick_production_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
@@ -114,7 +116,7 @@
                   <i class="fas fa-plus-circle"></i>
                 </div>
                 <div class="cost-details">
-                  <div class="cost-category">Medical Cost</div>
+                  <div class="cost-category" data-i18n="medical_cost_label">Medical Cost</div>
                   <div class="cost-amount">₹{{ '%.0f'|format(total_medical_cost) }}</div>
                   <div class="cost-percentage">
                     {{ '%.1f'|format((total_medical_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
@@ -127,7 +129,7 @@
                   <i class="fas fa-ellipsis-h"></i>
                 </div>
                 <div class="cost-details">
-                  <div class="cost-category">Other Expenses</div>
+                  <div class="cost-category" data-i18n="other_expenses_label">Other Expenses</div>
                   <div class="cost-amount">₹{{ '%.0f'|format(total_expense_cost + other_expenses) }}</div>
                   <div class="cost-percentage">
                     {{ '%.1f'|format(((total_expense_cost + other_expenses) / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
@@ -141,7 +143,7 @@
               <div id="cycleChartLoader" class="chart-loader-modern d-flex justify-content-center align-items-center position-absolute w-100 h-100">
                 <div class="loading-spinner">
                   <div class="spinner"></div>
-                  <span class="loading-text">Analyzing data...</span>
+                  <span class="loading-text" data-i18n="analyzing_data">Analyzing data...</span>
                 </div>
               </div>
               <canvas id="cycleChart" height="200"></canvas>
@@ -157,7 +159,7 @@
       <div class="card shadow-lg border-0 modern-card">
         <div class="card-header bg-gradient-secondary text-white py-3">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold">Financial Performance</h5>
+            <h5 class="mb-0 fw-bold" data-i18n="financial_performance">Financial Performance</h5>
             <div class="badge bg-light text-secondary fs-6 px-3 py-2">
               Trend Analysis
             </div>
@@ -171,7 +173,7 @@
                 <i class="fas fa-money-bill-wave"></i>
               </div>
               <div class="performance-content">
-                <div class="performance-label">Total Investment</div>
+                <div class="performance-label" data-i18n="total_investment">Total Investment</div>
                 <div class="performance-value">₹{{ '%.0f'|format(all_cycles_total_cost + other_expenses) }}</div>
               </div>
             </div>
@@ -180,7 +182,7 @@
                 <i class="fas fa-chart-bar"></i>
               </div>
               <div class="performance-content">
-                <div class="performance-label">Total Revenue</div>
+                <div class="performance-label" data-i18n="total_revenue">Total Revenue</div>
                 <div class="performance-value">₹{{ '%.0f'|format(estimated_income_all_cycles) }}</div>
               </div>
             </div>
@@ -189,7 +191,7 @@
                 <i class="fas fa-trophy"></i>
               </div>
               <div class="performance-content">
-                <div class="performance-label">Net Profit</div>
+                <div class="performance-label" data-i18n="net_profit">Net Profit</div>
                 <div class="performance-value {% if estimated_profit_all_cycles >= 0 %}text-success{% else %}text-danger{% endif %}">
                   ₹{{ '%.0f'|format(estimated_profit_all_cycles) }}
                 </div>
@@ -199,12 +201,12 @@
 
           <!-- Comparative Chart -->
           <div class="chart-section">
-            <h6 class="chart-title mb-3">Revenue vs Cost Analysis</h6>
+            <h6 class="chart-title mb-3" data-i18n="revenue_vs_cost_analysis">Revenue vs Cost Analysis</h6>
             <div class="chart-container-modern position-relative">
               <div id="cumuChartLoader" class="chart-loader-modern d-flex justify-content-center align-items-center position-absolute w-100 h-100">
                 <div class="loading-spinner">
                   <div class="spinner"></div>
-                  <span class="loading-text">Processing data...</span>
+                  <span class="loading-text" data-i18n="processing_data">Processing data...</span>
                 </div>
               </div>
               <canvas id="cumuChart" height="200"></canvas>
@@ -266,40 +268,40 @@
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Feed Cost</span>
-                          <span class="calc-description">Primary nutrition expense</span>
+                          <span class="calc-label" data-i18n="feed_cost_label">Feed Cost</span>
+                          <span class="calc-description" data-i18n="feed_cost_desc">Primary nutrition expense</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(total_feed_cost) }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Chick Cost</span>
-                          <span class="calc-description">Initial stock investment</span>
+                          <span class="calc-label" data-i18n="chick_cost_label">Chick Cost</span>
+                          <span class="calc-description" data-i18n="chick_cost_desc">Initial stock investment</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(chick_production_cost) }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Medical Cost</span>
-                          <span class="calc-description">Healthcare & vaccines</span>
+                          <span class="calc-label" data-i18n="medical_cost_label">Medical Cost</span>
+                          <span class="calc-description" data-i18n="medical_cost_desc">Healthcare & vaccines</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(total_medical_cost) }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Other Expenses</span>
-                          <span class="calc-description">Miscellaneous costs</span>
+                          <span class="calc-label" data-i18n="other_expenses_label">Other Expenses</span>
+                          <span class="calc-description" data-i18n="other_expenses_desc">Miscellaneous costs</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(total_expense_cost + other_expenses) }}</div>
                       </div>
                       
                       <div class="calc-subtotal">
                         <div class="calc-item-info">
-                          <span class="calc-label">Total Investment</span>
-                          <span class="calc-description">Complete cost breakdown</span>
+                          <span class="calc-label" data-i18n="total_investment_label">Total Investment</span>
+                          <span class="calc-description" data-i18n="total_investment_desc">Complete cost breakdown</span>
                         </div>
                         <div class="calc-value total-cost">₹{{ '%.0f'|format(total_cycle_cost) }}</div>
                       </div>
@@ -314,16 +316,16 @@
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Market Rate Calculation</span>
-                          <span class="calc-description">₹{{ market_price_per_bird }}/kg × {{ '%.2f'|format(cycle_stats.avg_weight) }}kg average</span>
+                          <span class="calc-label" data-i18n="market_rate_calc_label">Market Rate Calculation</span>
+                          <span class="calc-description" data-i18n="market_rate_calc_desc">₹{{ market_price_per_bird }}/kg × {{ '%.2f'|format(cycle_stats.avg_weight) }}kg average</span>
                         </div>
                         <div class="calc-value revenue-value">₹{{ '%.0f'|format(estimated_income) }}</div>
                       </div>
                       
                       <div class="calc-subtotal profit-summary">
                         <div class="calc-item-info">
-                          <span class="calc-label">Net Profit/Loss</span>
-                          <span class="calc-description">Revenue minus total costs</span>
+                          <span class="calc-label" data-i18n="net_profit_loss_label">Net Profit/Loss</span>
+                          <span class="calc-description" data-i18n="net_profit_loss_desc">Revenue minus total costs</span>
                         </div>
                         <div class="calc-value profit-value {% if estimated_profit >= 0 %}positive-profit{% else %}negative-profit{% endif %}">
                           ₹{{ '%.0f'|format(estimated_profit) }}
@@ -359,32 +361,32 @@
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Total Cycles</span>
-                          <span class="calc-description">Complete production runs</span>
+                          <span class="calc-label" data-i18n="total_cycles_label">Total Cycles</span>
+                          <span class="calc-description" data-i18n="total_cycles_desc">Complete production runs</span>
                         </div>
                         <div class="calc-value stat-value">{{ all_cycles|length }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Total Birds</span>
-                          <span class="calc-description">Cumulative livestock count</span>
+                          <span class="calc-label" data-i18n="total_birds_label">Total Birds</span>
+                          <span class="calc-description" data-i18n="total_birds_desc">Cumulative livestock count</span>
                         </div>
                         <div class="calc-value stat-value">{{ cumu_stats.total_birds }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Average Weight</span>
-                          <span class="calc-description">Per bird at market</span>
+                          <span class="calc-label" data-i18n="avg_weight_label">Average Weight</span>
+                          <span class="calc-description" data-i18n="avg_weight_desc">Per bird at market</span>
                         </div>
                         <div class="calc-value stat-value">{{ '%.2f'|format(cumu_stats.avg_weight) }} kg</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Average FCR</span>
-                          <span class="calc-description">Feed conversion ratio</span>
+                          <span class="calc-label" data-i18n="avg_fcr_label">Average FCR</span>
+                          <span class="calc-description" data-i18n="avg_fcr_desc">Feed conversion ratio</span>
                         </div>
                         <div class="calc-value stat-value">{{ '%.2f'|format(cumu_stats.fcr) }}</div>
                       </div>
@@ -399,40 +401,40 @@
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Total Feed Cost</span>
-                          <span class="calc-description">All cycles feed expense</span>
+                          <span class="calc-label" data-i18n="total_feed_cost_label">Total Feed Cost</span>
+                          <span class="calc-description" data-i18n="total_feed_cost_desc">All cycles feed expense</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(all_cycles_total_cost - (cumu_stats.total_birds * chick_price if chick_price > 0 else 0)) }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Total Chick Cost</span>
-                          <span class="calc-description">Initial stock investment</span>
+                          <span class="calc-label" data-i18n="total_chick_cost_label">Total Chick Cost</span>
+                          <span class="calc-description" data-i18n="total_chick_cost_desc">Initial stock investment</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(cumu_stats.total_birds * chick_price if chick_price > 0 else 0) }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Total Investment</span>
-                          <span class="calc-description">All cycles combined cost</span>
+                          <span class="calc-label" data-i18n="total_investment_label">Total Investment</span>
+                          <span class="calc-description" data-i18n="total_investment_desc">All cycles combined cost</span>
                         </div>
                         <div class="calc-value cost-value">₹{{ '%.0f'|format(all_cycles_total_cost + other_expenses) }}</div>
                       </div>
                       
                       <div class="calc-item">
                         <div class="calc-item-info">
-                          <span class="calc-label">Expected Revenue</span>
-                          <span class="calc-description">₹{{ market_price_per_bird }}/kg × {{ '%.1f'|format(cumu_stats.avg_weight) }}kg</span>
+                          <span class="calc-label" data-i18n="expected_revenue_label">Expected Revenue</span>
+                          <span class="calc-description" data-i18n="expected_revenue_desc">₹{{ market_price_per_bird }}/kg × {{ '%.1f'|format(cumu_stats.avg_weight) }}kg</span>
                         </div>
                         <div class="calc-value revenue-value">₹{{ '%.0f'|format(estimated_income_all_cycles) }}</div>
                       </div>
                       
                       <div class="calc-subtotal profit-summary">
                         <div class="calc-item-info">
-                          <span class="calc-label">Net Profit/Loss</span>
-                          <span class="calc-description">Overall business performance</span>
+                          <span class="calc-label" data-i18n="net_profit_loss_label">Net Profit/Loss</span>
+                          <span class="calc-description" data-i18n="net_profit_loss_desc">Overall business performance</span>
                         </div>
                         <div class="calc-value profit-value {% if estimated_profit_all_cycles >= 0 %}positive-profit{% else %}negative-profit{% endif %}">
                           ₹{{ '%.0f'|format(estimated_profit_all_cycles) }}
@@ -454,7 +456,7 @@
     <div class="col-lg-6">
       <div class="card shadow-sm">
         <div class="card-header bg-warning text-dark">
-          <h5 class="mb-0">Selected Cycle Expenses</h5>
+          <h5 class="mb-0" data-i18n="selected_cycle_expenses">Selected Cycle Expenses</h5>
         </div>
         <div class="card-body">
           {% if selected_cycle_expenses %}
@@ -462,10 +464,10 @@
               <table class="table table-sm table-striped">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Name</th>
-                    <th>Amount</th>
-                    <th>Notes</th>
+                    <th data-i18n="date">Date</th>
+                    <th data-i18n="name">Name</th>
+                    <th data-i18n="amount">Amount</th>
+                    <th data-i18n="notes">Notes</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -478,14 +480,14 @@
                   </tr>
                   {% endfor %}
                   <tr class="table-warning">
-                    <td colspan="2"><strong>Total Expenses:</strong></td>
+                    <td colspan="2"><strong data-i18n="total_expenses">Total Expenses:</strong></td>
                     <td><strong>₹{{ '%.0f'|format(total_expense_cost) }}</strong></td>
                   </tr>
                 </tbody>
               </table>
             </div>
           {% else %}
-            <p class="text-muted">No expenses recorded for selected cycle</p>
+            <p class="text-muted" data-i18n="no_expenses_recorded">No expenses recorded for selected cycle</p>
           {% endif %}
         </div>
       </div>
@@ -493,7 +495,7 @@
     <div class="col-lg-6">
       <div class="card shadow-sm">
         <div class="card-header bg-secondary ">
-          <h5 class="mb-0 "style="color: white;">All Cycles Expenses</h5>
+          <h5 class="mb-0 "style="color: white;" data-i18n="all_cycles_expenses">All Cycles Expenses</h5>
         </div>
         <div class="card-body">
           {% if all_expenses %}
@@ -501,10 +503,10 @@
               <table class="table table-sm table-striped">
                 <thead>
                   <tr>
-                    <th>Cycle</th>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Amount</th>
+                    <th data-i18n="cycle">Cycle</th>
+                    <th data-i18n="date">Date</th>
+                    <th data-i18n="description">Description</th>
+                    <th data-i18n="amount">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -517,20 +519,358 @@
                   </tr>
                   {% endfor %}
                   <tr class="table-secondary">
-                    <td colspan="3"><strong>Total All Expenses:</strong></td>
+                    <td colspan="3"><strong data-i18n="total_all_expenses">Total All Expenses:</strong></td>
                     <td><strong>₹{{ '%.0f'|format(all_expenses|sum(attribute='amount')) }}</strong></td>
                   </tr>
                 </tbody>
               </table>
             </div>
           {% else %}
-            <p class="text-muted">No expenses recorded</p>
+            <p class="text-muted" data-i18n="no_expenses_recorded">No expenses recorded</p>
           {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+<script>
+// Wait for DOM and Chart.js to be ready
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // Add loading indicators
+  const cycleCanvas = document.getElementById('cycleChart');
+  const cumuCanvas = document.getElementById('cumuChart');
+  
+  // Show loading state
+  if (cycleCanvas) {
+    const cycleCtx = cycleCanvas.getContext('2d');
+    cycleCtx.fillStyle = '#f8f9fa';
+    cycleCtx.fillRect(0, 0, cycleCanvas.width, cycleCanvas.height);
+    cycleCtx.fillStyle = '#6c757d';
+    cycleCtx.font = '16px Segoe UI';
+    cycleCtx.textAlign = 'center';
+    cycleCtx.fillText('Loading chart...', cycleCanvas.width/2, cycleCanvas.height/2);
+  }
+  
+  if (cumuCanvas) {
+    const cumuCtx = cumuCanvas.getContext('2d');
+    cumuCtx.fillStyle = '#f8f9fa';
+    cumuCtx.fillRect(0, 0, cumuCanvas.width, cumuCanvas.height);
+    cumuCtx.fillStyle = '#6c757d';
+    cumuCtx.font = '16px Segoe UI';
+    cumuCtx.textAlign = 'center';
+    cumuCtx.fillText('Loading chart...', cumuCanvas.width/2, cumuCanvas.height/2);
+  }
+
+  // Use requestAnimationFrame for smooth loading
+  requestAnimationFrame(function() {
+    initializeCharts();
+  });
+
+function initializeCharts() {
+  // Modern Chart Configuration with performance optimizations
+  Chart.defaults.font.family = 'Segoe UI';
+  Chart.defaults.font.size = 12;
+  Chart.defaults.animation = {
+    duration: 1000,
+    easing: 'easeInOutQuart'
+  };
+
+  // Selected Cycle Chart - Doughnut with detailed breakdown
+  const cycleData = {
+    labels: ['Feed Cost', 'Chick Cost', 'Medical Cost', 'Other Expenses'],
+    datasets: [{
+      label: 'Cost Breakdown (₹)',
+      data: [
+        parseFloat('{{ total_feed_cost|round(0) }}'), 
+        parseFloat('{{ chick_production_cost|round(0) }}'), 
+        parseFloat('{{ total_medical_cost|round(0) }}'), 
+        parseFloat('{{ (total_expense_cost + other_expenses)|round(0) }}')
+      ],
+      backgroundColor: [
+        'rgba(251, 191, 36, 0.7)',   // Feed - Amber
+        'rgba(59, 130, 246, 0.7)',   // Chick - Blue
+        'rgba(239, 68, 68, 0.7)',    // Medical - Red
+        'rgba(107, 114, 128, 0.7)'   // Other - Gray
+      ],
+      borderColor: [
+        'rgba(251, 191, 36, 1)',
+        'rgba(59, 130, 246, 1)',
+        'rgba(239, 68, 68, 1)',
+        'rgba(107, 114, 128, 1)'
+      ],
+      borderWidth: 2,
+      hoverOffset: 4
+    }]
+  };
+
+  // Create cycle chart with performance optimizations
+  let cycleChart;
+  if (cycleCanvas) {
+    // Initially hide canvas for smooth fade-in
+    cycleCanvas.style.opacity = '0';
+    
+    cycleChart = new Chart(cycleCanvas, {
+      type: 'doughnut',
+      data: cycleData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1500,
+          easing: 'easeInOutCubic'
+        },
+        plugins: {
+          legend: {
+            display: false // We'll use custom legend
+          },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            titleColor: '#374151',
+            bodyColor: '#374151',
+            borderColor: 'rgba(229,231,235,0.8)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((value / total) * 100).toFixed(1);
+                return [
+                  label + ': ₹' + value.toLocaleString(),
+                  percentage + '% of total cost'
+                ];
+              }
+            }
+          },
+          // Custom plugin to display values on chart
+          datalabels: false
+        },
+        elements: {
+          arc: {
+            borderWidth: 3,
+            hoverBorderWidth: 4,
+            borderColor: '#fff'
+          }
+        }
+      },
+      plugins: [{
+        id: 'centerText',
+        afterDraw: function(chart) {
+          const ctx = chart.ctx;
+          const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+          const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+          
+          ctx.save();
+          ctx.font = 'bold 16px Segoe UI';
+          ctx.fillStyle = '#374151';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+          ctx.fillText('Total Cost', centerX, centerY - 8);
+          
+          ctx.font = 'bold 20px Segoe UI';
+          ctx.fillStyle = '#ef4444';
+          ctx.fillText('₹' + total.toLocaleString(), centerX, centerY + 12);
+          ctx.restore();
+        }
+      }]
+    });
+    
+    // Hide loading indicator for cycle chart
+    setTimeout(function() {
+      const cycleLoader = document.getElementById('cycleChartLoader');
+      if (cycleLoader) {
+        cycleLoader.style.opacity = '0';
+        cycleLoader.style.transition = 'opacity 0.3s ease';
+        setTimeout(function() {
+          cycleLoader.style.display = 'none';
+        }, 300);
+      }
+      // Fade in the canvas
+      if (cycleCanvas) {
+        cycleCanvas.style.transition = 'opacity 0.4s ease';
+        cycleCanvas.style.opacity = '1';
+      }
+    }, 800);
+  }
+
+  // All Cycles Chart - Bar chart with smooth loading
+  setTimeout(function() {
+    const cumuData = {
+      labels: ['Total Cost', 'Total Income', 'Net Profit'],
+      datasets: [{
+        label: 'All Cycles Financial Summary (₹)',
+        data: [
+          parseFloat('{{ (all_cycles_total_cost + other_expenses)|round(0) }}'), 
+          parseFloat('{{ estimated_income_all_cycles|round(0) }}'), 
+          parseFloat('{{ estimated_profit_all_cycles|round(0) }}')
+        ],
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.7)',   // Cost - Red
+          'rgba(16, 185, 129, 0.7)',  // Income - Green
+          '{{ "rgba(34, 197, 94, 0.7)" if estimated_profit_all_cycles >= 0 else "rgba(239, 68, 68, 0.7)" }}'  // Profit - Green/Red
+        ],
+        borderColor: [
+          'rgba(239, 68, 68, 1)',
+          'rgba(16, 185, 129, 1)',
+          '{{ "rgba(34, 197, 94, 1)" if estimated_profit_all_cycles >= 0 else "rgba(239, 68, 68, 1)" }}'
+        ],
+        borderWidth: 2,
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    };
+
+    // Create cumulative chart
+    let cumuChart;
+    if (cumuCanvas) {
+      // Initially hide canvas for smooth fade-in
+      cumuCanvas.style.opacity = '0';
+      
+      cumuChart = new Chart(cumuCanvas, {
+        type: 'bar',
+        data: cumuData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          animation: {
+            duration: 2000,
+            easing: 'easeInOutQuart',
+            delay: function(context) {
+              return context.dataIndex * 300; // Staggered animation
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              titleColor: '#374151',
+              bodyColor: '#374151',
+              borderColor: 'rgba(229,231,235,0.8)',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed.y;
+                  return context.label + ': ₹' + value.toLocaleString();
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(229,231,235,0.5)',
+                lineWidth: 1
+              },
+              ticks: {
+                callback: function(value) {
+                  return '₹' + (value / 1000).toFixed(0) + 'K';
+                },
+                color: '#6b7280',
+                font: {
+                  size: 12,
+                  weight: '500'
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: '#374151',
+                font: {
+                  size: 12,
+                  weight: '600'
+                }
+              }
+            }
+          },
+          elements: {
+            bar: {
+              borderRadius: 6,
+              borderSkipped: false
+            }
+          }
+        },
+        plugins: [{
+          id: 'dataLabels',
+          afterDatasetsDraw: function(chart) {
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+              const meta = chart.getDatasetMeta(datasetIndex);
+              meta.data.forEach((element, index) => {
+                const value = dataset.data[index];
+                const x = element.x;
+                const y = element.y - 10;
+
+                ctx.save();
+                ctx.font = 'bold 13px Segoe UI';
+                ctx.fillStyle = '#374151';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                const displayValue = '₹' + (value / 1000).toFixed(0) + 'K';
+                ctx.fillText(displayValue, x, y);
+                ctx.restore();
+              });
+            });
+          }
+        }]
+      });
+
+      // Hide loading indicator for cumulative chart
+      const hideCumuLoader = () => {
+        const cumuLoader = document.getElementById('cumuChartLoader');
+        if (cumuLoader) {
+          cumuLoader.style.opacity = '0';
+          cumuLoader.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => {
+            cumuLoader.style.display = 'none';
+          }, 300);
+        }
+      };
+
+      const fadeInCanvas = () => {
+        if (cumuCanvas) {
+          cumuCanvas.style.transition = 'opacity 0.4s ease';
+          cumuCanvas.style.opacity = '1';
+        }
+      };
+
+      setTimeout(() => {
+        hideCumuLoader();
+        fadeInCanvas();
+      }, 800);
+    }
+  }, 300); // Slight delay for staggered loading
+}
+
+}); // End of DOMContentLoaded
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
 <script>
 // Wait for DOM and Chart.js to be ready

@@ -5,9 +5,9 @@
     <div class="col-12">
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>📋 Dispatch History</h2>
+        <h2 data-i18n="dispatch_history_title">📋 Dispatch History</h2>
         <div>
-          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary btn-sm">← Back to Dispatch</a>
+          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary btn-sm" data-i18n="back_to_dispatch">← Back to Dispatch</a>
         </div>
       </div>
 
@@ -30,8 +30,8 @@
       <!-- Current Cycle Info -->
       {% if cycle %}
       <div class="alert alert-info">
-        <strong>Current Cycle:</strong> Started {{ cycle.start_date }} | 
-        <strong>Remaining Birds:</strong> {{ cycle.current_birds }}
+        <strong data-i18n="current_cycle">Current Cycle:</strong> <span data-i18n="started">Started</span> {{ cycle.start_date }} | 
+        <strong data-i18n="remaining_birds">Remaining Birds:</strong> {{ cycle.current_birds }}
       </div>
       {% endif %}
 
@@ -41,7 +41,7 @@
           <div class="card bg-primary text-white">
             <div class="card-body text-center">
               <h4>{{ summary.total_birds_dispatched }}</h4>
-              <p class="mb-0">Total Birds Dispatched</p>
+              <p class="mb-0" data-i18n="total_birds_dispatched">Total Birds Dispatched</p>
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
           <div class="card bg-success text-white">
             <div class="card-body text-center">
               <h4>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</h4>
-              <p class="mb-0">Total Weight Dispatched</p>
+              <p class="mb-0" data-i18n="total_weight_dispatched">Total Weight Dispatched</p>
             </div>
           </div>
         </div>
@@ -57,7 +57,7 @@
           <div class="card bg-warning text-white">
             <div class="card-body text-center">
               <h4>{{ "%.3f"|format(summary.avg_weight_per_bird) }} kg</h4>
-              <p class="mb-0">Overall Avg Weight/Bird</p>
+              <p class="mb-0" data-i18n="avg_weight_per_bird">Overall Avg Weight/Bird</p>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
           <div class="card bg-info text-white">
             <div class="card-body text-center">
               <h4>{{ summary.completed_dispatches }}</h4>
-              <p class="mb-0">Completed Dispatches</p>
+              <p class="mb-0" data-i18n="completed_dispatches">Completed Dispatches</p>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@
       {% if dispatches %}
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0">🚚 All Dispatches for Current Cycle</h5>
+          <h5 class="card-title mb-0" data-i18n="all_dispatches">🚚 All Dispatches for Current Cycle</h5>
           <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="true">
             <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
             <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
@@ -189,22 +189,22 @@
                 </div>
                 <div class="row">
                   <div class="col-6">
-                    <small class="text-muted">Driver:</small><br>
+                    <small class="text-muted" data-i18n="driver">Driver:</small><br>
                     <strong>{{ dispatch.driver_name }}</strong>
                   </div>
                   <div class="col-6">
-                    <small class="text-muted">Vendor:</small><br>
+                    <small class="text-muted" data-i18n="vendor">Vendor:</small><br>
                     <strong>{{ dispatch.vendor_name or '-' }}</strong>
                   </div>
                 </div>
                 <div class="row mt-2">
                   <div class="col-6">
-                    <small class="text-muted">Date & Time:</small><br>
+                    <small class="text-muted" data-i18n="date_time">Date & Time:</small><br>
                     <strong>{{ dispatch.dispatch_date }}</strong><br>
                     <small>{{ dispatch.dispatch_time }}</small>
                   </div>
                   <div class="col-6">
-                    <small class="text-muted">Birds:</small><br>
+                    <small class="text-muted" data-i18n="birds">Birds:</small><br>
                     {% if dispatch.status == 'completed' %}
                       <span class="badge bg-success">{{ dispatch.total_birds }}</span>
                     {% else %}
@@ -215,11 +215,11 @@
                 {% if dispatch.status == 'completed' %}
                 <div class="row mt-2">
                   <div class="col-6">
-                    <small class="text-muted">Weight:</small><br>
+                    <small class="text-muted" data-i18n="weight">Weight:</small><br>
                     <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
                   </div>
                   <div class="col-6">
-                    <small class="text-muted">Avg/Bird:</small><br>
+                    <small class="text-muted" data-i18n="avg_bird">Avg/Bird:</small><br>
                     <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
                   </div>
                 </div>
@@ -248,19 +248,19 @@
             {% if summary.total_birds_dispatched > 0 %}
             <div class="card bg-info text-white">
               <div class="card-body">
-                <h6 class="card-title">📊 Summary</h6>
+                <h6 class="card-title" data-i18n="summary">📊 Summary</h6>
                 <div class="row text-center">
                   <div class="col-4">
                     <strong>{{ summary.total_birds_dispatched }}</strong><br>
-                    <small>Total Birds</small>
+                    <small data-i18n="total_birds">Total Birds</small>
                   </div>
                   <div class="col-4">
                     <strong>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</strong><br>
-                    <small>Total Weight</small>
+                    <small data-i18n="total_weight">Total Weight</small>
                   </div>
                   <div class="col-4">
                     <strong>{{ summary.completed_dispatches }}</strong><br>
-                    <small>Completed</small>
+                    <small data-i18n="completed">Completed</small>
                   </div>
                 </div>
               </div>
@@ -272,9 +272,9 @@
       </div>
       {% else %}
       <div class="alert alert-info">
-        <h5>📋 No dispatches yet</h5>
-        <p class="mb-0">No dispatches have been recorded for the current cycle yet.</p>
-        <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary mt-2">🚚 Start First Dispatch</a>
+        <h5 data-i18n="no_dispatches_yet">📋 No dispatches yet</h5>
+        <p class="mb-0" data-i18n="no_dispatches_message">No dispatches have been recorded for the current cycle yet.</p>
+        <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary mt-2" data-i18n="start_first_dispatch">🚚 Start First Dispatch</a>
       </div>
       {% endif %}
 
@@ -282,11 +282,11 @@
       {% if dispatches %}
       <div class="card mt-4">
         <div class="card-body">
-          <h6 class="card-title">📊 Export Options</h6>
-          <p class="text-muted">Export dispatch data for analysis and record keeping.</p>
+          <h6 class="card-title" data-i18n="export_options">📊 Export Options</h6>
+          <p class="text-muted" data-i18n="export_instruction">Export dispatch data for analysis and record keeping.</p>
           <div class="btn-group">
-            <button class="btn btn-outline-primary btn-sm" onclick="printTable()">🖨️ Print Report</button>
-            <a href="{{ url_for('export_dispatch_excel') }}" class="btn btn-outline-success btn-sm">📊 Export Excel</a>
+            <button class="btn btn-outline-primary btn-sm" onclick="printTable()" data-i18n="print_report">🖨️ Print Report</button>
+            <a href="{{ url_for('export_dispatch_excel') }}" class="btn btn-outline-success btn-sm" data-i18n="export_excel">📊 Export Excel</a>
           </div>
         </div>
       </div>

@@ -14,8 +14,8 @@
             <div class="card shadow">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <h1 class="h3 mb-3 font-weight-normal">🐔 Ramesh Farms</h1>
-                        <p class="text-muted">Poultry Tracker Login</p>
+                        <h1 class="h3 mb-3 font-weight-normal">🐔 <span data-i18n="ramesh_farms"></span>Ramesh Farms</span></h1>
+                        <p class="text-muted" data-i18n="poultry_tracker_login">Poultry Tracker Login</p>
                     </div>
 
                     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -31,15 +31,15 @@
 
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
+                            <label for="username" class="form-label" data-i18n="username">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required autofocus>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label" data-i18n="password">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                            <button type="submit" class="btn btn-primary btn-lg" data-i18n="login">Login</button>
                         </div>
                     </form>
 

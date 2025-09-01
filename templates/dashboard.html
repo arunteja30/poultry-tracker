@@ -7,7 +7,7 @@
 <div class="row g-4 mb-4">
   <!-- Simple Quick Stats Below Graphs -->
   <div class="col-12">
-    <h4 class="fw-bold text-muted mt-2 mb-2">Quick Stats</h4>
+    <h4 class="fw-bold text-muted mt-2 mb-2" data-i18n="quick_stats">Quick Stats</h4>
     <div class="row g-3 mb-4">
       <div class="col-6 col-md-3">
         <div class="card text-center">
@@ -21,7 +21,7 @@
         <div class="card text-center">
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="initial_stock">Initial Stock</small>
-            <div class="fw-bold">{{ summary.start_birds }} birds</div>
+            <div class="fw-bold">{{ summary.start_birds }} <span data-i18n="birds">birds</span></div>
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@
         <div class="card text-center">
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="last_week_mortality">Last Week Mortality</small>
-            <div class="fw-bold text-{{ 'danger' if metrics.last_week_mortality > 50 else 'warning' if metrics.last_week_mortality > 20 else 'success' }}">{{ metrics.last_week_mortality }} birds</div>
+            <div class="fw-bold text-{{ 'danger' if metrics.last_week_mortality > 50 else 'warning' if metrics.last_week_mortality > 20 else 'success' }}">{{ metrics.last_week_mortality }} <span data-i18n="birds">birds</span></div>
           </div>
         </div>
       </div>
@@ -45,14 +45,14 @@
   </div>
 
   <div class="col-12">
-    <h4 class="fw-bold text-primary mt-2 mb-2">Key Performance</h4>
+    <h4 class="fw-bold text-primary mt-2 mb-2" data-i18n="key_performance">Key Performance</h4>
     <div class="row g-3">
       <div class="col-6 col-md-3">
         <div class="card text-center">
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="live_birds">Live Birds</small>
             <div class="fw-bold text-primary">{{ summary.current_birds }}</div>
-            <div class="text-muted small">{{ metrics.survival_rate }}% survival rate</div>
+            <div class="text-muted small">{{ metrics.survival_rate }}% <span data-i18n="survival_rate">survival rate</span></div>
           </div>
         </div>
       </div>
@@ -61,7 +61,7 @@
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="day_of_farm">Days Running</small>
             <div class="fw-bold text-success">{{ summary.days }}</div>
-            <div class="text-muted small">{{ metrics.days_to_target }} days to target</div>
+            <div class="text-muted small">{{ metrics.days_to_target }} <span data-i18n="days_to_target">days to target</span></div>
           </div>
         </div>
       </div>
@@ -78,7 +78,7 @@
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="mortality_total">Total Mortality</small>
             <div class="fw-bold text-danger">{{ summary.mortality_total }}</div>
-            <div class="text-muted small">{{ metrics.avg_mortality_per_day }}/day avg</div>
+            <div class="text-muted small">{{ metrics.avg_mortality_per_day }}/<span data-i18n="day">day</span> <span data-i18n="avg">avg</span></div>
           </div>
         </div>
       </div>
@@ -86,8 +86,8 @@
         <div class="card text-center">
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="avg_weight">Avg Weight</small>
-            <div class="fw-bold text-info">{{ summary.avg_weight }} kg</div>
-            <div class="text-muted small">Today: {{ metrics.today_avg_weight }}kg</div>
+            <div class="fw-bold text-info">{{ summary.avg_weight }} <span data-i18n="kg">kg</span></div>
+            <div class="text-muted small" data-i18n="today">Today:</div> {{ metrics.today_avg_weight }}<span data-i18n="kg">kg</span>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
           <div class="card-body py-2">
             <small class="text-muted" data-i18n="mortality_rate">Mortality Rate</small>
             <div class="fw-bold text-danger">{{ (summary.mortality_total / summary.start_birds * 100) | round(2) }}%</div>
-            <div class="text-muted small">{{ metrics.survival_rate }}% survival rate</div>
+            <div class="text-muted small">{{ metrics.survival_rate }}% <span data-i18n="survival_rate">survival rate</span></div>
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@
   </div>
 
   <div class="col-12">
-    <h4 class="fw-bold text-success mt-2 mb-2">Feed Management</h4>
+    <h4 class="fw-bold text-success mt-2 mb-2" data-i18n="feed_management">Feed Management</h4>
     <div class="row g-3">
       <div class="col-6 col-md-4">
         <div class="card text-center">
@@ -134,7 +134,7 @@
   </div>
 
   <div class="col-12">
-    <h4 class="fw-bold text-warning mt-2 mb-2">Today's Summary</h4>
+    <h4 class="fw-bold text-warning mt-2 mb-2" data-i18n="todays_summary">Today's Summary</h4>
     <div class="row g-3">
       <div class="col-6 col-md-4">
         <div class="card text-center">
@@ -165,7 +165,7 @@
 
   <!-- Right Side - Bar Graphs -->
   <div class="col-12">
-     <h4 class="fw-bold text-danger mt-2 mb-2">Graphs</h4>
+     <h4 class="fw-bold text-danger mt-2 mb-2" data-i18n="graphs">Graphs</h4>
      <div class="d-flex align-items-center mb-3">
        <label class="form-check-label me-2" for="graphTypeSwitch">Bar</label>
        <div class="form-check form-switch">
@@ -176,25 +176,25 @@
      <div class="row g-3">
        <div class="col-12 col-md-6">
          <div class="card h-100">
-           <div class="card-header text-center">FCR Graph</div>
+           <div class="card-header text-center" data-i18n="fcr_graph">FCR Graph</div>
            <div class="card-body"><canvas id="fcrBarChart"></canvas></div>
          </div>
        </div>
        <div class="col-12 col-md-6">
          <div class="card h-100">
-           <div class="card-header text-center">Mortality Graph</div>
+           <div class="card-header text-center" data-i18n="mortality_graph">Mortality Graph</div>
            <div class="card-body"><canvas id="mortalityBarChart"></canvas></div>
          </div>
        </div>
        <div class="col-12 col-md-6">
          <div class="card h-100">
-           <div class="card-header text-center">Feed Bags Consumed</div>
+           <div class="card-header text-center" data-i18n="feed_bags_consumed_graph">Feed Bags Consumed</div>
            <div class="card-body"><canvas id="feedBarChart"></canvas></div>
          </div>
        </div>
        <div class="col-12 col-md-6">
          <div class="card h-100">
-           <div class="card-header text-center">Avg Weight (g)</div>
+           <div class="card-header text-center" data-i18n="avg_weight_graph">Avg Weight (g)</div>
            <div class="card-body"><canvas id="weightBarChart"></canvas></div>
          </div>
        </div>
