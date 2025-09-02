@@ -76,9 +76,7 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="card-title mb-0" data-i18n="all_dispatches">🚚 All Dispatches for Current Cycle</h5>
-          <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="true">
-            <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
-            <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+          <button class="btn btn-sm btn-outline-primary expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="true">
           </button>
         </div>
         <div class="collapse show" id="dispatchHistoryCollapse">
@@ -328,33 +326,27 @@
     .card-body {
       padding: 0.7rem 0.7rem !important;
     }
-    .expand-text, .collapse-text {
-      font-size: 0.95rem !important;
-    }
   }
 </style>
 
 <script>
-// Expand/Collapse functionality for dispatch history
+// Simple arrow rotation for expand/collapse
 document.addEventListener('DOMContentLoaded', function() {
-  const dispatchToggle = document.querySelector('[data-bs-target="#dispatchHistoryCollapse"]');
-  const dispatchCollapse = document.getElementById('dispatchHistoryCollapse');
-  
-  if (dispatchToggle && dispatchCollapse) {
-    dispatchCollapse.addEventListener('shown.bs.collapse', function() {
-      const expandText = dispatchToggle.querySelector('.expand-text');
-      const collapseText = dispatchToggle.querySelector('.collapse-text');
-      expandText.classList.remove('d-none');
-      collapseText.classList.add('d-none');
-    });
+  const expandButtons = document.querySelectorAll('.expand-btn');
+  expandButtons.forEach(button => {
+    const targetId = button.getAttribute('data-bs-target');
+    const targetElement = document.querySelector(targetId);
     
-    dispatchCollapse.addEventListener('hidden.bs.collapse', function() {
-      const expandText = dispatchToggle.querySelector('.expand-text');
-      const collapseText = dispatchToggle.querySelector('.collapse-text');
-      expandText.classList.add('d-none');
-      collapseText.classList.remove('d-none');
-    });
-  }
+    if (targetElement) {
+      targetElement.addEventListener('shown.bs.collapse', function() {
+        button.setAttribute('aria-expanded', 'true');
+      });
+      
+      targetElement.addEventListener('hidden.bs.collapse', function() {
+        button.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
 });
 </script>
 {% endif %}

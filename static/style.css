@@ -12,10 +12,66 @@
   --fb-shadow: rgba(24, 119, 242, 0.15);
 }
 
+/* Expand/Collapse Button Styles */
+.expand-btn {
+  transition: transform 0.2s ease;
+  font-size: 0.9rem !important;
+  padding: 0.25rem 0.5rem !important;
+  border: 1px solid #dee2e6 !important;
+  background: #f8f9fa !important;
+  color: #495057 !important;
+  position: relative;
+}
+
+.expand-btn::after {
+  content: '▼';
+  font-size: 0.8em;
+  transition: transform 0.2s ease;
+}
+
+.expand-btn[aria-expanded="false"]::after {
+  transform: rotate(-90deg);
+}
+
+.expand-btn:hover {
+  background: #e9ecef !important;
+  border-color: #adb5bd !important;
+}
+
+/* Mobile-specific expand button styling */
+@media (max-width: 768px) {
+  .expand-btn {
+    font-size: 0.8rem !important;
+    padding: 0.2rem 0.4rem !important;
+    border-radius: 0 !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .expand-btn {
+    font-size: 0.7rem !important;
+    min-width: 28px !important;
+    height: 28px !important;
+  }
+}
+
 /* Custom Font Face Declaration */
 @font-face {
   font-family: 'JIMS Regular';
   src: url('/static/fonts/JIMS Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mandali';
+  src: url('/static/fonts/Mandali.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -91,7 +147,7 @@ body {
 
 /* Language-specific fonts */
 body.lang-te {
-  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Mandali';
   font-size: 1.1em; /* Increased base font size for Telugu */
 }
 
@@ -230,10 +286,97 @@ body.lang-hi {
   }
   
   .mobile-btn {
-    min-height: 48px !important;
-    border-radius: 12px !important;
-    font-weight: 600 !important;
+    min-height: auto !important;
+    border-radius: 0 !important; /* Native mobile style */
+    font-weight: 500 !important;
     letter-spacing: 0.01em !important;
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+    border: 1px solid #ddd !important;
+    background: #f8f9fa !important;
+    color: #333 !important;
+  }
+}
+
+/* Extra small mobile devices (phones in portrait) */
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0.75rem !important;
+    padding-bottom: 0.4rem !important;
+  }
+  
+  /* Font size specific extra small mobile H2 adjustments */
+  body.font-size-small h2 { font-size: 1.1rem !important; }
+  body.font-size-medium h2 { font-size: 1.25rem !important; }
+  body.font-size-large h2 { font-size: 1.4rem !important; }
+  body.font-size-xlarge h2 { font-size: 1.6rem !important; }
+  
+  /* Language-specific extra small mobile H2 adjustments - responsive to font size */
+  body.lang-te.font-size-small h2 { font-size: 1.1rem !important; }
+  body.lang-te.font-size-medium h2 { font-size: 1.3rem !important; }
+  body.lang-te.font-size-large h2 { font-size: 1.5rem !important; }
+  body.lang-te.font-size-xlarge h2 { font-size: 1.7rem !important; }
+  body.lang-te h2 { font-size: 1.3rem !important; } /* default fallback */
+  body.lang-hi h2 { font-size: 1.25rem !important; }
+  
+  /* Extra small mobile button sizing - native mobile style */
+  .btn {
+    font-size: 0.75rem !important;
+    padding: 5px 10px !important;
+    border-radius: 0 !important; /* Native style - no rounded corners */
+    font-weight: 500 !important;
+    min-height: auto !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  /* Button size variants for extra small mobile */
+  .btn-sm {
+    font-size: 0.7rem !important;
+    padding: 3px 6px !important;
+    border-radius: 0 !important; /* Native style */
+  }
+  
+  .btn-lg {
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+    border-radius: 0 !important; /* Native style */
+  }
+  
+  /* Specific button types for extra small screens - native colors */
+  .btn-primary, .btn-success, .btn-secondary, .btn-danger, .btn-warning, .btn-info {
+    font-size: 0.75rem !important;
+    padding: 5px 10px !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Outline buttons for extra small screens */
+  .btn-outline-primary, .btn-outline-secondary, .btn-outline-success,
+  .btn-outline-danger, .btn-outline-warning, .btn-outline-info {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+    border-width: 1px !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Expand buttons even more compact */
+  .btn[data-bs-toggle="collapse"], 
+  .btn[aria-expanded], 
+  .collapse-toggle,
+  .expand-btn {
+    font-size: 0.7rem !important;
+    padding: 3px 6px !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Smaller arrow for extra small screens */
+  .btn[data-bs-toggle="collapse"]::after, 
+  .btn[aria-expanded]::after,
+  .collapse-toggle::after,
+  .expand-btn::after {
+    font-size: 0.6rem !important;
+    margin-left: 3px !important;
   }
 }
 
@@ -320,43 +463,84 @@ body.lang-te h1, body.lang-te h2, body.lang-te h3, body.lang-te h4, body.lang-te
   letter-spacing: 0.025em;
 }
 
-/* Increased font sizes for Telugu elements */
-body.lang-te .navbar-brand {
-  font-size: 2.4rem !important;
-  font-weight: 900 !important;
-}
+/* Telugu font sizes - responsive to font size selector */
+/* Small font size */
+body.lang-te.font-size-small .navbar-brand { font-size: 2.0rem !important; }
+body.lang-te.font-size-small .nav-link { font-size: 0.95rem !important; }
+body.lang-te.font-size-small .btn { font-size: 0.9rem !important; }
+body.lang-te.font-size-small .form-label { font-size: 0.95rem !important; }
+body.lang-te.font-size-small .table th,
+body.lang-te.font-size-small .table td { font-size: 0.9rem !important; }
+body.lang-te.font-size-small .card-title { font-size: 1.2rem !important; }
+body.lang-te.font-size-small .card-text { font-size: 0.95rem !important; }
+body.lang-te.font-size-small h1 { font-size: 2.4rem !important; }
+body.lang-te.font-size-small h2 { font-size: 2.0rem !important; }
+body.lang-te.font-size-small h3 { font-size: 1.7rem !important; }
+body.lang-te.font-size-small h4 { font-size: 1.4rem !important; }
+body.lang-te.font-size-small h5 { font-size: 1.2rem !important; }
+body.lang-te.font-size-small h6 { font-size: 1.0rem !important; }
 
-body.lang-te .nav-link {
-  font-size: 1.1rem !important;
-}
-
-body.lang-te .btn {
-  font-size: 1.05rem !important;
-}
-
-body.lang-te .form-label {
-  font-size: 1.1rem !important;
-}
-
+/* Medium font size (default) */
+body.lang-te.font-size-medium .navbar-brand,
+body.lang-te .navbar-brand { font-size: 2.4rem !important; }
+body.lang-te.font-size-medium .nav-link,
+body.lang-te .nav-link { font-size: 1.1rem !important; }
+body.lang-te.font-size-medium .btn,
+body.lang-te .btn { font-size: 1.05rem !important; }
+body.lang-te.font-size-medium .form-label,
+body.lang-te .form-label { font-size: 1.1rem !important; }
+body.lang-te.font-size-medium .table th,
+body.lang-te.font-size-medium .table td,
 body.lang-te .table th,
-body.lang-te .table td {
-  font-size: 1.05rem !important;
-}
-
-body.lang-te .card-title {
-  font-size: 1.4rem !important;
-}
-
-body.lang-te .card-text {
-  font-size: 1.1rem !important;
-}
-
+body.lang-te .table td { font-size: 1.05rem !important; }
+body.lang-te.font-size-medium .card-title,
+body.lang-te .card-title { font-size: 1.4rem !important; }
+body.lang-te.font-size-medium .card-text,
+body.lang-te .card-text { font-size: 1.1rem !important; }
+body.lang-te.font-size-medium h1,
 body.lang-te h1 { font-size: 2.8rem !important; }
+body.lang-te.font-size-medium h2,
 body.lang-te h2 { font-size: 2.4rem !important; }
+body.lang-te.font-size-medium h3,
 body.lang-te h3 { font-size: 2.0rem !important; }
+body.lang-te.font-size-medium h4,
 body.lang-te h4 { font-size: 1.6rem !important; }
+body.lang-te.font-size-medium h5,
 body.lang-te h5 { font-size: 1.4rem !important; }
+body.lang-te.font-size-medium h6,
 body.lang-te h6 { font-size: 1.2rem !important; }
+
+/* Large font size */
+body.lang-te.font-size-large .navbar-brand { font-size: 2.8rem !important; }
+body.lang-te.font-size-large .nav-link { font-size: 1.25rem !important; }
+body.lang-te.font-size-large .btn { font-size: 1.2rem !important; }
+body.lang-te.font-size-large .form-label { font-size: 1.25rem !important; }
+body.lang-te.font-size-large .table th,
+body.lang-te.font-size-large .table td { font-size: 1.2rem !important; }
+body.lang-te.font-size-large .card-title { font-size: 1.6rem !important; }
+body.lang-te.font-size-large .card-text { font-size: 1.25rem !important; }
+body.lang-te.font-size-large h1 { font-size: 3.2rem !important; }
+body.lang-te.font-size-large h2 { font-size: 2.8rem !important; }
+body.lang-te.font-size-large h3 { font-size: 2.4rem !important; }
+body.lang-te.font-size-large h4 { font-size: 2.0rem !important; }
+body.lang-te.font-size-large h5 { font-size: 1.6rem !important; }
+body.lang-te.font-size-large h6 { font-size: 1.4rem !important; }
+
+/* Extra Large font size */
+body.lang-te.font-size-xlarge .navbar-brand { font-size: 3.2rem !important; }
+body.lang-te.font-size-xlarge .nav-link { font-size: 1.4rem !important; }
+body.lang-te.font-size-xlarge .btn { font-size: 1.35rem !important; }
+body.lang-te.font-size-xlarge .form-label { font-size: 1.4rem !important; }
+body.lang-te.font-size-xlarge .table th,
+body.lang-te.font-size-xlarge .table td { font-size: 1.35rem !important; }
+body.lang-te.font-size-xlarge .card-title { font-size: 1.8rem !important; }
+body.lang-te.font-size-xlarge .card-text { font-size: 1.4rem !important; }
+body.lang-te.font-size-xlarge h1 { font-size: 3.6rem !important; }
+body.lang-te.font-size-xlarge h2 { font-size: 3.2rem !important; }
+body.lang-te.font-size-xlarge h3 { font-size: 2.8rem !important; }
+body.lang-te.font-size-xlarge h4 { font-size: 2.4rem !important; }
+body.lang-te.font-size-xlarge h5 { font-size: 2.0rem !important; }
+body.lang-te.font-size-xlarge h6 { font-size: 1.6rem !important; }
 
 /* Hindi-specific text styling */
 body.lang-hi .navbar-brand,
@@ -591,7 +775,31 @@ body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi
   margin-bottom: 8px;
 }
 
-/* Language-specific form element styling */
+/* Language-specific form element styling - responsive to font size */
+/* Telugu form elements - font size responsive */
+body.lang-te.font-size-small .form-control,
+body.lang-te.font-size-small .form-select,
+body.lang-te.font-size-small .form-label,
+body.lang-te.font-size-small input,
+body.lang-te.font-size-small textarea,
+body.lang-te.font-size-small select,
+body.lang-te.font-size-small option {
+  font-family: 'Mandali';
+  font-weight: normal;
+  font-size: 1.0rem !important;
+}
+
+body.lang-te.font-size-small .form-control::placeholder {
+  font-size: 0.9rem !important;
+}
+
+body.lang-te.font-size-medium .form-control,
+body.lang-te.font-size-medium .form-select,
+body.lang-te.font-size-medium .form-label,
+body.lang-te.font-size-medium input,
+body.lang-te.font-size-medium textarea,
+body.lang-te.font-size-medium select,
+body.lang-te.font-size-medium option,
 body.lang-te .form-control,
 body.lang-te .form-select,
 body.lang-te .form-label,
@@ -599,13 +807,46 @@ body.lang-te input,
 body.lang-te textarea,
 body.lang-te select,
 body.lang-te option {
-  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Segoe UI', sans-serif;
+  font-family: 'Mandali';
   font-weight: normal;
-  font-size: 1.1rem !important;
+  font-size: 1.4rem !important;
 }
 
+body.lang-te.font-size-medium .form-control::placeholder,
 body.lang-te .form-control::placeholder {
   font-size: 1.05rem !important;
+}
+
+body.lang-te.font-size-large .form-control,
+body.lang-te.font-size-large .form-select,
+body.lang-te.font-size-large .form-label,
+body.lang-te.font-size-large input,
+body.lang-te.font-size-large textarea,
+body.lang-te.font-size-large select,
+body.lang-te.font-size-large option {
+  font-family: 'Mandali';
+  font-weight: normal;
+  font-size: 1.6rem !important;
+}
+
+body.lang-te.font-size-large .form-control::placeholder {
+  font-size: 1.2rem !important;
+}
+
+body.lang-te.font-size-xlarge .form-control,
+body.lang-te.font-size-xlarge .form-select,
+body.lang-te.font-size-xlarge .form-label,
+body.lang-te.font-size-xlarge input,
+body.lang-te.font-size-xlarge textarea,
+body.lang-te.font-size-xlarge select,
+body.lang-te.font-size-xlarge option {
+  font-family: 'Mandali';
+  font-weight: normal;
+  font-size: 1.8rem !important;
+}
+
+body.lang-te.font-size-xlarge .form-control::placeholder {
+  font-size: 1.4rem !important;
 }
 
 body.lang-hi .form-control,
@@ -757,24 +998,51 @@ h2::after {
   background: var(--fb-white);
   border: 2px solid var(--fb-light-gray);
   color: var(--fb-text-dark);
-  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
+  font-family: 'Mandali' ;
   font-weight: normal;
 }
 
 #langSelect option {
   background: var(--fb-white);
   color: var(--fb-text-dark);
-  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
+  font-family: 'Mandali' ;
   font-weight: normal;
 }
 
-/* Larger text for Telugu language selector */
-body.lang-te #langSelect {
-  font-size: 1.1rem !important;
+/* Language selector styling - responsive to font size */
+/* Telugu language selector font sizes */
+body.lang-te.font-size-small #langSelect {
+  font-size: 1.2rem !important;
 }
 
+body.lang-te.font-size-small #langSelect option {
+  font-size: 1.3rem !important;
+}
+
+body.lang-te.font-size-medium #langSelect,
+body.lang-te #langSelect {
+  font-size: 1.6rem !important;
+}
+
+body.lang-te.font-size-medium #langSelect option,
 body.lang-te #langSelect option {
-  font-size: 1.1rem !important;
+  font-size: 1.7rem !important;
+}
+
+body.lang-te.font-size-large #langSelect {
+  font-size: 1.8rem !important;
+}
+
+body.lang-te.font-size-large #langSelect option {
+  font-size: 1.9rem !important;
+}
+
+body.lang-te.font-size-xlarge #langSelect {
+  font-size: 2.0rem !important;
+}
+
+body.lang-te.font-size-xlarge #langSelect option {
+  font-size: 2.1rem !important;
 }
 
 /* Font size selector styling */
@@ -863,6 +1131,138 @@ strong {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  /* Mobile-native H2 sizing */
+  h2 {
+    font-size: 1.4rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  /* Font size specific mobile H2 adjustments */
+  body.font-size-small h2 { font-size: 1.2rem !important; }
+  body.font-size-medium h2 { font-size: 1.4rem !important; }
+  body.font-size-large h2 { font-size: 1.6rem !important; }
+  body.font-size-xlarge h2 { font-size: 1.8rem !important; }
+  
+  /* Language-specific mobile H2 adjustments - responsive to font size */
+  body.lang-te.font-size-small h2 { font-size: 1.2rem !important; }
+  body.lang-te.font-size-medium h2 { font-size: 1.5rem !important; }
+  body.lang-te.font-size-large h2 { font-size: 1.7rem !important; }
+  body.lang-te.font-size-xlarge h2 { font-size: 1.9rem !important; }
+  body.lang-te h2 { font-size: 1.5rem !important; } /* default fallback */
+  body.lang-hi h2 { font-size: 1.4rem !important; }
+  
+  /* Mobile-native button sizing - remove all rounded styles */
+  .btn {
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+    min-height: auto !important;
+    border-radius: 0 !important; /* Native mobile style - no rounded corners */
+    font-weight: 500 !important;
+    border: 1px solid #ddd !important;
+    background: #f8f9fa !important;
+    color: #333 !important;
+  }
+  
+  /* Button size variants for mobile */
+  .btn-sm {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+    border-radius: 0 !important; /* Native style */
+  }
+  
+  .btn-lg {
+    font-size: 0.9rem !important;
+    padding: 8px 16px !important;
+    border-radius: 0 !important; /* Native style */
+  }
+  
+  /* Specific button type adjustments - native mobile colors */
+  .btn-primary {
+    background: #007bff !important;
+    border-color: #007bff !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+  }
+  
+  .btn-success {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+  }
+  
+  .btn-secondary {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+  }
+  
+  .btn-danger {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+  }
+  
+  .btn-warning {
+    background: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #212529 !important;
+    border-radius: 0 !important;
+  }
+  
+  .btn-info {
+    background: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Outline button adjustments - native mobile style */
+  .btn-outline-primary, .btn-outline-secondary, .btn-outline-success,
+  .btn-outline-danger, .btn-outline-warning, .btn-outline-info {
+    background: transparent !important;
+    border-radius: 0 !important;
+    border-width: 1px !important;
+    font-size: 0.8rem !important;
+    padding: 5px 10px !important;
+  }
+  
+  /* Expand/collapse buttons - use simple arrows */
+  .btn[data-bs-toggle="collapse"], 
+  .btn[aria-expanded], 
+  .collapse-toggle,
+  .expand-btn {
+    background: #f8f9fa !important;
+    border: 1px solid #ddd !important;
+    border-radius: 0 !important;
+    color: #333 !important;
+    font-size: 0.8rem !important;
+    padding: 4px 8px !important;
+    position: relative;
+  }
+  
+  /* Arrow indicator for expand buttons */
+  .btn[data-bs-toggle="collapse"]::after, 
+  .btn[aria-expanded]::after,
+  .collapse-toggle::after,
+  .expand-btn::after {
+    content: "▼" !important;
+    margin-left: 4px !important;
+    font-size: 0.7rem !important;
+    transition: transform 0.2s ease !important;
+  }
+  
+  /* Rotate arrow when expanded */
+  .btn[aria-expanded="true"]::after,
+  .collapse-toggle.expanded::after,
+  .expand-btn.expanded::after {
+    transform: rotate(180deg) !important;
+  }
+  
   .card {
     margin-bottom: 20px;
   }
@@ -890,10 +1290,7 @@ strong {
     justify-content: center;
   }
   
-  .btn {
-    font-size: 0.9rem;
-    padding: 8px 16px;
-  }
+  /* Note: Button sizing moved to comprehensive mobile button section above */
 }
 
 /* Modern Navigation Styles */

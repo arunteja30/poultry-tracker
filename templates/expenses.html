@@ -41,9 +41,7 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0" data-i18n="expenses_list_header">📋 Expenses List ({{ expenses|length }} entries)</h5>
-    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="true">
-      <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
-      <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+    <button class="btn btn-outline-primary btn-sm expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="true">
     </button>
   </div>
   <div class="collapse show" id="expensesCollapse">
@@ -150,25 +148,24 @@
 
 {% block scripts %}
 <script>
-// Toggle collapse text
-const expensesToggle = document.querySelector('[data-bs-target="#expensesCollapse"]');
-const expensesCollapse = document.getElementById('expensesCollapse');
-
-if (expensesToggle && expensesCollapse) {
-  expensesCollapse.addEventListener('shown.bs.collapse', function() {
-    const expandText = expensesToggle.querySelector('.expand-text');
-    const collapseText = expensesToggle.querySelector('.collapse-text');
-    expandText.classList.remove('d-none');
-    collapseText.classList.add('d-none');
+// Simple arrow rotation for expand/collapse
+document.addEventListener('DOMContentLoaded', function() {
+  const expandButtons = document.querySelectorAll('.expand-btn');
+  expandButtons.forEach(button => {
+    const targetId = button.getAttribute('data-bs-target');
+    const targetElement = document.querySelector(targetId);
+    
+    if (targetElement) {
+      targetElement.addEventListener('shown.bs.collapse', function() {
+        button.setAttribute('aria-expanded', 'true');
+      });
+      
+      targetElement.addEventListener('hidden.bs.collapse', function() {
+        button.setAttribute('aria-expanded', 'false');
+      });
+    }
   });
-  
-  expensesCollapse.addEventListener('hidden.bs.collapse', function() {
-    const expandText = expensesToggle.querySelector('.expand-text');
-    const collapseText = expensesToggle.querySelector('.collapse-text');
-    expandText.classList.add('d-none');
-    collapseText.classList.remove('d-none');
-  });
-}
+});
 
 // Form validation
 document.querySelector('form').addEventListener('submit', function(e) {
@@ -184,7 +181,6 @@ document.querySelector('form').addEventListener('submit', function(e) {
   if (!amount || amount <= 0) {
     e.preventDefault();
     alert('Please enter a valid amount greater than 0');
-    return;
   }
 });
 </script>
@@ -206,9 +202,6 @@ document.querySelector('form').addEventListener('submit', function(e) {
   }
   .card-body {
     padding: 0.7rem 0.7rem !important;
-  }
-  .expand-text, .collapse-text {
-    font-size: 0.95rem !important;
   }
 }
 </style>

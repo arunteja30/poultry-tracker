@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_file,
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import os
+import json
 from datetime import datetime, date
 from io import BytesIO
 from functools import wraps
@@ -19,6 +20,29 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poultry.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
+
+# Add the translate filter for internationalization
+@app.template_filter('translate')
+def translate_filter(key):
+    """
+    Custom Jinja2 filter for internationalization.
+    Returns the translated text for the given key based on current language.
+    """
+    # Get the current language from session, default to 'en'
+    current_lang = session.get('language', 'en')
+    
+    # Load the translation file
+    translation_file = os.path.join(app.static_folder, 'i18n', f'{current_lang}.json')
+    
+    try:
+        if os.path.exists(translation_file):
+            with open(translation_file, 'r', encoding='utf-8') as f:
+                translations = json.load(f)
+                return translations.get(key, key)  # Return key if translation not found
+        else:
+            return key  # Return key if translation file doesn't exist
+    except Exception:
+        return key  # Return key if any error occurs
 
 # ---------------- Models ----------------
 class User(db.Model):
@@ -2106,6 +2130,10 @@ def growth_tips():
 @app.route('/tips/medical')
 def tips_medical():
     return render_template('tips_medical.html')
+
+@app.route('/tips/own_feed')
+def own_feed():
+    return render_template('own_feed.html')
 
 @app.route('/unarchive_cycle/<int:cycle_id>', methods=['POST'])
 @admin_required
