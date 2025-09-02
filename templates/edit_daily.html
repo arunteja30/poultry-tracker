@@ -46,15 +46,15 @@
     <div class="col-12">
       <label for="medicines" class="form-label" data-i18n="medicines_given">Medicines Given</label>
       <textarea id="medicines" name="medicines" class="form-control" rows="3" 
-                placeholder="{{ 'medicines_placeholder'|translate }}">{{ entry.medicines or '' }}</textarea>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.medicines or ('none'|translate) }}
+                placeholder="Medicines given (if any)">{{ entry.medicines or 'None' }}</textarea>
+      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.medicines or 'None' }}
     </div>
 
     <div class="col-12">
       <label for="daily-notes" class="form-label" data-i18n="notes">Notes</label>
       <textarea id="daily-notes" name="daily_notes" class="form-control" rows="3" 
-                placeholder="{{ 'notes_placeholder'|translate }}">{{ entry.daily_notes or '' }}</textarea>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.daily_notes or ('no_notes'|translate) }}
+                placeholder="Notes (optional)">{{ entry.daily_notes or '' }}</textarea>
+      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.daily_notes or 'No notes' }}
     </div>
 
     <!-- Current calculated values display -->

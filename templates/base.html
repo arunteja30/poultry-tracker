@@ -59,6 +59,8 @@
                 <li><a class="dropdown-item" href="{{ url_for('stats') }}" data-i18n="nav_stats"><i class="me-2">📊</i>Statistics</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history"><i class="me-2">🔄</i>Cycle History</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history"><i class="me-2">📋</i>Dispatch History</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate"><i class="me-2">📋</i>Income Estimate</a></li>
+
               </ul>
             </li>
             <!-- Admin Group -->
@@ -126,6 +128,11 @@
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center py-3" style="color:#0d6efd; border-radius: 10px; margin-bottom: 5px;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">
                 <i class="me-3" style="font-size: 1.2rem;">📊</i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-3" style="color:#0d6efd; border-radius: 10px; margin-bottom: 5px;" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate">
+                <i class="me-3" style="font-size: 1.2rem;">💸</i>Income Estimate
               </a>
             </li>
             <li class="nav-item">
