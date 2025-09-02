@@ -433,5 +433,14 @@
   "coriander_seeds": "Coriander Seeds",
   "coriander_seeds_dose": "½ tsp crushed per 10 birds, mixed in feed",
   "cycle_ended_feed_preserved": "Current cycle ended and archived. All data has been preserved for historical records. You can now start a new cycle.",
-  "cycle_archived_feed_preserved": "Current cycle archived and all data preserved for historical records. You can now start a new cycle."
+  "cycle_archived_feed_preserved": "Current cycle archived and all data preserved for historical records. You can now start a new cycle.",
+  "export_cycle_details": "Export Details",
+  "export_income": "Export Income",
+  "export_all_cycles": "Export All Cycles",
+  "add_feed_btn": "Add Feed",
+  "add_feed_now": "Add Feed Now",
+  "no_feed_warning": "No Feed Available!",
+  "no_feed_message": "You cannot add daily entries without feed. Please add feed first.",
+  "form_disabled_title": "📋 Daily Entry Form Disabled",
+  "form_disabled_message": "Please add feed before entering daily data."
 }

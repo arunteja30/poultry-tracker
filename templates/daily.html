@@ -20,18 +20,38 @@
 
 <!-- Current Feed Bags Status -->
 <div class="alert alert-info mb-4 rounded-3 shadow-sm">
-  <h6 class="mb-2" data-i18n="current_feed_status">📦 Current Feed Status:</h6>
-  {% set available_bags = feeds|sum(attribute='feed_bags') if feeds is defined else 0 %}
-  <strong><span data-i18n="available_bags">Available Bags:</span> {{ bags_available|round|int }}</strong>
-  {% if bags_available <= 3 %}
-  <span class="badge bg-warning ms-2" data-i18n="warning_low_stock">Low Stock!</span>
-  {% elif bags_available <= 1 %}
-  <span class="badge bg-danger ms-2" data-i18n="warning_critical_stock">Critical Stock!</span>
-  {% endif %}
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h6 class="mb-2" data-i18n="current_feed_status">📦 Current Feed Status:</h6>
+      {% set available_bags = feeds|sum(attribute='feed_bags') if feeds is defined else 0 %}
+      <strong><span data-i18n="available_bags">Available Bags:</span> {{ bags_available|round|int }}</strong>
+      {% if bags_available <= 3 %}
+      <span class="badge bg-warning ms-2" data-i18n="warning_low_stock">Low Stock!</span>
+      {% elif bags_available <= 1 %}
+      <span class="badge bg-danger ms-2" data-i18n="warning_critical_stock">Critical Stock!</span>
+      {% endif %}
+    </div>
+    {% if bags_available <= 3 %}
+    <div>
+      <a href="{{ url_for('feed_management') }}" class="btn btn-success btn-sm">
+        <i class="fas fa-plus"></i> <span data-i18n="add_feed_btn">Add Feed</span>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+ 
 </div>
 
-<div class="card p-3 p-md-4 shadow rounded-4 mb-4">
-  <form method="POST" class="row g-3">
+<div class="card p-3 p-md-4 shadow rounded-4 mb-4{% if bags_available == 0 %} opacity-50{% endif %}">
+  <form method="POST" class="row g-3"{% if bags_available == 0 %} style="pointer-events: none;"{% endif %}>
+    {% if bags_available == 0 %}
+    <div class="col-12">
+      <div class="alert alert-warning text-center">
+        <h5 data-i18n="form_disabled_title">📋 Daily Entry Form Disabled</h5>
+        <p class="mb-0" data-i18n="form_disabled_message">Please add feed before entering daily data.</p>
+      </div>
+    </div>
+    {% endif %}
     <div class="col-12 col-md-6">
       <label for="entry-date" class="form-label" data-i18n="entry_date">Date</label>
       <input id="entry-date" type="date" name="entry_date" class="form-control"

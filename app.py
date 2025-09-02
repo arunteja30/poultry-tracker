@@ -1,6 +1,6 @@
 import re
 import traceback
-from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash, session
+from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash, session, make_response
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import os
@@ -8,6 +8,11 @@ from datetime import datetime, date
 from io import BytesIO
 from functools import wraps
 import hashlib
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poultry.db'
@@ -726,10 +731,8 @@ def daily():
         feed_bags_consumed = float(request.form.get('feed_bags_consumed',0))
         # feed_bags_added = float(request.form.get('feed_bags_added',0))
         avg_weight_grams = float(request.form.get('avg_weight_grams',0) or 0)
-        if latest_daily != None:
-           avg_weight = round(((avg_weight_grams / 1000)+latest_daily.avg_weight if latest_daily.avg_weight else 0)/2, 3) if avg_weight_grams > 0 else 0  # Convert grams to kg
-        else:
-           avg_weight = round(avg_weight_grams / 1000, 3) if avg_weight_grams > 0 else 0
+        
+        avg_weight = round(avg_weight_grams / 1000, 3) if avg_weight_grams > 0 else 0
 
         medicines = request.form.get('medicines','')
         daily_notes = request.form.get('daily_notes', '').strip()
@@ -861,13 +864,14 @@ def daywise():
     
     # Enhance rows with feed_bags_added from Feed table for each entry date
     for row in rows:
-        # Get feed bags added on this specific date
+        # Match Daily entry_date with Feed.date for current cycle
         feed_added_on_date = db.session.query(db.func.sum(Feed.feed_bags)).filter(
             Feed.date == row.entry_date, 
             Feed.cycle_id == cycle.id
         ).scalar() or 0
-        # Add as attribute to the row object
-        row.feed_bags_added_calculated = feed_added_on_date
+        
+        # Override the feed_bags_added field with actual data from Feed management
+        row.feed_bags_added = feed_added_on_date
     
     return render_template('daywise.html', rows=rows, cycle=cycle)
 
@@ -1235,216 +1239,379 @@ def delete_dispatch(dispatch_id):
     flash(f'Dispatch for vehicle {dispatch.vehicle_no} deleted successfully!', 'success')
     return redirect(url_for('dispatch_history'))
 
-# ---------------- In-memory Excel export for Render ----------------
+# ---------------- PDF Export Helper Functions ----------------
+def create_pdf_report(cycle, title="Farm Report"):
+    """Create a comprehensive PDF report that mirrors the HTML layout"""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch, 
+                          leftMargin=0.5*inch, rightMargin=0.5*inch)
+    story = []
+    styles = getSampleStyleSheet()
+    
+    # Custom styles to match web application
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=1,  # Center alignment
+        textColor=colors.darkblue
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=10,
+        spaceBefore=15,
+        textColor=colors.darkblue
+    )
+    
+    subheading_style = ParagraphStyle(
+        'SubHeading',
+        parent=styles['Heading3'],
+        fontSize=10,
+        spaceAfter=8,
+        spaceBefore=10,
+        textColor=colors.black
+    )
+    
+    # Title and header info
+    story.append(Paragraph(title, title_style))
+    story.append(Paragraph(f"Cycle #{cycle.id} - {cycle.status.title()} - Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+    story.append(Spacer(1, 15))
+    
+    # Get all the data we need (same as the HTML templates use)
+    daily_entries = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
+    feeds = Feed.query.filter_by(cycle_id=cycle.id).order_by(Feed.date.desc()).all()
+    dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).order_by(BirdDispatch.dispatch_date.desc()).all()
+    medicines = Medicine.query.filter_by(cycle_id=cycle.id).all()
+    expenses = Expense.query.filter_by(cycle_id=cycle.id).order_by(Expense.date.desc()).all()
+    
+    # Calculate stats (like in HTML)
+    total_mortality = sum(entry.mortality for entry in daily_entries)
+    total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
+    total_feed_cost = sum(feed.total_cost for feed in feeds) if feeds else 0
+    total_medical_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
+    total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
+    survival_rate = (cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0
+    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0])) if daily_entries else 0
+    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len([entry for entry in daily_entries if entry.avg_weight > 0])) if daily_entries else 0
+    
+    # Cycle Overview (like the HTML card)
+    story.append(Paragraph("🐔 Cycle Overview", heading_style))
+    
+    overview_data = [
+        ['Metric', 'Value', 'Metric', 'Value'],
+        ['Start Date', cycle.start_date or 'Not set', 'End Date', cycle.end_date or 'Ongoing'],
+        ['Start Time', cycle.start_time or 'N/A', 'Duration', f"{((datetime.now().date() - datetime.strptime(cycle.start_date, '%Y-%m-%d').date()).days + 1) if cycle.start_date else 0} days"],
+        ['Driver', cycle.driver or 'N/A', 'Status', cycle.status.title()],
+        ['Initial Birds', str(cycle.start_birds or 0), 'Current Birds', str(cycle.current_birds or 0)],
+        ['Initial Feed Bags', str(cycle.start_feed_bags or 0), 'Notes', cycle.notes[:30] + '...' if cycle.notes and len(cycle.notes) > 30 else cycle.notes or 'None']
+    ]
+    
+    overview_table = Table(overview_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
+    overview_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # First column bold
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Third column bold
+    ]))
+    story.append(overview_table)
+    story.append(Spacer(1, 15))
+    
+    # Key Metrics (like the HTML metric tiles)
+    story.append(Paragraph("📊 Key Performance Metrics", heading_style))
+    
+    metrics_data = [
+        ['Metric', 'Value', 'Metric', 'Value'],
+        ['Survival Rate', f"{survival_rate:.1f}%", 'Avg FCR', f"{avg_fcr:.2f}" if avg_fcr > 0 else 'N/A'],
+        ['Feed Cost', f"₹{total_feed_cost:.2f}", 'Feed Cost per Bird', f"₹{(total_feed_cost / cycle.current_birds):.2f}" if cycle.current_birds > 0 else 'N/A'],
+        ['Avg Weight (kg)', f"{avg_weight:.3f}" if avg_weight > 0 else 'N/A', 'Mortality No.', str(total_mortality)],
+        ['Total Bags Consumed', str(total_feed_consumed), 'Mortality Rate', f"{(total_mortality / cycle.start_birds * 100):.2f}%" if cycle.start_birds > 0 else 'N/A'],
+        ['Medical Expenses', f"₹{total_medical_cost:.2f}", 'Other Expenses', f"₹{total_expense_cost:.2f}"]
+    ]
+    
+    metrics_table = Table(metrics_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
+    metrics_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.lightblue),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+    ]))
+    story.append(metrics_table)
+    story.append(Spacer(1, 15))
+    
+    # Daily Entries (like the HTML table)
+    if daily_entries:
+        story.append(Paragraph(f"📅 Daily Entries ({len(daily_entries)} entries)", heading_style))
+        
+        # Show last 15 entries to avoid too long table
+        recent_entries = daily_entries[-15:] if len(daily_entries) > 15 else daily_entries
+        
+        daily_data = [['Day', 'Date', 'Mortality', 'Feed Consumed', 'Avg Weight (g)', 'FCR', 'Medicines']]
+        
+        total_days = len(daily_entries)
+        for i, entry in enumerate(recent_entries):
+            day_num = total_days - len(recent_entries) + i + 1
+            daily_data.append([
+                str(day_num),
+                entry.entry_date,
+                str(entry.mortality),
+                f"{entry.feed_bags_consumed} bags",
+                f"{int(entry.avg_weight * 1000) if entry.avg_weight else 0}",
+                f"{entry.fcr:.2f}" if entry.fcr else "0.00",
+                entry.medicines[:20] + '...' if entry.medicines and len(entry.medicines) > 20 else entry.medicines or '-'
+            ])
+        
+        daily_table = Table(daily_data, colWidths=[0.5*inch, 0.8*inch, 0.7*inch, 0.9*inch, 0.8*inch, 0.5*inch, 1.7*inch])
+        daily_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        story.append(daily_table)
+        
+        if len(daily_entries) > 15:
+            story.append(Paragraph(f"Showing last 15 entries out of {len(daily_entries)} total entries", styles['Italic']))
+        
+        story.append(Spacer(1, 15))
+    
+    # Feed Management (like HTML table)
+    if feeds:
+        story.append(Paragraph("🌾 Feed Management", heading_style))
+        
+        feed_data = [['Date', 'Feed Name', 'Bags', 'Weight/Bag', 'Total Cost']]
+        total_cost = 0
+        for feed in feeds:
+            feed_data.append([
+                feed.date,
+                feed.feed_name[:25] + '...' if len(feed.feed_name) > 25 else feed.feed_name,
+                str(feed.feed_bags),
+                f"{feed.bag_weight} kg",
+                f"₹{feed.total_cost:.2f}"
+            ])
+            total_cost += feed.total_cost
+        
+        feed_data.append(['', 'TOTAL', '', '', f"₹{total_cost:.2f}"])
+        
+        feed_table = Table(feed_data, colWidths=[1*inch, 2*inch, 0.8*inch, 1*inch, 1.2*inch])
+        feed_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -2), colors.lightgreen),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.yellow),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(feed_table)
+        story.append(Spacer(1, 15))
+    
+    # Medicine Summary (like HTML card)
+    if medicines:
+        story.append(Paragraph("💊 Medicine Summary", heading_style))
+        
+        medicine_data = [['Medicine Name', 'Price per Unit', 'Quantity', 'Total Value']]
+        total_medicine_value = 0
+        for med in medicines:
+            value = med.price * (med.qty or 1)
+            medicine_data.append([
+                med.name[:30] + '...' if len(med.name) > 30 else med.name,
+                f"₹{med.price:.2f}",
+                str(med.qty or 1),
+                f"₹{value:.2f}"
+            ])
+            total_medicine_value += value
+        
+        medicine_data.append(['TOTAL', '', '', f"₹{total_medicine_value:.2f}"])
+        
+        medicine_table = Table(medicine_data, colWidths=[2.5*inch, 1*inch, 1*inch, 1.5*inch])
+        medicine_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.purple),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -2), colors.lavender),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.yellow),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(medicine_table)
+        story.append(Spacer(1, 15))
+    
+    # Expenses Summary (like HTML table)
+    if expenses:
+        story.append(Paragraph("💰 Expenses Summary", heading_style))
+        
+        expense_data = [['Expense Name', 'Date', 'Amount', 'Notes']]
+        total_expenses = 0
+        for expense in expenses:
+            expense_data.append([
+                expense.name[:25] + '...' if len(expense.name) > 25 else expense.name,
+                expense.date,
+                f"₹{expense.amount:.2f}",
+                expense.notes[:30] + '...' if expense.notes and len(expense.notes) > 30 else expense.notes or '-'
+            ])
+            total_expenses += expense.amount
+        
+        expense_data.append(['TOTAL', '', f"₹{total_expenses:.2f}", ''])
+        
+        expense_table = Table(expense_data, colWidths=[1.8*inch, 1*inch, 1*inch, 2.2*inch])
+        expense_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.red),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -2), colors.mistyrose),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.yellow),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(expense_table)
+        story.append(Spacer(1, 15))
+    
+    # Dispatch History (like HTML table)
+    if dispatches:
+        story.append(Paragraph("🚚 Dispatch History", heading_style))
+        
+        dispatch_data = [['Vehicle', 'Driver', 'Date', 'Birds', 'Weight (kg)', 'Avg/Bird (kg)', 'Status']]
+        total_birds_dispatched = 0
+        total_weight_dispatched = 0
+        
+        for dispatch in dispatches:
+            dispatch_data.append([
+                dispatch.vehicle_no,
+                dispatch.driver_name[:15] + '...' if len(dispatch.driver_name) > 15 else dispatch.driver_name,
+                dispatch.dispatch_date,
+                str(dispatch.total_birds) if dispatch.status == 'completed' else 'In Progress',
+                f"{dispatch.total_weight:.1f}" if dispatch.status == 'completed' else '-',
+                f"{dispatch.avg_weight_per_bird:.3f}" if dispatch.status == 'completed' else '-',
+                dispatch.status.title()
+            ])
+            
+            if dispatch.status == 'completed':
+                total_birds_dispatched += dispatch.total_birds
+                total_weight_dispatched += dispatch.total_weight
+        
+        # Add summary row
+        dispatch_data.append([
+            'TOTAL', '', '', 
+            str(total_birds_dispatched), 
+            f"{total_weight_dispatched:.1f}", 
+            f"{(total_weight_dispatched/total_birds_dispatched):.3f}" if total_birds_dispatched > 0 else '0.000',
+            'Summary'
+        ])
+        
+        dispatch_table = Table(dispatch_data, colWidths=[0.8*inch, 1*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.8*inch, 1*inch])
+        dispatch_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.orange),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -2), colors.lightyellow),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.yellow),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        story.append(dispatch_table)
+        story.append(Spacer(1, 15))
+    
+    # Financial Summary (like the HTML cards)
+    story.append(Paragraph("💹 Financial Summary", heading_style))
+    
+    financial_data = [
+        ['Category', 'Amount (₹)'],
+        ['Feed Costs', f"₹{total_feed_cost:.2f}"],
+        ['Medicine Costs', f"₹{total_medical_cost:.2f}"],
+        ['Other Expenses', f"₹{total_expense_cost:.2f}"],
+        ['TOTAL COSTS', f"₹{(total_feed_cost + total_medical_cost + total_expense_cost):.2f}"]
+    ]
+    
+    financial_table = Table(financial_data, colWidths=[3*inch, 2*inch])
+    financial_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('BACKGROUND', (0, 1), (-1, -2), colors.lightsteelblue),
+        ('BACKGROUND', (0, -1), (-1, -1), colors.gold),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(financial_table)
+    
+    # Build PDF
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+# ---------------- In-memory PDF export for Render ----------------
 @app.route('/export')
 @admin_required
 def export():
     cycle = get_active_cycle()
     if not cycle:
+        flash('No active cycle found', 'error')
         return redirect(url_for('setup'))
     
-    # Get daily data
-    daily_rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
-    daily_data = [{
-        'date': r.entry_date,
-        'mortality': r.mortality,
-        'feed_bags_consumed': r.feed_bags_consumed,
-        'feed_bags_added': r.feed_bags_added,
-        'avg_weight': r.avg_weight,
-        'avg_feed_per_bird_g': r.avg_feed_per_bird_g,
-        'fcr': r.fcr,
-        'medicines': r.medicines
-    } for r in daily_rows]
+    # Generate PDF report
+    pdf_buffer = create_pdf_report(cycle, "Complete Farm Data Report")
     
-    # Get medicines data for current cycle
-    medicines = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.id.desc()).all()
-    medicines_data = [{
-        'medicine_name': med.name,
-        'price': med.price,
-        'quantity': med.qty if med.qty is not None else 0,
-        'total_value': med.price * (med.qty if med.qty is not None else 1)
-    } for med in medicines]
+    # Generate filename with current date
+    filename = f"complete_farm_data_{cycle.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     
-    # Add medicines total
-    total_medicine_cost = sum(med.price for med in medicines if med.price)
-    total_medicine_value = sum(med.price * (med.qty if med.qty is not None else 1) for med in medicines if med.price)
-    medicines_data.append({
-        'medicine_name': 'TOTAL',
-        'price': total_medicine_cost,
-        'quantity': '',
-        'total_value': total_medicine_value
-    })
-    
-    # Get cycle summary data
-    cycle_summary = [{
-        'metric': 'Cycle ID',
-        'value': cycle.id
-    }, {
-        'metric': 'Start Date',
-        'value': cycle.start_date or ''
-    }, {
-        'metric': 'Initial Birds',
-        'value': cycle.start_birds or 0
-    }, {
-        'metric': 'Initial Feed Bags',
-        'value': cycle.start_feed_bags or 0
-    }, {
-        'metric': 'Driver',
-        'value': cycle.driver or ''
-    }, {
-        'metric': 'Notes',
-        'value': cycle.notes or ''
-    }]
-    
-    # Calculate current stats
-    current_birds = cycle.start_birds - sum(r.mortality for r in daily_rows)
-    total_feed_consumed = sum(r.feed_bags_consumed for r in daily_rows)
-    total_feed_added = sum(r.feed_bags_added for r in daily_rows)
-    current_feed_bags = cycle.start_feed_bags + total_feed_added - total_feed_consumed
-    
-    cycle_summary.extend([{
-        'metric': 'Current Live Birds',
-        'value': current_birds
-    }, {
-        'metric': 'Total Mortality',
-        'value': sum(r.mortality for r in daily_rows)
-    }, {
-        'metric': 'Total Feed Consumed (bags)',
-        'value': total_feed_consumed
-    }, {
-        'metric': 'Current Feed Bags',
-        'value': current_feed_bags
-    }, {
-        'metric': 'Survival Rate (%)',
-        'value': round((current_birds / cycle.start_birds) * 100, 2) if cycle.start_birds > 0 else 0
-    }, {
-        'metric': 'Total Medicine Cost (₹)',
-        'value': total_medicine_cost
-    }])
-    
-    # Create DataFrames
-    daily_df = pd.DataFrame(daily_data)
-    medicines_df = pd.DataFrame(medicines_data)
-    summary_df = pd.DataFrame(cycle_summary)
-    
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # Write each sheet
-        summary_df.to_excel(writer, index=False, sheet_name='Cycle Summary')
-        daily_df.to_excel(writer, index=False, sheet_name='Daily Data')
-        medicines_df.to_excel(writer, index=False, sheet_name='Medicines')
-        
-        # Get workbook and worksheets for formatting
-        workbook = writer.book
-        
-        # Format medicines sheet - highlight total row
-        medicines_sheet = writer.sheets['Medicines']
-        total_format = workbook.add_format({
-            'bold': True,
-            'bg_color': '#D3D3D3',
-            'border': 1
-        })
-        
-        # Apply formatting to the last row (total row) in medicines
-        if len(medicines_data) > 0:
-            last_row = len(medicines_data)
-            medicines_sheet.set_row(last_row, None, total_format)
-    
-    output.seek(0)
-    
-    return send_file(output, 
-                     download_name=f"complete_farm_data_{cycle.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+    return send_file(pdf_buffer,
+                     download_name=filename,
                      as_attachment=True,
-                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                     mimetype='application/pdf')
 
 @app.route('/export_cycle/<int:cycle_id>')
 @admin_required
 def export_cycle(cycle_id):
-    """Export data for a specific cycle"""
+    """Export data for a specific cycle as PDF"""
     cycle = Cycle.query.get_or_404(cycle_id)
-    rows = Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date).all()
     
-    # Daily entries data
-    data = [{
-        'date': r.entry_date,
-        'mortality': r.mortality,
-        'feed_bags_consumed': r.feed_bags_consumed,
-        'feed_bags_added': r.feed_bags_added,
-        'avg_weight': r.avg_weight,
-        'avg_feed_per_bird_g': r.avg_feed_per_bird_g,
-        'fcr': r.fcr,
-        'medicines': r.medicines
-    } for r in rows]
+    # Generate PDF report for specific cycle
+    pdf_buffer = create_pdf_report(cycle, f"Cycle {cycle_id} Details Report")
     
-    # Bird dispatch data
-    bird_dispatches = BirdDispatch.query.filter_by(cycle_id=cycle_id).order_by(BirdDispatch.dispatch_date.desc()).all()
-    dispatch_data = []
-    weighing_data = []
+    # Generate filename with current date
+    filename = f"cycle_{cycle_id}_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     
-    for dispatch in bird_dispatches:
-        dispatch_data.append({
-            'Vehicle No': dispatch.vehicle_no,
-            'Driver Name': dispatch.driver_name,
-            'Vendor Name': dispatch.vendor_name or '-',
-            'Dispatch Date': dispatch.dispatch_date,
-            'Dispatch Time': dispatch.dispatch_time,
-            'Total Birds': dispatch.total_birds if dispatch.status == 'completed' else 'In Progress',
-            'Total Weight (kg)': round(dispatch.total_weight, 1) if dispatch.status == 'completed' else '-',
-            'Avg Weight per Bird (kg)': round(dispatch.avg_weight_per_bird, 3) if dispatch.status == 'completed' else '-',
-            'Status': 'Completed' if dispatch.status == 'completed' else 'Active'
-        })
-        
-        # Get weighing records for this dispatch
-        weighing_records = WeighingRecord.query.filter_by(dispatch_id=dispatch.id).order_by(WeighingRecord.serial_no).all()
-        for record in weighing_records:
-            weighing_data.append({
-                'Vehicle No': dispatch.vehicle_no,
-                'Dispatch Date': dispatch.dispatch_date,
-                'Serial No': record.serial_no,
-                'No of Birds': record.no_of_birds,
-                'Weight (kg)': round(record.weight, 1),
-                'Avg Weight per Bird (kg)': round(record.avg_weight_per_bird, 3),
-                'Timestamp': record.timestamp
-            })
-    
-    df = pd.DataFrame(data)
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # Daily data sheet
-        df.to_excel(writer, index=False, sheet_name='Daily Data')
-        
-        # Bird dispatch sheet
-        if dispatch_data:
-            dispatch_df = pd.DataFrame(dispatch_data)
-            dispatch_df.to_excel(writer, index=False, sheet_name='Bird Dispatches')
-        
-        # Weighing records sheet
-        if weighing_data:
-            weighing_df = pd.DataFrame(weighing_data)
-            weighing_df.to_excel(writer, index=False, sheet_name='Weighing Records')
-        
-        # Add cycle summary sheet
-        cycle_summary = pd.DataFrame([{
-            'Cycle ID': cycle.id,
-            'Start Date': cycle.start_date,
-            'End Date': cycle.end_date or 'Ongoing',
-            'Start Birds': cycle.start_birds,
-            'Final Birds': cycle.current_birds,
-            'Initial Feed Bags': cycle.start_feed_bags,
-            'Driver': cycle.driver or '',
-            'Status': cycle.status,
-            'Notes': cycle.notes or '',
-            'Total Dispatches': len(bird_dispatches),
-            'Birds Dispatched': sum(d.total_birds for d in bird_dispatches if d.status == 'completed'),
-            'Weight Dispatched (kg)': round(sum(d.total_weight for d in bird_dispatches if d.status == 'completed'), 1) if bird_dispatches else 0
-        }])
-        cycle_summary.to_excel(writer, index=False, sheet_name='Cycle Summary')
-    
-    output.seek(0)
-    return send_file(output,
-                     download_name=f"cycle_{cycle_id}_export.xlsx",
+    return send_file(pdf_buffer,
+                     download_name=filename,
                      as_attachment=True,
-                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                     mimetype='application/pdf')
 
 @app.route('/api/current_cycle')
 def api_current_cycle():
@@ -1738,11 +1905,17 @@ def cycle_history():
         total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
         total_feed_added = sum(entry.feed_bags_added for entry in daily_entries)
         final_birds = cycle.current_birds
-        survival_rate = round((final_birds / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
+        survival_rate = round((final_birds / cycle.start_birds) * 100, 2) if cycle.start_birds > 0 else 0
         avg_fcr = round(sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0])), 2) if daily_entries else 0
         final_weight = daily_entries[-1].avg_weight if daily_entries and daily_entries[-1].avg_weight > 0 else 0
         feed_per_bird = round(total_feed_consumed / cycle.start_birds, 2) if cycle.start_birds > 0 else 0
         mortality_rate = round((total_mortality / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
+
+        # Get dispatch data for this cycle
+        dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).all()
+        total_dispatches = len(dispatches)
+        total_birds_dispatched = sum(d.total_birds for d in dispatches if d.status == 'completed')
+        total_weight_dispatched = sum(d.total_weight for d in dispatches if d.status == 'completed')
 
         cycle_data.append({
             'cycle': cycle,
@@ -1755,7 +1928,10 @@ def cycle_history():
             'avg_fcr': avg_fcr,
             'final_weight': final_weight,
             'feed_per_bird': feed_per_bird,
-            'mortality_rate': mortality_rate
+            'mortality_rate': mortality_rate,
+            'total_dispatches': total_dispatches,
+            'total_birds_dispatched': total_birds_dispatched,
+            'total_weight_dispatched': total_weight_dispatched
         })
     
     return render_template('cycle_history.html', cycle_data=cycle_data)
@@ -1788,7 +1964,7 @@ def cycle_details(cycle_id):
         duration = None
         current_duration = 0
     
-    # Get all daily entries for this cycle
+    # Get all daily entries for this specific cycle
     daily_entries = Daily.query.filter_by(cycle_id=cycle_id).order_by(Daily.entry_date).all()
     
     # Calculate detailed statistics
@@ -1800,41 +1976,42 @@ def cycle_details(cycle_id):
     weight_series = []
     mortality_series = []
 
+    # Process other cycles for comparison data (but don't overwrite daily_entries)
     cycle_data = []
-    for cycle in cycles:
+    for other_cycle in cycles:
         # Calculate cycle duration
         start_date_obj = None
         end_date_obj = None
-        if cycle.start_date:
+        if other_cycle.start_date:
             try:
-                start_date_obj = datetime.fromisoformat(cycle.start_date).date()
+                start_date_obj = datetime.fromisoformat(other_cycle.start_date).date()
             except Exception:
                 start_date_obj = None
-        if cycle.end_date:
+        if other_cycle.end_date:
             try:
-                end_date_obj = datetime.fromisoformat(cycle.end_date).date()
+                end_date_obj = datetime.fromisoformat(other_cycle.end_date).date()
             except Exception:
                 end_date_obj = date.today()
         else:
             end_date_obj = date.today()
         duration_days = (end_date_obj - start_date_obj).days + 1 if start_date_obj else 0
 
-        # Get daily entries for this cycle
-        daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
+        # Get daily entries for this other cycle (use different variable name)
+        other_cycle_entries = Daily.query.filter_by(cycle_id=other_cycle.id).all()
 
         # Calculate cycle statistics
-        total_mortality = sum(entry.mortality for entry in daily_entries)
-        total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
-        total_feed_added = sum(entry.feed_bags_added for entry in daily_entries)
-        final_birds = cycle.current_birds
-        survival_rate = round((final_birds / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
-        avg_fcr = round(sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0])), 2) if daily_entries else 0
-        final_weight = daily_entries[-1].avg_weight if daily_entries and daily_entries[-1].avg_weight > 0 else 0
-        feed_per_bird = round(total_feed_consumed / cycle.start_birds, 2) if cycle.start_birds > 0 else 0
-        mortality_rate = round((total_mortality / cycle.start_birds * 100), 2) if cycle.start_birds > 0 else 0
+        total_mortality = sum(entry.mortality for entry in other_cycle_entries)
+        total_feed_consumed = sum(entry.feed_bags_consumed for entry in other_cycle_entries)
+        total_feed_added = sum(entry.feed_bags_added for entry in other_cycle_entries)
+        final_birds = other_cycle.current_birds
+        survival_rate = round((final_birds / other_cycle.start_birds) * 100, 2) if other_cycle.start_birds > 0 else 0
+        avg_fcr = round(sum(entry.fcr for entry in other_cycle_entries if entry.fcr > 0) / max(1, len([entry for entry in other_cycle_entries if entry.fcr > 0])), 2) if other_cycle_entries else 0
+        final_weight = other_cycle_entries[-1].avg_weight if other_cycle_entries and other_cycle_entries[-1].avg_weight > 0 else 0
+        feed_per_bird = round(total_feed_consumed / other_cycle.start_birds, 2) if other_cycle.start_birds > 0 else 0
+        mortality_rate = round((total_mortality / other_cycle.start_birds * 100), 2) if other_cycle.start_birds > 0 else 0
 
         cycle_data.append({
-            'cycle': cycle,
+            'cycle': other_cycle,
             'duration_days': duration_days,
             'total_mortality': total_mortality,
             'total_feed_consumed': total_feed_consumed,
@@ -1885,7 +2062,7 @@ def cycle_details(cycle_id):
 
     # Calculate total medical expenses from Medicine model for this cycle
     medicines = Medicine.query.filter_by(cycle_id=cycle.id).all()
-    total_medical_cost = sum(medicine.price for medicine in medicines) if medicines else 0
+    total_medical_cost = sum(med.price for med in medicines) if medicines else 0
 
     # Get expenses data for this cycle
     expenses = Expense.query.filter_by(cycle_id=cycle.id).order_by(Expense.date.desc(), Expense.id.desc()).all()
@@ -1970,105 +2147,22 @@ def delete_cycle(cycle_id):
 @app.route('/export_dispatch_excel')
 @login_required
 def export_dispatch_excel():
-    """Export dispatch history to Excel file"""
-    import pandas as pd
-    from io import BytesIO
-    from flask import send_file
-    
+    """Export dispatch history to PDF file"""
     cycle = get_active_cycle()
     if not cycle:
         flash('No active cycle found!', 'error')
         return redirect(url_for('dispatch_history'))
     
-    # Get all dispatches for current cycle
-    dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).order_by(BirdDispatch.dispatch_date.desc(), BirdDispatch.dispatch_time.desc()).all()
-    
-    if not dispatches:
-        flash('No dispatch data to export!', 'error')
-        return redirect(url_for('dispatch_history'))
-    
-    # Prepare data for Excel
-    data = []
-    for i, dispatch in enumerate(dispatches, 1):
-        data.append({
-            'Sr. No.': i,
-            'Vehicle No': dispatch.vehicle_no,
-            'Driver Name': dispatch.driver_name,
-            'Vendor Name': dispatch.vendor_name or '-',
-            'Dispatch Date': dispatch.dispatch_date,
-            'Dispatch Time': dispatch.dispatch_time,
-            'Total Birds': dispatch.total_birds if dispatch.status == 'completed' else 'In Progress',
-            'Total Weight (kg)': round(dispatch.total_weight, 1) if dispatch.status == 'completed' else '-',
-            'Avg Weight per Bird (kg)': round(dispatch.avg_weight_per_bird, 3) if dispatch.status == 'completed' else '-',
-            'Status': 'Completed' if dispatch.status == 'completed' else 'Active'
-        })
-    
-    # Create DataFrame
-    df = pd.DataFrame(data)
-    
-    # Create Excel file in memory
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        # Write main dispatch data
-        df.to_excel(writer, sheet_name='Dispatch History', index=False)
-        
-        # Get weighing records for detailed sheet
-        weighing_data = []
-        for dispatch in dispatches:
-            if dispatch.status == 'completed':
-                weighing_records = WeighingRecord.query.filter_by(dispatch_id=dispatch.id).order_by(WeighingRecord.serial_no).all()
-                for record in weighing_records:
-                    weighing_data.append({
-                        'Vehicle No': dispatch.vehicle_no,
-                        'Dispatch Date': dispatch.dispatch_date,
-                        'Serial No': record.serial_no,
-                        'No of Birds': record.no_of_birds,
-                        'Weight (kg)': round(record.weight, 1),
-                        'Avg Weight per Bird (kg)': round(record.avg_weight_per_bird, 3),
-                        'Timestamp': record.timestamp
-                    })
-        
-        if weighing_data:
-            weighing_df = pd.DataFrame(weighing_data)
-            weighing_df.to_excel(writer, sheet_name='Weighing Records', index=False)
-        
-        # Add summary sheet
-        summary_data = {
-            'Metric': [
-                'Total Dispatches',
-                'Completed Dispatches', 
-                'Active Dispatches',
-                'Total Birds Dispatched',
-                'Total Weight Dispatched (kg)',
-                'Overall Average Weight per Bird (kg)'
-            ],
-            'Value': [
-                len(dispatches),
-                len([d for d in dispatches if d.status == 'completed']),
-                len([d for d in dispatches if d.status == 'active']),
-                sum(d.total_birds for d in dispatches if d.status == 'completed'),
-                round(sum(d.total_weight for d in dispatches if d.status == 'completed'), 1),
-                round(sum(d.total_weight for d in dispatches if d.status == 'completed') / 
-                      sum(d.total_birds for d in dispatches if d.status == 'completed'), 3) 
-                      if sum(d.total_birds for d in dispatches if d.status == 'completed') > 0 else 0
-            ]
-        }
-        summary_df = pd.DataFrame(summary_data)
-        summary_df.to_excel(writer, sheet_name='Summary', index=False)
-    
-    output.seek(0)
+    # Generate PDF report for dispatch history
+    pdf_buffer = create_pdf_report(cycle, f"Dispatch History - Cycle {cycle.id}")
     
     # Generate filename with current date
-    from datetime import datetime
-    today = datetime.now().strftime('%Y-%m-%d')
-    filename = f'dispatch_history_cycle_{cycle.id}_{today}.xlsx'
+    filename = f'dispatch_history_cycle_{cycle.id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
     
-    return send_file(
-        output,
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        as_attachment=True,
-        download_name=filename
-    )
+    return send_file(pdf_buffer,
+                     download_name=filename,
+                     as_attachment=True,
+                     mimetype='application/pdf')
 
 @app.route('/income_estimate', methods=['GET', 'POST'])
 def income_estimate():
@@ -2241,7 +2335,7 @@ def income_estimate():
         else:
             # Use average of previous market prices if available
             if previous_cycles_market_prices:
-                avg_market_price = sum(previous_cycles_market_prices) / len(previous_cycles_market_prices)
+                avg_market_price = sum(previous_cycles_market_prices) / max(len(previous_cycles_market_prices), 1)
                 cycle_avg_weight = s['avg_weight'] if s['avg_weight'] > 0 else 0
                 cycle_income = s['total_birds'] * avg_market_price * cycle_avg_weight
             else:
@@ -2252,6 +2346,10 @@ def income_estimate():
     if total_entries > 0:
         cumu_stats['avg_weight'] /= total_entries
         cumu_stats['fcr'] /= total_entries
+    else:
+        # Handle case when there are no entries
+        cumu_stats['avg_weight'] = 0
+        cumu_stats['fcr'] = 0
     
     # Calculate estimated income for selected cycle
     estimated_income = 0
@@ -2309,6 +2407,116 @@ def income_estimate():
         all_expenses=all_expenses,
         custom_fcr=custom_fcr  # Add custom FCR to template
     )
+
+@app.route('/export_cycle_details/<int:cycle_id>')
+@admin_required
+def export_cycle_details(cycle_id):
+    """Export complete cycle details as PDF"""
+    cycle = Cycle.query.get_or_404(cycle_id)
+    
+    # Generate PDF report for cycle details
+    pdf_buffer = create_pdf_report(cycle, f"Complete Cycle {cycle_id} Details Report")
+    
+    # Generate filename with current date
+    filename = f"cycle_{cycle_id}_complete_details_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    
+    return send_file(pdf_buffer,
+                     download_name=filename,
+                     as_attachment=True,
+                     mimetype='application/pdf')
+
+@app.route('/export_income_estimate')
+@admin_required
+def export_income_estimate():
+    """Export income estimate as PDF file"""
+    cycle = get_active_cycle()
+    if not cycle:
+        flash('No active cycle found', 'error')
+        return redirect(url_for('setup'))
+    
+    # Generate PDF report for income estimate
+    pdf_buffer = create_pdf_report(cycle, f"Income Estimate Report - Cycle {cycle.id}")
+    
+    # Generate filename with current date
+    filename = f"income_estimate_cycle_{cycle.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    
+    return send_file(pdf_buffer,
+                     download_name=filename,
+                     as_attachment=True,
+                     mimetype='application/pdf')
+
+@app.route('/export_all_cycles')
+@admin_required
+def export_all_cycles():
+    """Export data for all cycles in the system"""
+    all_cycles = Cycle.query.order_by(Cycle.id.desc()).all()
+    
+    if not all_cycles:
+        flash('No cycles found to export', 'error')
+        return redirect(url_for('cycle_history'))
+    
+    # Prepare cycles summary data
+    cycles_data = []
+    
+    for cycle in all_cycles:
+        # Get basic stats for each cycle
+        daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
+        dispatches = BirdDispatch.query.filter_by(cycle_id=cycle.id).all()
+        feeds = Feed.query.filter_by(cycle_id=cycle.id).all()
+        medicines = Medicine.query.filter_by(cycle_id=cycle.id).all()
+        expenses = Expense.query.filter_by(cycle_id=cycle.id).all()
+        
+        total_mortality = sum(entry.mortality for entry in daily_entries)
+        total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
+        total_feed_cost = sum(feed.total_cost for feed in feeds) if feeds else 0
+        total_medicine_cost = sum(med.price for med in medicines if med.price) if medicines else 0
+        total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
+        total_dispatched = sum(d.total_birds for d in dispatches if d.status == 'completed')
+        
+        survival_rate = round((cycle.current_birds / cycle.start_birds) * 100, 2) if cycle.start_birds > 0 else 0
+        
+        # Calculate estimated income (using default values)
+        estimated_income = 0
+        if daily_entries:
+            latest_entry = daily_entries[-1] if daily_entries else None
+            if latest_entry and latest_entry.avg_weight:
+                estimated_income = cycle.current_birds * latest_entry.avg_weight * 180  # ₹180 per kg
+
+        cycles_data.append({
+            'cycle_id': cycle.id,
+            'start_date': cycle.start_date or '',
+            'end_date': cycle.end_date or '',
+            'status': cycle.status,
+            'start_birds': cycle.start_birds,
+            'current_birds': cycle.current_birds,
+            'total_mortality': total_mortality,
+            'survival_rate_percent': survival_rate,
+            'total_feed_consumed_bags': total_feed_consumed,
+            'total_feed_cost': total_feed_cost,
+            'total_medicine_cost': total_medicine_cost,
+            'total_other_expenses': total_expense_cost,
+            'total_costs': total_feed_cost + total_medicine_cost + total_expense_cost,
+            'birds_dispatched': total_dispatched,
+            'estimated_income': round(estimated_income, 2),
+            'estimated_profit': round(estimated_income - (total_feed_cost + total_medicine_cost + total_expense_cost), 2),
+            'driver': cycle.driver or '',
+            'notes': cycle.notes or ''
+        })
+    
+    # Use the first/most recent cycle for the PDF structure, but title indicates all cycles
+    primary_cycle = all_cycles[0]
+    
+    # Generate PDF report for all cycles
+    pdf_buffer = create_pdf_report(primary_cycle, "All Cycles Summary Report")
+    
+    # Generate filename with current date
+    filename = f"all_cycles_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    
+    return send_file(pdf_buffer,
+                     download_name=filename,
+                     as_attachment=True,
+                     mimetype='application/pdf')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

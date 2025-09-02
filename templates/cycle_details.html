@@ -17,6 +17,9 @@
     </div>
     <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
       <a href="{{ url_for('cycle_history') }}" class="btn btn-outline-secondary btn-sm" data-i18n="back_to_history">← Back to History</a>
+      {% if session.role == 'admin' %}
+      <a href="{{ url_for('export_cycle_details', cycle_id=cycle.id) }}" class="btn btn-success btn-sm" data-i18n="export_cycle_details">📊 Export Details</a>
+      {% endif %}
       {% if cycle.status == 'archived' and session.role == 'admin' %}
       <a href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" class="btn btn-success btn-sm" data-i18n="export_cycle">📥 Export</a>
       {% endif %}
@@ -526,17 +529,20 @@
           <tr>
             <th class="text-center" data-i18n="table_day">Day</th>
             <th class="text-center" data-i18n="table_date">Date</th>
+            <!-- Bird Related Fields -->
             <th class="text-center" data-i18n="table_mortality">Mortality</th>
             <th class="text-center" data-i18n="table_total_mortality">Total Mortality</th>
             <th class="text-center" data-i18n="table_mortality_rate">Mortality Rate (%)</th>
             <th class="text-center" data-i18n="birds_survived">Birds Survived</th>
-            <th class="text-center" data-i18n="table_feed_consumed">Feed Consumed</th>
-            <th class="text-center" data-i18n="total_bags_consumed">Total Consumed</th>
-            <th class="text-center" data-i18n="table_feed_added">Feed Added</th>
             <th class="text-center" data-i18n="table_avg_weight">Avg Weight</th>
+            <!-- Feed Related Fields -->
+            <th class="text-center" data-i18n="table_feed_consumed">Feed Consumed</th>
+            <th class="text-center" data-i18n="table_feed_added">Feed Added</th>
+            <th class="text-center" data-i18n="total_bags_consumed">Total Consumed</th>
+            <th class="text-center" data-i18n="table_remaining_bags">Remaining Bags</th>
             <th class="text-center" data-i18n="avg_feed_per_bird">Avg Feed/Bird</th>
             <th class="text-center" data-i18n="table_fcr">FCR</th>
-            <th class="text-center" data-i18n="table_remaining_bags">Remaining Bags</th>
+            <!-- Others -->
             <th class="text-center" data-i18n="table_medicines">Medicines</th>
             <th class="text-center" data-i18n="notes">Notes</th>
           </tr>
@@ -547,17 +553,20 @@
         <tr>
           <td class="text-center"><strong>{{ total_days - loop.index0 }}</strong></td>
           <td class="text-center text-nowrap">{{ entry.entry_date }}</td>
+          <!-- Bird Related Fields -->
           <td class="text-center text-danger"><strong>{{ entry.mortality }}</strong></td>
           <td class="text-center text-danger"><strong>{{ entry.total_mortality }}</strong></td>
           <td class="text-center text-danger"><strong>{{ entry.mortality_rate }}%</strong></td>
           <td class="text-center text-success"><strong>{{ entry.birds_survived }}</strong></td>
-          <td class="text-center text-info"><strong>{{ entry.feed_bags_consumed }}</strong></td>
-          <td class="text-center text-primary"><strong>{{ entry.total_bags_consumed }}</strong></td>
-          <td class="text-center text-success"><strong>{{ entry.feed_bags_added }}</strong></td>
           <td class="text-center text-nowrap text-success"><small>{{ "{:,.0f}".format(entry.avg_weight * 1000) }}g</small></td>
+          <!-- Feed Related Fields -->
+          <td class="text-center text-info"><strong>{{ entry.feed_bags_consumed }}</strong></td>
+          <td class="text-center text-success"><strong>{{ entry.feed_bags_added }}</strong></td>
+          <td class="text-center text-primary"><strong>{{ entry.total_bags_consumed }}</strong></td>
+          <td class="text-center text-info"><strong>{{ entry.remaining_bags }}</strong></td>
           <td class="text-center text-nowrap text-primary"><small>{{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</small></td>
           <td class="text-center text-success"><strong>{{ entry.fcr }}</strong></td>
-          <td class="text-center text-info"><strong>{{ entry.remaining_bags }}</strong></td>
+          <!-- Others -->
           <td class="text-center text-truncate" style="max-width: 120px;" title="{{ entry.medicines or '-' }}">{{ entry.medicines or '-' }}</td>
           <td class="text-center text-truncate" style="max-width: 150px;" title="{{ entry.daily_notes or '-' }}">{{ entry.daily_notes or '-' }}</td>
         </tr>
@@ -632,17 +641,23 @@
           <div class="border rounded p-2 mb-2">
             <div style="color: #cc470e;font-weight:bold;"><strong data-i18n="table_day">Day:</strong> {{ total_days - loop.index0 }}</div>
             <div><strong data-i18n="table_date">Date:</strong> {{ entry.entry_date }}</div>
+            
+            <!-- Bird Related Fields -->
             <div class="text-danger"><strong data-i18n="table_mortality">Mortality:</strong> {{ entry.mortality }}</div>
             <div class="text-danger"><strong data-i18n="table_total_mortality">Total Mortality:</strong> {{ entry.total_mortality }}</div>
             <div class="text-danger"><strong data-i18n="table_mortality_rate">Mortality Rate:</strong> {{ entry.mortality_rate }}%</div>
             <div class="text-success"><strong data-i18n="birds_survived">Birds Survived:</strong> {{ entry.birds_survived }}</div>
-            <div class="text-info"><strong data-i18n="table_feed_consumed">Feed Consumed:</strong> {{ entry.feed_bags_consumed }}</div>
-            <div class="text-primary"><strong data-i18n="total_bags_consumed">Total Consumed:</strong> {{ entry.total_bags_consumed }}</div>
-            <div class="text-success"><strong data-i18n="table_feed_added">Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added }}{% else %}{{ entry.feed_bags_added }}{% endif %}</div>
             <div class="text-success"><strong data-i18n="table_avg_weight">Avg Weight:</strong> {{ "{:,.0f}".format(entry.avg_weight * 1000) }}g</div>
+            
+            <!-- Feed Related Fields -->
+            <div class="text-info"><strong data-i18n="table_feed_consumed">Feed Consumed:</strong> {{ entry.feed_bags_consumed }}</div>
+            <div class="text-success"><strong data-i18n="table_feed_added">Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added }}{% else %}{{ entry.feed_bags_added }}{% endif %}</div>
+            <div class="text-primary"><strong data-i18n="total_bags_consumed">Total Consumed:</strong> {{ entry.total_bags_consumed }}</div>
+            <div class="text-info"><strong data-i18n="table_remaining_bags">Remaining Bags:</strong> {{ entry.remaining_bags }}</div>
             <div class="text-primary"><strong data-i18n="avg_feed_per_bird">Avg Feed/Bird:</strong> {{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</div>
             <div class="text-success"><strong data-i18n="table_fcr">FCR:</strong> {% if entry.fcr > 0 %}{{ "%.3f"|format(entry.fcr) }}{% else %}N/A{% endif %}</div>
-            <div class="text-info"><strong data-i18n="table_remaining_bags">Remaining Bags:</strong> {{ entry.remaining_bags }}</div>
+            
+            <!-- Others -->
             <div><strong data-i18n="table_medicines">Medicines:</strong> {{ entry.medicines or '-' }}</div>
             <div><strong data-i18n="notes">Notes:</strong> {{ entry.daily_notes or '-' }}</div>
           </div>
