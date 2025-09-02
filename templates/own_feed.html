@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4" data-i18n="own_feed_title">🌾 Own Feed Recipe & Schedule</h2>
+      
+      <div class="alert alert-info" role="alert">
+        <p class="mb-0" data-i18n="own_feed_intro">This page shows how to mix <strong>Company feed</strong> and <strong>Your own feed</strong> per 100 kg of total feed offered. Use the recipe below for "Your feed" (finisher-type mix). Monitor performance and keep 2 days of pure company feed as backup.</p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0" data-i18n="mixing_schedule">📅 Day-wise Mixing Schedule (per 100 kg)</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th style="width:10%" data-i18n="day">Day</th>
+                      <th style="width:25%" data-i18n="company_feed">Company Feed (kg)</th>
+                      <th style="width:25%" data-i18n="your_feed">Your Feed (kg)</th>
+                      <th data-i18n="remark">Remark</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dayTableBody">
+                    <!-- Table rows will be generated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0" data-i18n="recipe_title">📋 Your Feed Recipe (Finisher type)</h5>
+            </div>
+            <div class="card-body">
+              <div class="bg-dark text-light p-3 rounded">
+                <pre class="mb-0 text-light" data-i18n="recipe_content">Maize / Broken rice / Wheat - 55 kg
+Soybean meal / Groundnut cake - 25 kg
+Rice bran / De-oiled rice bran - 10 kg
+Fish meal or Meat meal - 5 kg
+Mineral mixture + Shell grit - 3 kg
+Oil (veg or animal) - 2 kg</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0" data-i18n="important_notes">⚠️ Important Notes</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                <li class="mb-2"><i class="text-success me-2">✓</i><span data-i18n="note_quality">Monitor ingredient quality and prices locally</span></li>
+                <li class="mb-2"><i class="text-success me-2">✓</i><span data-i18n="note_transition">Watch birds closely during feed transition</span></li>
+                <li class="mb-2"><i class="text-success me-2">✓</i><span data-i18n="note_backup">Keep 2 days of pure company feed as backup</span></li>
+                <li class="mb-0"><i class="text-success me-2">✓</i><span data-i18n="note_performance">Adjust ratios based on bird performance</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Populate day-wise table
+  document.addEventListener('DOMContentLoaded', function() {
+    const tableBody = document.getElementById('dayTableBody');
+    for (let day = 1; day <= 40; day++) {
+      let companyFeed, yourFeed, remark;
+      if (day <= 10) {
+        companyFeed = 100;
+        yourFeed = 0;
+        remark = "Starter phase - full company feed";
+      } else if (day <= 20) {
+        companyFeed = 70;
+        yourFeed = 30;
+        remark = "Gradual introduction of your feed";
+      } else if (day <= 30) {
+        companyFeed = 50;
+        yourFeed = 50;
+        remark = "Balanced mix";
+      } else {
+        companyFeed = 30;
+        yourFeed = 70;
+        remark = "Finisher phase - more of your feed";
+      }
+      const row = `<tr><td>${day}</td><td>${companyFeed}</td><td>${yourFeed}</td><td>${remark}</td></tr>`;
+      tableBody.insertAdjacentHTML('beforeend', row);
+    }
+  });
+</script>
+{% endblock %}

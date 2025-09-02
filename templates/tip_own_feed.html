@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="te">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>కోళి ఆహార పట్టిక — 1 వ రోజు నుండి 40 వ రోజు వరకు (100 కిలోలకు)</title>
+  <style>
+    body{font-family:Arial, sans-serif; padding:20px; background:#f9f9f9; color:#111}
+    h1{font-size:20px; margin-bottom:10px}
+    table{width:100%; border-collapse:collapse; margin-top:15px}
+    th,td{border:1px solid #ccc; padding:6px; text-align:left}
+    th{background:#eee}
+    pre{background:#222; color:#fff; padding:10px; border-radius:6px;}
+  </style>
+</head>
+<body>
+  <h1>కోళి ఆహార పట్టిక — 1 వ రోజు నుండి 40 వ రోజు వరకు (100 కిలోలకు)</h1>
+  <p>ఈ పట్టికలో ప్రతిరోజు (1 → 40), 100 కిలోల ఆహారానికి ఎంత <strong>కంపెనీ ఫీడ్</strong> మరియు ఎంత <strong>మీ ఫీడ్</strong> కలపాలో చూపిస్తుంది.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>రోజు</th>
+        <th>కంపెనీ ఫీడ్ (kg)</th>
+        <th>మీ ఫీడ్ (kg)</th>
+        <th>గమనిక</th>
+      </tr>
+    </thead>
+    <tbody>
+      <script>
+        for (let day=1; day<=40; day++){
+          let c=0, y=0, remark="";
+          if(day<=10){c=100; y=0; remark="స్టార్టర్ దశ - పూర్తిగా కంపెనీ ఫీడ్";}
+          else if(day<=20){c=70; y=30; remark="మీ ఫీడ్‌ను క్రమంగా పరిచయం చేయండి";}
+          else if(day<=30){c=50; y=50; remark="సమతుల్య మిశ్రమం";}
+          else {c=30; y=70; remark="ఫినిషర్ దశ - మీ ఫీడ్ ఎక్కువగా";}
+          document.write(`<tr><td>${day}</td><td>${c}</td><td>${y}</td><td>${remark}</td></tr>`);
+        }
+      </script>
+    </tbody>
+  </table>
+
+  <h2>మీ ఫీడ్ వంటకం (ఫినిషర్ రకం)</h2>
+  <pre>
+మొక్కజొన్న / విరిగిన బియ్యం / గోధుమలు - 55 కిలోలు
+సోయాబీన్ పొడి / వేరుశెనగ పిండి - 25 కిలోలు
+బియ్యం రవ్వ / నూనె తీయబడిన రవ్వ - 10 కిలోలు
+చేప పొడి లేదా మాంసపు పొడి - 5 కిలోలు
+ఖనిజ మిశ్రమం + షెల్ గ్రిట్ - 3 కిలోలు
+నూనె (వెజ్ లేదా జంతు) - 2 కిలోలు
+  </pre>
+
+  <p style="margin-top:20px; font-size:13px; color:#555">ఉత్పత్తి షెడ్యూల్: 1 → 40 రోజులు. 'మీ ఫీడ్' వంటకం సాధారణ ఫినిషర్ మిశ్రమం — స్థానిక పదార్థాల నాణ్యత మరియు ధరల ఆధారంగా సవరించండి. మార్పు సమయంలో కోళ్లను జాగ్రత్తగా గమనించండి.</p>
+</body>
+</html>
