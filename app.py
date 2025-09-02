@@ -312,6 +312,31 @@ def feed_management():
     total_cost = sum(f.total_cost for f in feeds)
     return render_template('feed_management.html', feeds=feeds, total_cost=total_cost, cycle=cycle)
 
+@app.route('/delete_feed/<int:feed_id>', methods=['POST'])
+@admin_required
+def delete_feed(feed_id):
+    feed = Feed.query.get_or_404(feed_id)
+    
+    # Check if the feed belongs to the current active cycle
+    cycle = get_active_cycle()
+    if not cycle or feed.cycle_id != cycle.id:
+        flash('Cannot delete feed from a different cycle.', 'error')
+        return redirect(url_for('feed_management'))
+    
+    # Store feed info for flash message
+    feed_name = feed.feed_name
+    bill_number = feed.bill_number
+    
+    try:
+        db.session.delete(feed)
+        db.session.commit()
+        flash(f'Feed entry "{feed_name}" (Bill: {bill_number}) has been deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting feed entry. Please try again.', 'error')
+    
+    return redirect(url_for('feed_management'))
+
 @app.route('/end_current_cycle', methods=['POST'])
 @admin_required
 def end_current_cycle():
@@ -1869,6 +1894,7 @@ def cycle_details(cycle_id):
     return render_template(
         'cycle_details.html',
         cycle=cycle,
+        all_cycles=cycles,  # Add all_cycles for dropdown
         stats=stats,
         daily_entries=daily_entries,
         feeds=feeds,
@@ -2049,28 +2075,51 @@ def income_estimate():
     cycle = get_active_cycle()
     all_cycles = Cycle.query.all()
     chick_cost = feed_cost = other_expenses = chick_price = 0.0
-    feed_per_kg_price = 40  # Default feed price per kg
+    feed_per_kg_price = 45  # Default feed price per kg (updated default)
     bag_weight = 50  # Default bag weight in kg
     market_price_per_bird = 0.0
+    custom_fcr = None  # Custom FCR from user input
+    
     if request.method == 'POST':
         chick_cost = float(request.form.get('chick_cost', 0))
-        feed_cost = float(request.form.get('feed_cost', 0))
+        feed_cost = float(request.form.get('feed_cost', 0))  # Use form feed_cost
+        feed_per_kg_price = feed_cost  # Use the feed_cost from form as price per kg
         other_expenses = float(request.form.get('other_expenses', 0))
         chick_price = chick_cost  # Use chick_cost from form as chick_price internally
-        feed_per_kg_price = float(request.form.get('feed_per_kg_price', 40))
         bag_weight = float(request.form.get('bag_weight', 50))
         market_price_per_bird = float(request.form.get('market_price_per_bird', 0))
+        
+        # Get custom FCR if provided
+        custom_fcr_input = request.form.get('custom_fcr', '').strip()
+        if custom_fcr_input:
+            try:
+                custom_fcr = float(custom_fcr_input)
+            except ValueError:
+                custom_fcr = None
     else:
         # For GET requests, set chick_price same as chick_cost
         chick_price = chick_cost
+        feed_cost = feed_per_kg_price  # Set feed_cost for template
     # Helper to get stats
-    def get_stats(cycle):
+    def get_stats(cycle, use_custom_fcr=None, use_form_feed_price=None):
         if not cycle:
             return {'total_birds': 0, 'avg_weight': 0, 'total_feed': 0, 'fcr': 0}
         entries = Daily.query.filter_by(cycle_id=cycle.id).all()
         avg_weight = sum(e.avg_weight for e in entries if e.avg_weight) / max(len(entries),1)
-        total_feed = sum(e.feed_bags_consumed for e in entries if e.feed_bags_consumed) * bag_weight
-        fcr = sum(e.fcr for e in entries if e.fcr) / max(len(entries),1)
+        
+        # Use form feed price if provided for total_feed calculation
+        if use_form_feed_price and use_form_feed_price > 0:
+            total_feed_bags = sum(e.feed_bags_consumed for e in entries if e.feed_bags_consumed)
+            total_feed = total_feed_bags * bag_weight * use_form_feed_price
+        else:
+            total_feed = sum(e.feed_bags_consumed for e in entries if e.feed_bags_consumed) * bag_weight
+        
+        # Use custom FCR if provided, otherwise calculate from entries
+        if use_custom_fcr is not None:
+            fcr = use_custom_fcr
+        else:
+            fcr = sum(e.fcr for e in entries if e.fcr) / max(len(entries),1)
+        
         return {
             'total_birds': cycle.current_birds,
             'avg_weight': avg_weight,
@@ -2087,20 +2136,30 @@ def income_estimate():
             selected_cycle = None
     # Use selected cycle for stats
     cycle_for_stats = selected_cycle if selected_cycle else cycle
-    cycle_stats = get_stats(cycle_for_stats)
-    # Calculate direct feed cost from Feed table
+    cycle_stats = get_stats(cycle_for_stats, custom_fcr, feed_per_kg_price)
+    # Calculate direct feed cost from Feed table - NOT USED for calculations anymore
     direct_feed_cost = 0
     if cycle:
         feeds = Feed.query.filter_by(cycle_id=cycle.id).all()
         direct_feed_cost = sum(feed.total_cost for feed in feeds if hasattr(feed, 'total_cost') and feed.total_cost)
-    # If direct feed cost not available, fallback to bags*weight*price
+    
+    # Calculate fallback feed cost using form values (this is what we'll use)
     fallback_feed_cost = 0
-    if cycle:
+    if cycle and feed_per_kg_price > 0:
         daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
         total_feed_bags = sum(entry.feed_bags_consumed for entry in daily_entries)
-        fallback_feed_cost = total_feed_bags * bag_weight * feed_per_kg_price
-    # Use direct feed cost if available, else fallback
-    total_feed_cost = direct_feed_cost if direct_feed_cost > 0 else fallback_feed_cost
+        fallback_feed_cost = total_feed_bags * bag_weight * feed_per_kg_price  # Uses form price
+    
+    # Always use calculated cost with form values instead of database cost
+    # If custom FCR is provided, calculate feed cost using FCR formula instead of actual bags
+    if custom_fcr and cycle_stats and cycle_stats.get('total_birds') and cycle_stats.get('avg_weight'):
+        # Calculate using FCR formula: Total Live Weight × Custom FCR × Feed Cost per kg
+        total_live_weight = cycle_stats['total_birds'] * cycle_stats['avg_weight']
+        theoretical_feed_consumed_kg = total_live_weight * custom_fcr
+        total_feed_cost = theoretical_feed_consumed_kg * feed_per_kg_price
+    else:
+        # Use actual feed bags consumed calculation
+        total_feed_cost = fallback_feed_cost
     # Calculate costs based on selected cycle or current cycle
     cycle_for_costs = cycle_for_stats if cycle_for_stats else cycle
     
@@ -2121,20 +2180,21 @@ def income_estimate():
     if cycle_for_costs and chick_price > 0:
         chick_production_cost = (cycle_for_costs.start_birds or 0) * chick_price
     
-    # Calculate feed cost for selected cycle
+    # Calculate feed cost for selected cycle (using form values instead of database)
     selected_cycle_feed_cost = 0
-    if cycle_for_costs:
-        # Try direct feed cost first
-        feeds = Feed.query.filter_by(cycle_id=cycle_for_costs.id).all()
-        direct_cost = sum(feed.total_cost for feed in feeds if hasattr(feed, 'total_cost') and feed.total_cost)
-        
-        if direct_cost > 0:
-            selected_cycle_feed_cost = direct_cost
+    if cycle_for_costs and feed_per_kg_price > 0:
+        # If custom FCR is provided, use FCR formula, otherwise use actual feed bags
+        if custom_fcr and cycle_for_costs == cycle_for_stats:  # Only use custom FCR for the selected cycle
+            # Calculate using FCR formula
+            if cycle_stats and cycle_stats.get('total_birds') and cycle_stats.get('avg_weight'):
+                total_live_weight = cycle_stats['total_birds'] * cycle_stats['avg_weight']
+                theoretical_feed_consumed_kg = total_live_weight * custom_fcr
+                selected_cycle_feed_cost = theoretical_feed_consumed_kg * feed_per_kg_price
         else:
-            # Fallback to calculated cost
+            # Use actual feed bags consumed calculation
             daily_entries = Daily.query.filter_by(cycle_id=cycle_for_costs.id).all()
             total_bags = sum(entry.feed_bags_consumed for entry in daily_entries)
-            selected_cycle_feed_cost = total_bags * bag_weight * feed_per_kg_price
+            selected_cycle_feed_cost = total_bags * bag_weight * feed_per_kg_price  # Uses form feed price
     
     # Cumulative stats and income calculation for all cycles
     cumu_stats = {'total_birds': 0, 'avg_weight': 0, 'total_feed': 0, 'fcr': 0}
@@ -2144,7 +2204,7 @@ def income_estimate():
     previous_cycles_market_prices = []
     
     for c in all_cycles:
-        s = get_stats(c)
+        s = get_stats(c, custom_fcr if c == cycle_for_stats else None, feed_per_kg_price)  # Use form feed price for all cycles
         cumu_stats['total_birds'] += s['total_birds']
         cumu_stats['avg_weight'] += s['avg_weight'] * (len(Daily.query.filter_by(cycle_id=c.id).all()))
         cumu_stats['total_feed'] += s['total_feed']
@@ -2160,16 +2220,14 @@ def income_estimate():
         
         cycle_chick_cost = (c.start_birds or 0) * chick_price if chick_price > 0 else 0
         
-        # Calculate feed cost for this cycle
+        # Calculate feed cost for this cycle (always using form feed price)
         cycle_feeds = Feed.query.filter_by(cycle_id=c.id).all()
         cycle_feed_direct = sum(feed.total_cost for feed in cycle_feeds if hasattr(feed, 'total_cost') and feed.total_cost)
         
-        if cycle_feed_direct > 0:
-            cycle_feed_cost = cycle_feed_direct
-        else:
-            cycle_daily_entries = Daily.query.filter_by(cycle_id=c.id).all()
-            cycle_total_bags = sum(entry.feed_bags_consumed for entry in cycle_daily_entries)
-            cycle_feed_cost = cycle_total_bags * bag_weight * feed_per_kg_price
+        # Always use form values for calculation instead of database values
+        cycle_daily_entries = Daily.query.filter_by(cycle_id=c.id).all()
+        cycle_total_bags = sum(entry.feed_bags_consumed for entry in cycle_daily_entries)
+        cycle_feed_cost = cycle_total_bags * bag_weight * feed_per_kg_price  # Always uses form price
         
         cycle_total_cost = cycle_feed_cost + cycle_chick_cost + cycle_medical_cost + cycle_expense_cost
         all_cycles_total_cost += cycle_total_cost
@@ -2248,7 +2306,8 @@ def income_estimate():
         all_cycles=all_cycles,
         selected_cycle_id=selected_cycle_id,
         selected_cycle_expenses=selected_cycle_expenses,
-        all_expenses=all_expenses
+        all_expenses=all_expenses,
+        custom_fcr=custom_fcr  # Add custom FCR to template
     )
 
 if __name__ == '__main__':

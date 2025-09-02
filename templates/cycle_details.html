@@ -1,23 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h2 data-i18n="cycle_details_title">📊 Cycle Details</h2>
-    <p class="text-muted">
-      <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
-      <span data-i18n="status_label">Status:</span> 
-      {% if cycle.status == 'active' %}
-        <span class="badge bg-success" data-i18n="status_active">Active</span>
-      {% else %}
-        <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+<!-- Mobile-first header layout -->
+<div class="mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+    <div class="mb-3 mb-md-0">
+      <h2 data-i18n="cycle_details_title" class="h4 h-md-2">📊 Cycle Details</h2>
+      <p class="text-muted small">
+        <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
+        <span data-i18n="status_label">Status:</span> 
+        {% if cycle.status == 'active' %}
+          <span class="badge bg-success" data-i18n="status_active">Active</span>
+        {% else %}
+          <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+        {% endif %}
+      </p>
+    </div>
+    <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+      <a href="{{ url_for('cycle_history') }}" class="btn btn-outline-secondary btn-sm" data-i18n="back_to_history">← Back to History</a>
+      {% if cycle.status == 'archived' and session.role == 'admin' %}
+      <a href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" class="btn btn-success btn-sm" data-i18n="export_cycle">📥 Export</a>
       {% endif %}
-    </p>
+    </div>
   </div>
-  <div>
-    <a href="{{ url_for('cycle_history') }}" class="btn btn-outline-secondary" data-i18n="back_to_history">← Back to History</a>
-    {% if cycle.status == 'archived' and session.role == 'admin' %}
-    <a href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" class="btn btn-success" data-i18n="export_cycle">📥 Export</a>
-    {% endif %}
+</div>
+
+<!-- Cycle Selection and Actions -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Mobile-first layout -->
+        <div class="row">
+          <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+            <label for="cycle_select" class="form-label" data-i18n="select_cycle">Select Cycle:</label>
+            <select class="form-select" id="cycle_select" onchange="changeCycle()">
+              {% for c in all_cycles %}
+                <option value="{{ c.id }}" {% if c.id == cycle.id %}selected{% endif %}>
+                  Cycle #{{ c.id }} - {{ c.start_date }} 
+                  {% if c.status == 'active' %}(Active){% else %}(Archived){% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-lg-8">
+            <!-- Mobile: Stack buttons vertically, Desktop: Horizontal -->
+            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+              <a href="{{ url_for('income_estimate') }}?cycle_id={{ cycle.id }}" class="btn btn-primary btn-sm flex-fill flex-sm-grow-0">
+                <i class="fas fa-calculator me-1"></i>
+                <span data-i18n="income_estimate">Income Estimate</span>
+              </a>
+              {% if cycle.status == 'active' %}
+              <a href="{{ url_for('daily') }}" class="btn btn-info btn-sm flex-fill flex-sm-grow-0">
+                <i class="fas fa-plus me-1"></i>
+                <span data-i18n="add_daily_entry">Add Daily Entry</span>
+              </a>
+              {% endif %}
+              <a href="{{ url_for('bird_dispatch') }}" class="btn btn-warning btn-sm flex-fill flex-sm-grow-0">
+                <i class="fas fa-truck me-1"></i>
+                <span data-i18n="dispatch_birds">Dispatch Birds</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -81,10 +127,10 @@
   ] %}
   {% for metric in metrics %}
     <div class="col-6 col-md-3 mb-3">
-      <div class="card text-center h-100">
-        <div class="card-header bg-primary" style="color: white;" data-i18n="{{ metric.i18n }}">{{ metric.title }}</div>
-        <div class="card-body">
-          <h4 class="card-title {{ metric.class }}">{{ metric.value }}{% if metric.suffix %}{{ metric.suffix }}{% endif %}</h4>
+      <div class="card text-center h-100 metric-card">
+        <div class="card-header bg-primary metric-header" style="color: white;" data-i18n="{{ metric.i18n }}">{{ metric.title }}</div>
+        <div class="card-body d-flex align-items-center justify-content-center">
+          <h4 class="card-title {{ metric.class }} mb-0">{{ metric.value }}{% if metric.suffix %}{{ metric.suffix }}{% endif %}</h4>
         </div>
       </div>
     </div>
@@ -95,36 +141,36 @@
 {% if bird_dispatches %}
 <div class="row mb-4">
   <div class="col-6 col-md-3 mb-3">
-    <div class="card text-center h-100">
-      <div class="card-header bg-success" style="color: white;">Dispatched Birds</div>
-      <div class="card-body">
-        <h4 class="card-title text-success">{{ dispatch_summary.total_birds_dispatched }}</h4>
+    <div class="card text-center h-100 metric-card">
+      <div class="card-header bg-success metric-header" style="color: white;">Dispatched Birds</div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <h4 class="card-title text-success mb-0">{{ dispatch_summary.total_birds_dispatched }}</h4>
       </div>
     </div>
   </div>
   <div class="col-6 col-md-3 mb-3">
-    <div class="card text-center h-100">
-      <div class="card-header bg-info" style="color: white;">Dispatched Weight</div>
-      <div class="card-body">
-        <h4 class="card-title text-info">{{ "%.1f"|format(dispatch_summary.total_weight_dispatched) }} kg</h4>
+    <div class="card text-center h-100 metric-card">
+      <div class="card-header bg-info metric-header" style="color: white;">Dispatched Weight</div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <h4 class="card-title text-info mb-0">{{ "%.1f"|format(dispatch_summary.total_weight_dispatched) }} kg</h4>
       </div>
     </div>
   </div>
   <div class="col-6 col-md-3 mb-3">
-    <div class="card text-center h-100">
-      <div class="card-header bg-warning" style="color: white;">Medical Expenses</div>
-      <div class="card-body">
-        <h4 class="card-title text-warning">
+    <div class="card text-center h-100 metric-card">
+      <div class="card-header bg-warning metric-header" style="color: white;">Medical Expenses</div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <h4 class="card-title text-warning mb-0">
           ₹{{ "%.0f"|format(total_medical_cost) if total_medical_cost > 0 else 'N/A' }}
         </h4>
       </div>
     </div>
   </div>
   <div class="col-6 col-md-3 mb-3">
-    <div class="card text-center h-100">
-      <div class="card-header bg-secondary" style="color: white;">Avg Dispatch Weight</div>
-      <div class="card-body">
-        <h4 class="card-title text-secondary">{{ "%.3f"|format(dispatch_summary.avg_weight_per_bird) }} kg</h4>
+    <div class="card text-center h-100 metric-card">
+      <div class="card-header bg-secondary metric-header" style="color: white;">Avg Dispatch Weight</div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <h4 class="card-title text-secondary mb-0">{{ "%.3f"|format(dispatch_summary.avg_weight_per_bird) }} kg</h4>
       </div>
     </div>
   </div>
@@ -155,154 +201,19 @@
   </div>
 </div>
 
-<!-- Bird Dispatch Summary -->
-{% if bird_dispatches %}
-<div class="row mb-4">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>🚚 Bird Dispatch Summary</h5>
-        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchSummaryCollapse" aria-expanded="true">
-          <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
-          <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
-        </button>
-      </div>
-      <div class="collapse show" id="dispatchSummaryCollapse">
-        <div class="card-body">
-        <!-- Desktop Table -->
-        <div class="table-responsive d-none d-md-block">
-          <table class="table table-sm table-striped">
-            <thead class="table-dark">
-              <tr>
-                <th>Vehicle</th>
-                <th>Driver</th>
-                <th>Vendor</th>
-                <th>Date</th>
-                <th>Birds</th>
-                <th>Weight (kg)</th>
-                <th>Avg/Bird (kg)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for dispatch in bird_dispatches %}
-              <tr class="{{ 'table-success' if dispatch.status == 'completed' else 'table-warning' }}">
-                <td><strong>{{ dispatch.vehicle_no }}</strong></td>
-                <td>{{ dispatch.driver_name }}</td>
-                <td>{{ dispatch.vendor_name or '-' }}</td>
-                <td>
-                  {{ dispatch.dispatch_date }}<br>
-                  <small class="text-muted">{{ dispatch.dispatch_time }}</small>
-                </td>
-                <td>
-                  {% if dispatch.status == 'completed' %}
-                    <span class="badge bg-success">{{ dispatch.total_birds }}</span>
-                  {% else %}
-                    <span class="badge bg-warning">In Progress</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if dispatch.status == 'completed' %}
-                    {{ "%.1f"|format(dispatch.total_weight) }}
-                  {% else %}
-                    -
-                  {% endif %}
-                </td>
-                <td>
-                  {% if dispatch.status == 'completed' %}
-                    {{ "%.3f"|format(dispatch.avg_weight_per_bird) }}
-                  {% else %}
-                    -
-                  {% endif %}
-                </td>
-                <td>
-                  {% if dispatch.status == 'completed' %}
-                    <span class="badge bg-success">✅ Completed</span>
-                  {% else %}
-                    <span class="badge bg-warning">⏳ Active</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile Cards -->
-        <div class="d-md-none">
-          {% for dispatch in bird_dispatches %}
-          <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h6 class="card-title mb-0">
-                  <strong>{{ dispatch.vehicle_no }}</strong>
-                </h6>
-                {% if dispatch.status == 'completed' %}
-                  <span class="badge bg-success">✅ Completed</span>
-                {% else %}
-                  <span class="badge bg-warning">⏳ Active</span>
-                {% endif %}
-              </div>
-              <div class="row">
-                <div class="col-6">
-                  <small class="text-muted">Driver:</small><br>
-                  <strong>{{ dispatch.driver_name }}</strong>
-                </div>
-                <div class="col-6">
-                  <small class="text-muted">Vendor:</small><br>
-                  <strong>{{ dispatch.vendor_name or '-' }}</strong>
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col-6">
-                  <small class="text-muted">Date & Time:</small><br>
-                  <strong>{{ dispatch.dispatch_date }}</strong><br>
-                  <small>{{ dispatch.dispatch_time }}</small>
-                </div>
-                <div class="col-6">
-                  <small class="text-muted">Birds:</small><br>
-                  {% if dispatch.status == 'completed' %}
-                    <span class="badge bg-success">{{ dispatch.total_birds }}</span>
-                  {% else %}
-                    <span class="badge bg-warning">In Progress</span>
-                  {% endif %}
-                </div>
-              </div>
-              {% if dispatch.status == 'completed' %}
-              <div class="row mt-2">
-                <div class="col-6">
-                  <small class="text-muted">Weight:</small><br>
-                  <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
-                </div>
-                <div class="col-6">
-                  <small class="text-muted">Avg/Bird:</small><br>
-                  <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
-                </div>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
 
 <!-- Medicines Summary -->
 <div class="row mb-4">
-  <div class="col-12">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5>💊 Medicines Summary</h5>
-        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="true">
-          <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
-          <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+        <h5 class="mb-0">💊 Medicines Summary</h5>
+        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="false">
+          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+          <span class="collapse-text" data-i18n="expand">🔽</span>
         </button>
       </div>
-      <div class="collapse show" id="medicinesSummaryCollapse">
+      <div class="collapse" id="medicinesSummaryCollapse">
         <div class="card-body">
         {% if medicines %}
         <!-- Desktop Table -->
@@ -371,19 +282,19 @@
           <p class="mb-0">No medicine records found.</p>
         </div>
         {% endif %}
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 <!-- Expenses Summary -->
-<div class="row mb-4">
-  <div class="col-12">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">💰 Expenses Summary</h5>
-        <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
-          <i class="fas fa-chevron-down" id="expensesToggle"></i>
+        <button class="btn btn-outline-primary btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
+          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+          <span class="collapse-text" data-i18n="expand">🔽</span>
         </button>
       </div>
       <div class="collapse" id="expensesCollapse">
@@ -450,9 +361,145 @@
               </div>
             </div>
           </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dispatch History -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">🚚 Dispatch History</h5>
+        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="false">
+          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+          <span class="collapse-text" data-i18n="expand">🔽</span>
+        </button>
+      </div>
+      <div class="collapse" id="dispatchHistoryCollapse">
+        <div class="card-body">
+          {% if bird_dispatches %}
+          <!-- Desktop Table -->
+          <div class="table-responsive d-none d-md-block">
+            <table class="table table-sm table-striped">
+              <thead class="table-dark">
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Driver</th>
+                  <th>Vendor</th>
+                  <th>Date</th>
+                  <th>Birds</th>
+                  <th>Weight (kg)</th>
+                  <th>Avg/Bird (kg)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dispatch in bird_dispatches %}
+                <tr class="{{ 'table-success' if dispatch.status == 'completed' else 'table-warning' }}">
+                  <td><strong>{{ dispatch.vehicle_no }}</strong></td>
+                  <td>{{ dispatch.driver_name }}</td>
+                  <td>{{ dispatch.vendor_name or '-' }}</td>
+                  <td>
+                    {{ dispatch.dispatch_date }}<br>
+                    <small class="text-muted">{{ dispatch.dispatch_time }}</small>
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                    {% else %}
+                      <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      {{ "%.1f"|format(dispatch.total_weight) }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      {{ "%.3f"|format(dispatch.avg_weight_per_bird) }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">✅ Completed</span>
+                    {% else %}
+                      <span class="badge bg-warning">⏳ Active</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile Cards -->
+          <div class="d-md-none">
+            {% for dispatch in bird_dispatches %}
+            <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="card-title mb-0">
+                    <strong>{{ dispatch.vehicle_no }}</strong>
+                  </h6>
+                  {% if dispatch.status == 'completed' %}
+                    <span class="badge bg-success">✅ Completed</span>
+                  {% else %}
+                    <span class="badge bg-warning">⏳ Active</span>
+                  {% endif %}
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted">Driver:</small><br>
+                    <strong>{{ dispatch.driver_name }}</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Vendor:</small><br>
+                    <strong>{{ dispatch.vendor_name or '-' }}</strong>
+                  </div>
+                </div>
+                <div class="row mt-2">
+                  <div class="col-6">
+                    <small class="text-muted">Date & Time:</small><br>
+                    <strong>{{ dispatch.dispatch_date }}</strong><br>
+                    <small>{{ dispatch.dispatch_time }}</small>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Birds:</small><br>
+                    {% if dispatch.status == 'completed' %}
+                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
+                    {% else %}
+                      <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% if dispatch.status == 'completed' %}
+                <div class="row mt-2">
+                  <div class="col-6">
+                    <small class="text-muted">Weight:</small><br>
+                    <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Avg/Bird:</small><br>
+                    <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
           {% else %}
           <div class="alert alert-info">
-            <p class="mb-0">No expenses recorded yet.</p>
+            <p class="mb-0">No dispatch records found for this cycle.</p>
           </div>
           {% endif %}
         </div>
@@ -464,10 +511,10 @@
 <!-- Daily Entries Table (Desktop) -->
 <div class="card d-none d-lg-block mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
-    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
-      <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
-      <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
+    <h5 class="mb-0" data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
+    <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
+      <span class="expand-text" data-i18n="collapse">🔼</span>
+      <span class="collapse-text d-none" data-i18n="expand">🔽</span>
     </button>
   </div>
   <div class="collapse show" id="dailyEntriesDesktopCollapse">
@@ -570,10 +617,15 @@
 <div class="d-block d-md-none">
   <!-- Daily Entries for Mobile View -->
   <div class="card mb-3">
-    <div class="card-header">
-      <h5 class="mb-0">Daily Entries</h5>
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
+      <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesMobileCollapse" aria-expanded="false">
+        <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+        <span class="collapse-text" data-i18n="expand">🔽</span>
+      </button>
     </div>
-    <div class="card-body">
+    <div class="collapse" id="dailyEntriesMobileCollapse">
+      <div class="card-body">
       {% if daily_entries %}
         {% set total_days = daily_entries|length %}
         {% for entry in daily_entries|reverse %}
@@ -598,15 +650,21 @@
       {% else %}
         <div class="text-muted text-center" data-i18n="no_daily_entries">No daily entries found for this cycle.</div>
       {% endif %}
+      </div>
     </div>
   </div>
 
   <!-- Feed List for Mobile View -->
   <div class="card mb-3">
-    <div class="card-header">
-      <h5 class="mb-0" data-i18n="feed_list_header">Feed List</h5>
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0" data-i18n="feed_list_header">📦 Feed List</h5>
+      <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#feedListMobileCollapse" aria-expanded="false">
+        <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+        <span class="collapse-text" data-i18n="expand">🔽</span>
+      </button>
     </div>
-    <div class="card-body">
+    <div class="collapse" id="feedListMobileCollapse">
+      <div class="card-body">
       {% if feeds %}
         {% for feed in feeds %}
           <div class="border rounded p-2 mb-2">
@@ -626,6 +684,7 @@
       {% else %}
         <div class="text-muted text-center" data-i18n="feed_no_entries">No feed entries found.</div>
       {% endif %}
+      </div>
     </div>
   </div>
 </div>
@@ -635,6 +694,15 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Cycle selection functionality
+function changeCycle() {
+  const cycleSelect = document.getElementById('cycle_select');
+  const selectedCycleId = cycleSelect.value;
+  if (selectedCycleId) {
+    window.location.href = '/cycle_details/' + selectedCycleId;
+  }
+}
+
 // FCR Chart
 const fcrSeries = {{ fcr_series|tojson | safe }};
 const dates = {{ dates|tojson | safe }};
@@ -700,59 +768,283 @@ new Chart(weightCtx, {
   }
 });
 
-// Daily Entries collapse toggle
-document.getElementById('dailyEntriesCollapse').addEventListener('shown.bs.collapse', function () {
-  document.getElementById('dailyEntriesToggle').className = 'fas fa-chevron-up';
-});
-document.getElementById('dailyEntriesCollapse').addEventListener('hidden.bs.collapse', function () {
-  document.getElementById('dailyEntriesToggle').className = 'fas fa-chevron-down';
-});
+// Collapse toggle handlers
+function setupCollapseHandlers() {
+  // Daily Entries collapse toggle
+  const dailyEntriesCollapse = document.getElementById('dailyEntriesDesktopCollapse');
+  if (dailyEntriesCollapse) {
+    dailyEntriesCollapse.addEventListener('shown.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.remove('d-none');
+        button.querySelector('.collapse-text').classList.add('d-none');
+      }
+    });
+    dailyEntriesCollapse.addEventListener('hidden.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.add('d-none');
+        button.querySelector('.collapse-text').classList.remove('d-none');
+      }
+    });
+  }
 
-// Dispatch History collapse toggle
-document.getElementById('dispatchCollapse').addEventListener('shown.bs.collapse', function () {
-  document.getElementById('dispatchToggle').className = 'fas fa-chevron-up';
-});
-document.getElementById('dispatchCollapse').addEventListener('hidden.bs.collapse', function () {
-  document.getElementById('dispatchToggle').className = 'fas fa-chevron-down';
-});
+  // Dispatch History collapse toggle
+  const dispatchHistoryCollapse = document.getElementById('dispatchHistoryCollapse');
+  if (dispatchHistoryCollapse) {
+    dispatchHistoryCollapse.addEventListener('shown.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.remove('d-none');
+        button.querySelector('.collapse-text').classList.add('d-none');
+      }
+    });
+    dispatchHistoryCollapse.addEventListener('hidden.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.add('d-none');
+        button.querySelector('.collapse-text').classList.remove('d-none');
+      }
+    });
+  }
 
-// Medicines collapse toggle
-document.getElementById('medicinesCollapse').addEventListener('shown.bs.collapse', function () {
-  document.getElementById('medicinesToggle').className = 'fas fa-chevron-up';
-});
-document.getElementById('medicinesCollapse').addEventListener('hidden.bs.collapse', function () {
-  document.getElementById('medicinesToggle').className = 'fas fa-chevron-down';
-});
+  // Medicines collapse toggle
+  const medicinesCollapse = document.getElementById('medicinesSummaryCollapse');
+  if (medicinesCollapse) {
+    medicinesCollapse.addEventListener('shown.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.remove('d-none');
+        button.querySelector('.collapse-text').classList.add('d-none');
+      }
+    });
+    medicinesCollapse.addEventListener('hidden.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.add('d-none');
+        button.querySelector('.collapse-text').classList.remove('d-none');
+      }
+    });
+  }
 
-// Expenses collapse toggle
-document.getElementById('expensesCollapse').addEventListener('shown.bs.collapse', function () {
-  document.getElementById('expensesToggle').className = 'fas fa-chevron-up';
-});
-document.getElementById('expensesCollapse').addEventListener('hidden.bs.collapse', function () {
-  document.getElementById('expensesToggle').className = 'fas fa-chevron-down';
+  // Expenses collapse toggle
+  const expensesCollapse = document.getElementById('expensesCollapse');
+  if (expensesCollapse) {
+    expensesCollapse.addEventListener('shown.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.remove('d-none');
+        button.querySelector('.collapse-text').classList.add('d-none');
+      }
+    });
+    expensesCollapse.addEventListener('hidden.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.add('d-none');
+        button.querySelector('.collapse-text').classList.remove('d-none');
+      }
+    });
+  }
+
+  // Daily Entries Mobile collapse toggle
+  const dailyEntriesMobileCollapse = document.getElementById('dailyEntriesMobileCollapse');
+  if (dailyEntriesMobileCollapse) {
+    dailyEntriesMobileCollapse.addEventListener('shown.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.remove('d-none');
+        button.querySelector('.collapse-text').classList.add('d-none');
+      }
+    });
+    dailyEntriesMobileCollapse.addEventListener('hidden.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.add('d-none');
+        button.querySelector('.collapse-text').classList.remove('d-none');
+      }
+    });
+  }
+
+  // Feed List Mobile collapse toggle
+  const feedListMobileCollapse = document.getElementById('feedListMobileCollapse');
+  if (feedListMobileCollapse) {
+    feedListMobileCollapse.addEventListener('shown.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.remove('d-none');
+        button.querySelector('.collapse-text').classList.add('d-none');
+      }
+    });
+    feedListMobileCollapse.addEventListener('hidden.bs.collapse', function () {
+      const button = this.previousElementSibling.querySelector('button');
+      if (button) {
+        button.querySelector('.expand-text').classList.add('d-none');
+        button.querySelector('.collapse-text').classList.remove('d-none');
+      }
+    });
+  }
+}
+
+// Initialize collapse handlers when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  setupCollapseHandlers();
 });
 </script>
 {% endblock %}
 
 <style>
+/* Enhanced Mobile-Friendly Styles */
 @media (max-width: 576px) {
+  /* Button improvements */
   .btn, .btn-sm, .btn-lg {
     font-size: 0.85rem !important;
-    padding: 0.3rem 0.7rem !important;
+    padding: 0.4rem 0.8rem !important;
     border-radius: 0.3rem !important;
+    min-height: 44px !important; /* Touch-friendly minimum size */
   }
+  
+  /* Mobile collapse buttons */
+  .mobile-collapse-btn {
+    min-width: 44px !important;
+    padding: 0.3rem 0.6rem !important;
+  }
+  
+  /* Header and title adjustments */
   .card-header h5, h2, h3, h5, .card-title {
     font-size: 1.1rem !important;
     margin-bottom: 0.5rem !important;
   }
+  
   .card-header {
-    padding: 0.5rem 1rem !important;
+    padding: 0.75rem 1rem !important;
   }
+  
   .card-body {
-    padding: 0.7rem 0.7rem !important;
+    padding: 0.75rem !important;
   }
+  
+  /* Form controls for better mobile experience */
+  .form-select, .form-control {
+    min-height: 44px !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Badge adjustments */
+  .badge {
+    font-size: 0.8rem !important;
+    padding: 0.3rem 0.5rem !important;
+  }
+  
+  /* Card metrics for mobile */
+  .card-title {
+    font-size: 1.2rem !important;
+  }
+  
+  /* Improve touch targets */
+  a, button {
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Gap adjustments for mobile */
+  .gap-2 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Text adjustments */
   .expand-text, .collapse-text {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Responsive spacing */
+  .mb-3 {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Full width buttons on mobile */
+  .flex-fill {
+    min-height: 44px !important;
+  }
+}
+
+/* Medium screens adjustments */
+@media (max-width: 768px) {
+  .btn {
+    min-height: 40px !important;
+  }
+  
+  .mobile-collapse-btn {
+    min-width: 40px !important;
+  }
+}
+
+/* Ensure proper touch targets for all screen sizes */
+.mobile-collapse-btn {
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.mobile-collapse-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Action buttons styling */
+.btn-sm.flex-fill {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Metric cards styling */
+.metric-card {
+  transition: transform 0.2s ease-in-out;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.metric-header {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.75rem 0.5rem;
+  border-bottom: none;
+}
+
+@media (max-width: 576px) {
+  .metric-header {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.25rem;
+    line-height: 1.2;
+  }
+  
+  .metric-card .card-body {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .metric-card .card-title {
+    font-size: 1.1rem !important;
+  }
+  
+  /* Mobile card improvements */
+  .border-info, .border-warning, .border-success, .border-danger {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .border-info .card-body, 
+  .border-warning .card-body, 
+  .border-success .card-body, 
+  .border-danger .card-body {
+    padding: 0.75rem !important;
+  }
+  
+  .badge {
+    font-size: 0.75rem !important;
   }
 }
 </style>

@@ -5,113 +5,259 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title or 'Ramesh Farms' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts for Telugu Support -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Modern Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐔</text></svg>">
   </head>
-  <body style="font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--fb-light-bg);">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow rounded-4 py-2 px-3 mb-4" 
-         style="border-radius: 1.5rem; font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" 
-         aria-label="Main navigation">
+  <body>
+      <nav class="navbar navbar-expand-lg navbar-dark" style="background: #3b5998;">
       <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center fw-bold" href="{{ url_for('dashboard') }}" style="font-size: 1.5rem; color: #4F46E5;">
-          <span class="me-2"><i class="fa-solid fa-dove fa-lg" style="color:#4F46E5;"></i></span>
-          <span data-i18n="app_title">Ramesh Farms</span>
-        </a>
-        <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+        <!-- Mobile Offcanvas Toggle (left side) -->
+        <button class="navbar-toggler d-lg-none me-2 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" style="background: transparent; box-shadow: none; border: none;">
+          <span style="display: inline-block; width: 28px; height: 22px;">
+            <span style="display: block; height: 4px; background: #0d6efd; margin-bottom: 5px; border-radius: 2px;"></span>
+            <span style="display: block; height: 4px; background: #0d6efd; margin-bottom: 5px; border-radius: 2px;"></span>
+            <span style="display: block; height: 4px; background: #0d6efd; border-radius: 2px;"></span>
+          </span>
         </button>
-        <div class="collapse navbar-collapse" id="navmenu">
+        <a class="navbar-brand chicken-icon d-inline-block align-middle fw-bold" href="{{ url_for('dashboard') }}" data-i18n="app_title" style="color: #ffffff; font-size: 1.4rem;">
+          Ramesh
+        </a>
+        <!-- Desktop Navbar -->
+        <div class="collapse navbar-collapse d-none d-lg-block" id="navmenu">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Dashboard -->
             <li class="nav-item">
-              <a class="nav-link px-3 rounded-pill mx-1" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">
-                <i class="fa-solid fa-chart-line me-2"></i>Dashboard
+              <a class="nav-link px-3" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard" style="color: #fff;">
+                <i class="me-2">📊</i>Dashboard
               </a>
             </li>
+            <!-- Operations Group -->
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_operations">
-                <i class="fa-solid fa-gears me-2"></i>Operations
+              <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_operations" style="color: #fff;">
+                <i class="me-2">⚙️</i>Operations
               </a>
-              <ul class="dropdown-menu shadow border-0 rounded-3">
-                <li><a class="dropdown-item" href="{{ url_for('daily') }}" data-i18n="nav_daily"><i class="fa-regular fa-calendar-check me-2"></i>Daily Entry</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management"><i class="fa-solid fa-wheat-awn me-2"></i>Feed Management</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('medicines') }}" data-i18n="nav_meds"><i class="fa-solid fa-pills me-2"></i>Medicines</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('expenses') }}" data-i18n="nav_expenses"><i class="fa-solid fa-money-bill-wave me-2"></i>Expenses</a></li>
+              <ul class="dropdown-menu border-0" style="background: #f8f9fa;">
+                <li><a class="dropdown-item" href="{{ url_for('daily') }}" data-i18n="nav_daily"><i class="me-2">📝</i>Daily Entry</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management"><i class="me-2">🌾</i>Feed Management</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('medicines') }}" data-i18n="nav_meds"><i class="me-2">💊</i>Medicines</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('expenses') }}" data-i18n="nav_expenses"><i class="me-2">💰</i>Expenses</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch"><i class="fa-solid fa-truck me-2"></i>Bird Dispatch</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch"><i class="me-2">🚚</i>Bird Dispatch</a></li>
               </ul>
             </li>
+            <!-- Reports Group -->
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_reports">
-                <i class="fa-solid fa-file-chart-column me-2"></i>Reports
+              <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_reports" style="color: #fff;">
+                <i class="me-2">📈</i>Reports
               </a>
-              <ul class="dropdown-menu shadow border-0 rounded-3">
-                <li><a class="dropdown-item" href="{{ url_for('daywise') }}" data-i18n="nav_daywise"><i class="fa-regular fa-calendar-days me-2"></i>Daywise</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('stats') }}" data-i18n="nav_stats"><i class="fa-solid fa-chart-pie me-2"></i>Statistics</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history"><i class="fa-solid fa-rotate me-2"></i>Cycle History</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history"><i class="fa-solid fa-list-check me-2"></i>Dispatch History</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate"><i class="fa-solid fa-coins me-2"></i>Income Estimate</a></li>
+              <ul class="dropdown-menu border-0" style="background: #f8f9fa;">
+                <li><a class="dropdown-item" href="{{ url_for('daywise') }}" data-i18n="nav_daywise"><i class="me-2">📅</i>Daywise</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('stats') }}" data-i18n="nav_stats"><i class="me-2">📊</i>Statistics</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history"><i class="me-2">🔄</i>Cycle History</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history"><i class="me-2">📋</i>Dispatch History</a></li>
               </ul>
             </li>
+            <!-- Admin Group -->
             {% if session.role == 'admin' %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_admin">
-                <i class="fa-solid fa-user-shield me-2"></i>Admin
+              <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_admin" style="color: #fff;">
+                <i class="me-2">👑</i>Admin
               </a>
-              <ul class="dropdown-menu shadow border-0 rounded-3">
-                <li><a class="dropdown-item" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Cycle Setup</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('users') }}" data-i18n="nav_users"><i class="fa-solid fa-users me-2"></i>Users</a></li>
+              <ul class="dropdown-menu border-0" style="background: #f8f9fa;">
+                <li><a class="dropdown-item" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup"><i class="me-2">🔧</i>Cycle Setup</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('users') }}" data-i18n="nav_users"><i class="me-2">👥</i>Users</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url_for('import_data') }}" data-i18n="nav_import"><i class="fa-solid fa-file-import me-2"></i>Import Data</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('export') }}" data-i18n="nav_export"><i class="fa-solid fa-file-export me-2"></i>Export Data</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('import_data') }}" data-i18n="nav_import"><i class="me-2">📥</i>Import Data</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export') }}" data-i18n="nav_export"><i class="me-2">📤</i>Export Data</a></li>
               </ul>
             </li>
             {% endif %}
+            <!-- Tips Group -->
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle px-3 rounded-pill mx-1" href="#" id="tipsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="tips">
-                <i class="fa-solid fa-lightbulb me-2"></i>Tips
+              <a class="nav-link dropdown-toggle px-3" href="#" id="tipsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="tips" style="color: #fff;">
+                <i class="me-2">💡</i>Tips
               </a>
-              <ul class="dropdown-menu shadow border-0 rounded-3" aria-labelledby="tipsDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding"><i class="fa-solid fa-bed me-2"></i>Bedding Tips</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal"><i class="fa-solid fa-leaf me-2"></i>Herbal Treatment</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth"><i class="fa-solid fa-arrow-trend-up me-2"></i>Growth Tips</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical"><i class="fa-solid fa-notes-medical me-2"></i>Medical Tips</a></li>
+              <ul class="dropdown-menu border-0" style="background: #f8f9fa;" aria-labelledby="tipsDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding"><i class="me-2">🛏️</i>Bedding Tips</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal"><i class="me-2">🌿</i>Herbal Treatment</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth"><i class="me-2">📈</i>Growth Tips</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical"><i class="me-2">🏥</i>Medical Tips</a></li>
               </ul>
             </li>
           </ul>
           <div class="d-flex align-items-center">
-            <select id="langSelect" class="form-select form-select-sm me-2 border-0" style="width:130px; background: #f3f4f6; color: #4F46E5; border-radius: 20px; font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-              <option value="en" style="color: #333;">🇺🇸 English</option>
-              <option value="hi" style="color: #333;">🇮🇳 हिन्दी</option>
-              <option value="te" style="color: #333;">🇮🇳 తెలుగు</option>
+            <select id="langSelect" class="form-select form-select-sm me-2 border-0" style="width:130px; background: #f8f9fa; color: #333;">
+              <option value="en">🇺🇸 English</option>
+              <option value="hi">🇮🇳 हिन्दी</option>
+              <option value="te">🇮🇳 తెలుగు</option>
             </select>
-            <select id="fontSizeSelect" class="form-select form-select-sm me-3 border-0" style="width:110px; background: #f3f4f6; color: #4F46E5; border-radius: 20px; font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" title="Font Size">
-              <option value="small" data-i18n="font_size_small" style="color: #333;">🔤 Small</option>
-              <option value="medium" selected data-i18n="font_size_medium" style="color: #333;">🔤 Medium</option>
-              <option value="large" data-i18n="font_size_large" style="color: #333;">🔤 Large</option>
-              <option value="xlarge" data-i18n="font_size_xlarge" style="color: #333;">🔤 X-Large</option>
+            <select id="fontSizeSelect" class="form-select form-select-sm me-3 border-0" style="width:110px; background: #f8f9fa; color: #333;" title="Font Size">
+              <option value="small" data-i18n="font_size_small">🔤 Small</option>
+              <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
+              <option value="large" data-i18n="font_size_large">🔤 Large</option>
+              <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
             </select>
             <div class="dropdown">
-              <button class="btn btn-outline-primary btn-sm dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown" style="border: 2px solid #4F46E5; font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                {% if session.role == 'admin' %}<i class="fa-solid fa-user-shield me-2"></i>{% else %}<i class="fa-solid fa-user me-2"></i>{% endif %} {{ session.username }}
+              <button class="btn btn-outline-light btn-sm dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" style="background: #3b5998; color: #fff; border: none;">
+                {% if session.role == 'admin' %}👑{% else %}👤{% endif %} {{ session.username }}
               </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+              <ul class="dropdown-menu dropdown-menu-end border-0" style="background: #f8f9fa;">
                 <li><span class="dropdown-item-text py-2"><strong>Role:</strong> {{ session.role.title() }}</span></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('logout') }}"><i class="me-2">🚪</i>Logout</a></li>
               </ul>
             </div>
           </div>
         </div>
-      </div>
-    </nav>
+        <!-- ...mobile offcanvas code continues... -->
+          <!-- Mobile Offcanvas Navigation -->
+        <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel"
+     style="width:85vw;max-width:400px;background: #3b5998;">
+     
+       <h6 class="text-primary-50 mt-3 mb-2 px-3 b" data-i18n="app_title" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
+                Ramesh Farms
+              </h6>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-3" style="color:#0d6efd; border-radius: 10px; margin-bottom: 5px;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">
+                <i class="me-3" style="font-size: 1.2rem;">📊</i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
+                Operations
+              </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('daily') }}" data-i18n="nav_daily">
+                <i class="me-3">📝</i>Daily Entry
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">
+                <i class="me-3">🌾</i>Feed Management
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('medicines') }}" data-i18n="nav_meds">
+                <i class="me-3">💊</i>Medicines
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">
+                <i class="me-3">💰</i>Expenses
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">
+                <i class="me-3">🚚</i>Bird Dispatch
+              </a>
+            </li>
+            <li class="nav-item">
+               <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
+                Reports
+              </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">
+                <i class="me-3">📅</i>Daywise
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('stats') }}" data-i18n="nav_stats">
+                <i class="me-3">📊</i>Statistics
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">
+                <i class="me-3">🔄</i>Cycle History
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history">
+                <i class="me-3">📋</i>Dispatch History
+              </a>
+            </li>
+            {% if session.role == 'admin' %}
+            <li class="nav-item">
+               <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
+                Admin
+              </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">
+                <i class="me-3">🔧</i>Cycle Setup
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('users') }}" data-i18n="nav_users">
+                <i class="me-3">👥</i>Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('import_data') }}" data-i18n="nav_import">
+                <i class="me-3">📥</i>Import Data
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('export') }}" data-i18n="nav_export">
+                <i class="me-3">📤</i>Export Data
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+               <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
+                Tips
+              </h6>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding">
+                <i class="me-3">🛏️</i>Bedding Tips
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal">
+                <i class="me-3">🌿</i>Herbal Treatment
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth">
+                <i class="me-3">📈</i>Growth Tips
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical">
+                <i class="me-3">🏥</i>Medical Tips
+              </a>
+            </li>
+            <li class="nav-item mt-3">
+              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('logout') }}">Logout</a>
+              <hr style="margin:0; border-color:#ffffff;">
+            </li>
+          </ul>
+            <hr>
+            <div>
+              <select id="langSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;">
+                <option value="en">🇺🇸 English</option>
+                <option value="hi">🇮🇳 हिन्दी</option>
+                <option value="te">🇮🇳 తెలుగు</option>
+              </select>
+              <select id="fontSizeSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;" title="Font Size">
+                <option value="small" data-i18n="font_size_small">🔤 Small</option>
+                <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
+                <option value="large" data-i18n="font_size_large">🔤 Large</option>
+                <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        </div>
+      </nav>
      <main class="container my-4" style="background-color: #f2f4f6;"> {% block content %}
       <!-- Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -128,238 +274,7 @@
 {% endwith %}
       {% endblock %} </main>
 
-    <!-- Mobile Offcanvas Navigation -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel"
-     style="width: 75vw; max-width: 320px; background: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%); border-radius: 0; box-shadow: 4px 0 20px rgba(0,0,0,0.15);">
-  
-  <!-- Header Section -->
-  <div class="offcanvas-header" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.2); padding: 1.5rem;">
-    <div class="d-flex align-items-center">
-      <i class="fa-solid fa-dove fa-2x me-3" style="color: #4F46E5;"></i>
-      <div>
-        <h5 class="offcanvas-title mb-0" id="mobileNavLabel" style="color: #4F46E5; font-weight: 700; font-size: 1.25rem;" data-i18n="app_title">
-          Ramesh Farms
-        </h5>
-        <small style="color: #6B7280; font-weight: 500;">Poultry Management</small>
-      </div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" 
-            style="background-size: 1.5rem; opacity: 0.8;"></button>
-  </div>
-
-  <!-- User Info Section -->
-  <div style="background: rgba(255,255,255,0.1); padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-    <div class="d-flex align-items-center">
-      <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
-           style="width: 40px; height: 40px; background: rgba(255,255,255,0.2);">
-        {% if session.role == 'admin' %}
-          <i class="fa-solid fa-user-shield" style="color: white; font-size: 1.1rem;"></i>
-        {% else %}
-          <i class="fa-solid fa-user" style="color: white; font-size: 1.1rem;"></i>
-        {% endif %}
-      </div>
-      <div>
-        <div style="color: white; font-weight: 600; font-size: 0.95rem;">{{ session.username }}</div>
-        <small style="color: rgba(255,255,255,0.8); font-size: 0.8rem;">{{ session.role.title() }}</small>
-      </div>
-    </div>
-  </div>
-
-  <!-- Navigation Body -->
-  <div class="offcanvas-body" style="padding: 1rem 0; overflow-y: auto;">
-    <nav class="nav flex-column" aria-label="Mobile navigation menu">
-      
-      <!-- Main Section -->
-      <div style="padding: 0 1.5rem; margin-bottom: 1.5rem;">
-        <h6 style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
-          Main
-        </h6>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">
-          <i class="fa-solid fa-chart-line"></i>
-          <span>Dashboard</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-      </div>
-
-      <!-- Operations Section -->
-      <div style="padding: 0 1.5rem; margin-bottom: 1.5rem;">
-        <h6 style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
-          Operations
-        </h6>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('daily') }}" data-i18n="nav_daily">
-          <i class="fa-regular fa-calendar-check"></i>
-          <span>Daily Entry</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">
-          <i class="fa-solid fa-wheat-awn"></i>
-          <span>Feed Management</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('medicines') }}" data-i18n="nav_meds">
-          <i class="fa-solid fa-pills"></i>
-          <span>Medicines</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">
-          <i class="fa-solid fa-money-bill-wave"></i>
-          <span>Expenses</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">
-          <i class="fa-solid fa-truck"></i>
-          <span>Bird Dispatch</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-      </div>
-
-      <!-- Reports Section -->
-      <div style="padding: 0 1.5rem; margin-bottom: 1.5rem;">
-        <h6 style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
-          Reports
-        </h6>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">
-          <i class="fa-regular fa-calendar-days"></i>
-          <span>Daywise</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('stats') }}" data-i18n="nav_stats">
-          <i class="fa-solid fa-chart-pie"></i>
-          <span>Statistics</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">
-          <i class="fa-solid fa-rotate"></i>
-          <span>Cycle History</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history">
-          <i class="fa-solid fa-list-check"></i>
-          <span>Dispatch History</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate">
-          <i class="fa-solid fa-coins"></i>
-          <span>Income Estimate</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-      </div>
-
-      <!-- Tips Section -->
-      <div style="padding: 0 1.5rem; margin-bottom: 1.5rem;">
-        <h6 style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
-          <span data-i18n="tips">Tips</span>
-        </h6>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding">
-          <i class="fa-solid fa-bed"></i>
-          <span>Bedding Tips</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal">
-          <i class="fa-solid fa-leaf"></i>
-          <span>Herbal Treatment</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth">
-          <i class="fa-solid fa-arrow-trend-up"></i>
-          <span>Growth Tips</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical">
-          <i class="fa-solid fa-notes-medical"></i>
-          <span>Medical Tips</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-      </div>
-
-      <!-- Admin Section -->
-      {% if session.role == 'admin' %}
-      <div style="padding: 0 1.5rem; margin-bottom: 1.5rem;">
-        <h6 style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem;">
-          <span data-i18n="nav_admin">Admin</span>
-        </h6>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">
-          <i class="fa-solid fa-screwdriver-wrench"></i>
-          <span>Cycle Setup</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('users') }}" data-i18n="nav_users">
-          <i class="fa-solid fa-users"></i>
-          <span>Users</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('import_data') }}" data-i18n="nav_import">
-          <i class="fa-solid fa-file-import"></i>
-          <span>Import Data</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-        
-        <a class="nav-link mobile-nav-item" href="{{ url_for('export') }}" data-i18n="nav_export">
-          <i class="fa-solid fa-file-export"></i>
-          <span>Export Data</span>
-          <i class="fa-solid fa-chevron-right chevron"></i>
-        </a>
-      </div>
-      {% endif %}
-    </nav>
-  </div>
-
-  <!-- Footer Section -->
-  <div style="background: rgba(0,0,0,0.1); padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-    <!-- Language Selector -->
-    <div class="mb-3">
-      <label for="langSelectMobile" class="form-label mb-2" style="color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 600;">
-        🌐 Language
-      </label>
-      <select id="langSelectMobile" class="form-select form-select-sm" 
-              style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; backdrop-filter: blur(10px);">
-        <option value="en" style="background: #4F46E5; color: white;">🇺🇸 English</option>
-        <option value="hi" style="background: #4F46E5; color: white;">🇮🇳 हिन्दी</option>
-        <option value="te" style="background: #4F46E5; color: white;">🇮🇳 తెలుగు</option>
-      </select>
-    </div>
     
-    <!-- Font Size Selector -->
-    <div class="mb-3">
-      <label for="fontSizeSelectMobile" class="form-label mb-2" style="color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 600;">
-        🔤 Font Size
-      </label>
-      <select id="fontSizeSelectMobile" class="form-select form-select-sm" 
-              style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; backdrop-filter: blur(10px);">
-        <option value="small" style="background: #4F46E5; color: white;" data-i18n="font_size_small">Small</option>
-        <option value="medium" selected style="background: #4F46E5; color: white;" data-i18n="font_size_medium">Medium</option>
-        <option value="large" style="background: #4F46E5; color: white;" data-i18n="font_size_large">Large</option>
-        <option value="xlarge" style="background: #4F46E5; color: white;" data-i18n="font_size_xlarge">X-Large</option>
-      </select>
-    </div>
-    
-    <!-- Logout Button -->
-    <a href="{{ url_for('logout') }}" class="btn w-100" 
-       style="background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 8px; padding: 0.75rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center;">
-      <i class="fa-solid fa-right-from-bracket me-2"></i>
-      Logout
-    </a>
-  </div>
-</div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -407,54 +322,12 @@
   });
 
   document.getElementById('mobileNav').addEventListener('shown.bs.offcanvas', function () {
-    // Add smooth animations and haptic feedback for mobile navigation
-    document.querySelectorAll('#mobileNav .mobile-nav-item').forEach(link => {
-      link.addEventListener('click', function(e) {
-        // Add ripple effect on touch
-        const ripple = document.createElement('span');
-        ripple.style.position = 'absolute';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(255,255,255,0.6)';
-        ripple.style.transform = 'scale(0)';
-        ripple.style.animation = 'ripple 0.6s linear';
-        ripple.style.left = e.offsetX + 'px';
-        ripple.style.top = e.offsetY + 'px';
-        ripple.style.width = ripple.style.height = '20px';
-        this.appendChild(ripple);
-        
-        setTimeout(() => {
-          ripple.remove();
-        }, 600);
-        
-        // Show loading with slight delay for smooth UX
-        setTimeout(() => {
-          showLoading();
-        }, 100);
-        
-        // Auto-close drawer after selection
-        setTimeout(() => {
-          const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
-          if (offcanvas) {
-            offcanvas.hide();
-          }
-        }, 200);
-      });
+    document.querySelectorAll('#mobileNav .nav-link').forEach(link => {
+      link.onclick = function() {
+        showLoading();
+        setTimeout(hideLoading, 2000);
+      };
     });
-    
-    // Add CSS for ripple animation
-    if (!document.getElementById('rippleStyle')) {
-      const style = document.createElement('style');
-      style.id = 'rippleStyle';
-      style.textContent = `
-        @keyframes ripple {
-          to {
-            transform: scale(4);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
   });
      
       async function loadLang(lang){

@@ -29,7 +29,7 @@
             </div>
             <div class="col-md-3 col-6">
               <label for="feed_cost" class="form-label" data-i18n="feed_cost">Feed Cost (per kg)</label>
-              <input type="number" step="0.01" min="0" class="form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost }}" required>
+              <input type="number" step="0.01" min="0" class="form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost or 45 }}" required>
             </div>
             <div class="col-md-3 col-6">
               <label for="other_expenses" class="form-label" data-i18n="other_expenses">Other Expenses (total)</label>
@@ -39,15 +39,284 @@
               <label for="market_price_per_bird" class="form-label" data-i18n="market_price">Market Price (per kg)</label>
               <input type="number" step="0.01" min="0" class="form-control" name="market_price_per_bird" id="market_price_per_bird" value="{{ market_price_per_bird }}" required>
             </div>
-            <div class="col-md-3 col-12 text-end">
-              <button type="submit" class="btn btn-primary w-100" data-i18n="estimate_btn">Estimate</button>
+            <div class="col-md-3 col-6">
+              <label for="custom_fcr" class="form-label" data-i18n="custom_fcr">Custom FCR (Feed Conversion Ratio)</label>
+              <input type="number" step="0.01" min="0" class="form-control" name="custom_fcr" id="custom_fcr" value="{{ custom_fcr }}" placeholder="Override system FCR">
+            </div>
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-primary" data-i18n="estimate_btn">Estimate</button>
             </div>
           </form>
+          
+          <!-- FCR Information Display -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="alert alert-info d-flex align-items-center" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <div>
+                  <strong data-i18n="fcr_info">FCR Information:</strong>
+                  <span id="fcr-display">
+                    {% if custom_fcr %}
+                      <span data-i18n="custom_fcr_used">Custom FCR is being used</span>: {{ '%.2f'|format(custom_fcr) }} 
+                      <small class="text-info">(overrides system calculated FCR)</small>
+                    {% else %}
+                      <span data-i18n="system_fcr_used">System calculated FCR is being used</span>: {{ '%.2f'|format(cycle_stats.fcr if cycle_stats.fcr else 1.53) }}
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="row g-4">
+  
+  <!-- Enhanced Calculation Breakdown Section -->
+  <div class="row g-4 mt-2">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-calculator me-2"></i>
+            <span data-i18n="financial_breakdown">Detailed Financial Breakdown</span>
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Input Values Section -->
+          <div class="mb-4">
+            <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i><span data-i18n="input_values">Input Values</span>:</h6>
+            <div class="row g-3">
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="fcr_label">FCR</span>:</strong> 
+                  {% if custom_fcr %}
+                    {{ '%.2f'|format(custom_fcr) }} <small class="text-info">(Custom)</small>
+                  {% else %}
+                    {{ '%.2f'|format(cycle_stats.fcr if cycle_stats.fcr else 1.53) }} <small class="text-muted">(System)</small>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="feed_cost_per_kg">Feed Cost/kg</span>:</strong> ₹{{ feed_cost }}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="market_price_per_kg">Market Price/kg</span>:</strong> ₹{{ market_price_per_bird }}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="number_of_birds">Number of Birds</span>:</strong> {{ cycle_stats.total_birds if cycle_stats.total_birds else 0 }}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="average_weight">Average Weight</span>:</strong> {{ '%.2f'|format(cycle_stats.avg_weight if cycle_stats.avg_weight else 0) }} <span data-i18n="kg_text">kg</span>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="chick_cost_per_bird">Chick Cost/bird</span>:</strong> ₹{{ chick_price }}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded">
+                  <strong><span data-i18n="other_expenses_total">Other Expenses</span>:</strong> ₹{{ other_expenses }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step-by-step Calculation -->
+          <div class="mb-4">
+            <h6 class="text-success mb-3"><i class="fas fa-calculator me-2"></i><span data-i18n="step_by_step_calculation">Step-by-step Calculation</span>:</h6>
+            <div class="calculation-steps">
+              <div class="calc-step p-3 mb-2 border-start border-primary border-3 bg-light">
+                <strong>1. <span data-i18n="total_live_weight">Total Live Weight</span>:</strong><br>
+                {{ cycle_stats.total_birds if cycle_stats.total_birds else 0 }} <span data-i18n="birds_text">birds</span> × {{ '%.2f'|format(cycle_stats.avg_weight if cycle_stats.avg_weight else 0) }} <span data-i18n="kg_text">kg</span> = <span class="text-primary fs-5"><strong>{{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} <span data-i18n="kg_text">kg</span></strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-primary border-3 bg-light">
+                <strong>2. <span data-i18n="total_feed_consumed">Total Feed Consumed</span>:</strong><br>
+                {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} <span data-i18n="kg_text">kg</span> × 
+                {% if custom_fcr %}
+                  {{ '%.2f'|format(custom_fcr) }} (<span data-i18n="fcr_text">Custom FCR</span>)
+                {% else %}
+                  {{ '%.2f'|format(cycle_stats.fcr if cycle_stats.fcr else 1.53) }} (<span data-i18n="fcr_text">System FCR</span>)
+                {% endif %}
+                = <span class="text-primary fs-5"><strong>
+                {% if custom_fcr %}
+                  {{ '%.2f'|format((cycle_stats.total_birds * cycle_stats.avg_weight * custom_fcr) if (cycle_stats.total_birds and cycle_stats.avg_weight and custom_fcr) else 0) }}
+                {% else %}
+                  {{ '%.2f'|format((cycle_stats.total_birds * cycle_stats.avg_weight * cycle_stats.fcr) if (cycle_stats.total_birds and cycle_stats.avg_weight and cycle_stats.fcr) else 0) }}
+                {% endif %}
+                <span data-i18n="kg_text">kg</span></strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-danger border-3 bg-light">
+                <strong>3. <span data-i18n="total_feed_cost_label">Total Feed Cost</span>:</strong><br>
+                {% if custom_fcr %}
+                  {{ '%.2f'|format((cycle_stats.total_birds * cycle_stats.avg_weight * custom_fcr) if (cycle_stats.total_birds and cycle_stats.avg_weight and custom_fcr) else 0) }}
+                {% else %}
+                  {{ '%.2f'|format((cycle_stats.total_birds * cycle_stats.avg_weight * cycle_stats.fcr) if (cycle_stats.total_birds and cycle_stats.avg_weight and cycle_stats.fcr) else 0) }}
+                {% endif %}
+                <span data-i18n="kg_text">kg</span> × ₹{{ feed_cost }} = <span class="text-danger fs-5"><strong>₹{{ '%.0f'|format(total_feed_cost) }}</strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-danger border-3 bg-light">
+                <strong>4. <span data-i18n="total_chick_cost_label">Total Chick Cost</span>:</strong><br>
+                {{ cycle_stats.total_birds if cycle_stats.total_birds else 0 }} <span data-i18n="birds_text">birds</span> × ₹{{ chick_price }} = <span class="text-danger fs-5"><strong>₹{{ '%.0f'|format(chick_production_cost) }}</strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-danger border-3 bg-light">
+                <strong>5. <span data-i18n="total_other_expenses">Total Other Expenses</span>:</strong><br>
+                <span class="text-danger fs-5"><strong>₹{{ other_expenses }}</strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-warning border-3 bg-warning bg-opacity-25">
+                <strong>6. <span data-i18n="total_investment">Total Investment</span>:</strong><br>
+                ₹{{ '%.0f'|format(total_feed_cost) }} (<span data-i18n="feed_text">feed</span>) + ₹{{ '%.0f'|format(chick_production_cost) }} (<span data-i18n="chick_text">chick</span>) + ₹{{ other_expenses }} (<span data-i18n="other_text">other</span>) = <span class="text-warning fs-4"><strong>₹{{ '%.0f'|format(total_cycle_cost) }}</strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-success border-3 bg-light">
+                <strong>7. <span data-i18n="total_revenue">Total Revenue</span>:</strong><br>
+                {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} <span data-i18n="kg_text">kg</span> × ₹{{ market_price_per_bird }} = <span class="text-success fs-4"><strong>₹{{ '%.0f'|format(estimated_income) }}</strong></span>
+              </div>
+              
+              <div class="calc-step p-3 mb-2 border-start border-{% if estimated_profit >= 0 %}success{% else %}danger{% endif %} border-3 bg-{% if estimated_profit >= 0 %}success{% else %}danger{% endif %} bg-opacity-25">
+                <strong>8. <span data-i18n="net_income_profit">Net Income (Profit)</span>:</strong><br>
+                ₹{{ '%.0f'|format(estimated_income) }} (<span data-i18n="revenue_text">revenue</span>) - ₹{{ '%.0f'|format(total_cycle_cost) }} (<span data-i18n="investment_text">investment</span>) = 
+                <span class="{% if estimated_profit >= 0 %}text-success{% else %}text-danger{% endif %} fs-3">
+                  <strong>₹{{ '%.0f'|format(estimated_profit) }}</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Table -->
+          <div class="summary-section">
+            <h6 class="text-info mb-3"><i class="fas fa-table me-2"></i><span data-i18n="summary_table">Summary Table</span>:</h6>
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                  <tr>
+                    <th data-i18n="item">Item</th>
+                    <th class="text-end" data-i18n="amount_rupees">Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong data-i18n="total_investment">Total Investment</strong></td>
+                    <td class="text-end text-danger"><strong>{{ '%.0f'|format(total_cycle_cost) }}</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong data-i18n="total_revenue">Total Revenue</strong></td>
+                    <td class="text-end text-success"><strong>{{ '%.0f'|format(estimated_income) }}</strong></td>
+                  </tr>
+                  <tr class="table-{% if estimated_profit >= 0 %}success{% else %}danger{% endif %}">
+                    <td><strong data-i18n="net_profit">Net Profit</strong></td>
+                    <td class="text-end"><strong>{{ '%.0f'|format(estimated_profit) }}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expenses Details Section -->
+  <div class="row g-4 mt-2">
+    {% if selected_cycle_id != 'all' %}
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0" data-i18n="selected_cycle_expenses">Selected Cycle Expenses</h5>
+        </div>
+        <div class="card-body">
+          {% if selected_cycle_expenses %}
+            <div class="table-responsive">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th data-i18n="date">Date</th>
+                    <th data-i18n="name">Name</th>
+                    <th data-i18n="amount">Amount</th>
+                    <th data-i18n="notes">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for expense in selected_cycle_expenses %}
+                  <tr>
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.name }}</td>
+                    <td>₹{{ '%.0f'|format(expense.amount) }}</td>
+                    <td>{{ expense.notes or '-' }}</td>
+                  </tr>
+                  {% endfor %}
+                  <tr class="table-warning">
+                    <td colspan="2"><strong data-i18n="total_expenses">Total Expenses:</strong></td>
+                    <td><strong>₹{{ '%.0f'|format(total_expense_cost) }}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted" data-i18n="no_expenses_recorded">No expenses recorded for selected cycle</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% if selected_cycle_id == 'all' %}
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary ">
+          <h5 class="mb-0 "style="color: white;" data-i18n="all_cycles_expenses">All Cycles Expenses</h5>
+        </div>
+        <div class="card-body">
+          {% if all_expenses %}
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th data-i18n="cycle">Cycle</th>
+                    <th data-i18n="date">Date</th>
+                    <th data-i18n="description">Description</th>
+                    <th data-i18n="amount">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for expense in all_expenses %}
+                  <tr>
+                    <td>#{{ expense.cycle_id }}</td>
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.name }}</td>
+                    <td>₹{{ '%.0f'|format(expense.amount) }}</td>
+                  </tr>
+                  {% endfor %}
+                  <tr class="table-secondary">
+                    <td colspan="3"><strong data-i18n="total_all_expenses">Total All Expenses:</strong></td>
+                    <td><strong>₹{{ '%.0f'|format(all_expenses|sum(attribute='amount')) }}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted" data-i18n="no_expenses_recorded">No expenses recorded</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- All Cycles Overview and Financial Performance (moved below Detailed Financial Breakdown) -->
+  <div class="row g-4 mt-2">
     <!-- Current Cycle Estimate -->
     <div class="{% if selected_cycle_id == 'all' %}col-lg-6{% else %}col-12{% endif %}">
       <div class="card shadow-lg border-0 modern-card">
@@ -217,321 +486,6 @@
     </div>
     {% endif %}
   </div>
-  
-  <!-- Enhanced Calculation Breakdown Section -->
-  <div class="row g-4 mt-2">
-    <div class="col-12">
-      <div class="card shadow-sm modern-calc-card">
-        <div class="card-header bg-gradient-info">
-          <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0" style="color: white;">
-              <i class="fas fa-calculator me-2" style="color: white;"></i>
-              Detailed Financial Breakdown
-            </h5>
-            <div class="calc-summary-badge" style="color: white;">
-              <i class="fas fa-chart-line me-1" style="color: white;"></i>
-              Complete Analysis
-            </div>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <div class="row g-0">
-            <!-- Selected Cycle Details -->
-            <div class="col-lg-6">
-              <div class="calc-section selected-cycle">
-                <div class="calc-header">
-                  <div class="calc-title">
-                    <i class="fas fa-focus me-2"></i>
-                    {% if selected_cycle_id == 'all' %}
-                      Combined Cycles Analysis
-                    {% else %}
-                      Cycle #{{ selected_cycle_id }} Analysis
-                    {% endif %}
-                  </div>
-                  <div class="calc-badge">
-                    {% if selected_cycle_id == 'all' %}
-                      {{ all_cycles|length }} Cycles
-                    {% else %}
-                      Single Cycle
-                    {% endif %}
-                  </div>
-                </div>
-                
-                <div class="calc-content">
-                  <div class="calc-breakdown">
-                    <!-- Cost Items -->
-                    <div class="calc-group costs">
-                      <div class="calc-group-title">
-                        <i class="fas fa-money-bill-wave text-danger me-2"></i>
-                        Cost Components
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="feed_cost_label">Feed Cost</span>
-                          <span class="calc-description" data-i18n="feed_cost_desc">Primary nutrition expense</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(total_feed_cost) }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="chick_cost_label">Chick Cost</span>
-                          <span class="calc-description" data-i18n="chick_cost_desc">Initial stock investment</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(chick_production_cost) }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="medical_cost_label">Medical Cost</span>
-                          <span class="calc-description" data-i18n="medical_cost_desc">Healthcare & vaccines</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(total_medical_cost) }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="other_expenses_label">Other Expenses</span>
-                          <span class="calc-description" data-i18n="other_expenses_desc">Miscellaneous costs</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(total_expense_cost + other_expenses) }}</div>
-                      </div>
-                      
-                      <div class="calc-subtotal">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="total_investment_label">Total Investment</span>
-                          <span class="calc-description" data-i18n="total_investment_desc">Complete cost breakdown</span>
-                        </div>
-                        <div class="calc-value total-cost">₹{{ '%.0f'|format(total_cycle_cost) }}</div>
-                      </div>
-                    </div>
-                    
-                    <!-- Revenue & Profit -->
-                    <div class="calc-group revenue">
-                      <div class="calc-group-title">
-                        <i class="fas fa-chart-line text-success me-2"></i>
-                        Revenue Analysis
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="market_rate_calc_label">Market Rate Calculation</span>
-                          <span class="calc-description" data-i18n="market_rate_calc_desc">₹{{ market_price_per_bird }}/kg × {{ '%.2f'|format(cycle_stats.avg_weight) }}kg average</span>
-                        </div>
-                        <div class="calc-value revenue-value">₹{{ '%.0f'|format(estimated_income) }}</div>
-                      </div>
-                      
-                      <div class="calc-subtotal profit-summary">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="net_profit_loss_label">Net Profit/Loss</span>
-                          <span class="calc-description" data-i18n="net_profit_loss_desc">Revenue minus total costs</span>
-                        </div>
-                        <div class="calc-value profit-value {% if estimated_profit >= 0 %}positive-profit{% else %}negative-profit{% endif %}">
-                          ₹{{ '%.0f'|format(estimated_profit) }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- All Cycles Summary -->
-            <div class="col-lg-6">
-              <div class="calc-section all-cycles">
-                <div class="calc-header">
-                  <div class="calc-title">
-                    <i class="fas fa-layer-group me-2"></i>
-                    Cumulative Performance
-                  </div>
-                  <div class="calc-badge cumulative">
-                    {{ all_cycles|length }} Total Cycles
-                  </div>
-                </div>
-                
-                <div class="calc-content">
-                  <div class="calc-breakdown">
-                    <!-- Summary Stats -->
-                    <div class="calc-group stats">
-                      <div class="calc-group-title">
-                        <i class="fas fa-chart-bar text-info me-2"></i>
-                        Production Summary
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="total_cycles_label">Total Cycles</span>
-                          <span class="calc-description" data-i18n="total_cycles_desc">Complete production runs</span>
-                        </div>
-                        <div class="calc-value stat-value">{{ all_cycles|length }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="total_birds_label">Total Birds</span>
-                          <span class="calc-description" data-i18n="total_birds_desc">Cumulative livestock count</span>
-                        </div>
-                        <div class="calc-value stat-value">{{ cumu_stats.total_birds }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="avg_weight_label">Average Weight</span>
-                          <span class="calc-description" data-i18n="avg_weight_desc">Per bird at market</span>
-                        </div>
-                        <div class="calc-value stat-value">{{ '%.2f'|format(cumu_stats.avg_weight) }} kg</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="avg_fcr_label">Average FCR</span>
-                          <span class="calc-description" data-i18n="avg_fcr_desc">Feed conversion ratio</span>
-                        </div>
-                        <div class="calc-value stat-value">{{ '%.2f'|format(cumu_stats.fcr) }}</div>
-                      </div>
-                    </div>
-                    
-                    <!-- Financial Summary -->
-                    <div class="calc-group financial">
-                      <div class="calc-group-title">
-                        <i class="fas fa-coins text-warning me-2"></i>
-                        Cumulative Financial Summary
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="total_feed_cost_label">Total Feed Cost</span>
-                          <span class="calc-description" data-i18n="total_feed_cost_desc">All cycles feed expense</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(all_cycles_total_cost - (cumu_stats.total_birds * chick_price if chick_price > 0 else 0)) }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="total_chick_cost_label">Total Chick Cost</span>
-                          <span class="calc-description" data-i18n="total_chick_cost_desc">Initial stock investment</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(cumu_stats.total_birds * chick_price if chick_price > 0 else 0) }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="total_investment_label">Total Investment</span>
-                          <span class="calc-description" data-i18n="total_investment_desc">All cycles combined cost</span>
-                        </div>
-                        <div class="calc-value cost-value">₹{{ '%.0f'|format(all_cycles_total_cost + other_expenses) }}</div>
-                      </div>
-                      
-                      <div class="calc-item">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="expected_revenue_label">Expected Revenue</span>
-                          <span class="calc-description" data-i18n="expected_revenue_desc">₹{{ market_price_per_bird }}/kg × {{ '%.1f'|format(cumu_stats.avg_weight) }}kg</span>
-                        </div>
-                        <div class="calc-value revenue-value">₹{{ '%.0f'|format(estimated_income_all_cycles) }}</div>
-                      </div>
-                      
-                      <div class="calc-subtotal profit-summary">
-                        <div class="calc-item-info">
-                          <span class="calc-label" data-i18n="net_profit_loss_label">Net Profit/Loss</span>
-                          <span class="calc-description" data-i18n="net_profit_loss_desc">Overall business performance</span>
-                        </div>
-                        <div class="calc-value profit-value {% if estimated_profit_all_cycles >= 0 %}positive-profit{% else %}negative-profit{% endif %}">
-                          ₹{{ '%.0f'|format(estimated_profit_all_cycles) }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Expenses Details Section -->
-  <div class="row g-4 mt-2">
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-warning text-dark">
-          <h5 class="mb-0" data-i18n="selected_cycle_expenses">Selected Cycle Expenses</h5>
-        </div>
-        <div class="card-body">
-          {% if selected_cycle_expenses %}
-            <div class="table-responsive">
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th data-i18n="date">Date</th>
-                    <th data-i18n="name">Name</th>
-                    <th data-i18n="amount">Amount</th>
-                    <th data-i18n="notes">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for expense in selected_cycle_expenses %}
-                  <tr>
-                    <td>{{ expense.date }}</td>
-                    <td>{{ expense.name }}</td>
-                    <td>₹{{ '%.0f'|format(expense.amount) }}</td>
-                    <td>{{ expense.notes or '-' }}</td>
-                  </tr>
-                  {% endfor %}
-                  <tr class="table-warning">
-                    <td colspan="2"><strong data-i18n="total_expenses">Total Expenses:</strong></td>
-                    <td><strong>₹{{ '%.0f'|format(total_expense_cost) }}</strong></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          {% else %}
-            <p class="text-muted" data-i18n="no_expenses_recorded">No expenses recorded for selected cycle</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-secondary ">
-          <h5 class="mb-0 "style="color: white;" data-i18n="all_cycles_expenses">All Cycles Expenses</h5>
-        </div>
-        <div class="card-body">
-          {% if all_expenses %}
-            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th data-i18n="cycle">Cycle</th>
-                    <th data-i18n="date">Date</th>
-                    <th data-i18n="description">Description</th>
-                    <th data-i18n="amount">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for expense in all_expenses %}
-                  <tr>
-                    <td>#{{ expense.cycle_id }}</td>
-                    <td>{{ expense.date }}</td>
-                    <td>{{ expense.name }}</td>
-                    <td>₹{{ '%.0f'|format(expense.amount) }}</td>
-                  </tr>
-                  {% endfor %}
-                  <tr class="table-secondary">
-                    <td colspan="3"><strong data-i18n="total_all_expenses">Total All Expenses:</strong></td>
-                    <td><strong>₹{{ '%.0f'|format(all_expenses|sum(attribute='amount')) }}</strong></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          {% else %}
-            <p class="text-muted" data-i18n="no_expenses_recorded">No expenses recorded</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
 <script>
@@ -577,31 +531,34 @@ function initializeCharts() {
     easing: 'easeInOutQuart'
   };
 
-  // Selected Cycle Chart - Doughnut with detailed breakdown
+  // Selected Cycle Chart - Doughnut with detailed breakdown including income
   const cycleData = {
-    labels: ['Feed Cost', 'Chick Cost', 'Medical Cost', 'Other Expenses'],
+    labels: ['Feed Cost', 'Chick Cost', 'Medical Cost', 'Other Expenses', 'Estimated Income'],
     datasets: [{
-      label: 'Cost Breakdown (₹)',
+      label: 'Financial Breakdown (₹)',
       data: [
         parseFloat('{{ total_feed_cost|round(0) }}'), 
         parseFloat('{{ chick_production_cost|round(0) }}'), 
         parseFloat('{{ total_medical_cost|round(0) }}'), 
-        parseFloat('{{ (total_expense_cost + other_expenses)|round(0) }}')
+        parseFloat('{{ (total_expense_cost + other_expenses)|round(0) }}'),
+        parseFloat('{{ estimated_income|round(0) }}')
       ],
       backgroundColor: [
-        'rgba(251, 191, 36, 0.7)',   // Feed - Amber
-        'rgba(59, 130, 246, 0.7)',   // Chick - Blue
-        'rgba(239, 68, 68, 0.7)',    // Medical - Red
-        'rgba(107, 114, 128, 0.7)'   // Other - Gray
+        'rgba(251, 191, 36, 0.8)',   // Feed - Amber
+        'rgba(59, 130, 246, 0.8)',   // Chick - Blue
+        'rgba(239, 68, 68, 0.8)',    // Medical - Red
+        'rgba(107, 114, 128, 0.8)',  // Other - Gray
+        'rgba(34, 197, 94, 0.8)'     // Income - Green
       ],
       borderColor: [
         'rgba(251, 191, 36, 1)',
         'rgba(59, 130, 246, 1)',
         'rgba(239, 68, 68, 1)',
-        'rgba(107, 114, 128, 1)'
+        'rgba(107, 114, 128, 1)',
+        'rgba(34, 197, 94, 1)'
       ],
       borderWidth: 2,
-      hoverOffset: 4
+      hoverOffset: 6
     }]
   };
 
@@ -1227,7 +1184,102 @@ function initializeCharts() {
 }
 
 }); // End of DOMContentLoaded
-</script>
+
+// Add chart enhancement for showing percentages
+setTimeout(function() {
+  // Add percentage display function
+  function addPercentageLabels() {
+    const charts = [document.getElementById('cycleChart'), document.getElementById('cumuChart')];
+    
+    charts.forEach(canvas => {
+      if (canvas && canvas.chart) {
+        const chart = canvas.chart;
+        const ctx = canvas.getContext('2d');
+        
+        // Custom draw for percentage labels
+        chart.update();
+        
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+          const meta = chart.getDatasetMeta(datasetIndex);
+          meta.data.forEach((element, index) => {
+            if (chart.config.type === 'doughnut' && index === 4) return; // Skip income for doughnut
+            
+            const value = dataset.data[index];
+            const total = chart.config.type === 'doughnut' ? 
+              dataset.data.slice(0, 4).reduce((a, b) => a + b, 0) : // Only expenses for doughnut
+              dataset.data.reduce((a, b) => a + b, 0); // All values for bar
+            
+            const percentage = ((value / total) * 100).toFixed(0);
+            
+            if (percentage > 5) {
+              const position = element.tooltipPosition();
+              ctx.save();
+              ctx.font = 'bold 11px Segoe UI';
+              ctx.fillStyle = chart.config.type === 'doughnut' ? '#fff' : '#000';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              if (chart.config.type === 'doughnut') {
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeText(percentage + '%', position.x, position.y);
+              }
+              ctx.fillText(percentage + '%', position.x, position.y);
+              ctx.restore();
+            }
+          });
+        });
+      }
+    });
+  }
+  
+  addPercentageLabels();
+}, 2000);
+
+// Initialize default values and FCR handling
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default feed cost value to 45 if field is empty
+  const feedCostInput = document.getElementById('feed_cost');
+  if (feedCostInput && (!feedCostInput.value || feedCostInput.value == '')) {
+    feedCostInput.value = '45';
+  }
+  
+  // Handle FCR input changes
+  const customFcrInput = document.getElementById('custom_fcr');
+  const fcrDisplay = document.getElementById('fcr-display');
+  
+  if (customFcrInput && fcrDisplay) {
+    customFcrInput.addEventListener('input', function() {
+      const fcrValue = this.value;
+      if (fcrValue && fcrValue.trim() !== '') {
+        fcrDisplay.innerHTML = '<span data-i18n="custom_fcr_used">Custom FCR is being used</span>: ' + fcrValue;
+        this.style.borderColor = '#10b981';
+        this.style.backgroundColor = '#f0fdf4';
+      } else {
+        fcrDisplay.innerHTML = '<span data-i18n="system_fcr_used">System calculated FCR is being used</span>';
+        this.style.borderColor = '';
+        this.style.backgroundColor = '';
+      }
+    });
+    
+    // Add placeholder animation
+    customFcrInput.addEventListener('focus', function() {
+      this.placeholder = 'e.g., 1.8, 2.2, 1.5';
+    });
+    
+    customFcrInput.addEventListener('blur', function() {
+      this.placeholder = 'Override system FCR';
+    });
+  }
+  
+  // Add tooltips for better UX
+  const fcrInputWrapper = customFcrInput?.parentElement;
+  if (fcrInputWrapper) {
+    const tooltip = document.createElement('small');
+    tooltip.className = 'form-text text-muted';
+    tooltip.innerHTML = '<i class="fas fa-info-circle me-1"></i>Leave empty to use system calculated FCR based on actual feed consumption';
+    fcrInputWrapper.appendChild(tooltip);
+  }
+});
 </script>
 <style>
 /* Modern Card Styling with Light Theme */
