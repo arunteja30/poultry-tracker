@@ -1,101 +1,352 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 data-i18n="edit_daily_title">✏️ Edit Daily Entry</h2>
-  <a href="{{ url_for('daywise') }}" class="btn btn-secondary btn-sm" data-i18n="back_to_daily_reports">← Back to Daily Reports</a>
-</div>
-
-<!-- Entry Info -->
-<div class="alert alert-info mb-4">
-  <h6 data-i18n="editing_entry">📅 Editing Entry:</h6>
-  <strong data-i18n="date">Date:</strong> {{ entry.entry_date }} | 
-  <strong data-i18n="day">Day:</strong> {{ loop.index if loop else 'N/A' }} | 
-  <strong data-i18n="cycle_id">Cycle ID:</strong> {{ cycle.id }}
-</div>
-
-<div class="card p-4">
-  <form method="POST" class="row g-3">
-    <div class="col-md-6">
-      <label for="mortality" class="form-label" data-i18n="mortality">Mortality</label>
-      <input id="mortality" type="number" name="mortality" class="form-control"
-             value="{{ entry.mortality }}" min="0" required>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.mortality }}
-    </div>
-    
-    <div class="col-md-6">
-      <label for="feed-consumed" class="form-label" data-i18n="feed_bags_consumed">Feed Bags Consumed</label>
-      <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" class="form-control"
-             value="{{ entry.feed_bags_consumed }}" min="0" required>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.feed_bags_consumed }}
+<div class="mobile-container">
+  <div class="mobile-section">
+    <!-- Header with Back Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mobile-header m-0" data-i18n="edit_daily_title">
+        <i class="bi bi-pencil-square me-2"></i>Edit Daily Entry
+      </h2>
+      <a href="{{ url_for('daywise') }}" class="mobile-btn-outline-secondary btn-sm" data-i18n="back_to_daily_reports">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
     </div>
 
-    <div class="col-md-6">
-      <label for="feed-added" class="form-label" data-i18n="feed_bags_added">Feed Bags Added</label>
-      <input id="feed-added" type="number" step="0.1" name="feed_bags_added" class="form-control"
-             value="{{ entry.feed_bags_added }}" min="0">
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.feed_bags_added }}
-    </div>
-
-    <div class="col-md-6">
-      <label for="avg-weight" class="form-label" data-i18n="avg_weight">Avg Weight (kg)</label>
-      <input id="avg-weight" type="number" step="0.001" name="avg_weight" class="form-control"
-             value="{{ entry.avg_weight }}" min="0" required>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.avg_weight }} kg ({{ (entry.avg_weight * 1000)|int }} g)</small>
-    </div>
-
-    <div class="col-12">
-      <label for="medicines" class="form-label" data-i18n="medicines_given">Medicines Given</label>
-      <textarea id="medicines" name="medicines" class="form-control" rows="3" 
-                placeholder="Medicines given (if any)">{{ entry.medicines or 'None' }}</textarea>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.medicines or 'None' }}
-    </div>
-
-    <div class="col-12">
-      <label for="daily-notes" class="form-label" data-i18n="notes">Notes</label>
-      <textarea id="daily-notes" name="daily_notes" class="form-control" rows="3" 
-                placeholder="Notes (optional)">{{ entry.daily_notes or '' }}</textarea>
-      <small class="text-muted" data-i18n="current">Current:</small> {{ entry.daily_notes or 'No notes' }}
-    </div>
-
-    <!-- Current calculated values display -->
-    <div class="col-12">
-      <div class="alert alert-secondary">
-        <h6 data-i18n="current_calculated_values">Current Calculated Values:</h6>
-        <div class="row">
-          <div class="col-md-4">
-            <strong data-i18n="fcr">FCR:</strong> {{ entry.fcr }}
+    <!-- Entry Info Card -->
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-info-circle me-2"></i>Entry Information
+      </h5>
+      <div class="row g-3">
+        <div class="col-6 col-md-4">
+          <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
+            <div class="mobile-metric-value text-primary">{{ entry.entry_date }}</div>
+            <div class="mobile-metric-label">Date</div>
           </div>
-          <div class="col-md-4">
-            <strong data-i18n="avg_feed_per_bird">Avg Feed/Bird:</strong> {{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+            <div class="mobile-metric-value text-info">{{ loop.index if loop else 'N/A' }}</div>
+            <div class="mobile-metric-label">Day</div>
           </div>
-          <div class="col-md-4">
-            <strong data-i18n="birds_at_time">Birds at time:</strong> {{ entry.birds_survived if entry.birds_survived else ('na'|translate) }}
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+            <div class="mobile-metric-value text-success">{{ cycle.id }}</div>
+            <div class="mobile-metric-label">Cycle ID</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Action buttons -->
-    <div class="col-12">
-      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a href="{{ url_for('daywise') }}" class="btn btn-secondary me-md-2" data-i18n="cancel">Cancel</a>
-        <button type="submit" class="btn btn-primary">
-          <span data-i18n="update_entry">✏️ Update Entry</span>
-        </button>
-      </div>
+    <!-- Edit Form -->
+    <div class="mobile-card">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-clipboard-data me-2"></i>Edit Entry Data
+      </h5>
+      
+      <form method="POST" class="mobile-form-enhanced">
+        <!-- Mortality Section -->
+        <div class="mobile-form-group">
+          <label for="mortality" class="mobile-form-label" data-i18n="mortality">
+            <i class="bi bi-exclamation-triangle me-2"></i>Mortality
+          </label>
+          <input id="mortality" type="number" name="mortality" class="mobile-form-control"
+                 value="{{ entry.mortality }}" min="0" required
+                 placeholder="Enter mortality count">
+          <small class="text-muted">
+            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.mortality }}
+          </small>
+          <div class="invalid-feedback">Please enter a valid mortality count.</div>
+        </div>
+
+        <!-- Feed Consumption Section -->
+        <div class="mobile-form-group">
+          <label for="feed-consumed" class="mobile-form-label" data-i18n="feed_bags_consumed">
+            <i class="bi bi-basket me-2"></i>Feed Bags Consumed
+          </label>
+          <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" 
+                 class="mobile-form-control" value="{{ entry.feed_bags_consumed }}" min="0" required
+                 placeholder="Enter feed consumed">
+          <small class="text-muted">
+            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.feed_bags_consumed }}
+          </small>
+          <div class="invalid-feedback">Please enter a valid feed consumption amount.</div>
+        </div>
+
+        <!-- Feed Added Section -->
+        <div class="mobile-form-group">
+          <label for="feed-added" class="mobile-form-label" data-i18n="feed_bags_added">
+            <i class="bi bi-plus-circle me-2"></i>Feed Bags Added
+          </label>
+          <input id="feed-added" type="number" step="0.1" name="feed_bags_added" 
+                 class="mobile-form-control" value="{{ entry.feed_bags_added }}" min="0"
+                 placeholder="Enter feed added">
+          <small class="text-muted">
+            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.feed_bags_added }}
+          </small>
+          <div class="invalid-feedback">Please enter a valid feed addition amount.</div>
+        </div>
+
+        <!-- Average Weight Section -->
+        <div class="mobile-form-group">
+          <label for="avg-weight" class="mobile-form-label" data-i18n="avg_weight">
+            <i class="bi bi-speedometer2 me-2"></i>Average Weight (kg)
+          </label>
+          <input id="avg-weight" type="number" step="0.001" name="avg_weight" 
+                 class="mobile-form-control" value="{{ entry.avg_weight }}" min="0" required
+                 placeholder="Enter average weight">
+          <small class="text-muted">
+            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.avg_weight }} kg ({{ (entry.avg_weight * 1000)|int }} g)
+          </small>
+          <div class="invalid-feedback">Please enter a valid weight.</div>
+        </div>
+
+        <!-- Medicines Section -->
+        <div class="mobile-form-group">
+          <label for="medicines" class="mobile-form-label" data-i18n="medicines_given">
+            <i class="bi bi-capsule me-2"></i>Medicines Given
+          </label>
+          <textarea id="medicines" name="medicines" class="mobile-form-control" rows="4"
+                    placeholder="Enter medicines given (if any)">{{ entry.medicines or '' }}</textarea>
+          <small class="text-muted">
+            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.medicines or 'None' }}
+          </small>
+          <div class="invalid-feedback">Please enter valid medicine information.</div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="mobile-form-group">
+          <label for="daily-notes" class="mobile-form-label" data-i18n="notes">
+            <i class="bi bi-journal-text me-2"></i>Daily Notes
+          </label>
+          <textarea id="daily-notes" name="daily_notes" class="mobile-form-control" rows="4"
+                    placeholder="Enter any additional notes (optional)">{{ entry.daily_notes or '' }}</textarea>
+          <small class="text-muted">
+            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.daily_notes or 'No notes' }}
+          </small>
+          <div class="invalid-feedback">Please enter valid notes.</div>
+        </div>
+
+        <!-- Current Calculated Values -->
+        <div class="mobile-card bg-light mt-4">
+          <h6 class="mobile-card-title text-muted" data-i18n="current_calculated_values">
+            <i class="bi bi-calculator me-2"></i>Current Calculated Values
+          </h6>
+          <div class="row g-3">
+            <div class="col-6 col-md-4">
+              <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+                <div class="mobile-metric-value text-success">{{ entry.fcr }}</div>
+                <div class="mobile-metric-label">FCR</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-4">
+              <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+                <div class="mobile-metric-value text-info">{{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</div>
+                <div class="mobile-metric-label">Avg Feed/Bird</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="mobile-metric-card text-center bg-warning bg-opacity-10">
+                <div class="mobile-metric-value text-warning">{{ entry.birds_survived if entry.birds_survived else 'N/A' }}</div>
+                <div class="mobile-metric-label">Birds Survived</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-grid gap-3 mt-4">
+          <button type="submit" class="mobile-btn-primary">
+            <i class="bi bi-check-circle me-2"></i>Update Entry
+          </button>
+          <a href="{{ url_for('daywise') }}" class="mobile-btn-outline-secondary">
+            <i class="bi bi-x-circle me-2"></i>Cancel Changes
+          </a>
+        </div>
+      </form>
     </div>
-  </form>
+
+    <!-- Important Notes -->
+    <div class="mobile-alert alert alert-warning mt-4">
+      <h6 class="d-flex align-items-center mb-3">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span data-i18n="important_notes">Important Notes</span>
+      </h6>
+      <ul class="mb-0 small">
+        <li class="mb-2" data-i18n="note_cycle_totals">
+          <i class="bi bi-arrow-right me-2"></i>Changing values will affect cycle totals and calculations
+        </li>
+        <li class="mb-2" data-i18n="note_fcr_recalc">
+          <i class="bi bi-arrow-right me-2"></i>FCR and Avg Feed/Bird will be recalculated automatically
+        </li>
+        <li class="mb-2" data-i18n="note_bird_count">
+          <i class="bi bi-arrow-right me-2"></i>Bird count changes will affect current cycle bird count
+        </li>
+        <li data-i18n="note_feed_inventory">
+          <i class="bi bi-arrow-right me-2"></i>Feed bag changes will affect available feed inventory
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
 
-<!-- Warning Note -->
-<div class="alert alert-warning mt-4">
-  <h6 data-i18n="important_notes">⚠️ Important Notes:</h6>
-  <ul class="mb-0">
-    <li data-i18n="note_cycle_totals">Changing values will affect cycle totals and calculations</li>
-    <li data-i18n="note_fcr_recalc">FCR and Avg Feed/Bird will be recalculated automatically</li>
-    <li data-i18n="note_bird_count">Bird count changes will affect current cycle bird count</li>
-    <li data-i18n="note_feed_inventory">Feed bag changes will affect available feed inventory</li>
-  </ul>
-</div>
+<!-- Enhanced Mobile UX JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize mobile UX enhancements
+  if (window.mobileUX) {
+    window.mobileUX.init();
+  }
 
+  // Form enhancement
+  const form = document.querySelector('.mobile-form-enhanced');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  
+  // Auto-save functionality
+  let autoSaveTimeout;
+  const formInputs = form.querySelectorAll('input, textarea');
+  
+  formInputs.forEach(input => {
+    input.addEventListener('input', function() {
+      clearTimeout(autoSaveTimeout);
+      
+      // Show saving indicator
+      const indicator = document.createElement('small');
+      indicator.className = 'text-muted auto-save-indicator';
+      indicator.innerHTML = '<i class="bi bi-cloud-arrow-up me-1"></i>Auto-saving...';
+      
+      // Remove existing indicators
+      document.querySelectorAll('.auto-save-indicator').forEach(el => el.remove());
+      
+      // Add indicator after the input
+      this.parentElement.appendChild(indicator);
+      
+      // Auto-save after 2 seconds of inactivity
+      autoSaveTimeout = setTimeout(() => {
+        // Save to localStorage as backup
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        localStorage.setItem('edit_daily_backup', JSON.stringify(data));
+        
+        // Update indicator
+        indicator.innerHTML = '<i class="bi bi-check-circle me-1"></i>Auto-saved';
+        indicator.className = 'text-success auto-save-indicator';
+        
+        // Remove indicator after 2 seconds
+        setTimeout(() => indicator.remove(), 2000);
+      }, 2000);
+    });
+  });
+
+  // Real-time calculation updates
+  const mortalityInput = document.getElementById('mortality');
+  const feedConsumedInput = document.getElementById('feed-consumed');
+  const feedAddedInput = document.getElementById('feed-added');
+  const avgWeightInput = document.getElementById('avg-weight');
+
+  function updateCalculations() {
+    // This would typically make an AJAX call to get updated calculations
+    // For now, we'll just show a visual feedback
+    const calculatedSection = document.querySelector('.mobile-card.bg-light');
+    calculatedSection.style.opacity = '0.7';
+    calculatedSection.style.transition = 'opacity 0.3s ease';
+    
+    setTimeout(() => {
+      calculatedSection.style.opacity = '1';
+    }, 500);
+  }
+
+  [mortalityInput, feedConsumedInput, feedAddedInput, avgWeightInput].forEach(input => {
+    if (input) {
+      input.addEventListener('input', updateCalculations);
+    }
+  });
+
+  // Enhanced form validation
+  form.addEventListener('submit', function(e) {
+    let isValid = true;
+    
+    // Validate mortality
+    if (mortalityInput.value < 0) {
+      mortalityInput.classList.add('is-invalid');
+      isValid = false;
+    } else {
+      mortalityInput.classList.remove('is-invalid');
+    }
+
+    // Validate feed consumed
+    if (feedConsumedInput.value < 0) {
+      feedConsumedInput.classList.add('is-invalid');
+      isValid = false;
+    } else {
+      feedConsumedInput.classList.remove('is-invalid');
+    }
+
+    // Validate average weight
+    if (avgWeightInput.value <= 0) {
+      avgWeightInput.classList.add('is-invalid');
+      isValid = false;
+    } else {
+      avgWeightInput.classList.remove('is-invalid');
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+      
+      // Show error message
+      const errorAlert = document.createElement('div');
+      errorAlert.className = 'alert alert-danger mt-3';
+      errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Please correct the errors above before submitting.';
+      
+      // Remove existing error alerts
+      document.querySelectorAll('.alert-danger').forEach(el => {
+        if (el.textContent.includes('Please correct')) el.remove();
+      });
+      
+      form.appendChild(errorAlert);
+      
+      // Scroll to first error
+      const firstError = form.querySelector('.is-invalid');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+    } else {
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2 spinner-border spinner-border-sm"></i>Updating...';
+      
+      // Clear localStorage backup
+      localStorage.removeItem('edit_daily_backup');
+    }
+  });
+
+  // Touch feedback for interactive elements
+  document.querySelectorAll('.mobile-metric-card, .mobile-btn-primary, .mobile-btn-outline-secondary').forEach(element => {
+    element.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(0.98)';
+    });
+    
+    element.addEventListener('touchend', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+
+  // Load auto-saved data if available
+  const savedData = localStorage.getItem('edit_daily_backup');
+  if (savedData) {
+    try {
+      const data = JSON.parse(savedData);
+      formInputs.forEach(input => {
+        if (data[input.name] !== undefined) {
+          input.value = data[input.name];
+        }
+      });
+    } catch (e) {
+      console.log('Error loading auto-saved data:', e);
+    }
+  }
+});
+</script>
 {% endblock %}

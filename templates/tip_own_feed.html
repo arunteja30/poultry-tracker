@@ -1,55 +1,251 @@
-<!doctype html>
-<html lang="te">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>కోళి ఆహార పట్టిక — 1 వ రోజు నుండి 40 వ రోజు వరకు (100 కిలోలకు)</title>
-  <style>
-    body{font-family:Arial, sans-serif; padding:20px; background:#f9f9f9; color:#111}
-    h1{font-size:20px; margin-bottom:10px}
-    table{width:100%; border-collapse:collapse; margin-top:15px}
-    th,td{border:1px solid #ccc; padding:6px; text-align:left}
-    th{background:#eee}
-    pre{background:#222; color:#fff; padding:10px; border-radius:6px;}
-  </style>
-</head>
-<body>
-  <h1>కోళి ఆహార పట్టిక — 1 వ రోజు నుండి 40 వ రోజు వరకు (100 కిలోలకు)</h1>
-  <p>ఈ పట్టికలో ప్రతిరోజు (1 → 40), 100 కిలోల ఆహారానికి ఎంత <strong>కంపెనీ ఫీడ్</strong> మరియు ఎంత <strong>మీ ఫీడ్</strong> కలపాలో చూపిస్తుంది.</p>
+{% extends 'base.html' %}
+{% block content %}
+<div class="mobile-container">
+  <div class="mobile-section">
+    <h2 class="mobile-header text-center mb-mobile-3" data-i18n="own_feed_title">🌾 Own Feed Recipe & Schedule</h2>
+    
+    <div class="mobile-card card shadow-sm mb-4">
+      <div class="card-body p-mobile-2">
+        <div class="mobile-alert alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          <span data-i18n="own_feed_intro">
+            This guide shows how to mix <strong>Company feed</strong> and <strong>Your own feed</strong> per 100 kg total feed. 
+            Use the recipe below for "Your feed" (finisher-type mix). Monitor performance and keep 2 days of pure company feed as backup.
+          </span>
+        </div>
+      </div>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>రోజు</th>
-        <th>కంపెనీ ఫీడ్ (kg)</th>
-        <th>మీ ఫీడ్ (kg)</th>
-        <th>గమనిక</th>
-      </tr>
-    </thead>
-    <tbody>
-      <script>
-        for (let day=1; day<=40; day++){
-          let c=0, y=0, remark="";
-          if(day<=10){c=100; y=0; remark="స్టార్టర్ దశ - పూర్తిగా కంపెనీ ఫీడ్";}
-          else if(day<=20){c=70; y=30; remark="మీ ఫీడ్‌ను క్రమంగా పరిచయం చేయండి";}
-          else if(day<=30){c=50; y=50; remark="సమతుల్య మిశ్రమం";}
-          else {c=30; y=70; remark="ఫినిషర్ దశ - మీ ఫీడ్ ఎక్కువగా";}
-          document.write(`<tr><td>${day}</td><td>${c}</td><td>${y}</td><td>${remark}</td></tr>`);
-        }
-      </script>
-    </tbody>
-  </table>
+    <!-- Mobile-First Feed Schedule -->
+    <div class="mobile-card card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white p-mobile-2">
+        <h5 class="mb-0 text-center" data-i18n="mixing_schedule">📅 Day-wise Mixing Schedule</h5>
+      </div>
+      <div class="card-body p-0">
+        <!-- Desktop Table (hidden on mobile) -->
+        <div class="table-responsive d-none d-lg-block">
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th data-i18n="day">Day</th>
+                <th data-i18n="company_feed">Company Feed (kg)</th>
+                <th data-i18n="your_feed">Your Feed (kg)</th>
+                <th data-i18n="remark">Remark</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableDesktop"></tbody>
+          </table>
+        </div>
 
-  <h2>మీ ఫీడ్ వంటకం (ఫినిషర్ రకం)</h2>
-  <pre>
-మొక్కజొన్న / విరిగిన బియ్యం / గోధుమలు - 55 కిలోలు
-సోయాబీన్ పొడి / వేరుశెనగ పిండి - 25 కిలోలు
-బియ్యం రవ్వ / నూనె తీయబడిన రవ్వ - 10 కిలోలు
-చేప పొడి లేదా మాంసపు పొడి - 5 కిలోలు
-ఖనిజ మిశ్రమం + షెల్ గ్రిట్ - 3 కిలోలు
-నూనె (వెజ్ లేదా జంతు) - 2 కిలోలు
-  </pre>
+        <!-- Mobile Cards -->
+        <div class="d-lg-none" id="scheduleCardsMobile"></div>
+      </div>
+    </div>
 
-  <p style="margin-top:20px; font-size:13px; color:#555">ఉత్పత్తి షెడ్యూల్: 1 → 40 రోజులు. 'మీ ఫీడ్' వంటకం సాధారణ ఫినిషర్ మిశ్రమం — స్థానిక పదార్థాల నాణ్యత మరియు ధరల ఆధారంగా సవరించండి. మార్పు సమయంలో కోళ్లను జాగ్రత్తగా గమనించండి.</p>
-</body>
-</html>
+    <div class="row g-3">
+      <!-- Recipe Card -->
+      <div class="col-12 col-lg-6">
+        <div class="mobile-card card shadow-sm h-100">
+          <div class="card-header bg-success text-white p-mobile-2">
+            <h5 class="mb-0 text-center" data-i18n="recipe_title">📋 Your Feed Recipe</h5>
+          </div>
+          <div class="card-body p-mobile-2">
+            <div class="recipe-content bg-dark text-light p-3 rounded mb-3">
+              <div class="row g-2" id="recipeIngredients">
+                <div class="col-12 col-sm-6 mb-2">
+                  <strong>Maize/Rice/Wheat:</strong> 55 kg
+                </div>
+                <div class="col-12 col-sm-6 mb-2">
+                  <strong>Soybean meal:</strong> 25 kg
+                </div>
+                <div class="col-12 col-sm-6 mb-2">
+                  <strong>Rice bran:</strong> 10 kg
+                </div>
+                <div class="col-12 col-sm-6 mb-2">
+                  <strong>Fish/Meat meal:</strong> 5 kg
+                </div>
+                <div class="col-12 col-sm-6 mb-2">
+                  <strong>Mineral mix:</strong> 3 kg
+                </div>
+                <div class="col-12 col-sm-6 mb-2">
+                  <strong>Oil:</strong> 2 kg
+                </div>
+              </div>
+            </div>
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              <span data-i18n="recipe_note">Total: 100 kg. Adjust ratios based on local ingredient availability.</span>
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Important Notes Card -->
+      <div class="col-12 col-lg-6">
+        <div class="mobile-card card shadow-sm h-100">
+          <div class="card-header bg-warning text-dark p-mobile-2">
+            <h5 class="mb-0 text-center" data-i18n="important_notes">⚠️ Important Notes</h5>
+          </div>
+          <div class="card-body p-mobile-2">
+            <div class="notes-list">
+              <div class="note-item mb-3">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <span data-i18n="note_quality">Monitor ingredient quality and prices locally</span>
+              </div>
+              <div class="note-item mb-3">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <span data-i18n="note_transition">Watch birds closely during feed transition</span>
+              </div>
+              <div class="note-item mb-3">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <span data-i18n="note_backup">Keep 2 days of pure company feed as backup</span>
+              </div>
+              <div class="note-item">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <span data-i18n="note_performance">Adjust ratios based on bird performance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile-first Feed Schedule Generator
+  document.addEventListener('DOMContentLoaded', function() {
+    generateFeedSchedule();
+  });
+
+  function generateFeedSchedule() {
+    const desktopTable = document.getElementById('scheduleTableDesktop');
+    const mobileContainer = document.getElementById('scheduleCardsMobile');
+    
+    const scheduleData = [
+      { range: '1-10', company: 100, own: 0, phase: 'Starter', remark: 'Full company feed - starter phase', class: 'border-info', badge: 'bg-info' },
+      { range: '11-20', company: 70, own: 30, phase: 'Grower', remark: 'Gradual introduction of own feed', class: 'border-warning', badge: 'bg-warning text-dark' },
+      { range: '21-30', company: 50, own: 50, phase: 'Developer', remark: 'Balanced mix of feeds', class: 'border-primary', badge: 'bg-primary' },
+      { range: '31-40', company: 30, own: 70, phase: 'Finisher', remark: 'More own feed - finisher phase', class: 'border-success', badge: 'bg-success' }
+    ];
+
+    scheduleData.forEach(item => {
+      // Desktop table rows
+      if (desktopTable) {
+        const row = `
+          <tr>
+            <td><strong>${item.range}</strong></td>
+            <td><span class="badge bg-primary">${item.company} kg</span></td>
+            <td><span class="badge bg-success">${item.own} kg</span></td>
+            <td><small>${item.remark}</small></td>
+          </tr>
+        `;
+        desktopTable.insertAdjacentHTML('beforeend', row);
+      }
+
+      // Mobile cards
+      if (mobileContainer) {
+        const card = `
+          <div class="mobile-feed-card p-3 border-start border-4 ${item.class} mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0 fw-bold">Days ${item.range}</h6>
+              <span class="badge ${item.badge} px-2 py-1">${item.phase}</span>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <div class="feed-info text-center p-2 bg-light rounded">
+                  <small class="text-muted d-block">Company Feed</small>
+                  <strong class="text-primary">${item.company} kg</strong>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="feed-info text-center p-2 bg-light rounded">
+                  <small class="text-muted d-block">Your Feed</small>
+                  <strong class="text-success">${item.own} kg</strong>
+                </div>
+              </div>
+            </div>
+            <small class="text-muted">${item.remark}</small>
+          </div>
+        `;
+        mobileContainer.insertAdjacentHTML('beforeend', card);
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Mobile-first responsive styles */
+  .mobile-feed-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-feed-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .feed-info {
+    border: 1px solid #e9ecef;
+  }
+
+  .recipe-content {
+    background: linear-gradient(135deg, #343a40, #495057) !important;
+  }
+
+  .note-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .note-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 575.98px) {
+    .mobile-header {
+      font-size: 1.2rem !important;
+    }
+    
+    .card-header h5 {
+      font-size: 1rem !important;
+    }
+    
+    .mobile-feed-card h6 {
+      font-size: 0.9rem !important;
+    }
+    
+    .badge {
+      font-size: 0.7rem !important;
+    }
+    
+    .feed-info {
+      padding: 8px !important;
+    }
+    
+    .feed-info small {
+      font-size: 0.7rem !important;
+    }
+    
+    .recipe-content .row > div {
+      font-size: 0.85rem !important;
+    }
+    
+    .note-item {
+      font-size: 0.9rem !important;
+      line-height: 1.4;
+    }
+  }
+
+  /* Enhanced touch feedback */
+  @media (hover: none) and (pointer: coarse) {
+    .mobile-feed-card:active {
+      transform: scale(0.98);
+    }
+  }
+</style>
+{% endblock %}

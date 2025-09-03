@@ -1,52 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 data-i18n="dashboard_title">🐔 Dashboard - Ramesh Farms</h2>
+<div class="mobile-container">
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="dashboard_title">🐔 Dashboard</h2>
 
-{% if cycle %}
-<!-- Main Dashboard Layout -->
-<div class="row g-4 mb-4">
-  <!-- Simple Quick Stats Below Graphs -->
-  <div class="col-12">
-    <h4 class="fw-bold text-muted mt-2 mb-2" data-i18n="quick_stats">Quick Stats</h4>
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-md-3">
-        <div class="card text-center">
-          <div class="card-body py-2">
+  {% if cycle %}
+  <!-- Mobile-First Dashboard Layout -->
+  <div class="mobile-section">
+    <h5 class="mobile-header" data-i18n="quick_stats">📊 Quick Stats</h5>
+    <div class="row g-2">
+      <div class="col-6">
+        <div class="mobile-card card text-center">
+          <div class="card-body p-mobile-2">
             <small class="text-muted" data-i18n="cycle_start">Cycle Started</small>
-            <div class="fw-bold">{{ summary.start_date }}</div>
+            <div class="fw-bold mobile-content">{{ summary.start_date }}</div>
           </div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
-        <div class="card text-center">
-          <div class="card-body py-2">
+      <div class="col-6">
+        <div class="mobile-card card text-center">
+          <div class="card-body p-mobile-2">
             <small class="text-muted" data-i18n="initial_stock">Initial Stock</small>
-            <div class="fw-bold">{{ summary.start_birds }} <span data-i18n="birds">birds</span></div>
+            <div class="fw-bold mobile-content">{{ summary.start_birds }} <span data-i18n="birds">birds</span></div>
           </div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
-        <div class="card text-center">
-          <div class="card-body py-2">
+      <div class="col-6">
+        <div class="mobile-card card text-center">
+          <div class="card-body p-mobile-2">
             <small class="text-muted" data-i18n="survival_rate">Survival Rate</small>
-            <div class="fw-bold text-success">{{ metrics.survival_rate }}%</div>
+            <div class="fw-bold text-success mobile-content">{{ metrics.survival_rate }}%</div>
           </div>
         </div>
       </div>
-      <div class="col-6 col-md-3">
-        <div class="card text-center">
-          <div class="card-body py-2">
-            <small class="text-muted" data-i18n="last_week_mortality">Last Week Mortality</small>
-            <div class="fw-bold text-{{ 'danger' if metrics.last_week_mortality > 50 else 'warning' if metrics.last_week_mortality > 20 else 'success' }}">{{ metrics.last_week_mortality }} <span data-i18n="birds">birds</span></div>
+      <div class="col-6">
+        <div class="mobile-card card text-center">
+          <div class="card-body p-mobile-2">
+            <small class="text-muted" data-i18n="last_week_mortality">Week Mortality</small>
+            <div class="fw-bold text-{{ 'danger' if metrics.last_week_mortality > 50 else 'warning' if metrics.last_week_mortality > 20 else 'success' }} mobile-content">{{ metrics.last_week_mortality }}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-12">
-    <h4 class="fw-bold text-primary mt-2 mb-2" data-i18n="key_performance">Key Performance</h4>
-    <div class="row g-3">
+  <div class="mobile-section">
+    <h5 class="mobile-header" data-i18n="key_performance">📈 Performance</h5>
+    <div class="row g-2">
       <div class="col-6 col-md-3">
         <div class="card text-center">
           <div class="card-body py-2">

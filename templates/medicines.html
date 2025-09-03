@@ -1,39 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 data-i18n="meds_title">Medicine Sheet</h2>
+<div class="mobile-container">
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="meds_title">💊 Medicines</h2>
 
-<div class="card p-4 mb-4">
-  <h5 data-i18n="add_new_medicine">Add New Medicine</h5>
-  <form method="POST" class="row g-3">
-    <div class="col-md-4">
-      <label for="med-name" class="form-label" data-i18n="medicine_name">Medicine Name</label>
-      <input id="med-name" data-i18n-placeholder="med_name_ph" name="name" class="form-control" placeholder="Medicine name" required>
+  <div class="mobile-section">
+    <div class="mobile-card card">
+      <div class="card-header bg-info text-white p-mobile-2">
+        <h6 class="mb-0" data-i18n="add_new_medicine">➕ Add Medicine</h6>
+      </div>
+      <div class="card-body p-mobile-2">
+        <form method="POST">
+          <div class="row g-2">
+            <div class="col-12">
+              <label for="med-name" class="form-label mobile-content" data-i18n="medicine_name">Medicine Name</label>
+              <input id="med-name" data-i18n-placeholder="med_name_ph" name="name" class="mobile-input form-control" placeholder="Medicine name" required>
+            </div>
+            <div class="col-6">
+              <label for="med-price" class="form-label mobile-content" data-i18n="medicine_price">Price (₹)</label>
+              <input id="med-price" data-i18n-placeholder="med_price_ph" name="price" class="mobile-input form-control" placeholder="0.00" type="number" step="0.01">
+            </div>
+            <div class="col-6">
+              <label for="med-qty" class="form-label mobile-content" data-i18n="medicine_qty">Quantity</label>
+              <input id="med-qty" data-i18n-placeholder="med_qty_ph" name="qty" class="mobile-input form-control" placeholder="Qty" type="number">
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="mobile-button btn btn-success w-100" type="submit" data-i18n="add_med">💊 Add Medicine</button>
+          </div>
+        </form>
+      </div>
     </div>
-    <div class="col-md-3">
-      <label for="med-price" class="form-label" data-i18n="medicine_price">Price</label>
-      <input id="med-price" data-i18n-placeholder="med_price_ph" name="price" class="form-control" placeholder="Price" type="number" step="0.01">
-    </div>
-    <div class="col-md-3">
-      <label for="med-qty" class="form-label" data-i18n="medicine_qty">Quantity</label>
-      <input id="med-qty" data-i18n-placeholder="med_qty_ph" name="qty" class="form-control" placeholder="Qty" type="number">
-    </div>
-    <div class="col-md-2 d-flex align-items-end">
-      <button class="btn btn-success w-100" type="submit" data-i18n="add_med">Add</button>
-    </div>
-  </form>
-</div>
-
-<!-- Desktop Table View -->
-<div class="card d-none d-md-block">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0" data-i18n="medicines_list">Medicines List</h5>
-    <button class="btn btn-sm btn-outline-primary expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesDesktopCollapse" aria-expanded="true">
-    </button>
   </div>
-  <div class="collapse show" id="medicinesDesktopCollapse">
-    <div class="table-responsive">
-    <table class="table table-hover">
-      <thead>
+
+  <!-- Mobile-First Medicine List -->
         <tr>
           <th data-i18n="table_medicine_name">Name</th>
           <th data-i18n="table_medicine_price">Price</th>
@@ -54,7 +53,7 @@
               <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;" 
                     onsubmit="return confirm('Are you sure you want to delete this medicine?');">
                 <button type="submit" class="btn btn-danger btn-sm">
-                  <i class="fas fa-trash"></i> <span data-i18n="btn_delete">Delete</span>
+                  <i class="fas fa-trash"></i> Delete
                 </button>
               </form>
             </td>
@@ -67,9 +66,7 @@
         {% endfor %}
       </tbody>
     </table>
-    </div>
   </div>
-</div>
   <div class="card-footer">
     <div class="row">
       <div class="col-md-8"></div>
@@ -83,16 +80,8 @@
 
 <!-- Mobile Card View -->
 <div class="d-block d-md-none">
-  <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0" data-i18n="medicines_list">Medicines List</h5>
-      <button class="btn btn-sm btn-outline-primary expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesMobileCollapse" aria-expanded="true">
-      </button>
-    </div>
-  </div>
-  <div class="collapse show" id="medicinesMobileCollapse">
-    {% for m in meds %}
-      <div class="card mb-3 shadow-sm">
+  {% for m in meds %}
+    <div class="card mb-3 shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <strong>{{ m.name }}</strong>
@@ -120,54 +109,12 @@
         No medicines yet
       </div>
     </div>
-    {% endfor %}
-    <div class="card">
-      <div class="card-body text-end">
-        <strong data-i18n="total_amount">Total Amount: </strong>
-        <span class="text-success fw-bold">₹{{ "%.2f"|format(total_amount|float) }}</span>
-      </div>
+  {% endfor %}
+  <div class="card">
+    <div class="card-body text-end">
+      <strong data-i18n="total_amount">Total Amount: </strong>
+      <span class="text-success fw-bold">₹{{ "%.2f"|format(total_amount|float) }}</span>
     </div>
   </div>
 </div>
-
-<style>
-@media (max-width: 576px) {
-  .btn, .btn-sm, .btn-lg {
-    font-size: 0.85rem !important;
-    padding: 0.3rem 0.7rem !important;
-    border-radius: 0.3rem !important;
-  }
-  .card-header h5, h2, h3, h5, .card-title {
-    font-size: 1.1rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-  .card-header {
-    padding: 0.5rem 1rem !important;
-  }
-  .card-body {
-    padding: 0.7rem 0.7rem !important;
-  }
-}
-</style>
-
-<script>
-// Simple arrow rotation for expand/collapse
-document.addEventListener('DOMContentLoaded', function() {
-  const expandButtons = document.querySelectorAll('.expand-btn');
-  expandButtons.forEach(button => {
-    const targetId = button.getAttribute('data-bs-target');
-    const targetElement = document.querySelector(targetId);
-    
-    if (targetElement) {
-      targetElement.addEventListener('shown.bs.collapse', function() {
-        button.setAttribute('aria-expanded', 'true');
-      });
-      
-      targetElement.addEventListener('hidden.bs.collapse', function() {
-        button.setAttribute('aria-expanded', 'false');
-      });
-    }
-  });
-});
-</script>
 {% endblock %}

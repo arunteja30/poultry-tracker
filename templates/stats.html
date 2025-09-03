@@ -1,32 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 data-i18n="stats_title">📊 Comprehensive Statistics</h2>
-  {% if cycle %}
-  <div class="text-muted">
-    <small data-i18n="cycle_info">Cycle #{{ cycle.id }} | Day {{ stats.cycle_duration }} of {{ stats.target_days }}</small>
+<div class="mobile-container">
+  <div class="d-flex justify-content-between align-items-center mb-mobile-3">
+    <h2 class="mobile-header" data-i18n="stats_title">📊 Statistics</h2>
+    {% if cycle %}
+    <div class="mobile-content text-muted">
+      <small data-i18n="cycle_info">Day {{ stats.cycle_duration }}/{{ stats.target_days }}</small>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
-</div>
 
-{% if not cycle %}
-<!-- No Active Cycle -->
-<div class="row">
-  <div class="col-12">
-    <div class="card text-center p-5">
-      <div class="card-body">
-        <div class="mb-4" style="font-size: 4rem;">🐔</div>
-        <h3 data-i18n="no_cycle">No Active Cycle</h3>
-        <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
-        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+  {% if not cycle %}
+  <!-- No Active Cycle -->
+  <div class="mobile-section">
+    <div class="mobile-card card text-center">
+      <div class="card-body p-mobile-3">
+        <div class="mb-3" style="font-size: 3rem;">🐔</div>
+        <h5 class="mobile-header" data-i18n="no_cycle">No Active Cycle</h5>
+        <p class="mobile-content text-muted mb-3" data-i18n="setup_instruction">Please set up a cycle to view statistics.</p>
+        <a href="{{ url_for('setup') }}" class="mobile-button btn btn-primary w-100" data-i18n="setup_new_cycle">Setup New Cycle</a>
       </div>
     </div>
   </div>
-</div>
-{% else %}
+  {% else %}
 
-<!-- Performance Overview Cards -->
-<div class="row mb-4">
+  <!-- Performance Overview Cards -->
+  <div class="mobile-section">
+    <h5 class="mobile-header">📈 Performance Overview</h5>
+    <div class="row g-2">
   <div class="col-md-3 col-sm-6 mb-3">
     <div class="card h-100 border-success">
       <div class="card-body text-center">

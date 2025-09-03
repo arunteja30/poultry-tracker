@@ -1,140 +1,262 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 data-i18n="setup_title">Initial Setup</h2>
+<div class="mobile-container">
+  <div class="mobile-section">
+    <h2 class="mobile-header" data-i18n="setup_title">
+      <i class="bi bi-gear-fill me-2"></i>Initial Setup
+    </h2>
 
-{% if existing_cycle %}
-<div class="alert alert-warning mb-4">
-  <h5 data-i18n="existing_cycle_warning">⚠️ Active Cycle Found</h5>
-  <p data-i18n="existing_cycle_msg">
-    You have an active cycle with {{ existing_cycle.current_birds }} birds started on {{ existing_cycle.start_date }}.
-    Starting a new cycle will archive the current one.
-  </p>
-</div>
-{% endif %}
+    {% if existing_cycle %}
+    <div class="mobile-alert alert alert-warning mb-4">
+      <div class="d-flex align-items-start">
+        <i class="bi bi-exclamation-triangle-fill me-3 mt-1"></i>
+        <div>
+          <h6 class="mb-2" data-i18n="existing_cycle_warning">Active Cycle Found</h6>
+          <p class="mb-0 small" data-i18n="existing_cycle_msg">
+            You have an active cycle with {{ existing_cycle.current_birds }} birds started on {{ existing_cycle.start_date }}.
+            Starting a new cycle will archive the current one.
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
-<div class="card p-4">
-  <div class="row">
-    <div class="col-md-8">
-      <h5 data-i18n="setup_subtitle">Configure your poultry cycle</h5>
-      <form method="POST" class="row g-3">
+    <!-- Main Setup Form -->
+    <div class="mobile-card">
+      <h5 class="mobile-card-title" data-i18n="setup_subtitle">
+        <i class="bi bi-clipboard-data me-2"></i>Configure your poultry cycle
+      </h5>
+      
+      <form method="POST" class="mobile-form-enhanced" data-autosave="true">
         {% if existing_cycle %}
           <input type="hidden" name="action" value="reset">
         {% else %}
           <input type="hidden" name="action" value="new">
         {% endif %}
         
-        <div class="col-md-4">
-          <label for="start-birds" class="form-label" data-i18n="start_birds">Start Birds</label>
-          <input id="start-birds" data-i18n-placeholder="start_birds_ph" type="number" name="start_birds" class="form-control" required min="1">
-        </div>
-        <!-- Hide Start Feed Bags field -->
-        <input id="start-feed" type="hidden" name="start_feed_bags" value="0">
-        <div class="col-md-4">
-          <label for="start-date" class="form-label" data-i18n="arrival_dt">Arrival Date</label>
-          <input id="start-date" type="date" name="start_date" class="form-control" value="{{ today }}">
-        </div>
-        <div class="col-md-4">
-          <label for="start-time" class="form-label" data-i18n="arrival_time">Arrival Time</label>
-          <input id="start-time" type="time" name="start_time" class="form-control">
-        </div>
-        <div class="col-md-4">
-          <label for="hatchery_name" class="form-label">Hatchery Name</label>
-          <input id="hatchery_name" type="text" name="hatchery_name" class="form-control" placeholder="Enter hatchery name">
-        </div>
-        <div class="col-md-4">
-          <label for="avg_chicks_weight" class="form-label">Avg Chicks Weight (g)</label>
-          <input id="avg_chicks_weight" type="number" step="0.01" name="avg_chicks_weight" class="form-control" placeholder="e.g. 45">
-        </div>
-        <div class="col-md-4">
-          <label for="farm_owner" class="form-label">Farm Owner</label>
-          <input id="farm_owner" type="text" name="farm_owner" class="form-control" placeholder="Enter farm owner name">
-        </div>
-        <div class="col-md-8">
-          <label for="driver" class="form-label" data-i18n="driver">Driver Name</label>
-          <input id="driver" data-i18n-placeholder="driver_ph" type="text" name="driver" class="form-control">
-        </div>
-        <div class="col-12">
-          <label for="notes" class="form-label" data-i18n="notes">Notes</label>
-          <textarea id="notes" data-i18n-placeholder="notes_ph" name="notes" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="col-12">
-          <div class="alert alert-warning">
-            <small data-i18n="setup_info">This will start a new poultry cycle. Make sure all information is correct.</small>
+        <!-- Birds Information -->
+        <div class="mobile-form-section">
+          <h6 class="mobile-form-section-title">
+            <i class="bi bi-egg me-2"></i>Birds Information
+          </h6>
+          
+          <div class="mobile-form-group">
+            <label for="start-birds" class="mobile-form-label" data-i18n="start_birds">
+              <i class="bi bi-plus-circle me-2"></i>Start Birds
+            </label>
+            <input id="start-birds" 
+                   type="number" 
+                   name="start_birds" 
+                   class="mobile-input-enhanced form-control" 
+                   required 
+                   min="1" 
+                   placeholder="Enter number of birds"
+                   data-i18n-placeholder="start_birds_ph">
+          </div>
+
+          <div class="mobile-form-group">
+            <label for="avg_chicks_weight" class="mobile-form-label">
+              <i class="bi bi-speedometer2 me-2"></i>Avg Chicks Weight (g)
+            </label>
+            <input id="avg_chicks_weight" 
+                   type="number" 
+                   step="0.01" 
+                   name="avg_chicks_weight" 
+                   class="mobile-input-enhanced form-control" 
+                   placeholder="e.g. 45">
           </div>
         </div>
-        <div class="col-12">
-          <button class="btn btn-success btn-lg my-3" type="submit" data-i18n="save">
-            {% if existing_cycle %}
-              🔄 Start New Cycle
-            {% else %}
-              🐔 Create Cycle
-            {% endif %}
-          </button>
-          <style>
-            @media (max-width: 767px) {
-              .btn-success.btn-lg.my-3 {
-                margin-bottom: 2.5rem !important;
-              }
-            }
-          </style>
-          </button>
+
+        <!-- Date & Time Information -->
+        <div class="mobile-form-section">
+          <h6 class="mobile-form-section-title">
+            <i class="bi bi-calendar-event me-2"></i>Arrival Information
+          </h6>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mobile-form-group">
+                <label for="start-date" class="mobile-form-label" data-i18n="arrival_dt">
+                  <i class="bi bi-calendar3 me-2"></i>Arrival Date
+                </label>
+                <input id="start-date" 
+                       type="date" 
+                       name="start_date" 
+                       class="mobile-input-enhanced form-control" 
+                       value="{{ today }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mobile-form-group">
+                <label for="start-time" class="mobile-form-label" data-i18n="arrival_time">
+                  <i class="bi bi-clock me-2"></i>Arrival Time
+                </label>
+                <input id="start-time" 
+                       type="time" 
+                       name="start_time" 
+                       class="mobile-input-enhanced form-control">
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Farm Information -->
+        <div class="mobile-form-section">
+          <h6 class="mobile-form-section-title">
+            <i class="bi bi-building me-2"></i>Farm Details
+          </h6>
+          
+          <div class="mobile-form-group">
+            <label for="hatchery_name" class="mobile-form-label">
+              <i class="bi bi-house me-2"></i>Hatchery Name
+            </label>
+            <input id="hatchery_name" 
+                   type="text" 
+                   name="hatchery_name" 
+                   class="mobile-input-enhanced form-control" 
+                   placeholder="Enter hatchery name">
+          </div>
+
+          <div class="mobile-form-group">
+            <label for="farm_owner" class="mobile-form-label">
+              <i class="bi bi-person-badge me-2"></i>Farm Owner
+            </label>
+            <input id="farm_owner" 
+                   type="text" 
+                   name="farm_owner" 
+                   class="mobile-input-enhanced form-control" 
+                   placeholder="Enter farm owner name">
+          </div>
+
+          <div class="mobile-form-group">
+            <label for="driver" class="mobile-form-label" data-i18n="driver">
+              <i class="bi bi-truck me-2"></i>Driver Name
+            </label>
+            <input id="driver" 
+                   type="text" 
+                   name="driver" 
+                   class="mobile-input-enhanced form-control" 
+                   placeholder="Enter driver name"
+                   data-i18n-placeholder="driver_ph">
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="mobile-form-section">
+          <h6 class="mobile-form-section-title">
+            <i class="bi bi-journal-text me-2"></i>Additional Notes
+          </h6>
+          
+          <div class="mobile-form-group">
+            <label for="notes" class="mobile-form-label" data-i18n="notes">
+              <i class="bi bi-card-text me-2"></i>Notes
+            </label>
+            <textarea id="notes" 
+                      name="notes" 
+                      class="mobile-input-enhanced form-control" 
+                      rows="3" 
+                      placeholder="Enter any additional notes"
+                      data-i18n-placeholder="notes_ph"></textarea>
+          </div>
+        </div>
+
+        <!-- Hidden field for feed bags -->
+        <input id="start-feed" type="hidden" name="start_feed_bags" value="0">
+
+        <!-- Warning & Submit -->
+        <div class="mobile-alert alert alert-warning">
+          <i class="bi bi-info-circle me-2"></i>
+          <small data-i18n="setup_info">This will start a new poultry cycle. Make sure all information is correct.</small>
+        </div>
+
+        <button class="mobile-btn-primary w-100 mb-4" type="submit" data-i18n="save">
+          <i class="bi bi-{{ 'arrow-clockwise' if existing_cycle else 'plus-circle' }} me-2"></i>
+          {% if existing_cycle %}
+            Start New Cycle
+          {% else %}
+            Create Cycle
+          {% endif %}
+        </button>
       </form>
     </div>
-    
-    <div class="col-md-4">
-      <div class="card bg-info bg-opacity-10 border-info">
-        <div class="card-body">
-          <h6 data-i18n="other_options">🔧 Other Options</h6>
-          <div class="d-grid gap-2">
+
+    <!-- Action Cards -->
+    <div class="row g-3 mt-3">
+      <!-- Other Options Card -->
+      <div class="col-md-6">
+        <div class="mobile-card bg-info bg-opacity-10 border-info">
+          <h6 class="mobile-card-title text-info">
+            <i class="bi bi-tools me-2"></i>Other Options
+          </h6>
+          <div class="mobile-button-stack">
             {% if session.role == 'admin' %}
-            <a href="{{ url_for('import_data') }}" class="btn btn-outline-info btn-sm" data-i18n="import_data_link">
-              📥 Import Data
+            <a href="{{ url_for('import_data') }}" class="mobile-btn-outline-info" data-i18n="import_data_link">
+              <i class="bi bi-cloud-upload me-2"></i>Import Data
             </a>
             {% endif %}
-            <a href="{{ url_for('cycle_history') }}" class="btn btn-outline-primary btn-sm" data-i18n="view_cycle_history">
-              🔄 View Cycle History
+            <a href="{{ url_for('cycle_history') }}" class="mobile-btn-outline-primary" data-i18n="view_cycle_history">
+              <i class="bi bi-clock-history me-2"></i>View Cycle History
             </a>
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm" data-i18n="back_to_dashboard">
-              🏠 Back to Dashboard
+            <a href="{{ url_for('dashboard') }}" class="mobile-btn-outline-secondary" data-i18n="back_to_dashboard">
+              <i class="bi bi-house me-2"></i>Back to Dashboard
             </a>
             {% if existing_cycle and session.role == 'admin' %}
-            <a href="{{ url_for('export') }}" class="btn btn-outline-success btn-sm" data-i18n="backup_current">
-              💾 Backup Current Data
+            <a href="{{ url_for('export') }}" class="mobile-btn-outline-success" data-i18n="backup_current">
+              <i class="bi bi-download me-2"></i>Backup Current Data
             </a>
             {% endif %}
           </div>
         </div>
       </div>
-      
-      {% if existing_cycle %}
-      <div class="card bg-warning bg-opacity-10 border-warning mt-3">
-        <div class="card-body">
-          <h6 data-i18n="current_cycle_info">📊 Current Cycle Info</h6>
-          <small class="text-muted">
-            <strong data-i18n="start_date">Start Date:</strong> {{ existing_cycle.start_date }}<br>
-            <strong data-i18n="live_birds">Live Birds:</strong> {{ existing_cycle.current_birds }}<br>
-            <strong data-i18n="feed_bags">Feed Bags:</strong> {{ existing_cycle.start_feed_bags|round|int }}<br>
-            <strong data-i18n="driver">Driver:</strong> {{ existing_cycle.driver or 'N/A' }}
-          </small>
-          <hr>
+
+      <!-- Current Cycle Info Card -->
+      <div class="col-md-6">
+        {% if existing_cycle %}
+        <div class="mobile-card bg-warning bg-opacity-10 border-warning">
+          <h6 class="mobile-card-title text-warning">
+            <i class="bi bi-bar-chart me-2"></i>Current Cycle Info
+          </h6>
+          <div class="mobile-info-list">
+            <div class="mobile-info-item">
+              <span class="mobile-info-label" data-i18n="start_date">Start Date:</span>
+              <span class="mobile-info-value">{{ existing_cycle.start_date }}</span>
+            </div>
+            <div class="mobile-info-item">
+              <span class="mobile-info-label" data-i18n="live_birds">Live Birds:</span>
+              <span class="mobile-info-value">{{ existing_cycle.current_birds }}</span>
+            </div>
+            <div class="mobile-info-item">
+              <span class="mobile-info-label" data-i18n="feed_bags">Feed Bags:</span>
+              <span class="mobile-info-value">{{ existing_cycle.start_feed_bags|round|int }}</span>
+            </div>
+            <div class="mobile-info-item">
+              <span class="mobile-info-label" data-i18n="driver">Driver:</span>
+              <span class="mobile-info-value">{{ existing_cycle.driver or 'N/A' }}</span>
+            </div>
+          </div>
+          
           {% if session.role == 'admin' %}
-          <form method="POST" action="{{ url_for('reset_cycle') }}" onsubmit="return confirm('Are you sure you want to end the current cycle? This will archive the cycle and set the end date to today. This action cannot be undone.')">
-            <button type="submit" class="btn btn-danger w-100 mt-3" data-i18n="end_cycle_btn">🛑 End Current Cycle</button>
+          <form method="POST" 
+                action="{{ url_for('reset_cycle') }}" 
+                onsubmit="return confirm('Are you sure you want to end the current cycle? This will archive the cycle and set the end date to today. This action cannot be undone.')"
+                class="mt-3">
+            <button type="submit" class="mobile-btn-danger w-100" data-i18n="end_cycle_btn">
+              <i class="bi bi-stop-circle me-2"></i>End Current Cycle
+            </button>
           </form>
           {% endif %}
         </div>
-      </div>
-      {% else %}
-      <div class="card bg-info bg-opacity-10 border-info mt-3">
-        <div class="card-body">
-          <h6 data-i18n="unarchive_info">🔄 Unarchive Option</h6>
-          <small class="text-muted" data-i18n="unarchive_desc">
+        {% else %}
+        <div class="mobile-card bg-info bg-opacity-10 border-info">
+          <h6 class="mobile-card-title text-info">
+            <i class="bi bi-arrow-clockwise me-2"></i>Unarchive Option
+          </h6>
+          <p class="small text-muted mb-0" data-i18n="unarchive_desc">
             If you have archived cycles, you can unarchive them from the Cycle History page instead of creating a new cycle.
-          </small>
+          </p>
         </div>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
 </div>

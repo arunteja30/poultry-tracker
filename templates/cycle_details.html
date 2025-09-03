@@ -1,74 +1,93 @@
 {% extends 'base.html' %}
 {% block content %}
-<!-- Mobile-first header layout -->
-<div class="mb-4">
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-    <div class="mb-3 mb-md-0">
-      <h2 data-i18n="cycle_details_title" class="h4 h-md-2">📊 Cycle Details</h2>
-      <p class="text-muted small">
-        <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
-        <span data-i18n="status_label">Status:</span> 
-        {% if cycle.status == 'active' %}
-          <span class="badge bg-success" data-i18n="status_active">Active</span>
-        {% else %}
-          <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
-        {% endif %}
-      </p>
+<div class="mobile-container">
+  <div class="mobile-section">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mobile-header m-0" data-i18n="cycle_details_title">
+          <i class="bi bi-graph-up me-2"></i>Cycle Details
+        </h2>
+        <p class="text-muted small mb-0">
+          <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
+          <span data-i18n="status_label">Status:</span> 
+          {% if cycle.status == 'active' %}
+            <span class="badge bg-success" data-i18n="status_active">Active</span>
+          {% else %}
+            <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="{{ url_for('cycle_history') }}" data-i18n="back_to_history">
+              <i class="bi bi-arrow-left me-2"></i>Back to History
+            </a>
+          </li>
+          {% if session.role == 'admin' %}
+          <li>
+            <a class="dropdown-item" href="{{ url_for('export_cycle_details', cycle_id=cycle.id) }}" data-i18n="export_cycle_details">
+              <i class="bi bi-download me-2"></i>Export Details
+            </a>
+          </li>
+          {% endif %}
+          {% if cycle.status == 'archived' and session.role == 'admin' %}
+          <li>
+            <a class="dropdown-item" href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" data-i18n="export_cycle">
+              <i class="bi bi-file-earmark-arrow-down me-2"></i>Export Cycle
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-    <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
-      <a href="{{ url_for('cycle_history') }}" class="btn btn-outline-secondary btn-sm" data-i18n="back_to_history">← Back to History</a>
-      {% if session.role == 'admin' %}
-      <a href="{{ url_for('export_cycle_details', cycle_id=cycle.id) }}" class="btn btn-success btn-sm" data-i18n="export_cycle_details">📊 Export Details</a>
-      {% endif %}
-      {% if cycle.status == 'archived' and session.role == 'admin' %}
-      <a href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" class="btn btn-success btn-sm" data-i18n="export_cycle">📥 Export</a>
-      {% endif %}
-    </div>
-  </div>
-</div>
 
-<!-- Cycle Selection and Actions -->
-<div class="row mb-4">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-body">
-        <!-- Mobile-first layout -->
-        <div class="row">
-          <div class="col-12 col-lg-4 mb-3 mb-lg-0">
-            <label for="cycle_select" class="form-label" data-i18n="select_cycle">Select Cycle:</label>
-            <select class="form-select" id="cycle_select" onchange="changeCycle()">
-              {% for c in all_cycles %}
-                <option value="{{ c.id }}" {% if c.id == cycle.id %}selected{% endif %}>
-                  Cycle #{{ c.id }} - {{ c.start_date }} 
-                  {% if c.status == 'active' %}(Active){% else %}(Archived){% endif %}
-                </option>
-              {% endfor %}
-            </select>
+    <!-- Cycle Selection and Quick Actions -->
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-gear me-2"></i>Cycle Management
+      </h5>
+      
+      <!-- Cycle Selection -->
+      <div class="mobile-form-group">
+        <label for="cycle_select" class="mobile-form-label" data-i18n="select_cycle">
+          <i class="bi bi-list me-2"></i>Select Cycle:
+        </label>
+        <select class="mobile-form-control" id="cycle_select" onchange="changeCycle()">
+          {% for c in all_cycles %}
+            <option value="{{ c.id }}" {% if c.id == cycle.id %}selected{% endif %}>
+              Cycle #{{ c.id }} - {{ c.start_date }} 
+              {% if c.status == 'active' %}(Active){% else %}(Archived){% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('income_estimate') }}?cycle_id={{ cycle.id }}" class="mobile-btn-primary">
+          <i class="bi bi-calculator me-2"></i>Income Estimate
+        </a>
+        <div class="row g-2">
+          {% if cycle.status == 'active' %}
+          <div class="col-6">
+            <a href="{{ url_for('daily') }}" class="mobile-btn-outline-info w-100">
+              <i class="bi bi-plus-circle me-1"></i>Add Daily
+            </a>
           </div>
-          <div class="col-12 col-lg-8">
-            <!-- Mobile: Stack buttons vertically, Desktop: Horizontal -->
-            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
-              <a href="{{ url_for('income_estimate') }}?cycle_id={{ cycle.id }}" class="btn btn-primary btn-sm flex-fill flex-sm-grow-0">
-                <i class="fas fa-calculator me-1"></i>
-                <span data-i18n="income_estimate">Income Estimate</span>
-              </a>
-              {% if cycle.status == 'active' %}
-              <a href="{{ url_for('daily') }}" class="btn btn-info btn-sm flex-fill flex-sm-grow-0">
-                <i class="fas fa-plus me-1"></i>
-                <span data-i18n="add_daily_entry">Add Daily Entry</span>
-              </a>
-              {% endif %}
-              <a href="{{ url_for('bird_dispatch') }}" class="btn btn-warning btn-sm flex-fill flex-sm-grow-0">
-                <i class="fas fa-truck me-1"></i>
-                <span data-i18n="dispatch_birds">Dispatch Birds</span>
-              </a>
-            </div>
+          {% endif %}
+          <div class="col-6">
+            <a href="{{ url_for('bird_dispatch') }}" class="mobile-btn-outline-warning w-100">
+              <i class="bi bi-truck me-1"></i>Dispatch
+            </a>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
 <!-- Cycle Overview -->
 
@@ -182,23 +201,48 @@
 
 <!-- Performance Charts -->
 <div class="row mb-4">
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <h6 data-i18n="fcr_trend_chart">📈 FCR Trend</h6>
+  <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+    <div class="card mobile-section">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0" data-i18n="fcr_trend_chart">📈 FCR Trend</h6>
+        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#fcrChartCollapse" aria-expanded="false">
+          <span class="expand-text d-none">🔼</span>
+          <span class="collapse-text">🔽</span>
+        </button>
       </div>
-      <div class="card-body">
-        <canvas id="fcrChart" height="200"></canvas>
+      <div class="collapse d-lg-block" id="fcrChartCollapse">
+        <div class="card-body">
+          <canvas id="fcrChart" height="200" class="mobile-chart"></canvas>
+          <!-- Debug info for FCR chart -->
+          <div id="fcrDebugInfo" class="small text-muted mt-2" style="display: none;">
+            <strong>Debug Info:</strong>
+            <div>FCR Series: {{ fcr_series|tojson | safe }}</div>
+            <div>Dates: {{ dates|tojson | safe }}</div>
+            <div>Chart.js loaded: <span id="chartjsStatus">Checking...</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        <h6 data-i18n="weight_trend_chart">⚖️ Weight Trend</h6>
+  <div class="col-12 col-lg-6">
+    <div class="card mobile-section">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0" data-i18n="weight_trend_chart">⚖️ Weight Trend</h6>
+        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#weightChartCollapse" aria-expanded="false">
+          <span class="expand-text d-none">🔼</span>
+          <span class="collapse-text">🔽</span>
+        </button>
       </div>
-      <div class="card-body">
-        <canvas id="weightChart" height="200"></canvas>
+      <div class="collapse d-lg-block" id="weightChartCollapse">
+        <div class="card-body">
+          <canvas id="weightChart" height="200" class="mobile-chart"></canvas>
+          <!-- Debug info for Weight chart -->
+          <div id="weightDebugInfo" class="small text-muted mt-2" style="display: none;">
+            <strong>Debug Info:</strong>
+            <div>Weight Series: {{ weight_series|tojson | safe }}</div>
+            <div>Dates: {{ dates|tojson | safe }}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -211,7 +255,9 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">💊 Medicines Summary</h5>
-        <button class="btn btn-sm btn-outline-primary expand-btn mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="false">
+        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="false">
+          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+          <span class="collapse-text" data-i18n="expand">🔽</span>
         </button>
       </div>
       <div class="collapse" id="medicinesSummaryCollapse">
@@ -293,7 +339,9 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">💰 Expenses Summary</h5>
-        <button class="btn btn-outline-primary btn-sm expand-btn mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
+        <button class="btn btn-outline-primary btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
+          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+          <span class="collapse-text" data-i18n="expand">🔽</span>
         </button>
       </div>
       <div class="collapse" id="expensesCollapse">
@@ -373,7 +421,9 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">🚚 Dispatch History</h5>
-        <button class="btn btn-sm btn-outline-primary expand-btn mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="false">
+        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="false">
+          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+          <span class="collapse-text" data-i18n="expand">🔽</span>
         </button>
       </div>
       <div class="collapse" id="dispatchHistoryCollapse">
@@ -509,7 +559,9 @@
 <div class="card d-none d-lg-block mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0" data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
-    <button class="btn btn-sm btn-outline-primary expand-btn mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
+    <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
+      <span class="expand-text" data-i18n="collapse">🔼</span>
+      <span class="collapse-text d-none" data-i18n="expand">🔽</span>
     </button>
   </div>
   <div class="collapse show" id="dailyEntriesDesktopCollapse">
@@ -620,7 +672,9 @@
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
-      <button class="btn btn-sm btn-outline-primary expand-btn mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesMobileCollapse" aria-expanded="false">
+      <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesMobileCollapse" aria-expanded="false">
+        <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+        <span class="collapse-text" data-i18n="expand">🔽</span>
       </button>
     </div>
     <div class="collapse" id="dailyEntriesMobileCollapse">
@@ -663,7 +717,9 @@
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0" data-i18n="feed_list_header">📦 Feed List</h5>
-      <button class="btn btn-sm btn-outline-primary expand-btn mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#feedListMobileCollapse" aria-expanded="false">
+      <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#feedListMobileCollapse" aria-expanded="false">
+        <span class="expand-text d-none" data-i18n="collapse">🔼</span>
+        <span class="collapse-text" data-i18n="expand">🔽</span>
       </button>
     </div>
     <div class="collapse" id="feedListMobileCollapse">
@@ -697,201 +753,771 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Cycle selection functionality
+// Mobile UX Enhancements
+const isMobile = window.innerWidth <= 768;
+let resizeTimeout;
+
+// Cycle selection functionality with enhanced UX
 function changeCycle() {
   const cycleSelect = document.getElementById('cycle_select');
   const selectedCycleId = cycleSelect.value;
+  
   if (selectedCycleId) {
+    // Add loading feedback
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'alert alert-info';
+    loadingMsg.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Loading cycle details...';
+    document.body.insertBefore(loadingMsg, document.body.firstChild);
+    
     window.location.href = '/cycle_details/' + selectedCycleId;
   }
 }
 
-// FCR Chart
+// Enhanced Chart Configuration for Mobile
+const chartConfig = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    intersect: false,
+    mode: 'index'
+  },
+  plugins: {
+    tooltip: {
+      enabled: true,
+      mode: 'index',
+      intersect: false,
+      titleAlign: 'center',
+      bodyAlign: 'center',
+      backgroundColor: 'rgba(0,0,0,0.8)',
+      titleColor: '#fff',
+      bodyColor: '#fff',
+      borderColor: '#dee2e6',
+      borderWidth: 1,
+      cornerRadius: 8,
+      displayColors: false,
+      titleFont: {
+        size: isMobile ? 12 : 14
+      },
+      bodyFont: {
+        size: isMobile ? 11 : 13
+      }
+    },
+    legend: {
+      display: !isMobile,
+      position: 'top',
+      labels: {
+        padding: 20,
+        usePointStyle: true,
+        font: {
+          size: isMobile ? 10 : 12
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(0,0,0,0.1)',
+        lineWidth: 1
+      },
+      ticks: {
+        font: {
+          size: isMobile ? 10 : 12
+        },
+        maxTicksLimit: isMobile ? 6 : 10
+      }
+    },
+    x: {
+      grid: {
+        color: 'rgba(0,0,0,0.1)',
+        lineWidth: 1
+      },
+      ticks: {
+        font: {
+          size: isMobile ? 9 : 11
+        },
+        maxTicksLimit: isMobile ? 6 : 12,
+        maxRotation: isMobile ? 45 : 0
+      }
+    }
+  },
+  elements: {
+    point: {
+      radius: isMobile ? 3 : 4,
+      hoverRadius: isMobile ? 5 : 6,
+      hitRadius: isMobile ? 10 : 8
+    },
+    line: {
+      borderWidth: isMobile ? 2 : 3,
+      tension: 0.3
+    }
+  }
+};
+
+// Chart utility functions
+function createNoDataChart(ctx, message) {
+  if (ctx && ctx.parentElement) {
+    ctx.parentElement.innerHTML = `
+      <div class="alert alert-info text-center" style="margin: 20px;">
+        <i class="bi bi-info-circle me-2"></i>
+        ${message}
+      </div>
+    `;
+  }
+}
+
+function validateChartData(data, labels) {
+  if (!data || !labels) return { valid: false, validData: [], validLabels: [] };
+  
+  const validData = [];
+  const validLabels = [];
+  
+  for (let i = 0; i < Math.min(data.length, labels.length); i++) {
+    const value = parseFloat(data[i]);
+    if (!isNaN(value) && value > 0) {
+      validData.push(value);
+      validLabels.push(labels[i]);
+    }
+  }
+  
+  return {
+    valid: validData.length > 0,
+    validData: validData,
+    validLabels: validLabels
+  };
+}
+
+// FCR Chart with Mobile Optimization
 const fcrSeries = {{ fcr_series|tojson | safe }};
 const dates = {{ dates|tojson | safe }};
-const fcrCtx = document.getElementById('fcrChart').getContext('2d');
-new Chart(fcrCtx, {
-  type: 'line',
-  data: {
-    labels: dates,
-    datasets: [{
-      label: 'FCR',
-      data: fcrSeries,
-      tension: 0.2,
-      borderWidth: 2,
-      borderColor: '#1877f2',
-      backgroundColor: 'rgba(24, 119, 242, 0.1)',
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
+const fcrCtx = document.getElementById('fcrChart');
+
+console.log('FCR Chart Debug:', {
+  fcrSeries: fcrSeries,
+  dates: dates,
+  fcrSeriesLength: fcrSeries ? fcrSeries.length : 0,
+  datesLength: dates ? dates.length : 0,
+  fcrCtx: fcrCtx
+});
+
+if (fcrCtx && fcrSeries && dates && fcrSeries.length > 0) {
+  // Filter out null/undefined values and format data
+  const validData = [];
+  const validLabels = [];
+  
+  for (let i = 0; i < Math.min(fcrSeries.length, dates.length); i++) {
+    if (fcrSeries[i] !== null && fcrSeries[i] !== undefined && fcrSeries[i] > 0) {
+      validData.push(parseFloat(fcrSeries[i]));
+      validLabels.push(dates[i]);
+    }
+  }
+  
+  console.log('Valid FCR Data:', { validData, validLabels });
+  
+  const fcrChart = new Chart(fcrCtx, {
+    type: 'line',
+    data: {
+      labels: validLabels,
+      datasets: [{
+        label: 'FCR (Feed Conversion Ratio)',
+        data: validData,
+        borderColor: '#1877f2',
+        backgroundColor: 'rgba(24, 119, 242, 0.1)',
+        fill: true,
+        borderWidth: isMobile ? 2 : 3,
+        tension: 0.3,
+        pointRadius: isMobile ? 3 : 4,
+        pointHoverRadius: isMobile ? 5 : 6,
+        pointBackgroundColor: '#1877f2',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      plugins: {
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          titleAlign: 'center',
+          bodyAlign: 'center',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: '#dee2e6',
+          borderWidth: 1,
+          cornerRadius: 8,
+          displayColors: true,
+          titleFont: {
+            size: isMobile ? 12 : 14
+          },
+          bodyFont: {
+            size: isMobile ? 11 : 13
+          },
+          callbacks: {
+            label: function(context) {
+              return 'FCR: ' + context.parsed.y.toFixed(3);
+            }
+          }
+        },
+        legend: {
           display: true,
-          text: 'FCR Value'
+          position: 'top',
+          labels: {
+            padding: 20,
+            usePointStyle: true,
+            font: {
+              size: isMobile ? 10 : 12
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          grid: {
+            color: 'rgba(0,0,0,0.1)',
+            lineWidth: 1
+          },
+          ticks: {
+            font: {
+              size: isMobile ? 10 : 12
+            },
+            maxTicksLimit: isMobile ? 6 : 10,
+            callback: function(value) {
+              return value.toFixed(2);
+            }
+          },
+          title: {
+            display: !isMobile,
+            text: 'FCR Value',
+            font: {
+              size: isMobile ? 11 : 13
+            }
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(0,0,0,0.1)',
+            lineWidth: 1
+          },
+          ticks: {
+            font: {
+              size: isMobile ? 9 : 11
+            },
+            maxTicksLimit: isMobile ? 6 : 12,
+            maxRotation: isMobile ? 45 : 0
+          }
         }
       }
     }
+  });
+  
+  // Store chart reference for responsive updates
+  window.fcrChart = fcrChart;
+  console.log('FCR Chart created successfully');
+} else {
+  console.warn('FCR Chart not created - missing data or context:', {
+    hasContext: !!fcrCtx,
+    hasFCRSeries: !!fcrSeries,
+    hasDates: !!dates,
+    fcrSeriesLength: fcrSeries ? fcrSeries.length : 0
+  });
+  
+  // Show no data message
+  if (fcrCtx) {
+    fcrCtx.parentElement.innerHTML = `
+      <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle me-2"></i>
+        No FCR data available yet. Add daily entries to see the trend.
+      </div>
+    `;
   }
+}
+
+// Weight Chart with Mobile Optimization
+const weightSeries = {{ weight_series|tojson | safe }};
+const weightCtx = document.getElementById('weightChart');
+
+console.log('Weight Chart Debug:', {
+  weightSeries: weightSeries,
+  dates: dates,
+  weightSeriesLength: weightSeries ? weightSeries.length : 0,
+  weightCtx: weightCtx
 });
 
-// Weight Chart
-const weightSeries = {{ weight_series|tojson }};
-const weightCtx = document.getElementById('weightChart').getContext('2d');
-new Chart(weightCtx, {
-  type: 'line',
-  data: {
-    labels: dates,
-    datasets: [{
-      label: 'Weight (kg)',
-      data: weightSeries,
-      tension: 0.2,
-      borderWidth: 2,
-      borderColor: '#28a745',
-      backgroundColor: 'rgba(40, 167, 69, 0.1)',
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
+if (weightCtx && weightSeries && dates && weightSeries.length > 0) {
+  // Filter out null/undefined values and format data
+  const validWeightData = [];
+  const validWeightLabels = [];
+  
+  for (let i = 0; i < Math.min(weightSeries.length, dates.length); i++) {
+    if (weightSeries[i] !== null && weightSeries[i] !== undefined && weightSeries[i] > 0) {
+      validWeightData.push(parseFloat(weightSeries[i]));
+      validWeightLabels.push(dates[i]);
+    }
+  }
+  
+  console.log('Valid Weight Data:', { validWeightData, validWeightLabels });
+  
+  const weightChart = new Chart(weightCtx, {
+    type: 'line',
+    data: {
+      labels: validWeightLabels,
+      datasets: [{
+        label: 'Average Weight (kg)',
+        data: validWeightData,
+        borderColor: '#28a745',
+        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+        fill: true,
+        borderWidth: isMobile ? 2 : 3,
+        tension: 0.3,
+        pointRadius: isMobile ? 3 : 4,
+        pointHoverRadius: isMobile ? 5 : 6,
+        pointBackgroundColor: '#28a745',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      plugins: {
+        tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          titleAlign: 'center',
+          bodyAlign: 'center',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: '#dee2e6',
+          borderWidth: 1,
+          cornerRadius: 8,
+          displayColors: true,
+          titleFont: {
+            size: isMobile ? 12 : 14
+          },
+          bodyFont: {
+            size: isMobile ? 11 : 13
+          },
+          callbacks: {
+            label: function(context) {
+              return 'Weight: ' + context.parsed.y.toFixed(3) + ' kg';
+            }
+          }
+        },
+        legend: {
           display: true,
-          text: 'Weight (kg)'
+          position: 'top',
+          labels: {
+            padding: 20,
+            usePointStyle: true,
+            font: {
+              size: isMobile ? 10 : 12
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          grid: {
+            color: 'rgba(0,0,0,0.1)',
+            lineWidth: 1
+          },
+          ticks: {
+            font: {
+              size: isMobile ? 10 : 12
+            },
+            maxTicksLimit: isMobile ? 6 : 10,
+            callback: function(value) {
+              return value.toFixed(3) + ' kg';
+            }
+          },
+          title: {
+            display: !isMobile,
+            text: 'Weight (kg)',
+            font: {
+              size: isMobile ? 11 : 13
+            }
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(0,0,0,0.1)',
+            lineWidth: 1
+          },
+          ticks: {
+            font: {
+              size: isMobile ? 9 : 11
+            },
+            maxTicksLimit: isMobile ? 6 : 12,
+            maxRotation: isMobile ? 45 : 0
+          }
         }
       }
     }
+  });
+  
+  // Store chart reference for responsive updates
+  window.weightChart = weightChart;
+  console.log('Weight Chart created successfully');
+} else {
+  console.warn('Weight Chart not created - missing data or context:', {
+    hasContext: !!weightCtx,
+    hasWeightSeries: !!weightSeries,
+    hasDates: !!dates,
+    weightSeriesLength: weightSeries ? weightSeries.length : 0
+  });
+  
+  // Show no data message
+  if (weightCtx) {
+    weightCtx.parentElement.innerHTML = `
+      <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle me-2"></i>
+        No weight data available yet. Add daily entries to see the trend.
+      </div>
+    `;
   }
-});
+}
 
-// Collapse toggle handlers
-function setupCollapseHandlers() {
-  // Daily Entries collapse toggle
-  const dailyEntriesCollapse = document.getElementById('dailyEntriesDesktopCollapse');
-  if (dailyEntriesCollapse) {
-    dailyEntriesCollapse.addEventListener('shown.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.remove('d-none');
-        button.querySelector('.collapse-text').classList.add('d-none');
-      }
-    });
-    dailyEntriesCollapse.addEventListener('hidden.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.add('d-none');
-        button.querySelector('.collapse-text').classList.remove('d-none');
-      }
-    });
+// Enhanced Collapse Management with Animation
+class CollapseManager {
+  constructor() {
+    this.handlers = new Map();
+    this.setupGlobalHandlers();
   }
-
-  // Dispatch History collapse toggle
-  const dispatchHistoryCollapse = document.getElementById('dispatchHistoryCollapse');
-  if (dispatchHistoryCollapse) {
-    dispatchHistoryCollapse.addEventListener('shown.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.remove('d-none');
-        button.querySelector('.collapse-text').classList.add('d-none');
-      }
+  
+  setupGlobalHandlers() {
+    document.addEventListener('show.bs.collapse', (e) => {
+      this.handleCollapseShow(e);
     });
-    dispatchHistoryCollapse.addEventListener('hidden.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.add('d-none');
-        button.querySelector('.collapse-text').classList.remove('d-none');
-      }
+    
+    document.addEventListener('hide.bs.collapse', (e) => {
+      this.handleCollapseHide(e);
     });
-  }
-
-  // Medicines collapse toggle
-  const medicinesCollapse = document.getElementById('medicinesSummaryCollapse');
-  if (medicinesCollapse) {
-    medicinesCollapse.addEventListener('shown.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.remove('d-none');
-        button.querySelector('.collapse-text').classList.add('d-none');
-      }
-    });
-    medicinesCollapse.addEventListener('hidden.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.add('d-none');
-        button.querySelector('.collapse-text').classList.remove('d-none');
-      }
+    
+    document.addEventListener('shown.bs.collapse', (e) => {
+      this.handleCollapseShown(e);
     });
   }
-
-  // Expenses collapse toggle
-  const expensesCollapse = document.getElementById('expensesCollapse');
-  if (expensesCollapse) {
-    expensesCollapse.addEventListener('shown.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.remove('d-none');
-        button.querySelector('.collapse-text').classList.add('d-none');
-      }
-    });
-    expensesCollapse.addEventListener('hidden.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.add('d-none');
-        button.querySelector('.collapse-text').classList.remove('d-none');
-      }
-    });
+  
+  handleCollapseShow(e) {
+    const button = this.getCollapseButton(e.target);
+    if (button) {
+      button.classList.add('loading');
+      this.updateButtonText(button, true);
+    }
   }
-
-  // Daily Entries Mobile collapse toggle
-  const dailyEntriesMobileCollapse = document.getElementById('dailyEntriesMobileCollapse');
-  if (dailyEntriesMobileCollapse) {
-    dailyEntriesMobileCollapse.addEventListener('shown.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.remove('d-none');
-        button.querySelector('.collapse-text').classList.add('d-none');
-      }
-    });
-    dailyEntriesMobileCollapse.addEventListener('hidden.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.add('d-none');
-        button.querySelector('.collapse-text').classList.remove('d-none');
-      }
-    });
+  
+  handleCollapseHide(e) {
+    const button = this.getCollapseButton(e.target);
+    if (button) {
+      this.updateButtonText(button, false);
+    }
   }
+  
+  handleCollapseShown(e) {
+    const button = this.getCollapseButton(e.target);
+    if (button) {
+      button.classList.remove('loading');
+    }
+    
+    // Smooth scroll to section on mobile
+    if (isMobile) {
+      e.target.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest'
+      });
+    }
+  }
+  
+  getCollapseButton(collapseElement) {
+    const header = collapseElement.previousElementSibling;
+    return header ? header.querySelector('.mobile-collapse-btn') : null;
+  }
+  
+  updateButtonText(button, isExpanded) {
+    const expandText = button.querySelector('.expand-text');
+    const collapseText = button.querySelector('.collapse-text');
+    
+    if (expandText && collapseText) {
+      if (isExpanded) {
+        expandText.classList.remove('d-none');
+        collapseText.classList.add('d-none');
+      } else {
+        expandText.classList.add('d-none');
+        collapseText.classList.remove('d-none');
+      }
+    }
+  }
+}
 
-  // Feed List Mobile collapse toggle
-  const feedListMobileCollapse = document.getElementById('feedListMobileCollapse');
-  if (feedListMobileCollapse) {
-    feedListMobileCollapse.addEventListener('shown.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.remove('d-none');
-        button.querySelector('.collapse-text').classList.add('d-none');
+// Chart Responsive Handler
+function handleChartResize() {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+  
+  resizeTimeout = setTimeout(() => {
+    const newIsMobile = window.innerWidth <= 768;
+    
+    // Update charts if mobile state changed
+    if (newIsMobile !== isMobile) {
+      if (window.fcrChart) {
+        window.fcrChart.resize();
+        window.fcrChart.update('none');
+      }
+      if (window.weightChart) {
+        window.weightChart.resize();
+        window.weightChart.update('none');
+      }
+    }
+  }, 250);
+}
+
+// Touch Feedback for Interactive Elements
+function addTouchFeedback() {
+  const interactiveElements = document.querySelectorAll(
+    '.btn, .metric-card, .mobile-collapse-btn, .card'
+  );
+  
+  interactiveElements.forEach(element => {
+    element.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(0.98)';
+      this.style.transition = 'transform 0.1s ease';
+    });
+    
+    element.addEventListener('touchend', function() {
+      this.style.transform = '';
+    });
+    
+    element.addEventListener('touchcancel', function() {
+      this.style.transform = '';
+    });
+  });
+}
+
+// Pull-to-Refresh Implementation
+let pullStartY = 0;
+let pullThreshold = 100;
+let isPulling = false;
+
+function initPullToRefresh() {
+  if (!isMobile) return;
+  
+  document.addEventListener('touchstart', (e) => {
+    if (window.scrollY === 0) {
+      pullStartY = e.touches[0].clientY;
+      isPulling = true;
+    }
+  });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (!isPulling) return;
+    
+    const currentY = e.touches[0].clientY;
+    const pullDistance = currentY - pullStartY;
+    
+    if (pullDistance > pullThreshold && window.scrollY === 0) {
+      // Show refresh indicator
+      const refreshIndicator = document.createElement('div');
+      refreshIndicator.id = 'refresh-indicator';
+      refreshIndicator.className = 'alert alert-info text-center';
+      refreshIndicator.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Release to refresh';
+      document.body.insertBefore(refreshIndicator, document.body.firstChild);
+    }
+  });
+  
+  document.addEventListener('touchend', (e) => {
+    if (isPulling) {
+      const currentY = e.changedTouches[0].clientY;
+      const pullDistance = currentY - pullStartY;
+      
+      if (pullDistance > pullThreshold && window.scrollY === 0) {
+        window.location.reload();
+      }
+      
+      // Remove refresh indicator
+      const indicator = document.getElementById('refresh-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+      
+      isPulling = false;
+    }
+  });
+}
+
+// Swipe Gesture Support for Cards
+function initSwipeGestures() {
+  if (!isMobile) return;
+  
+  const cards = document.querySelectorAll('.metric-card, .border-info, .border-warning, .border-success, .border-danger');
+  
+  cards.forEach(card => {
+    let startX = 0;
+    let startY = 0;
+    
+    card.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+    
+    card.addEventListener('touchend', (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = startX - endX;
+      const diffY = startY - endY;
+      
+      // Check for horizontal swipe
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+        if (diffX > 0) {
+          // Swipe left - could trigger actions
+          card.style.transform = 'translateX(-10px)';
+          setTimeout(() => {
+            card.style.transform = '';
+          }, 200);
+        } else {
+          // Swipe right - could trigger actions
+          card.style.transform = 'translateX(10px)';
+          setTimeout(() => {
+            card.style.transform = '';
+          }, 200);
+        }
       }
     });
-    feedListMobileCollapse.addEventListener('hidden.bs.collapse', function () {
-      const button = this.previousElementSibling.querySelector('button');
-      if (button) {
-        button.querySelector('.expand-text').classList.add('d-none');
-        button.querySelector('.collapse-text').classList.remove('d-none');
-      }
+  });
+}
+
+// Accessibility Enhancements
+function enhanceAccessibility() {
+  // Add ARIA labels to interactive elements
+  const buttons = document.querySelectorAll('.mobile-collapse-btn');
+  buttons.forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', 'Toggle section visibility');
+    }
+  });
+  
+  // Ensure proper focus management
+  const focusableElements = document.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  focusableElements.forEach(element => {
+    element.addEventListener('focus', function() {
+      this.style.outline = '2px solid #007bff';
+      this.style.outlineOffset = '2px';
+    });
+    
+    element.addEventListener('blur', function() {
+      this.style.outline = '';
+      this.style.outlineOffset = '';
+    });
+  });
+}
+
+// Performance Monitoring
+function monitorPerformance() {
+  if ('performance' in window) {
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const perfData = performance.getEntriesByType('navigation')[0];
+        console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+      }, 0);
     });
   }
 }
 
-// Initialize collapse handlers when DOM is ready
+// Initialize all features when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  setupCollapseHandlers();
+  console.log('Page loaded, initializing features...');
+  
+  // Check if Chart.js is loaded
+  const chartjsStatus = document.getElementById('chartjsStatus');
+  if (chartjsStatus) {
+    chartjsStatus.textContent = typeof Chart !== 'undefined' ? 'Yes' : 'No';
+  }
+  
+  // Add debug toggle functionality
+  const debugToggle = document.createElement('button');
+  debugToggle.className = 'btn btn-sm btn-outline-secondary position-fixed';
+  debugToggle.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000;';
+  debugToggle.innerHTML = '<i class="bi bi-bug"></i> Debug';
+  debugToggle.onclick = function() {
+    const fcrDebug = document.getElementById('fcrDebugInfo');
+    const weightDebug = document.getElementById('weightDebugInfo');
+    if (fcrDebug) {
+      fcrDebug.style.display = fcrDebug.style.display === 'none' ? 'block' : 'none';
+    }
+    if (weightDebug) {
+      weightDebug.style.display = weightDebug.style.display === 'none' ? 'block' : 'none';
+    }
+  };
+  document.body.appendChild(debugToggle);
+  
+  // Core functionality
+  const collapseManager = new CollapseManager();
+  
+  // Mobile enhancements
+  if (isMobile) {
+    addTouchFeedback();
+    initPullToRefresh();
+    initSwipeGestures();
+  }
+  
+  // Universal enhancements
+  enhanceAccessibility();
+  monitorPerformance();
+  
+  // Chart responsiveness
+  window.addEventListener('resize', handleChartResize);
+  window.addEventListener('orientationchange', handleChartResize);
+  
+  // Debug chart data availability
+  setTimeout(() => {
+    console.log('Chart Debug Summary:', {
+      fcrChartExists: !!window.fcrChart,
+      weightChartExists: !!window.weightChart,
+      fcrCanvas: document.getElementById('fcrChart'),
+      weightCanvas: document.getElementById('weightChart'),
+      chartJsLoaded: typeof Chart !== 'undefined'
+    });
+    
+    // If charts failed to load, show user-friendly message
+    const fcrCanvas = document.getElementById('fcrChart');
+    const weightCanvas = document.getElementById('weightChart');
+    
+    if (fcrCanvas && !window.fcrChart) {
+      console.warn('FCR Chart failed to initialize');
+    }
+    
+    if (weightCanvas && !window.weightChart) {
+      console.warn('Weight Chart failed to initialize');
+    }
+  }, 1000);
 });
+
+// Export for testing
+window.CycleDetailsApp = {
+  changeCycle,
+  CollapseManager,
+  handleChartResize
+};
 </script>
 {% endblock %}
 

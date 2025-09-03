@@ -1,16 +1,79 @@
 {% extends 'base.html' %}
 {% block content %}
 <!-- No Active Cycle -->
-<div class="row">
-  <div class="col-12">
-    <div class="card text-center p-5">
-      <div class="card-body">
-        <div class="mb-4" style="font-size: 4rem;">🐔</div>
-        <h3 data-i18n="no_cycle">No Active Cycle</h3>
-        <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
-        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
+<div class="mobile-container">
+  <div class="row">
+    <div class="col-12">
+      <div class="mobile-card text-center">
+        <div class="card-body p-4 p-md-5">
+          <div class="mb-4" style="font-size: 3rem;">🐔</div>
+          <h3 class="mobile-title" data-i18n="no_cycle">No Active Cycle</h3>
+          <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
+          <a href="{{ url_for('setup') }}" class="mobile-btn mobile-btn-primary mobile-btn-lg" data-i18n="setup_new_cycle">
+            <i class="bi bi-plus-circle me-2"></i>Setup New Cycle
+          </a>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  // Enhanced UX for no cycle page
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add subtle animation to the chicken icon
+    const chickenIcon = document.querySelector('[style*="font-size: 3rem"]');
+    if (chickenIcon) {
+      chickenIcon.style.animation = 'bounce 2s infinite';
+    }
+    
+    // Touch feedback for setup button
+    const setupBtn = document.querySelector('.mobile-btn-lg');
+    if (setupBtn) {
+      setupBtn.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.98)';
+      });
+      
+      setupBtn.addEventListener('touchend', function() {
+        this.style.transform = '';
+      });
+    }
+  });
+</script>
+
+<style>
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .mobile-card {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  @media (max-width: 576px) {
+    .mobile-card .card-body {
+      padding: 2rem 1rem !important;
+    }
+    
+    .mobile-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .mobile-btn-lg {
+      padding: 0.75rem 2rem !important;
+      font-size: 1.1rem !important;
+    }
+  }
+</style>
 {% endblock %}

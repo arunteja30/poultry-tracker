@@ -1,47 +1,52 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 data-i18n="expenses_title">💰 Expenses Management</h2>
-  <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary" data-i18n="back_to_dashboard">← Back to Dashboard</a>
-</div>
-
-<!-- Add New Expense Form -->
-<div class="card mb-4">
-  <div class="card-header">
-    <h5 data-i18n="add_expense_header">💳 Add New Expense</h5>
+<div class="mobile-container">
+  <div class="d-flex justify-content-between align-items-center mb-mobile-3">
+    <h2 class="mobile-header" data-i18n="expenses_title">💰 Expenses</h2>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mobile-button" data-i18n="back_to_dashboard">← Back</a>
   </div>
-  <div class="card-body">
-    <form method="POST">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="name" class="form-label" data-i18n="expense_name_label">Expense Name *</label>
-          <input type="text" class="form-control" id="name" name="name" required placeholder="e.g., Transport, Labor, Equipment">
-        </div>
-        <div class="col-md-3 mb-3">
-          <label for="date" class="form-label" data-i18n="expense_date_label">Date *</label>
-          <input type="date" class="form-control" id="date" name="date" value="{{ date.today() }}" required>
-        </div>
-        <div class="col-md-3 mb-3">
-          <label for="amount" class="form-label" data-i18n="expense_amount_label">Amount (₹) *</label>
-          <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0" required placeholder="0.00">
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12 mb-3">
-          <label for="notes" class="form-label" data-i18n="expense_notes_label">Notes</label>
-          <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Additional details about this expense..."></textarea>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-success" data-i18n="add_expense_btn">💰 Add Expense</button>
-    </form>
-  </div>
-</div>
 
-<!-- Expenses List -->
+  <!-- Add New Expense Form -->
+  <div class="mobile-section">
+    <div class="mobile-card card">
+      <div class="card-header bg-primary text-white p-mobile-2">
+        <h6 class="mb-0" data-i18n="add_expense_header">💳 Add Expense</h6>
+      </div>
+      <div class="card-body p-mobile-2">
+        <form method="POST">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <label for="name" class="form-label mobile-content" data-i18n="expense_name_label">Name *</label>
+              <input type="text" class="mobile-input form-control" id="name" name="name" required placeholder="Transport, Labor, etc.">
+            </div>
+            <div class="col-6 col-md-3">
+              <label for="date" class="form-label mobile-content" data-i18n="expense_date_label">Date *</label>
+              <input type="date" class="mobile-input form-control" id="date" name="date" value="{{ date.today() }}" required>
+            </div>
+            <div class="col-6 col-md-3">
+              <label for="amount" class="form-label mobile-content" data-i18n="expense_amount_label">Amount (₹) *</label>
+              <input type="number" class="mobile-input form-control" id="amount" name="amount" step="0.01" min="0" required placeholder="0.00">
+            </div>
+            <div class="col-12">
+              <label for="notes" class="form-label mobile-content" data-i18n="expense_notes_label">Notes</label>
+              <textarea class="mobile-input form-control" id="notes" name="notes" rows="2" placeholder="Additional details..."></textarea>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button type="submit" class="mobile-button btn btn-success w-100" data-i18n="add_expense_btn">💰 Add Expense</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expenses List -->
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0" data-i18n="expenses_list_header">📋 Expenses List ({{ expenses|length }} entries)</h5>
-    <button class="btn btn-outline-primary btn-sm expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="true">
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="true">
+      <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
+      <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
     </button>
   </div>
   <div class="collapse show" id="expensesCollapse">
@@ -148,24 +153,25 @@
 
 {% block scripts %}
 <script>
-// Simple arrow rotation for expand/collapse
-document.addEventListener('DOMContentLoaded', function() {
-  const expandButtons = document.querySelectorAll('.expand-btn');
-  expandButtons.forEach(button => {
-    const targetId = button.getAttribute('data-bs-target');
-    const targetElement = document.querySelector(targetId);
-    
-    if (targetElement) {
-      targetElement.addEventListener('shown.bs.collapse', function() {
-        button.setAttribute('aria-expanded', 'true');
-      });
-      
-      targetElement.addEventListener('hidden.bs.collapse', function() {
-        button.setAttribute('aria-expanded', 'false');
-      });
-    }
+// Toggle collapse text
+const expensesToggle = document.querySelector('[data-bs-target="#expensesCollapse"]');
+const expensesCollapse = document.getElementById('expensesCollapse');
+
+if (expensesToggle && expensesCollapse) {
+  expensesCollapse.addEventListener('shown.bs.collapse', function() {
+    const expandText = expensesToggle.querySelector('.expand-text');
+    const collapseText = expensesToggle.querySelector('.collapse-text');
+    expandText.classList.remove('d-none');
+    collapseText.classList.add('d-none');
   });
-});
+  
+  expensesCollapse.addEventListener('hidden.bs.collapse', function() {
+    const expandText = expensesToggle.querySelector('.expand-text');
+    const collapseText = expensesToggle.querySelector('.collapse-text');
+    expandText.classList.add('d-none');
+    collapseText.classList.remove('d-none');
+  });
+}
 
 // Form validation
 document.querySelector('form').addEventListener('submit', function(e) {
@@ -181,6 +187,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
   if (!amount || amount <= 0) {
     e.preventDefault();
     alert('Please enter a valid amount greater than 0');
+    return;
   }
 });
 </script>
@@ -202,6 +209,9 @@ document.querySelector('form').addEventListener('submit', function(e) {
   }
   .card-body {
     padding: 0.7rem 0.7rem !important;
+  }
+  .expand-text, .collapse-text {
+    font-size: 0.95rem !important;
   }
 }
 </style>

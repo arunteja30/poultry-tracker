@@ -1,43 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="mb-3" data-i18n="daily_title">Daily Input</h2>
+<div class="mobile-container">
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="daily_title">📝 Daily Input</h2>
 
-{% if not cycle %}
-<!-- No Active Cycle -->
-<div class="row justify-content-center">
-  <div class="col-12 col-md-8 col-lg-6">
-    <div class="card text-center p-4 p-md-5 shadow rounded-4">
-      <div class="card-body">
-        <div class="mb-4" style="font-size: 4rem;">🐔</div>
-        <h3 data-i18n="no_cycle">No Active Cycle</h3>
-        <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
-        <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg w-100" data-i18n="setup_new_cycle">Setup New Cycle</a>
+  {% if not cycle %}
+  <!-- No Active Cycle -->
+  <div class="mobile-section">
+    <div class="mobile-card card text-center">
+      <div class="card-body p-mobile-3">
+        <div class="mb-3" style="font-size: 3rem;">🐔</div>
+        <h5 class="mobile-header" data-i18n="no_cycle">No Active Cycle</h5>
+        <p class="mobile-content text-muted mb-3" data-i18n="setup_instruction">Please set up a new cycle to start tracking.</p>
+        <a href="{{ url_for('setup') }}" class="mobile-button btn btn-primary w-100" data-i18n="setup_new_cycle">Setup New Cycle</a>
       </div>
     </div>
   </div>
-</div>
-{% else %}
+  {% else %}
 
-<!-- Current Feed Bags Status -->
-<div class="alert alert-info mb-4 rounded-3 shadow-sm">
-  <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <h6 class="mb-2" data-i18n="current_feed_status">📦 Current Feed Status:</h6>
-      {% set available_bags = feeds|sum(attribute='feed_bags') if feeds is defined else 0 %}
-      <strong><span data-i18n="available_bags">Available Bags:</span> {{ bags_available|round|int }}</strong>
-      {% if bags_available <= 3 %}
-      <span class="badge bg-warning ms-2" data-i18n="warning_low_stock">Low Stock!</span>
-      {% elif bags_available <= 1 %}
-      <span class="badge bg-danger ms-2" data-i18n="warning_critical_stock">Critical Stock!</span>
-      {% endif %}
+  <!-- Current Feed Status Card -->
+  <div class="mobile-section">
+    <div class="mobile-card card border-info">
+      <div class="card-body p-mobile-2">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <h6 class="mobile-header text-info mb-2" data-i18n="current_feed_status">📦 Feed Status</h6>
+            {% set available_bags = feeds|sum(attribute='feed_bags') if feeds is defined else 0 %}
+            <div class="mobile-content">
+              <strong><span data-i18n="available_bags">Available:</span> {{ bags_available|round|int }} bags</strong>
+              {% if bags_available <= 3 %}
+              <span class="badge bg-warning ms-2" data-i18n="warning_low_stock">Low!</span>
+              {% elif bags_available <= 1 %}
+              <span class="badge bg-danger ms-2" data-i18n="warning_critical_stock">Critical!</span>
+              {% endif %}
+            </div>
+          </div>
+          {% if bags_available <= 3 %}
+          <div class="ms-2">
+            <a href="{{ url_for('feed_management') }}" class="btn btn-success btn-sm mobile-button">
+              <i class="bi bi-plus"></i> <span data-i18n="add_feed_btn">Add</span>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
-    {% if bags_available <= 3 %}
-    <div>
-      <a href="{{ url_for('feed_management') }}" class="btn btn-success btn-sm">
-        <i class="fas fa-plus"></i> <span data-i18n="add_feed_btn">Add Feed</span>
-      </a>
-    </div>
-    {% endif %}
+  </div>
   </div>
  
 </div>

@@ -4,7 +4,6 @@ from flask import Flask, render_template, request, redirect, url_for, send_file,
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import os
-import json
 from datetime import datetime, date
 from io import BytesIO
 from functools import wraps
@@ -20,29 +19,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poultry.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
-
-# Add the translate filter for internationalization
-@app.template_filter('translate')
-def translate_filter(key):
-    """
-    Custom Jinja2 filter for internationalization.
-    Returns the translated text for the given key based on current language.
-    """
-    # Get the current language from session, default to 'en'
-    current_lang = session.get('language', 'en')
-    
-    # Load the translation file
-    translation_file = os.path.join(app.static_folder, 'i18n', f'{current_lang}.json')
-    
-    try:
-        if os.path.exists(translation_file):
-            with open(translation_file, 'r', encoding='utf-8') as f:
-                translations = json.load(f)
-                return translations.get(key, key)  # Return key if translation not found
-        else:
-            return key  # Return key if translation file doesn't exist
-    except Exception:
-        return key  # Return key if any error occurs
 
 # ---------------- Models ----------------
 class User(db.Model):
@@ -1788,83 +1764,74 @@ def delete_medicine(medicine_id):
 @admin_required
 def users():
     """User management page (admin only)"""
-    try:
-        if request.method == 'POST':
-            action = request.form.get('action')
-            
-            if action == 'create':
-                username = request.form.get('username')
-                password = request.form.get('password')
-                role = request.form.get('role', 'user')
-                
-                if not username or not password:
-                    flash('Username and password are required / उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं', 'error')
-                    return redirect(url_for('users'))
-                
-                # Check if username already exists
-                existing_user = User.query.filter_by(username=username).first()
-                if existing_user:
-                    flash('Username already exists / उपयोगकर्ता नाम पहले से मौजूद है', 'error')
-                    return redirect(url_for('users'))
-                
-                try:
-                    new_user = User(username=username, role=role)
-                    new_user.set_password(password)
-                    db.session.add(new_user)
-                    db.session.commit()
-                    flash(f'User {username} created successfully! / उपयोगकर्ता {username} सफलतापूर्वक बनाया गया!', 'success')
-                except Exception as e:
-                    db.session.rollback()
-                    flash(f'Error creating user: {str(e)} / उपयोगकर्ता बनाने में त्रुटि: {str(e)}', 'error')
-            
-            elif action == 'update':
-                user_id = request.form.get('user_id')
-                new_username = request.form.get('new_username')
-                new_password = request.form.get('new_password')
-                new_role = request.form.get('new_role')
-                
-                try:
-                    user = User.query.get_or_404(user_id)
-                    
-                    # Check if new username already exists (excluding current user)
-                    if new_username and new_username != user.username:
-                        existing_user = User.query.filter_by(username=new_username).first()
-                        if existing_user:
-                            flash('Username already exists / उपयोगकर्ता नाम पहले से मौजूद है', 'error')
-                            return redirect(url_for('users'))
-                        user.username = new_username
-                    
-                    if new_password:
-                        user.set_password(new_password)
-                    
-                    if new_role:
-                        user.role = new_role
-                    
-                    db.session.commit()
-                    
-                    # Update session if user changed their own info
-                    if user.id == session.get('user_id'):
-                        session['username'] = user.username
-                        session['role'] = user.role
-                    
-                    flash(f'User {user.username} updated successfully! / उपयोगकर्ता {user.username} सफलतापूर्वक अपडेट किया गया!', 'success')
-                except Exception as e:
-                    db.session.rollback()
-                    flash(f'Error updating user: {str(e)} / उपयोगकर्ता अपडेट करने में त्रुटि: {str(e)}', 'error')
-            
-            return redirect(url_for('users'))
+    if request.method == 'POST':
+        action = request.form.get('action')
         
-        # GET request - fetch all users
-        all_users = User.query.order_by(User.username).all()
-        return render_template('users.html', users=all_users)
+        if action == 'create':
+            username = request.form.get('username')
+            password = request.form.get('password')
+            role = request.form.get('role', 'user')
+            
+            if not username or not password:
+                flash('Username and password are required / उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं', 'error')
+                return redirect(url_for('users'))
+            
+            # Check if username already exists
+            existing_user = User.query.filter_by(username=username).first()
+            if existing_user:
+                flash('Username already exists / उपयोगकर्ता नाम पहले से मौजूद है', 'error')
+                return redirect(url_for('users'))
+            
+            try:
+                new_user = User(username=username, role=role)
+                new_user.set_password(password)
+                db.session.add(new_user)
+                db.session.commit()
+                flash(f'User {username} created successfully! / उपयोगकर्ता {username} सफलतापूर्वक बनाया गया!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error creating user: {str(e)} / उपयोगकर्ता बनाने में त्रुटि: {str(e)}', 'error')
         
-    except Exception as e:
-        # Log the full error for debugging
-        print(f"Error in users route: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        flash(f'System error: {str(e)}', 'error')
-        return redirect(url_for('dashboard'))
+        elif action == 'update':
+            user_id = request.form.get('user_id')
+            new_username = request.form.get('new_username')
+            new_password = request.form.get('new_password')
+            new_role = request.form.get('new_role')
+            
+            try:
+                user = User.query.get_or_404(user_id)
+                
+                # Check if new username already exists (excluding current user)
+                if new_username and new_username != user.username:
+                    existing_user = User.query.filter_by(username=new_username).first()
+                    if existing_user:
+                        flash('Username already exists / उपयोगकर्ता नाम पहले से मौजूद है', 'error')
+                        return redirect(url_for('users'))
+                    user.username = new_username
+                
+                if new_password:
+                    user.set_password(new_password)
+                
+                if new_role:
+                    user.role = new_role
+                
+                db.session.commit()
+                
+                # Update session if user changed their own info
+                if user.id == session.get('user_id'):
+                    session['username'] = user.username
+                    session['role'] = user.role
+                
+                flash(f'User {user.username} updated successfully! / उपयोगकर्ता {user.username} सफलतापूर्वक अपडेट किया गया!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error updating user: {str(e)} / उपयोगकर्ता अपडेट करने में त्रुटि: {str(e)}', 'error')
+        
+        return redirect(url_for('users'))
+    
+    # GET request - fetch all users
+    all_users = User.query.order_by(User.username).all()
+    return render_template('users.html', users=all_users)
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
 @admin_required
@@ -2132,8 +2099,8 @@ def tips_medical():
     return render_template('tips_medical.html')
 
 @app.route('/tips/own_feed')
-def own_feed():
-    return render_template('own_feed.html')
+def tips_own_feed():
+    return render_template('tip_own_feed.html')
 
 @app.route('/unarchive_cycle/<int:cycle_id>', methods=['POST'])
 @admin_required

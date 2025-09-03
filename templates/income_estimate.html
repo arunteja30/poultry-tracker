@@ -1,75 +1,92 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container py-3">
+<div class="mobile-container">
   <div class="row mb-4">
     <div class="col-12">
-      <div class="card shadow-sm">
+      <div class="mobile-card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <div>
-            <h4 class="mb-0" data-i18n="income_estimate_title">Income Estimate</h4>
+            <h4 class="mobile-title mb-0" data-i18n="income_estimate_title">Income Estimate</h4>
           </div>
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 flex-wrap">
             <span class="badge bg-info" data-i18n="cycle_cumulative">Cycle & Cumulative</span>
             {% if session.role == 'admin' %}
-            <a href="{{ url_for('export_income_estimate') }}" class="btn btn-success btn-sm" data-i18n="export_income">📊 Export Income</a>
+            <a href="{{ url_for('export_income_estimate') }}" class="mobile-btn mobile-btn-success" data-i18n="export_income">
+              <i class="bi bi-download me-1"></i>Export
+            </a>
             {% endif %}
           </div>
         </div>
         <div class="card-body">
-          <form method="GET" class="row g-3 align-items-end mb-3">
-            <div class="col-md-4 col-12">
-              <label for="cycle_id" class="form-label" data-i18n="select_cycle">Select Cycle</label>
-              <select class="form-select" name="cycle_id" id="cycle_id" onchange="this.form.submit()">
-                <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles">All Cycles</option>
-                {% for c in all_cycles %}
-                  <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>
-                    <span data-i18n="cycle">Cycle</span> #{{ c.id }} ({{ c.start_date }})
-                  </option>
-                {% endfor %}
-              </select>
+          <!-- Cycle Selection -->
+          <form method="GET" class="mobile-form-section mb-4">
+            <div class="row">
+              <div class="col-12">
+                <label for="cycle_id" class="form-label" data-i18n="select_cycle">Select Cycle</label>
+                <select class="form-select mobile-form-control" name="cycle_id" id="cycle_id" onchange="this.form.submit()">
+                  <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles">All Cycles</option>
+                  {% for c in all_cycles %}
+                    <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>
+                      <span data-i18n="cycle">Cycle</span> #{{ c.id }} ({{ c.start_date }})
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
             </div>
           </form>
-          <form method="POST" class="row g-3 align-items-end">
-            <div class="col-md-3 col-6">
-              <label for="chick_cost" class="form-label" data-i18n="chick_cost">Chick Cost (per bird)</label>
-              <input type="number" step="0.01" min="0" class="form-control" name="chick_cost" id="chick_cost" value="{{ chick_price }}" required>
-            </div>
-            <div class="col-md-3 col-6">
-              <label for="feed_cost" class="form-label" data-i18n="feed_cost">Feed Cost (per kg)</label>
-              <input type="number" step="0.01" min="0" class="form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost or 45 }}" required>
-            </div>
-            <div class="col-md-3 col-6">
-              <label for="other_expenses" class="form-label" data-i18n="other_expenses">Other Expenses (total)</label>
-              <input type="number" step="0.01" min="0" class="form-control" name="other_expenses" id="other_expenses" value="{{ other_expenses }}" required>
-            </div>
-            <div class="col-md-3 col-6">
-              <label for="market_price_per_bird" class="form-label" data-i18n="market_price">Market Price (per kg)</label>
-              <input type="number" step="0.01" min="0" class="form-control" name="market_price_per_bird" id="market_price_per_bird" value="{{ market_price_per_bird }}" required>
-            </div>
-            <div class="col-md-3 col-6">
-              <label for="custom_fcr" class="form-label" data-i18n="custom_fcr">Custom FCR (Feed Conversion Ratio)</label>
-              <input type="number" step="0.01" min="0" class="form-control" name="custom_fcr" id="custom_fcr" value="{{ custom_fcr }}" placeholder="Override system FCR">
-            </div>
-            <div class="col-12 text-end">
-              <button type="submit" class="btn btn-primary" data-i18n="estimate_btn">Estimate</button>
+
+          <!-- Parameters Form -->
+          <form method="POST" class="mobile-form-enhanced">
+            <div class="row g-3">
+              <div class="col-6 col-lg-3">
+                <label for="chick_cost" class="form-label" data-i18n="chick_cost">Chick Cost (per bird)</label>
+                <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="chick_cost" id="chick_cost" value="{{ chick_price }}" required>
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="feed_cost" class="form-label" data-i18n="feed_cost">Feed Cost (per kg)</label>
+                <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost or 45 }}" required>
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="other_expenses" class="form-label" data-i18n="other_expenses">Other Expenses (total)</label>
+                <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="other_expenses" id="other_expenses" value="{{ other_expenses }}" required>
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="market_price_per_bird" class="form-label" data-i18n="market_price">Market Price (per kg)</label>
+                <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="market_price_per_bird" id="market_price_per_bird" value="{{ market_price_per_bird }}" required>
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="custom_fcr" class="form-label" data-i18n="custom_fcr">Custom FCR</label>
+                <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="custom_fcr" id="custom_fcr" value="{{ custom_fcr }}" placeholder="Override system FCR">
+              </div>
+              <div class="col-12">
+                <div class="d-grid">
+                  <button type="submit" class="mobile-btn mobile-btn-primary mobile-btn-lg" data-i18n="estimate_btn">
+                    <i class="bi bi-calculator me-1"></i>Calculate Estimate
+                  </button>
+                </div>
+              </div>
             </div>
           </form>
           
           <!-- FCR Information Display -->
-          <div class="row mt-3">
-            <div class="col-12">
-              <div class="alert alert-info d-flex align-items-center" role="alert">
-                <i class="fas fa-info-circle me-2"></i>
-                <div>
-                  <strong data-i18n="fcr_info">FCR Information:</strong>
-                  <span id="fcr-display">
-                    {% if custom_fcr %}
-                      <span data-i18n="custom_fcr_used">Custom FCR is being used</span>: {{ '%.2f'|format(custom_fcr) }} 
-                      <small class="text-info">(overrides system calculated FCR)</small>
-                    {% else %}
-                      <span data-i18n="system_fcr_used">System calculated FCR is being used</span>: {{ '%.2f'|format(cycle_stats.fcr if cycle_stats.fcr else 1.53) }}
-                    {% endif %}
-                  </span>
+          <div class="mobile-section mt-4">
+            <div class="mobile-card mobile-alert-info">
+              <div class="card-body">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-info-circle me-2 text-info flex-shrink-0"></i>
+                  <div>
+                    <strong data-i18n="fcr_info">FCR Information:</strong>
+                    <div class="mt-1">
+                      {% if custom_fcr %}
+                        <span data-i18n="custom_fcr_used">Custom FCR:</span> 
+                        <strong class="text-primary">{{ '%.2f'|format(custom_fcr) }}</strong>
+                        <small class="text-muted d-block">(overrides system calculated FCR)</small>
+                      {% else %}
+                        <span data-i18n="system_fcr_used">System FCR:</span> 
+                        <strong class="text-success">{{ '%.2f'|format(cycle_stats.fcr if cycle_stats.fcr else 1.53) }}</strong>
+                      {% endif %}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -82,11 +99,11 @@
   <!-- Enhanced Calculation Breakdown Section -->
   <div class="row g-4 mt-2">
     <div class="col-12">
-      <div class="card shadow-sm">
+      <div class="mobile-card">
         <div class="card-header bg-info text-white">
           <h5 class="mb-0">
-            <i class="fas fa-calculator me-2"></i>
-            <span data-i18n="financial_breakdown">Detailed Financial Breakdown</span>
+            <i class="bi bi-calculator me-2"></i>
+            <span data-i18n="financial_breakdown">Financial Breakdown</span>
           </h5>
         </div>
         <div class="card-body">

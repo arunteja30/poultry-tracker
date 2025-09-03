@@ -1,303 +1,469 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 data-i18n="bird_dispatch_title">🚚 Bird Dispatch Management</h2>
-        <div>
-          <a href="{{ url_for('dispatch_history') }}" class="btn btn-info btn-sm" data-i18n="dispatch_history">📋 Dispatch History</a>
-        </div>
-      </div>
-
-      {% if not cycle %}
-      <!-- No Active Cycle -->
-      <div class="row">
-        <div class="col-12">
-          <div class="card text-center p-5">
-            <div class="card-body">
-              <div class="mb-4" style="font-size: 4rem;">🐔</div>
-              <h3 data-i18n="no_cycle">No Active Cycle</h3>
-              <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
-              <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% else %}
-
-      <!-- Current Cycle Info -->
-      {% if cycle %}
-      <div class="alert alert-info">
-        <strong data-i18n="current_cycle">Current Cycle:</strong> <span data-i18n="started">Started</span> {{ cycle.start_date }} | 
-        <strong data-i18n="available_birds">Available Birds:</strong> {{ cycle.current_birds }} | 
-        <strong data-i18n="driver">Driver:</strong> {{ cycle.driver or 'N/A' }}
-      </div>
-      {% endif %}
-
-      <!-- Summary Statistics -->
-      {% if recent_dispatches %}
-      <div class="row mb-4">
-        <div class="col-md-3">
-          <div class="card bg-primary">
-            <div class="card-body text-center">
-              <h4 style="color: rgb(62, 13, 207);">{{ recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_birds') }}</h4>
-              <p class="mb-0" data-i18n="total_birds_dispatched" style="color: rgb(56, 10, 195);">Total Birds Dispatched</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card bg-success text-white">
-            <div class="card-body text-center">
-              <h4 style="color: rgb(182, 14, 14);">{{ "%.1f"|format(recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_weight')) }} kg</h4>
-              <p class="mb-0" data-i18n="total_weight" style="color: rgb(219, 16, 16);">Total Weight</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card bg-info text-white">
-            <div class="card-body text-center">
-              <h4 style="color: rgb(4, 64, 23);">{{ recent_dispatches | length }}</h4>
-              <p class="mb-0" data-i18n="number_of_vehicles" style="color: rgb(4, 84, 3);">Number of Vehicles</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card bg-warning text-white">
-            <div class="card-body text-center">
-              <h4 style="color: rgb(221, 151, 10);">
-                {% set completed_dispatches = recent_dispatches | selectattr('status', 'equalto', 'completed') | list %}
-                {% set total_birds = completed_dispatches | sum(attribute='total_birds') %}
-                {% set total_weight = completed_dispatches | sum(attribute='total_weight') %}
-                {% if total_birds > 0 %}
-                  {{ "%.3f"|format(total_weight / total_birds) }} kg
-                {% else %}
-                  0.000 kg
-                {% endif %}
-              </h4>
-              <p class="mb-0" data-i18n="avg_bird_weight" style="color: rgb(226, 172, 9);">Avg Bird Weight</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- New Dispatch Form -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="card-title mb-0">🚛 Register New Vehicle for Dispatch</h5>
-        </div>
-        <div class="card-body">
-          <form method="POST">
-            <div class="row">
-              <div class="col-md-3 col-sm-6 mb-3">
-                <label for="vehicle_no" class="form-label" data-i18n="vehicle_number_label">Vehicle Number *</label>
-                <input type="text" class="form-control" id="vehicle_no" name="vehicle_no" 
-                       placeholder="e.g., AP01AB1234" required style="text-transform: uppercase;">
-              </div>
-              <div class="col-md-3 col-sm-6 mb-3">
-                <label for="driver_name" class="form-label" data-i18n="driver_name_label">Driver Name *</label>
-                <input type="text" class="form-control" id="driver_name" name="driver_name" 
-                       placeholder="Driver Name" required>
-              </div>
-              <div class="col-md-3 col-sm-6 mb-3">
-                <label for="vendor_name" class="form-label" data-i18n="vendor_name_label">Vendor/Buyer Name</label>
-                <input type="text" class="form-control" id="vendor_name" name="vendor_name" 
-                       placeholder="Vendor Name">
-              </div>
-              <div class="col-md-3 col-sm-6 mb-3">
-                <label for="dispatch_date" class="form-label" data-i18n="dispatch_date_label">Dispatch Date</label>
-                <input type="date" class="form-control" id="dispatch_date" name="dispatch_date" 
-                       value="">
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-3 col-sm-6 mb-3">
-                <label for="dispatch_time" class="form-label" data-i18n="dispatch_time_label">Dispatch Time</label>
-                <input type="time" class="form-control" id="dispatch_time" name="dispatch_time">
-              </div>
-              <div class="col-md-6 col-sm-6 mb-3">
-                <label for="notes" class="form-label" data-i18n="notes_label">Notes</label>
-                <input type="text" class="form-control" id="notes" name="notes" 
-                       placeholder="Any additional notes">
-              </div>
-              <div class="col-md-3 col-12 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100" data-i18n="register_vehicle_button">
-                  🚚 Register Vehicle & Start Weighing
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Recent Dispatches -->
-      {% if recent_dispatches %}
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title mb-0">📋 Recent Dispatches</h5>
-        </div>
-        <div class="card-body">
-          <!-- Desktop Table -->
-          <div class="table-responsive d-none d-md-block">
-            <table class="table table-sm table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th data-i18n="vehicle_no_header">Vehicle No</th>
-                  <th data-i18n="driver_header">Driver</th>
-                  <th data-i18n="vendor_header">Vendor</th>
-                  <th data-i18n="date_time_header">Date & Time</th>
-                  <th data-i18n="birds_header">Birds</th>
-                  <th data-i18n="weight_header">Weight (kg)</th>
-                  <th data-i18n="status_header">Status</th>
-                  <th data-i18n="actions_header">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for dispatch in recent_dispatches %}
-                <tr class="{{ 'table-success' if dispatch.status == 'completed' else 'table-warning' }}">
-                  <td><strong>{{ dispatch.vehicle_no }}</strong></td>
-                  <td>{{ dispatch.driver_name }}</td>
-                  <td>{{ dispatch.vendor_name or '-' }}</td>
-                  <td>{{ dispatch.dispatch_date }}<br><small class="text-muted">{{ dispatch.dispatch_time }}</small></td>
-                  <td>
-                    {% if dispatch.status == 'completed' %}
-                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
-                    {% else %}
-                      <span class="badge bg-warning">In Progress</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if dispatch.status == 'completed' %}
-                      {{ "%.1f"|format(dispatch.total_weight) }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if dispatch.status == 'completed' %}
-                      <span class="badge bg-success">✅ Completed</span>
-                    {% else %}
-                      <span class="badge bg-warning">⏳ Active</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if dispatch.status == 'active' %}
-                      <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                         class="btn btn-sm btn-primary" data-i18n="weigh_birds_button">⚖️ Weigh Birds</a>
-                    {% else %}
-                      <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                         class="btn btn-sm btn-info" data-i18n="view_details_button">👁️ View Details</a>
-                    {% endif %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Mobile Cards -->
-          <div class="d-md-none">
-            {% for dispatch in recent_dispatches %}
-            <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h6 class="card-title mb-0">
-                    <strong>{{ dispatch.vehicle_no }}</strong>
-                    {% if dispatch.status == 'completed' %}
-                      <span class="badge bg-success ms-2">✅ Completed</span>
-                    {% else %}
-                      <span class="badge bg-warning ms-2">⏳ Active</span>
-                    {% endif %}
-                  </h6>
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="driver_label">Driver:</small><br>
-                    <strong>{{ dispatch.driver_name }}</strong>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="vendor_label">Vendor:</small><br>
-                    <strong>{{ dispatch.vendor_name or '-' }}</strong>
-                  </div>
-                </div>
-                <div class="row mt-2">
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="date_time_label">Date & Time:</small><br>
-                    <strong>{{ dispatch.dispatch_date }}</strong><br>
-                    <small>{{ dispatch.dispatch_time }}</small>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="birds_label">Birds:</small><br>
-                    {% if dispatch.status == 'completed' %}
-                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
-                    {% else %}
-                      <span class="badge bg-warning">In Progress</span>
-                    {% endif %}
-                  </div>
-                </div>
-                {% if dispatch.status == 'completed' %}
-                <div class="row mt-2">
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="weight_label">Weight:</small><br>
-                    <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="avg_bird_weight_label">Avg/Bird:</small><br>
-                    <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
-                  </div>
-                </div>
-                {% endif %}
-                <div class="mt-3">
-                  {% if dispatch.status == 'active' %}
-                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                       class="btn btn-primary btn-sm w-100" data-i18n="weigh_birds_button">⚖️ Weigh Birds</a>
-                  {% else %}
-                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                       class="btn btn-info btn-sm w-100" data-i18n="view_details_button">👁️ View Details</a>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      {% else %}
-      <div class="alert alert-info">
-        <h5 data-i18n="no_dispatches_yet_title">🚚 No dispatches yet</h5>
-        <p class="mb-0" data-i18n="no_dispatches_yet_instruction">Register your first vehicle above to start dispatching birds to vendors.</p>
-      </div>
-      {% endif %}
+<div class="mobile-container">
+  <div class="mobile-section">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mobile-header m-0" data-i18n="bird_dispatch_title">
+        <i class="bi bi-truck me-2"></i>Bird Dispatch
+      </h2>
+      <a href="{{ url_for('dispatch_history') }}" class="mobile-btn-outline-info btn-sm" data-i18n="dispatch_history">
+        <i class="bi bi-clock-history me-1"></i>History
+      </a>
     </div>
+
+    {% if not cycle %}
+    <!-- No Active Cycle -->
+    <div class="mobile-card text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-house-x" style="font-size: 4rem; color: #dee2e6;"></i>
+      </div>
+      <h4 class="text-muted mb-3" data-i18n="no_cycle">No Active Cycle</h4>
+      <p class="text-muted mb-4" data-i18n="setup_instruction">
+        Please set up a new cycle to start tracking your poultry farm data.
+      </p>
+      <a href="{{ url_for('setup') }}" class="mobile-btn-primary" data-i18n="setup_new_cycle">
+        <i class="bi bi-plus-circle me-2"></i>Setup New Cycle
+      </a>
+    </div>
+    {% else %}
+
+    <!-- Current Cycle Info -->
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-info-circle me-2"></i>Current Cycle
+      </h5>
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
+            <div class="mobile-metric-value text-primary">{{ cycle.start_date }}</div>
+            <div class="mobile-metric-label">Start Date</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+            <div class="mobile-metric-value text-success">{{ cycle.current_birds }}</div>
+            <div class="mobile-metric-label">Available Birds</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+            <div class="mobile-metric-value text-info">{{ cycle.driver or 'N/A' }}</div>
+            <div class="mobile-metric-label">Farm Driver</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    {% if recent_dispatches %}
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-graph-up me-2"></i>Dispatch Summary
+      </h5>
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
+            <div class="mobile-metric-value text-primary">{{ recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_birds') }}</div>
+            <div class="mobile-metric-label">Total Birds Dispatched</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+            <div class="mobile-metric-value text-success">{{ "%.1f"|format(recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_weight')) }} kg</div>
+            <div class="mobile-metric-label">Total Weight</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+            <div class="mobile-metric-value text-info">{{ recent_dispatches | length }}</div>
+            <div class="mobile-metric-label">Vehicles</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-warning bg-opacity-10">
+            <div class="mobile-metric-value text-warning">
+              {% set completed_dispatches = recent_dispatches | selectattr('status', 'equalto', 'completed') | list %}
+              {% set total_birds = completed_dispatches | sum(attribute='total_birds') %}
+              {% set total_weight = completed_dispatches | sum(attribute='total_weight') %}
+              {% if total_birds > 0 %}
+                {{ "%.3f"|format(total_weight / total_birds) }} kg
+              {% else %}
+                0.000 kg
+              {% endif %}
+            </div>
+            <div class="mobile-metric-label">Avg Bird Weight</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- New Dispatch Form -->
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-truck me-2"></i>Register New Vehicle
+      </h5>
+      
+      <form method="POST" class="mobile-form-enhanced">
+        <!-- Vehicle Number -->
+        <div class="mobile-form-group">
+          <label for="vehicle_no" class="mobile-form-label" data-i18n="vehicle_number_label">
+            <i class="bi bi-truck me-2"></i>Vehicle Number *
+          </label>
+          <input type="text" class="mobile-form-control" id="vehicle_no" name="vehicle_no" 
+                 placeholder="e.g., AP01AB1234" required style="text-transform: uppercase;">
+          <div class="invalid-feedback">Please enter a valid vehicle number.</div>
+        </div>
+
+        <!-- Driver Name -->
+        <div class="mobile-form-group">
+          <label for="driver_name" class="mobile-form-label" data-i18n="driver_name_label">
+            <i class="bi bi-person me-2"></i>Driver Name *
+          </label>
+          <input type="text" class="mobile-form-control" id="driver_name" name="driver_name" 
+                 placeholder="Enter driver's full name" required>
+          <div class="invalid-feedback">Please enter the driver's name.</div>
+        </div>
+
+        <!-- Vendor/Buyer Name -->
+        <div class="mobile-form-group">
+          <label for="vendor_name" class="mobile-form-label" data-i18n="vendor_name_label">
+            <i class="bi bi-building me-2"></i>Vendor/Buyer Name
+          </label>
+          <input type="text" class="mobile-form-control" id="vendor_name" name="vendor_name" 
+                 placeholder="Enter vendor or buyer name">
+          <div class="invalid-feedback">Please enter a valid vendor name.</div>
+        </div>
+
+        <!-- Date and Time Row -->
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label for="dispatch_date" class="mobile-form-label" data-i18n="dispatch_date_label">
+              <i class="bi bi-calendar-date me-2"></i>Dispatch Date
+            </label>
+            <input type="date" class="mobile-form-control" id="dispatch_date" name="dispatch_date">
+            <div class="invalid-feedback">Please select a valid date.</div>
+          </div>
+          <div class="col-6">
+            <label for="dispatch_time" class="mobile-form-label" data-i18n="dispatch_time_label">
+              <i class="bi bi-clock me-2"></i>Dispatch Time
+            </label>
+            <input type="time" class="mobile-form-control" id="dispatch_time" name="dispatch_time">
+            <div class="invalid-feedback">Please select a valid time.</div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mobile-form-group">
+          <label for="notes" class="mobile-form-label" data-i18n="notes_label">
+            <i class="bi bi-journal-text me-2"></i>Notes
+          </label>
+          <textarea class="mobile-form-control" id="notes" name="notes" rows="3"
+                    placeholder="Any additional notes about this dispatch"></textarea>
+          <div class="invalid-feedback">Please enter valid notes.</div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="mobile-btn-primary w-100" data-i18n="register_vehicle_button">
+          <i class="bi bi-truck me-2"></i>Register Vehicle & Start Weighing
+        </button>
+      </form>
+    </div>
+
+    <!-- Recent Dispatches -->
+    {% if recent_dispatches %}
+    <div class="mobile-card">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-list-check me-2"></i>Recent Dispatches
+      </h5>
+      
+      <!-- Mobile Cards View -->
+      <div class="mobile-list-container">
+        {% for dispatch in recent_dispatches %}
+        <div class="mobile-data-card mobile-swipeable mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+          <!-- Header -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h6 class="mobile-card-title mb-1">
+                <i class="bi bi-truck-front me-2"></i>{{ dispatch.vehicle_no }}
+              </h6>
+              <div class="d-flex align-items-center">
+                {% if dispatch.status == 'completed' %}
+                  <span class="badge bg-success me-2">
+                    <i class="bi bi-check-circle me-1"></i>Completed
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning me-2">
+                    <i class="bi bi-clock me-1"></i>Active
+                  </span>
+                {% endif %}
+                <small class="text-muted">{{ dispatch.dispatch_date }}</small>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  {% if dispatch.status == 'active' %}
+                    <a class="dropdown-item" href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}">
+                      <i class="bi bi-scale me-2"></i>Weigh Birds
+                    </a>
+                  {% else %}
+                    <a class="dropdown-item" href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}">
+                      <i class="bi bi-eye me-2"></i>View Details
+                    </a>
+                  {% endif %}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Driver and Vendor Info -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div class="mobile-info-item">
+                <small class="text-muted">
+                  <i class="bi bi-person me-1"></i>Driver
+                </small>
+                <div class="fw-medium">{{ dispatch.driver_name }}</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mobile-info-item">
+                <small class="text-muted">
+                  <i class="bi bi-building me-1"></i>Vendor
+                </small>
+                <div class="fw-medium">{{ dispatch.vendor_name or '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Info -->
+          <div class="row g-2 mb-3">
+            <div class="col-12">
+              <div class="mobile-info-item">
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>Dispatch Time
+                </small>
+                <div class="fw-medium">{{ dispatch.dispatch_time }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Birds and Weight Metrics -->
+          {% if dispatch.status == 'completed' %}
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+                <div class="mobile-metric-value text-success">{{ dispatch.total_birds }}</div>
+                <div class="mobile-metric-label">Birds</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
+                <div class="mobile-metric-value text-primary">{{ "%.1f"|format(dispatch.total_weight) }}</div>
+                <div class="mobile-metric-label">Weight (kg)</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+                <div class="mobile-metric-value text-info">{{ "%.3f"|format(dispatch.avg_weight_per_bird) }}</div>
+                <div class="mobile-metric-label">Avg/Bird (kg)</div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="mobile-alert alert alert-warning">
+            <i class="bi bi-clock me-2"></i>Weighing in progress...
+          </div>
+          {% endif %}
+
+          <!-- Action Button -->
+          <div class="mt-3">
+            {% if dispatch.status == 'active' %}
+              <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                 class="mobile-btn-primary w-100" data-i18n="weigh_birds_button">
+                <i class="bi bi-scale me-2"></i>Continue Weighing
+              </a>
+            {% else %}
+              <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                 class="mobile-btn-outline-info w-100" data-i18n="view_details_button">
+                <i class="bi bi-eye me-2"></i>View Details
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <!-- No Dispatches State -->
+    <div class="mobile-card text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-truck" style="font-size: 4rem; color: #dee2e6;"></i>
+      </div>
+      <h5 class="text-muted mb-3">No Dispatches Yet</h5>
+      <p class="text-muted mb-4">Register your first vehicle above to start dispatching birds to vendors.</p>
+    </div>
+    {% endif %}
   </div>
 </div>
 
+<!-- Enhanced Mobile UX JavaScript -->
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize mobile UX enhancements
+  if (window.mobileUX) {
+    window.mobileUX.init();
+  }
+
   // Auto-uppercase vehicle number
-  document.getElementById('vehicle_no').addEventListener('input', function(e) {
-    e.target.value = e.target.value.toUpperCase();
-  });
+  const vehicleInput = document.getElementById('vehicle_no');
+  if (vehicleInput) {
+    vehicleInput.addEventListener('input', function(e) {
+      e.target.value = e.target.value.toUpperCase();
+    });
+  }
   
-  // Set current time as default
-  document.addEventListener('DOMContentLoaded', function() {
-    const timeInput = document.getElementById('dispatch_time');
-    const dateInput = document.getElementById('dispatch_date');
-    
-    // Set current date
-    if (!dateInput.value) {
-      const today = new Date();
-      const dateString = today.toISOString().split('T')[0];
-      dateInput.value = dateString;
-    }
-    
-    // Set current time
-    if (!timeInput.value) {
-      const now = new Date();
-      const timeString = now.toTimeString().slice(0, 5);
-      timeInput.value = timeString;
+  // Set current date and time as defaults
+  const timeInput = document.getElementById('dispatch_time');
+  const dateInput = document.getElementById('dispatch_date');
+  
+  // Set current date
+  if (dateInput && !dateInput.value) {
+    const today = new Date();
+    const dateString = today.toISOString().split('T')[0];
+    dateInput.value = dateString;
+  }
+  
+  // Set current time
+  if (timeInput && !timeInput.value) {
+    const now = new Date();
+    const timeString = now.toTimeString().slice(0, 5);
+    timeInput.value = timeString;
+  }
+
+  // Form validation enhancement
+  const form = document.querySelector('.mobile-form-enhanced');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      let isValid = true;
+      
+      // Validate vehicle number (basic format check)
+      const vehicleNo = vehicleInput.value.trim();
+      if (vehicleNo.length < 6) {
+        vehicleInput.classList.add('is-invalid');
+        isValid = false;
+      } else {
+        vehicleInput.classList.remove('is-invalid');
+      }
+      
+      // Validate driver name
+      const driverInput = document.getElementById('driver_name');
+      if (driverInput.value.trim().length < 2) {
+        driverInput.classList.add('is-invalid');
+        isValid = false;
+      } else {
+        driverInput.classList.remove('is-invalid');
+      }
+      
+      if (!isValid) {
+        e.preventDefault();
+        
+        // Show error message
+        const errorAlert = document.createElement('div');
+        errorAlert.className = 'alert alert-danger mt-3';
+        errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Please correct the errors above before submitting.';
+        
+        // Remove existing error alerts
+        document.querySelectorAll('.alert-danger').forEach(el => {
+          if (el.textContent.includes('Please correct')) el.remove();
+        });
+        
+        form.appendChild(errorAlert);
+        
+        // Scroll to first error
+        const firstError = form.querySelector('.is-invalid');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+      } else {
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2 spinner-border spinner-border-sm"></i>Registering Vehicle...';
+      }
+    });
+  }
+
+  // Add swipe gestures for dispatch cards
+  const dispatchCards = document.querySelectorAll('.mobile-swipeable');
+  dispatchCards.forEach(card => {
+    if (window.mobileUX && window.mobileUX.addSwipeGesture) {
+      window.mobileUX.addSwipeGesture(card, {
+        onSwipeLeft: () => {
+          const actionBtn = card.querySelector('a[href*="weighing_screen"]');
+          if (actionBtn) {
+            window.location.href = actionBtn.href;
+          }
+        },
+        onSwipeRight: () => {
+          card.style.transform = 'translateX(0)';
+          card.style.transition = 'transform 0.3s ease';
+        }
+      });
     }
   });
+
+  // Touch feedback for interactive elements
+  document.querySelectorAll('.mobile-data-card, .mobile-btn-primary, .mobile-btn-outline-info').forEach(element => {
+    element.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(0.98)';
+    });
+    
+    element.addEventListener('touchend', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+
+  // Auto-save form data to localStorage
+  const formInputs = form ? form.querySelectorAll('input, textarea') : [];
+  formInputs.forEach(input => {
+    input.addEventListener('input', function() {
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      localStorage.setItem('bird_dispatch_form', JSON.stringify(data));
+    });
+  });
+
+  // Load saved form data
+  const savedData = localStorage.getItem('bird_dispatch_form');
+  if (savedData) {
+    try {
+      const data = JSON.parse(savedData);
+      formInputs.forEach(input => {
+        if (data[input.name] !== undefined && input.type !== 'date' && input.type !== 'time') {
+          input.value = data[input.name];
+        }
+      });
+    } catch (e) {
+      console.log('Error loading saved form data:', e);
+    }
+  }
+
+  // Clear saved data on successful form submission
+  if (form) {
+    form.addEventListener('submit', function() {
+      setTimeout(() => {
+        localStorage.removeItem('bird_dispatch_form');
+      }, 1000);
+    });
+  }
+});
 </script>
 {% endif %}
 {% endblock %}

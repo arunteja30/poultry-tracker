@@ -1,88 +1,317 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 data-i18n="import_title">Import Data</h2>
+<div class="mobile-container">
+  <div class="mobile-section">
+    <h2 class="mobile-header" data-i18n="import_title">
+      <i class="bi bi-cloud-upload me-2"></i>Import Data
+    </h2>
 
-<div class="row g-4">
-  <!-- Import File Section -->
-  <div class="col-12 col-lg-8">
-    <div class="card p-4">
-      <h5 data-i18n="import_file_title">📁 Import from File</h5>
-      <p class="text-muted" data-i18n="import_file_desc">Upload Excel or CSV file with daily data to import previous records.</p>
+    <!-- Import File Section -->
+    <div class="mobile-card">
+      <h5 class="mobile-card-title" data-i18n="import_file_title">
+        <i class="bi bi-folder2-open me-2"></i>Import from File
+      </h5>
+      <p class="text-muted mb-4" data-i18n="import_file_desc">
+        Upload Excel or CSV file with daily data to import previous records.
+      </p>
       
-      <form method="POST" enctype="multipart/form-data" class="mt-3">
-        <div class="mb-3">
-          <label for="file" class="form-label" data-i18n="select_file">Select File</label>
-          <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
-          <div class="form-text" data-i18n="file_format_help">
+      <form method="POST" enctype="multipart/form-data" class="mobile-form-enhanced" data-autosave="false">
+        <div class="mobile-form-group">
+          <label for="file" class="mobile-form-label" data-i18n="select_file">
+            <i class="bi bi-file-earmark-arrow-up me-2"></i>Select File
+          </label>
+          <input type="file" 
+                 class="mobile-input-enhanced form-control" 
+                 id="file" 
+                 name="file" 
+                 accept=".xlsx,.xls,.csv" 
+                 required>
+          <small class="form-text text-muted" data-i18n="file_format_help">
+            <i class="bi bi-info-circle me-1"></i>
             Supported formats: Excel (.xlsx, .xls) or CSV (.csv)
+          </small>
+        </div>
+        
+        <!-- Import Options Info -->
+        <div class="mobile-alert alert alert-info">
+          <h6 class="mb-3" data-i18n="import_options">
+            <i class="bi bi-clipboard-data me-2"></i>Import Options
+          </h6>
+          
+          <div class="mobile-form-section">
+            <h6 class="mobile-form-section-title text-success" data-i18n="exported_files">
+              <i class="bi bi-arrow-clockwise me-2"></i>Exported Files
+            </h6>
+            <p class="small mb-3" data-i18n="exported_desc">
+              Upload files exported from this system to import complete data including daily records and medicines.
+            </p>
+          </div>
+          
+          <div class="mobile-form-section">
+            <h6 class="mobile-form-section-title text-primary" data-i18n="custom_files">
+              <i class="bi bi-bar-chart me-2"></i>Custom Files
+            </h6>
+            <p class="small mb-3" data-i18n="custom_desc">
+              Upload Excel/CSV files with daily data only.
+            </p>
+          </div>
+          
+          <div class="mobile-form-section">
+            <h6 class="mobile-form-section-title" data-i18n="required_columns">
+              <i class="bi bi-table me-2"></i>Required Columns for Custom Files
+            </h6>
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>date</strong><br>
+                    <span class="text-muted" data-i18n="col_date_desc">Entry date (YYYY-MM-DD)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>mortality</strong><br>
+                    <span class="text-muted" data-i18n="col_mortality_desc">Number of dead birds</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>feed_bags_consumed</strong><br>
+                    <span class="text-muted" data-i18n="col_feed_consumed_desc">Feed bags used</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>feed_bags_added</strong><br>
+                    <span class="text-muted" data-i18n="col_feed_added_desc">Feed bags added</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>avg_weight</strong><br>
+                    <span class="text-muted" data-i18n="col_avg_weight_desc">Average weight in kg</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>fcr</strong><br>
+                    <span class="text-muted" data-i18n="col_fcr_desc">Feed conversion ratio</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="mobile-metric-card bg-light">
+                  <div class="small">
+                    <strong>medicines</strong><br>
+                    <span class="text-muted" data-i18n="col_medicines_desc">Medicines given (optional)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
-        <div class="alert alert-info">
-          <h6 data-i18n="import_options">📋 Import Options:</h6>
-          <div class="mb-3">
-            <strong data-i18n="exported_files">🔄 Exported Files:</strong>
-            <p class="mb-2" data-i18n="exported_desc">Upload files exported from this system to import complete data including daily records and medicines.</p>
-          </div>
-          
-          <div class="mb-3">
-            <strong data-i18n="custom_files">📊 Custom Files:</strong>
-            <p class="mb-2" data-i18n="custom_desc">Upload Excel/CSV files with daily data only.</p>
-          </div>
-          
-          <h6 data-i18n="required_columns">Required Columns for Custom Files:</h6>
-          <ul class="mb-0">
-            <li><strong>date</strong> - <span data-i18n="col_date_desc">Entry date (YYYY-MM-DD format)</span></li>
-            <li><strong>mortality</strong> - <span data-i18n="col_mortality_desc">Number of dead birds</span></li>
-            <li><strong>feed_bags_consumed</strong> - <span data-i18n="col_feed_consumed_desc">Feed bags used</span></li>
-            <li><strong>feed_bags_added</strong> - <span data-i18n="col_feed_added_desc">Feed bags added</span></li>
-            <li><strong>avg_weight</strong> - <span data-i18n="col_avg_weight_desc">Average weight in kg</span></li>
-            <li><strong>fcr</strong> - <span data-i18n="col_fcr_desc">Feed conversion ratio</span></li>
-            <li><strong>medicines</strong> - <span data-i18n="col_medicines_desc">Medicines given (optional)</span></li>
-          </ul>
-        </div>
-        
-        <button type="submit" class="btn btn-primary btn-lg" data-i18n="import_data_btn">
-          📥 Import Data
+        <button type="submit" class="mobile-btn-primary w-100" data-i18n="import_data_btn">
+          <i class="bi bi-cloud-upload me-2"></i>Import Data
         </button>
       </form>
     </div>
-  </div>
-  
-  <!-- Quick Actions Section -->
-  <div class="col-12 col-lg-4">
-    <div class="card p-4">
-      <h5 data-i18n="quick_actions">⚡ Quick Actions</h5>
+    
+    <!-- Quick Actions Section -->
+    <div class="mobile-card mt-4">
+      <h5 class="mobile-card-title" data-i18n="quick_actions">
+        <i class="bi bi-lightning me-2"></i>Quick Actions
+      </h5>
       
-      <div class="d-grid gap-3">
-        <a href="{{ url_for('setup') }}" class="btn btn-success" data-i18n="new_cycle_btn">
-          🐔 Start New Cycle
+      <div class="mobile-button-stack">
+        <a href="{{ url_for('setup') }}" class="mobile-btn-success" data-i18n="new_cycle_btn">
+          <i class="bi bi-plus-circle me-2"></i>Start New Cycle
         </a>
         
-        <a href="{{ url_for('export') }}" class="btn btn-outline-secondary" data-i18n="download_template">
-          📋 Download Template
+        <a href="{{ url_for('export') }}" class="mobile-btn-outline-secondary" data-i18n="download_template">
+          <i class="bi bi-download me-2"></i>Download Template
         </a>
         
-        <form method="POST" action="{{ url_for('reset_cycle') }}" class="d-inline">
-          <button type="submit" class="btn btn-warning w-100" 
-                  onclick="return confirm('Are you sure you want to archive current cycle? / क्या आप वर्तमान चक्र को संग्रहीत करना चाहते हैं?')" 
+        <form method="POST" action="{{ url_for('reset_cycle') }}" class="mb-0">
+          <button type="submit" 
+                  class="mobile-btn-warning w-100" 
+                  onclick="return confirm('Are you sure you want to archive current cycle?')" 
                   data-i18n="archive_cycle_btn">
-            📦 Archive Current Cycle
+            <i class="bi bi-archive me-2"></i>Archive Current Cycle
           </button>
         </form>
       </div>
-      
-      <div class="mt-4">
-        <h6 data-i18n="import_tips">💡 Import Tips:</h6>
-        <ul class="small text-muted">
-          <li data-i18n="tip1">Make sure date format is YYYY-MM-DD</li>
-          <li data-i18n="tip2">Numeric fields should contain only numbers</li>
-          <li data-i18n="tip3">Existing entries for same date won't be duplicated</li>
-          <li data-i18n="tip4">Empty cells will be treated as 0</li>
-        </ul>
+    </div>
+
+    <!-- Import Tips -->
+    <div class="mobile-card mt-4 bg-info bg-opacity-10 border-info">
+      <h6 class="mobile-card-title text-info" data-i18n="import_tips">
+        <i class="bi bi-lightbulb me-2"></i>Import Tips
+      </h6>
+      <ul class="small text-muted mb-0">
+        <li class="mb-2" data-i18n="tip1">
+          <i class="bi bi-calendar3 me-2"></i>Make sure date format is YYYY-MM-DD
+        </li>
+        <li class="mb-2" data-i18n="tip2">
+          <i class="bi bi-hash me-2"></i>Numeric fields should contain only numbers
+        </li>
+        <li class="mb-2" data-i18n="tip3">
+          <i class="bi bi-shield-check me-2"></i>Existing entries for same date won't be duplicated
+        </li>
+        <li data-i18n="tip4">
+          <i class="bi bi-dash-circle me-2"></i>Empty cells will be treated as 0
+        </li>
+      </ul>
+    </div>
+
+    <!-- File Upload Progress -->
+    <div class="mobile-card mt-4 d-none" id="uploadProgress">
+      <h6 class="mobile-card-title">
+        <i class="bi bi-cloud-upload me-2"></i>Upload Progress
+      </h6>
+      <div class="progress mb-3">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+             role="progressbar" 
+             style="width: 0%" 
+             id="uploadProgressBar">
+        </div>
       </div>
+      <p class="text-muted mb-0" id="uploadStatus">Preparing upload...</p>
     </div>
   </div>
 </div>
 
+<!-- JavaScript for Enhanced File Upload -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('file');
+  const form = fileInput.closest('form');
+  const progressCard = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('uploadProgressBar');
+  const statusText = document.getElementById('uploadStatus');
+
+  // File input enhancement
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        this.value = '';
+        return;
+      }
+      
+      // Show file info
+      const fileInfo = document.createElement('div');
+      fileInfo.className = 'mt-2 p-2 bg-light rounded small';
+      fileInfo.innerHTML = `
+        <i class="bi bi-file-earmark-check text-success me-2"></i>
+        <strong>${file.name}</strong><br>
+        <span class="text-muted">Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+      `;
+      
+      // Remove existing file info
+      const existingInfo = fileInput.parentNode.querySelector('.mt-2.p-2');
+      if (existingInfo) existingInfo.remove();
+      
+      fileInput.parentNode.appendChild(fileInfo);
+    }
+  });
+
+  // Form submission with progress
+  form.addEventListener('submit', function(e) {
+    const file = fileInput.files[0];
+    if (!file) {
+      alert('Please select a file to upload');
+      e.preventDefault();
+      return;
+    }
+
+    // Show progress
+    progressCard.classList.remove('d-none');
+    const submitBtn = form.querySelector('[type="submit"]');
+    submitBtn.innerHTML = '<i class="bi bi-cloud-upload me-2"></i>Uploading...';
+    submitBtn.disabled = true;
+
+    // Simulate progress (in real implementation, use XMLHttpRequest or fetch for actual progress)
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 90) {
+        progress = 90;
+        statusText.textContent = 'Processing file...';
+      } else {
+        statusText.textContent = `Uploading... ${Math.round(progress)}%`;
+      }
+      progressBar.style.width = progress + '%';
+      
+      if (progress >= 90) {
+        clearInterval(interval);
+      }
+    }, 200);
+  });
+
+  // Add touch feedback
+  const buttons = document.querySelectorAll('button, .mobile-btn-primary, .mobile-btn-success, .mobile-btn-outline-secondary, .mobile-btn-warning');
+  buttons.forEach(btn => btn.classList.add('mobile-touch-enhanced'));
+
+  // Auto-focus file input on desktop
+  if (window.innerWidth >= 768) {
+    setTimeout(() => fileInput.focus(), 300);
+  }
+});
+
+// Drag and drop enhancement
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('file');
+  const dropZone = fileInput.closest('.mobile-form-group');
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+  });
+
+  function highlight(e) {
+    dropZone.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+  }
+
+  function unhighlight(e) {
+    dropZone.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+  }
+
+  dropZone.addEventListener('drop', handleDrop, false);
+
+  function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+      fileInput.files = files;
+      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+});
+</script>
 {% endblock %}

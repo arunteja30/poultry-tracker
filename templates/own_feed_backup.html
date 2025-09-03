@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Poultry Feed Schedule — Day 1 to Day 40 (per 100 kg)</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;padding:0}
+    body{padding:24px;background:#f6f8fb;color:#111}
+    header{max-width:900px;margin:0 auto 18px}
+    h1{font-size:20px;margin:0 0 6px}
+    p.lead{margin:6px 0 18px;color:#333}
+    .card{background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,50,.06);padding:18px;margin-bottom:18px;max-width:1100px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #eef2f6}
+    th{background:#fbfdff;position:sticky;top:0}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+    .small{font-size:12px;color:#555}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#0b74de;color:#fff;text-decoration:none;cursor:pointer;border:none}
+    pre.recipe{background:#0f1724;color:#fff;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+    footer{max-width:900px;margin:6px auto 70px;color:#555;font-size:13px}
+    .lang-switch{margin:12px 0}
+    select{padding:6px 10px;border-radius:6px;border:1px solid #ccc}
+    @media (max-width:820px){body{padding:12px}table{font-size:12px}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1 data-i18n="title">Poultry Feed Schedule — Day 1 to Day 40 (per 100 kg feed offered)</h1>
+    <p class="lead" data-i18n="lead">This sheet shows, for each day (1 → 40), how much <strong>Company feed</strong> and <strong>Your feed</strong> to mix per 100 kg of total feed offered. Use the recipe below for "Your feed" (finisher-type mix). Monitor performance and keep 2 days of pure company feed as backup.</p>
+    <div class="lang-switch">
+      <label for="language">🌐 <span data-i18n="chooseLang">Choose language:</span></label>
+      <select id="language">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="te">తెలుగు (Telugu)</option>
+        <option value="es">Español (Spanish)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2 style="margin-top:0;font-size:16px" data-i18n="mixingTable">Day-wise Mixing Table (per 100 kg)</h2>
+    <div style="overflow:auto">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:8%" data-i18n="day">Day</th>
+            <th style="width:22%" data-i18n="companyFeed">Company Feed (kg)</th>
+            <th style="width:22%" data-i18n="yourFeed">Your Feed (kg)</th>
+            <th data-i18n="remark">Remark</th>
+          </tr>
+        </thead>
+        <tbody id="dayTableBody">
+          <!-- Table rows will be generated -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="recipeTitle">Your Feed Recipe (Finisher type)</h2>
+    <pre class="recipe" data-i18n="recipeText">Maize / Broken rice / Wheat - 55 kg
+Soybean meal / Groundnut cake - 25 kg
+Rice bran / De-oiled rice bran - 10 kg
+Fish meal or Meat meal - 5 kg
+Mineral mixture + Shell grit - 3 kg
+Oil (veg or animal) - 2 kg</pre>
+  </div>
+
+  <footer>
+    <p class="small" data-i18n="footer">Generated schedule: Day 1 → Day 40. "Your feed" recipe is a general finisher blend — adjust for local ingredient quality and prices. Monitor birds closely during transition.</p>
+  </footer>
+
+  <script>
+    const translations = { /* same translations object as before */ };
+
+    // Populate day-wise table
+    const tableBody = document.getElementById('dayTableBody');
+    for (let day = 1; day <= 40; day++) {
+      let companyFeed, yourFeed, remark;
+      if (day <= 10) {
+        companyFeed = 100;
+        yourFeed = 0;
+        remark = "Starter phase - full company feed";
+      } else if (day <= 20) {
+        companyFeed = 70;
+        yourFeed = 30;
+        remark = "Gradual introduction of your feed";
+      } else if (day <= 30) {
+        companyFeed = 50;
+        yourFeed = 50;
+        remark = "Balanced mix";
+      } else {
+        companyFeed = 30;
+        yourFeed = 70;
+        remark = "Finisher phase - more of your feed";
+      }
+      const row = `<tr><td>${day}</td><td>${companyFeed}</td><td>${yourFeed}</td><td>${remark}</td></tr>`;
+      tableBody.insertAdjacentHTML('beforeend', row);
+    }
+
+    // Translation logic
+    const langSelect = document.getElementById('language');
+    langSelect.addEventListener('change', function(){
+      const lang = this.value;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if(lang === 'en'){
+          el.innerHTML = el.getAttribute('data-original') || el.innerHTML;
+        } else if(translations[lang] && translations[lang][key]){
+          if(!el.getAttribute('data-original')){
+            el.setAttribute('data-original', el.innerHTML);
+          }
+          el.innerHTML = translations[lang][key];
+        }
+      });
+    });
+  </script>
+</body>
+</html>

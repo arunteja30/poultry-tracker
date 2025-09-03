@@ -5,22 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title or 'Ramesh Farms' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons for PWA Components -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Google Fonts for Telugu Support -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐔</text></svg>">
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1877f2">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <script src="/static/js/pwa.js"></script>
+    <script src="/static/js/mobile-ux.js"></script>
   </head>
   <body>
       <nav class="navbar navbar-expand-lg navbar-dark" style="background: #3b5998;">
       <div class="container-fluid">
         <!-- Mobile Offcanvas Toggle (left side) -->
         <button class="navbar-toggler d-lg-none me-2 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" style="background: transparent; box-shadow: none; border: none;">
-          <span style="display: inline-block; width: 28px; height: 22px;">
-            <span style="display: block; height: 4px; background: #0d6efd; margin-bottom: 5px; border-radius: 2px;"></span>
-            <span style="display: block; height: 4px; background: #0d6efd; margin-bottom: 5px; border-radius: 2px;"></span>
-            <span style="display: block; height: 4px; background: #0d6efd; border-radius: 2px;"></span>
+          <span style="display: inline-block; width: 50px; height: 60px;">
+            <span style="display: block; height: 4px; background: #ffffff; margin-bottom: 5px; border-radius: 2px;"></span>
+            <span style="display: block; height: 4px; background: #ffffff; margin-bottom: 5px; border-radius: 2px;"></span>
+            <span style="display: block; height: 4px; background: #ffffff; border-radius: 2px;"></span>
           </span>
         </button>
         <a class="navbar-brand chicken-icon d-inline-block align-middle fw-bold" href="{{ url_for('dashboard') }}" data-i18n="app_title" style="color: #ffffff; font-size: 1.4rem;">
@@ -88,7 +99,7 @@
                 <li><a class="dropdown-item" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal"><i class="me-2">🌿</i>Herbal Treatment</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth"><i class="me-2">📈</i>Growth Tips</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical"><i class="me-2">🏥</i>Medical Tips</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('own_feed') }}" data-i18n="tips_own_feed"><i class="me-2">🌾</i>Own Feed Recipe</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('tips_own_feed') }}" data-i18n="tips_own_feed"><i class="me-2">💡</i>Own Feed Tips</a></li>
               </ul>
             </li>
           </ul>
@@ -119,156 +130,177 @@
         <!-- ...mobile offcanvas code continues... -->
           <!-- Mobile Offcanvas Navigation -->
         <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel"
-     style="width:85vw;max-width:400px;background: #3b5998;">
+     style="width:85vw;max-width:400px;background: var(--fb-white);">
      
-       <h6 class="text-primary-50 mt-3 mb-2 px-3 b" data-i18n="app_title" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
-                Ramesh Farms
-              </h6>
-            <div class="offcanvas-body">
-              <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-3" style="color:#0d6efd; border-radius: 10px; margin-bottom: 5px;" href="{{ url_for('dashboard') }}" data-i18n="nav_dashboard">
-                <i class="me-3" style="font-size: 1.2rem;">📊</i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-3" style="color:#0d6efd; border-radius: 10px; margin-bottom: 5px;" href="{{ url_for('income_estimate') }}" data-i18n="nav_income_estimate">
-                <i class="me-3" style="font-size: 1.2rem;">💸</i>Income Estimate
-              </a>
-            </li>
-            <li class="nav-item">
-              <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
-                Operations
-              </h6>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('daily') }}" data-i18n="nav_daily">
-                <i class="me-3">📝</i>Daily Entry
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('feed_management') }}" data-i18n="nav_feed_management">
-                <i class="me-3">🌾</i>Feed Management
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('medicines') }}" data-i18n="nav_meds">
-                <i class="me-3">💊</i>Medicines
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('expenses') }}" data-i18n="nav_expenses">
-                <i class="me-3">💰</i>Expenses
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('bird_dispatch') }}" data-i18n="nav_bird_dispatch">
-                <i class="me-3">🚚</i>Bird Dispatch
-              </a>
-            </li>
-            <li class="nav-item">
-               <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
-                Reports
-              </h6>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('daywise') }}" data-i18n="nav_daywise">
-                <i class="me-3">📅</i>Daywise
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('stats') }}" data-i18n="nav_stats">
-                <i class="me-3">📊</i>Statistics
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('cycle_history') }}" data-i18n="nav_cycle_history">
-                <i class="me-3">🔄</i>Cycle History
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('dispatch_history') }}" data-i18n="nav_dispatch_history">
-                <i class="me-3">📋</i>Dispatch History
-              </a>
-            </li>
-            {% if session.role == 'admin' %}
-            <li class="nav-item">
-               <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
-                Admin
-              </h6>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('setup') }}" data-i18n="nav_cycle_setup">
-                <i class="me-3">🔧</i>Cycle Setup
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('users') }}" data-i18n="nav_users">
-                <i class="me-3">👥</i>Users
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('import_data') }}" data-i18n="nav_import">
-                <i class="me-3">📥</i>Import Data
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('export') }}" data-i18n="nav_export">
-                <i class="me-3">📤</i>Export Data
-              </a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-               <h6 class="text-primary-50 mt-3 mb-2 px-3 small" style="color:#0d6efd; border: 1px solid #0d6efd; border-radius: 6px; padding: 6px 12px; background: rgba(13,110,253,0.07);">
-                Tips
-              </h6>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('bedding_tips') }}" data-i18n="tips_bedding">
-                <i class="me-3">🛏️</i>Bedding Tips
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('herbal_treatment_tips') }}" data-i18n="tips_herbal">
-                <i class="me-3">🌿</i>Herbal Treatment
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('growth_tips') }}" data-i18n="tips_growth">
-                <i class="me-3">📈</i>Growth Tips
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('tips_medical') }}" data-i18n="tips_medical">
-                <i class="me-3">🏥</i>Medical Tips
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 ps-4" style="color:rgba(255,255,255,0.9);" href="{{ url_for('own_feed') }}" data-i18n="tips_medical">
-                <i class="me-3">🏥</i>Own Feed Recipe
-              </a>
-            </li>
-            <li class="nav-item mt-3">
-              <a class="nav-link" style="color:#ffffff;" href="{{ url_for('logout') }}">Logout</a>
-              <hr style="margin:0; border-color:#ffffff;">
-            </li>
-          </ul>
-            <hr>
-            <div>
-              <select id="langSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;">
-                <option value="en">🇺🇸 English</option>
-                <option value="hi">🇮🇳 हिन्दी</option>
-                <option value="te">🇮🇳 తెలుగు</option>
-              </select>
-              <select id="fontSizeSelectMobile" class="form-select form-select-sm mb-2" style="width:100%;" title="Font Size">
-                <option value="small" data-i18n="font_size_small">🔤 Small</option>
-                <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
-                <option value="large" data-i18n="font_size_large">🔤 Large</option>
-                <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
-              </select>
-            </div>
-          </div>
-        </div>
+       <div class="offcanvas-header" style="background: var(--fb-blue); color: white; border-bottom: 1px solid var(--fb-light-gray);">
+         <h6 class="offcanvas-title fw-bold" data-i18n="app_title">
+           🐔 Ramesh Farms
+         </h6>
+         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+       </div>
+       
+       <div class="offcanvas-body p-0">
+         <!-- User Info Card -->
+         <div class="p-3" style="background: var(--fb-light-bg); border-bottom: 1px solid var(--fb-light-gray);">
+           <div class="d-flex align-items-center">
+             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: var(--fb-blue) !important;">
+               {% if session.role == 'admin' %}👑{% else %}👤{% endif %}
+             </div>
+             <div>
+               <div class="fw-bold" style="color: var(--fb-text-dark);">{{ session.username }}</div>
+               <small style="color: var(--fb-text-muted);">{{ session.role.title() }}</small>
+             </div>
+           </div>
+         </div>
+         
+         <!-- Navigation List -->
+         <div class="nav-list">
+           <!-- Dashboard -->
+           <a href="{{ url_for('dashboard') }}" class="nav-list-item" data-i18n="nav_dashboard">
+             <span class="nav-icon">📊</span>
+             <span class="nav-text">Dashboard</span>
+           </a>
+           
+           <!-- Income Estimate -->
+           <a href="{{ url_for('income_estimate') }}" class="nav-list-item" data-i18n="nav_income_estimate">
+             <span class="nav-icon">💸</span>
+             <span class="nav-text">Income Estimate</span>
+           </a>
+           
+           <!-- Section Header: Operations -->
+           <div class="nav-section-header">Operations</div>
+           
+           <a href="{{ url_for('daily') }}" class="nav-list-item" data-i18n="nav_daily">
+             <span class="nav-icon">📝</span>
+             <span class="nav-text">Daily Entry</span>
+           </a>
+           
+           <a href="{{ url_for('feed_management') }}" class="nav-list-item" data-i18n="nav_feed_management">
+             <span class="nav-icon">🌾</span>
+             <span class="nav-text">Feed Management</span>
+           </a>
+           
+           <a href="{{ url_for('medicines') }}" class="nav-list-item" data-i18n="nav_meds">
+             <span class="nav-icon">💊</span>
+             <span class="nav-text">Medicines</span>
+           </a>
+           
+           <a href="{{ url_for('expenses') }}" class="nav-list-item" data-i18n="nav_expenses">
+             <span class="nav-icon">💰</span>
+             <span class="nav-text">Expenses</span>
+           </a>
+           
+           <a href="{{ url_for('bird_dispatch') }}" class="nav-list-item" data-i18n="nav_bird_dispatch">
+             <span class="nav-icon">🚚</span>
+             <span class="nav-text">Bird Dispatch</span>
+           </a>
+           
+           <!-- Section Header: Reports -->
+           <div class="nav-section-header">Reports</div>
+           
+           <a href="{{ url_for('daywise') }}" class="nav-list-item" data-i18n="nav_daywise">
+             <span class="nav-icon">📅</span>
+             <span class="nav-text">Daywise</span>
+           </a>
+           
+           <a href="{{ url_for('stats') }}" class="nav-list-item" data-i18n="nav_stats">
+             <span class="nav-icon">📊</span>
+             <span class="nav-text">Statistics</span>
+           </a>
+           
+           <a href="{{ url_for('cycle_history') }}" class="nav-list-item" data-i18n="nav_cycle_history">
+             <span class="nav-icon">🔄</span>
+             <span class="nav-text">Cycle History</span>
+           </a>
+           
+           <a href="{{ url_for('dispatch_history') }}" class="nav-list-item" data-i18n="nav_dispatch_history">
+             <span class="nav-icon">📋</span>
+             <span class="nav-text">Dispatch History</span>
+           </a>
+           
+           {% if session.role == 'admin' %}
+           <!-- Section Header: Admin -->
+           <div class="nav-section-header">Admin</div>
+           
+           <a href="{{ url_for('setup') }}" class="nav-list-item" data-i18n="nav_cycle_setup">
+             <span class="nav-icon">🔧</span>
+             <span class="nav-text">Cycle Setup</span>
+           </a>
+           
+           <a href="{{ url_for('users') }}" class="nav-list-item" data-i18n="nav_users">
+             <span class="nav-icon">👥</span>
+             <span class="nav-text">Users</span>
+           </a>
+           
+           <a href="{{ url_for('import_data') }}" class="nav-list-item" data-i18n="nav_import">
+             <span class="nav-icon">📥</span>
+             <span class="nav-text">Import Data</span>
+           </a>
+           
+           <a href="{{ url_for('export') }}" class="nav-list-item" data-i18n="nav_export">
+             <span class="nav-icon">📤</span>
+             <span class="nav-text">Export Data</span>
+           </a>
+           {% endif %}
+           
+           <!-- Section Header: Tips -->
+           <div class="nav-section-header">Tips</div>
+           
+           <a href="{{ url_for('bedding_tips') }}" class="nav-list-item" data-i18n="tips_bedding">
+             <span class="nav-icon">🛏️</span>
+             <span class="nav-text">Bedding Tips</span>
+           </a>
+           
+           <a href="{{ url_for('herbal_treatment_tips') }}" class="nav-list-item" data-i18n="tips_herbal">
+             <span class="nav-icon">🌿</span>
+             <span class="nav-text">Herbal Treatment</span>
+           </a>
+           
+           <a href="{{ url_for('growth_tips') }}" class="nav-list-item" data-i18n="tips_growth">
+             <span class="nav-icon">📈</span>
+             <span class="nav-text">Growth Tips</span>
+           </a>
+           
+           <a href="{{ url_for('tips_medical') }}" class="nav-list-item" data-i18n="tips_medical">
+             <span class="nav-icon">🏥</span>
+             <span class="nav-text">Medical Tips</span>
+           </a>
+            <a href="{{ url_for('tips_own_feed') }}" class="nav-list-item" data-i18n="tips_own_feed">
+              <span class="nav-icon">💡</span>
+              <span class="nav-text">Own Feed Tips</span>
+           </a>
+
+           <!-- Settings Section -->
+           <div class="nav-section-header">Settings</div>
+           
+           <div class="p-3">
+             <div class="mb-2">
+               <label class="form-label small fw-bold" style="color: var(--fb-text-dark);">Language</label>
+               <select id="langSelectMobile" class="form-select form-select-sm">
+                 <option value="en">🇺🇸 English</option>
+                 <option value="hi">🇮🇳 हिन्दी</option>
+                 <option value="te">🇮🇳 తెలుగు</option>
+               </select>
+             </div>
+             <div class="mb-3">
+               <label class="form-label small fw-bold" style="color: var(--fb-text-dark);">Font Size</label>
+               <select id="fontSizeSelectMobile" class="form-select form-select-sm">
+                 <option value="small" data-i18n="font_size_small">🔤 Small</option>
+                 <option value="medium" selected data-i18n="font_size_medium">🔤 Medium</option>
+                 <option value="large" data-i18n="font_size_large">🔤 Large</option>
+                 <option value="xlarge" data-i18n="font_size_xlarge">🔤 X-Large</option>
+               </select>
+             </div>
+           </div>
+           
+           <!-- Logout -->
+           <a href="{{ url_for('logout') }}" class="nav-list-item text-danger">
+             <span class="nav-icon">🚪</span>
+             <span class="nav-text">Logout</span>
+           </a>
+         </div>
+       </div>
+     </div>
         </div>
       </nav>
      <main class="container my-4" style="background-color: #f2f4f6;"> {% block content %}
@@ -429,5 +461,147 @@
   
     </script>
     {% block scripts %}{% endblock %}
+    
+    <!-- Bottom Navigation for Mobile PWA -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-container">
+        <a href="{{ url_for('dashboard') }}" class="bottom-nav-item" data-page="dashboard">
+          <i class="bi bi-house-fill"></i>
+          <span data-i18n="dashboard">Dashboard</span>
+        </a>
+        <a href="{{ url_for('daily') }}" class="bottom-nav-item" data-page="daily">
+          <i class="bi bi-calendar-plus"></i>
+          <span data-i18n="daily">Daily</span>
+        </a>
+        <a href="{{ url_for('expenses') }}" class="bottom-nav-item" data-page="expenses">
+          <i class="bi bi-currency-rupee"></i>
+          <span data-i18n="expenses">Expenses</span>
+        </a>
+        <a href="{{ url_for('stats') }}" class="bottom-nav-item" data-page="stats">
+          <i class="bi bi-graph-up"></i>
+          <span data-i18n="stats">Stats</span>
+        </a>
+        <a href="#" class="bottom-nav-item" onclick="toggleMobileMenu()">
+          <i class="bi bi-three-dots"></i>
+          <span data-i18n="more">More</span>
+        </a>
+      </div>
+    </nav>
+
+    <script>
+      // Bottom navigation active state management
+      function setActiveBottomNav() {
+        const currentPath = window.location.pathname;
+        const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+        
+        bottomNavItems.forEach(item => {
+          item.classList.remove('active');
+          const href = item.getAttribute('href');
+          if (href && currentPath.includes(href.split('/').pop())) {
+            item.classList.add('active');
+          }
+        });
+      }
+      
+      // Mobile menu toggle for "More" button
+      function toggleMobileMenu() {
+        const existingMenu = document.getElementById('mobileBottomMenu');
+        if (existingMenu) {
+          existingMenu.remove();
+          return;
+        }
+        
+        let menuItems = [
+    
+          { href: "{{ url_for('feed_management') }}", icon: 'bi-grain', text: 'Feed Management' },
+          { href: "{{ url_for('medicines') }}", icon: 'bi-capsule', text: 'Medicines' },
+          { href: "{{ url_for('bird_dispatch') }}", icon: 'bi-truck', text: 'Bird Dispatch' },
+          { href: "{{ url_for('daywise') }}", icon: 'bi-calendar-date', text: 'Daywise Report' },
+          { href: "{{ url_for('cycle_history') }}", icon: 'bi-clock-history', text: 'Cycle History' },
+          { href: "{{ url_for('dispatch_history') }}", icon: 'bi-clipboard-data', text: 'Dispatch History' },
+          { href: "{{ url_for('income_estimate') }}", icon: 'bi-currency-exchange', text: 'Income Estimate' },
+          { href: "{{ url_for('growth_tips') }}", icon: 'bi-lightbulb', text: 'Growth Tips' },
+          { href: "{{ url_for('bedding_tips') }}", icon: 'bi-house', text: 'Bedding Tips' },
+          { href: "{{ url_for('herbal_treatment_tips') }}", icon: 'bi-leaf', text: 'Herbal Treatment' },
+          { href: "{{ url_for('tips_medical') }}", icon: 'bi-heart-pulse', text: 'Medical Tips' },
+          { href: "{{ url_for('tips_own_feed') }}", icon: 'bi-heart-pulse', text: 'Own Feed Tips' },
+        ];
+        
+        {% if session.role == 'admin' %}
+        // Add admin-only items
+        menuItems = menuItems.concat([
+          { href: "{{ url_for('setup') }}", icon: 'bi-gear', text: 'Cycle Setup' },
+          { href: "{{ url_for('users') }}", icon: 'bi-people', text: 'Users' },
+          { href: "{{ url_for('import_data') }}", icon: 'bi-download', text: 'Import Data' },
+          { href: "{{ url_for('export') }}", icon: 'bi-upload', text: 'Export Data' }
+        ]);
+        {% endif %}
+        
+        const menu = document.createElement('div');
+        menu.id = 'mobileBottomMenu';
+        menu.className = 'position-fixed';
+        menu.style.cssText = `
+          bottom: 80px;
+          left: 10px;
+          right: 10px;
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+          z-index: 1001;
+          padding: 15px;
+          max-height: 300px;
+          overflow-y: auto;
+        `;
+        
+        const menuGrid = document.createElement('div');
+        menuGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px;';
+        
+        menuItems.forEach(item => {
+          const menuItem = document.createElement('a');
+          menuItem.href = item.href;
+          menuItem.className = 'text-decoration-none text-center';
+          menuItem.style.cssText = 'color: #495057; padding: 10px; border-radius: 10px; transition: background 0.2s;';
+          menuItem.innerHTML = `
+            <div><i class="bi ${item.icon}" style="font-size: 1.5rem; color: #1877f2;"></i></div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">${item.text}</div>
+          `;
+          
+          menuItem.addEventListener('mouseenter', () => {
+            menuItem.style.background = '#f8f9fa';
+          });
+          menuItem.addEventListener('mouseleave', () => {
+            menuItem.style.background = 'transparent';
+          });
+          
+          menuGrid.appendChild(menuItem);
+        });
+        
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+        closeBtn.className = 'btn btn-sm btn-outline-secondary';
+        closeBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; padding: 0; border-radius: 50%;';
+        closeBtn.onclick = () => menu.remove();
+        
+        menu.appendChild(closeBtn);
+        menu.appendChild(menuGrid);
+        document.body.appendChild(menu);
+        
+        // Close menu when clicking outside
+        setTimeout(() => {
+          document.addEventListener('click', function closeMenu(e) {
+            if (!menu.contains(e.target) && !e.target.closest('.bottom-nav-item[onclick="toggleMobileMenu()"]')) {
+              menu.remove();
+              document.removeEventListener('click', closeMenu);
+            }
+          });
+        }, 100);
+      }
+      
+      // Initialize bottom nav on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        setActiveBottomNav();
+      });
+    </script>
   </body>
 </html>

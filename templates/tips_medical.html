@@ -1,104 +1,102 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <h2 class="mb-4" data-i18n="medical_title">🏥 Medical Tips: Common Diseases & Remedies</h2>
-      
-      <div class="card shadow">
-        <div class="card-header bg-danger text-white">
-          <h5 class="mb-0" data-i18n="disease_management_guide">🦠 Disease Management Guide</h5>
+<div class="mobile-container">
+  <div class="mobile-section">
+    <h2 class="mobile-header text-center mb-mobile-3" data-i18n="medical_title">🏥 Medical Tips</h2>
+    
+    <div class="mobile-card card shadow-sm">
+      <div class="card-header bg-danger text-white p-mobile-2">
+        <h5 class="mb-0 text-center" data-i18n="disease_management_guide">🦠 Disease Management</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="mobile-table table table-hover table-sm">
+            <thead class="table-dark">
+              <tr class="text-nowrap">
+                <th class="touch-target align-middle text-center px-2" style="min-width: 120px;" data-i18n="disease">Disease</th>
+                <th class="touch-target align-middle text-center px-2" style="min-width: 150px;" data-i18n="symptoms">Symptoms</th>
+                <th class="touch-target align-middle text-center px-2" style="min-width: 140px;" data-i18n="natural_remedies">Natural Remedies</th>
+                <th class="touch-target align-middle text-center px-2" style="min-width: 130px;" data-i18n="vet_medicines">Medicines</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-danger">
+                <td class="touch-target px-2"><strong data-i18n="coccidiosis">Coccidiosis</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="coccidiosis_symptoms">🩸 Bloody droppings, weakness</td>
+                <td class="mobile-content px-2 small" data-i18n="coccidiosis_natural">🌿 Turmeric water, dry litter</td>
+                <td class="mobile-content px-2 small" data-i18n="coccidiosis_vet">💊 Amprolium, Sulfa drugs</td>
+              </tr>
+              <tr class="table-warning">
+                <td class="touch-target px-2"><strong data-i18n="newcastle_disease">Newcastle Disease</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="newcastle_symptoms">🫁 Respiratory issues, diarrhea</td>
+                <td class="mobile-content px-2 small" data-i18n="newcastle_natural">🌿 Neem, tulsi water</td>
+                <td class="mobile-content px-2 small" data-i18n="newcastle_vet">💉 Vaccination, antibiotics</td>
+              </tr>
+              <tr class="table-info">
+                <td class="touch-target px-2"><strong data-i18n="ibd_disease">IBD/Gumboro</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="ibd_symptoms">🔴 Swollen vent, diarrhea</td>
+                <td class="mobile-content px-2 small" data-i18n="ibd_natural">🌿 Amla juice, aloe vera</td>
+                <td class="mobile-content px-2 small" data-i18n="ibd_vet">💉 Vaccination, vitamins</td>
+              </tr>
+              <tr class="table-secondary">
+                <td class="touch-target px-2"><strong data-i18n="fowl_pox">Fowl Pox</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="fowl_pox_symptoms">🔍 Lesions on comb</td>
+                <td class="mobile-content px-2 small" data-i18n="fowl_pox_natural">🌿 Turmeric paste</td>
+                <td class="mobile-content px-2 small" data-i18n="fowl_pox_vet">💉 Vaccination, iodine</td>
+              </tr>
+              <tr class="table-primary">
+                <td class="touch-target px-2"><strong data-i18n="respiratory_infections">Respiratory Issues</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="respiratory_symptoms">👁️ Swollen eyes, sneezing</td>
+                <td class="mobile-content px-2 small" data-i18n="respiratory_natural">🌿 Ginger, tulsi leaves</td>
+                <td class="mobile-content px-2 small" data-i18n="respiratory_vet">💊 Tylosin, antibiotics</td>
+              </tr>
+              <tr class="table-success">
+                <td class="touch-target px-2"><strong data-i18n="worms">Worms</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="worms_symptoms">⚖️ Weight loss, pale comb</td>
+                <td class="mobile-content px-2 small" data-i18n="worms_natural">🌿 Papaya seeds, neem</td>
+                <td class="mobile-content px-2 small" data-i18n="worms_vet">💊 Albendazole, piperazine</td>
+              </tr>
+              <tr class="table-light">
+                <td class="touch-target px-2"><strong data-i18n="external_parasites">External Parasites</strong></td>
+                <td class="mobile-content px-2 small" data-i18n="external_symptoms">🐛 Itching, feather loss</td>
+                <td class="mobile-content px-2 small" data-i18n="external_natural">🌿 Diatomaceous earth</td>
+                <td class="mobile-content px-2 small" data-i18n="external_vet">💊 Permethrin spray</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-dark">
-                <tr>
-                  <th data-i18n="disease">Disease</th>
-                  <th data-i18n="symptoms">Symptoms</th>
-                  <th data-i18n="natural_remedies">Natural Remedies</th>
-                  <th data-i18n="vet_medicines">Vet-Recommended Medicines</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="table-danger">
-                  <td><strong data-i18n="coccidiosis">Coccidiosis</strong></td>
-                  <td data-i18n="coccidiosis_symptoms">🩸 Bloody droppings, weakness, ruffled feathers</td>
-                  <td data-i18n="coccidiosis_natural">🌿 Mix turmeric (½ tsp/liter water), keep litter dry, add garlic to water</td>
-                  <td data-i18n="coccidiosis_vet">💊 Amprolium, Sulfa drugs (as per vet dosage)</td>
-                </tr>
-                <tr class="table-warning">
-                  <td><strong data-i18n="newcastle_disease">Newcastle Disease (Ranikhet)</strong></td>
-                  <td data-i18n="newcastle_symptoms">🫁 Respiratory distress, greenish diarrhea, paralysis</td>
-                  <td data-i18n="newcastle_natural">🌿 Neem leaf water, tulsi water for immunity</td>
-                  <td data-i18n="newcastle_vet">💉 Vaccination (Lasota, F strain), supportive antibiotics</td>
-                </tr>
-                <tr class="table-info">
-                  <td><strong data-i18n="ibd_disease">Infectious Bursal Disease (IBD/Gumboro)</strong></td>
-                  <td data-i18n="ibd_symptoms">🔴 Swollen vent, watery diarrhea, depression</td>
-                  <td data-i18n="ibd_natural">🌿 Amla juice in water, aloe vera juice for immunity</td>
-                  <td data-i18n="ibd_vet">💉 Vaccination, supportive care (electrolytes, vitamins)</td>
-                </tr>
-                <tr class="table-secondary">
-                  <td><strong data-i18n="fowl_pox">Fowl Pox</strong></td>
-                  <td data-i18n="fowl_pox_symptoms">🔍 Wart-like lesions on comb/wattles, drop in egg production</td>
-                  <td data-i18n="fowl_pox_natural">🌿 Apply turmeric paste on lesions, keep birds isolated</td>
-                  <td data-i18n="fowl_pox_vet">💉 Vaccination, iodine/glycerin topical application</td>
-                </tr>
-                <tr class="table-primary">
-                  <td><strong data-i18n="respiratory_infections">Respiratory Infections (CRD, Coryza)</strong></td>
-                  <td data-i18n="respiratory_symptoms">👁️ Swollen eyes, nasal discharge, sneezing</td>
-                  <td data-i18n="respiratory_natural">🌿 Ginger juice in water, tulsi leaves, improve ventilation</td>
-                  <td data-i18n="respiratory_vet">💊 Tylosin, oxytetracycline, as per vet advice</td>
-                </tr>
-                <tr class="table-success">
-                  <td><strong data-i18n="worms">Worms (Roundworm, Tapeworm)</strong></td>
-                  <td data-i18n="worms_symptoms">⚖️ Weight loss, pale comb, diarrhea</td>
-                  <td data-i18n="worms_natural">🌿 Papaya seeds (crushed, small amount in feed), neem leaf water</td>
-                  <td data-i18n="worms_vet">💊 Piperazine, albendazole, fenbendazole (as per vet dosage)</td>
-                </tr>
-                <tr class="table-light">
-                  <td><strong data-i18n="external_parasites">External Parasites (Mites, Lice)</strong></td>
-                  <td data-i18n="external_symptoms">🐛 Itching, feather loss, restlessness</td>
-                  <td data-i18n="external_natural">🌿 Diatomaceous earth dusting, neem oil spray</td>
-                  <td data-i18n="external_vet">💊 Permethrin spray, ivermectin (as per vet advice)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      </div>
+      <div class="card-footer bg-light p-mobile-2">
+        <div class="alert alert-warning mb-0" role="alert">
+          <strong>⚠️ Important:</strong> <span data-i18n="note_vet_consult">Always consult a veterinarian for diagnosis and dosage.</span>
         </div>
-        <div class="card-footer bg-light">
-          <div class="alert alert-warning mb-0" role="alert">
-            <strong>⚠️ Important:</strong> <span data-i18n="note_vet_consult">Always consult a veterinarian for correct diagnosis and dosage. Use natural remedies as supplements, not replacements for professional treatment.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-section">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <div class="mobile-card card border-success h-100">
+          <div class="card-body text-center p-mobile-2">
+            <h6 class="card-title text-success" data-i18n="prevention_first">🌿 Prevention First</h6>
+            <p class="mobile-content card-text" data-i18n="prevention_first_content">Good hygiene prevents diseases.</p>
           </div>
         </div>
       </div>
-
-      <div class="mt-4">
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card border-success">
-              <div class="card-body text-center">
-                <h5 class="card-title text-success" data-i18n="prevention_first">🌿 Prevention First</h5>
-                <p class="card-text" data-i18n="prevention_first_content">Good hygiene and proper nutrition prevent most diseases.</p>
-              </div>
-            </div>
+      <div class="col-12 col-md-4">
+        <div class="mobile-card card border-warning h-100">
+          <div class="card-body text-center p-mobile-2">
+            <h6 class="card-title text-warning" data-i18n="early_detection">🏥 Early Detection</h6>
+            <p class="mobile-content card-text" data-i18n="early_detection_content">Daily observation helps catch early.</p>
           </div>
-          <div class="col-md-4">
-            <div class="card border-warning">
-              <div class="card-body text-center">
-                <h5 class="card-title text-warning" data-i18n="early_detection">🏥 Early Detection</h5>
-                <p class="card-text" data-i18n="early_detection_content">Daily observation helps catch diseases early for better outcomes.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card border-info">
-              <div class="card-body text-center">
-                <h5 class="card-title text-info" data-i18n="professional_help">💊 Professional Help</h5>
-                <p class="card-text" data-i18n="professional_help_content">Always consult a veterinarian for serious conditions.</p>
-              </div>
-            </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="mobile-card card border-info h-100">
+          <div class="card-body text-center p-mobile-2">
+            <h6 class="card-title text-info" data-i18n="professional_help">💊 Professional Help</h6>
+            <p class="mobile-content card-text" data-i18n="professional_help_content">Consult veterinarian for serious conditions.</p>
           </div>
         </div>
       </div>

@@ -12,66 +12,10 @@
   --fb-shadow: rgba(24, 119, 242, 0.15);
 }
 
-/* Expand/Collapse Button Styles */
-.expand-btn {
-  transition: transform 0.2s ease;
-  font-size: 0.9rem !important;
-  padding: 0.25rem 0.5rem !important;
-  border: 1px solid #dee2e6 !important;
-  background: #f8f9fa !important;
-  color: #495057 !important;
-  position: relative;
-}
-
-.expand-btn::after {
-  content: '▼';
-  font-size: 0.8em;
-  transition: transform 0.2s ease;
-}
-
-.expand-btn[aria-expanded="false"]::after {
-  transform: rotate(-90deg);
-}
-
-.expand-btn:hover {
-  background: #e9ecef !important;
-  border-color: #adb5bd !important;
-}
-
-/* Mobile-specific expand button styling */
-@media (max-width: 768px) {
-  .expand-btn {
-    font-size: 0.8rem !important;
-    padding: 0.2rem 0.4rem !important;
-    border-radius: 0 !important;
-    min-width: 32px !important;
-    height: 32px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .expand-btn {
-    font-size: 0.7rem !important;
-    min-width: 28px !important;
-    height: 28px !important;
-  }
-}
-
 /* Custom Font Face Declaration */
 @font-face {
   font-family: 'JIMS Regular';
   src: url('/static/fonts/JIMS Regular.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Mandali';
-  src: url('/static/fonts/Mandali.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -147,302 +91,12 @@ body {
 
 /* Language-specific fonts */
 body.lang-te {
-  font-family: 'Mandali';
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 1.1em; /* Increased base font size for Telugu */
 }
 
 body.lang-hi {
   font-family: 'Noto Sans Devanagari', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Enhanced Mobile Navigation Styles */
-.mobile-nav-item {
-  color: white !important;
-  text-decoration: none !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 0.875rem 1rem !important;
-  margin-bottom: 0.25rem !important;
-  border-radius: 12px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  font-weight: 500 !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.mobile-nav-item:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-  transform: translateX(6px) !important;
-  color: white !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-}
-
-.mobile-nav-item:active {
-  transform: translateX(3px) scale(0.98) !important;
-  background: rgba(255, 255, 255, 0.25) !important;
-}
-
-.mobile-nav-item i:first-child {
-  width: 28px !important;
-  height: 28px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin-right: 1rem !important;
-  font-size: 1.1rem !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-radius: 10px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.mobile-nav-item span {
-  flex: 1 !important;
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.01em !important;
-}
-
-.mobile-nav-item .chevron {
-  width: 18px !important;
-  height: 18px !important;
-  font-size: 0.8rem !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  margin-left: auto !important;
-}
-
-.mobile-nav-item:hover .chevron {
-  color: rgba(255, 255, 255, 0.95) !important;
-  transform: translateX(3px) !important;
-}
-
-.mobile-nav-item:hover i:first-child {
-  background: rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  transform: scale(1.05) !important;
-}
-
-/* Enhanced scrollbar for mobile nav */
-.offcanvas-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.offcanvas-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-.offcanvas-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.offcanvas-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-/* Enhanced Mobile Navigation Backdrop */
-.offcanvas-backdrop {
-  background: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-/* Enhanced Mobile specific responsive adjustments */
-@media (max-width: 768px) {
-  .mobile-navbar-brand {
-    font-size: 1.3rem !important;
-    font-weight: 700 !important;
-  }
-  
-  .mobile-container-fluid {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-  
-  .mobile-main-container {
-    padding-left: 0.875rem !important;
-    padding-right: 0.875rem !important;
-    margin-top: 1.25rem !important;
-  }
-  
-  /* Enhanced touch targets */
-  .mobile-nav-item {
-    min-height: 52px !important;
-    font-size: 1rem !important;
-  }
-  
-  /* Enhanced mobile cards */
-  .mobile-card {
-    border-radius: 16px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-    border: none !important;
-  }
-  
-  .mobile-btn {
-    min-height: auto !important;
-    border-radius: 0 !important; /* Native mobile style */
-    font-weight: 500 !important;
-    letter-spacing: 0.01em !important;
-    font-size: 0.8rem !important;
-    padding: 6px 12px !important;
-    border: 1px solid #ddd !important;
-    background: #f8f9fa !important;
-    color: #333 !important;
-  }
-}
-
-/* Extra small mobile devices (phones in portrait) */
-@media (max-width: 480px) {
-  h2 {
-    font-size: 1.25rem !important;
-    line-height: 1.2 !important;
-    margin-bottom: 0.75rem !important;
-    padding-bottom: 0.4rem !important;
-  }
-  
-  /* Font size specific extra small mobile H2 adjustments */
-  body.font-size-small h2 { font-size: 1.1rem !important; }
-  body.font-size-medium h2 { font-size: 1.25rem !important; }
-  body.font-size-large h2 { font-size: 1.4rem !important; }
-  body.font-size-xlarge h2 { font-size: 1.6rem !important; }
-  
-  /* Language-specific extra small mobile H2 adjustments - responsive to font size */
-  body.lang-te.font-size-small h2 { font-size: 1.1rem !important; }
-  body.lang-te.font-size-medium h2 { font-size: 1.3rem !important; }
-  body.lang-te.font-size-large h2 { font-size: 1.5rem !important; }
-  body.lang-te.font-size-xlarge h2 { font-size: 1.7rem !important; }
-  body.lang-te h2 { font-size: 1.3rem !important; } /* default fallback */
-  body.lang-hi h2 { font-size: 1.25rem !important; }
-  
-  /* Extra small mobile button sizing - native mobile style */
-  .btn {
-    font-size: 0.75rem !important;
-    padding: 5px 10px !important;
-    border-radius: 0 !important; /* Native style - no rounded corners */
-    font-weight: 500 !important;
-    min-height: auto !important;
-    border: 1px solid #ddd !important;
-  }
-  
-  /* Button size variants for extra small mobile */
-  .btn-sm {
-    font-size: 0.7rem !important;
-    padding: 3px 6px !important;
-    border-radius: 0 !important; /* Native style */
-  }
-  
-  .btn-lg {
-    font-size: 0.8rem !important;
-    padding: 6px 12px !important;
-    border-radius: 0 !important; /* Native style */
-  }
-  
-  /* Specific button types for extra small screens - native colors */
-  .btn-primary, .btn-success, .btn-secondary, .btn-danger, .btn-warning, .btn-info {
-    font-size: 0.75rem !important;
-    padding: 5px 10px !important;
-    border-radius: 0 !important;
-  }
-  
-  /* Outline buttons for extra small screens */
-  .btn-outline-primary, .btn-outline-secondary, .btn-outline-success,
-  .btn-outline-danger, .btn-outline-warning, .btn-outline-info {
-    font-size: 0.75rem !important;
-    padding: 4px 8px !important;
-    border-width: 1px !important;
-    border-radius: 0 !important;
-  }
-  
-  /* Expand buttons even more compact */
-  .btn[data-bs-toggle="collapse"], 
-  .btn[aria-expanded], 
-  .collapse-toggle,
-  .expand-btn {
-    font-size: 0.7rem !important;
-    padding: 3px 6px !important;
-    border-radius: 0 !important;
-  }
-  
-  /* Smaller arrow for extra small screens */
-  .btn[data-bs-toggle="collapse"]::after, 
-  .btn[aria-expanded]::after,
-  .collapse-toggle::after,
-  .expand-btn::after {
-    font-size: 0.6rem !important;
-    margin-left: 3px !important;
-  }
-}
-
-/* Enhanced Animation for mobile nav open/close */
-.offcanvas.offcanvas-start {
-  transform: translateX(-100%) !important;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.offcanvas.show {
-  transform: translateX(0) !important;
-}
-
-/* Enhanced Focus states for accessibility */
-.mobile-nav-item:focus {
-  outline: 3px solid rgba(255, 255, 255, 0.8) !important;
-  outline-offset: 2px !important;
-  background: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Mobile Navigation Header Enhancement */
-.mobile-nav-header {
-  background: rgba(255, 255, 255, 0.98) !important;
-  backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid rgba(79, 70, 229, 0.15) !important;
-}
-
-/* Mobile Navigation Footer Enhancement */
-.mobile-nav-footer {
-  background: rgba(0, 0, 0, 0.15) !important;
-  backdrop-filter: blur(20px) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-.mobile-nav-footer .form-select {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 10px !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.mobile-nav-footer .form-select option {
-  background: #4F46E5 !important;
-  color: white !important;
-}
-
-.mobile-logout-btn {
-  background: rgba(239, 68, 68, 0.9) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 10px !important;
-  padding: 0.875rem !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.mobile-logout-btn:hover {
-  background: rgba(239, 68, 68, 1) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3) !important;
-  color: white !important;
 }
 
 body.lang-en {
@@ -463,84 +117,43 @@ body.lang-te h1, body.lang-te h2, body.lang-te h3, body.lang-te h4, body.lang-te
   letter-spacing: 0.025em;
 }
 
-/* Telugu font sizes - responsive to font size selector */
-/* Small font size */
-body.lang-te.font-size-small .navbar-brand { font-size: 2.0rem !important; }
-body.lang-te.font-size-small .nav-link { font-size: 0.95rem !important; }
-body.lang-te.font-size-small .btn { font-size: 0.9rem !important; }
-body.lang-te.font-size-small .form-label { font-size: 0.95rem !important; }
-body.lang-te.font-size-small .table th,
-body.lang-te.font-size-small .table td { font-size: 0.9rem !important; }
-body.lang-te.font-size-small .card-title { font-size: 1.2rem !important; }
-body.lang-te.font-size-small .card-text { font-size: 0.95rem !important; }
-body.lang-te.font-size-small h1 { font-size: 2.4rem !important; }
-body.lang-te.font-size-small h2 { font-size: 2.0rem !important; }
-body.lang-te.font-size-small h3 { font-size: 1.7rem !important; }
-body.lang-te.font-size-small h4 { font-size: 1.4rem !important; }
-body.lang-te.font-size-small h5 { font-size: 1.2rem !important; }
-body.lang-te.font-size-small h6 { font-size: 1.0rem !important; }
+/* Increased font sizes for Telugu elements */
+body.lang-te .navbar-brand {
+  font-size: 2.4rem !important;
+  font-weight: 900 !important;
+}
 
-/* Medium font size (default) */
-body.lang-te.font-size-medium .navbar-brand,
-body.lang-te .navbar-brand { font-size: 2.4rem !important; }
-body.lang-te.font-size-medium .nav-link,
-body.lang-te .nav-link { font-size: 1.1rem !important; }
-body.lang-te.font-size-medium .btn,
-body.lang-te .btn { font-size: 1.05rem !important; }
-body.lang-te.font-size-medium .form-label,
-body.lang-te .form-label { font-size: 1.1rem !important; }
-body.lang-te.font-size-medium .table th,
-body.lang-te.font-size-medium .table td,
+body.lang-te .nav-link {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .btn {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te .form-label {
+  font-size: 1.1rem !important;
+}
+
 body.lang-te .table th,
-body.lang-te .table td { font-size: 1.05rem !important; }
-body.lang-te.font-size-medium .card-title,
-body.lang-te .card-title { font-size: 1.4rem !important; }
-body.lang-te.font-size-medium .card-text,
-body.lang-te .card-text { font-size: 1.1rem !important; }
-body.lang-te.font-size-medium h1,
+body.lang-te .table td {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te .card-title {
+  font-size: 1.4rem !important;
+}
+
+body.lang-te .card-text {
+  font-size: 1.1rem !important;
+}
+
 body.lang-te h1 { font-size: 2.8rem !important; }
-body.lang-te.font-size-medium h2,
 body.lang-te h2 { font-size: 2.4rem !important; }
-body.lang-te.font-size-medium h3,
 body.lang-te h3 { font-size: 2.0rem !important; }
-body.lang-te.font-size-medium h4,
 body.lang-te h4 { font-size: 1.6rem !important; }
-body.lang-te.font-size-medium h5,
 body.lang-te h5 { font-size: 1.4rem !important; }
-body.lang-te.font-size-medium h6,
 body.lang-te h6 { font-size: 1.2rem !important; }
-
-/* Large font size */
-body.lang-te.font-size-large .navbar-brand { font-size: 2.8rem !important; }
-body.lang-te.font-size-large .nav-link { font-size: 1.25rem !important; }
-body.lang-te.font-size-large .btn { font-size: 1.2rem !important; }
-body.lang-te.font-size-large .form-label { font-size: 1.25rem !important; }
-body.lang-te.font-size-large .table th,
-body.lang-te.font-size-large .table td { font-size: 1.2rem !important; }
-body.lang-te.font-size-large .card-title { font-size: 1.6rem !important; }
-body.lang-te.font-size-large .card-text { font-size: 1.25rem !important; }
-body.lang-te.font-size-large h1 { font-size: 3.2rem !important; }
-body.lang-te.font-size-large h2 { font-size: 2.8rem !important; }
-body.lang-te.font-size-large h3 { font-size: 2.4rem !important; }
-body.lang-te.font-size-large h4 { font-size: 2.0rem !important; }
-body.lang-te.font-size-large h5 { font-size: 1.6rem !important; }
-body.lang-te.font-size-large h6 { font-size: 1.4rem !important; }
-
-/* Extra Large font size */
-body.lang-te.font-size-xlarge .navbar-brand { font-size: 3.2rem !important; }
-body.lang-te.font-size-xlarge .nav-link { font-size: 1.4rem !important; }
-body.lang-te.font-size-xlarge .btn { font-size: 1.35rem !important; }
-body.lang-te.font-size-xlarge .form-label { font-size: 1.4rem !important; }
-body.lang-te.font-size-xlarge .table th,
-body.lang-te.font-size-xlarge .table td { font-size: 1.35rem !important; }
-body.lang-te.font-size-xlarge .card-title { font-size: 1.8rem !important; }
-body.lang-te.font-size-xlarge .card-text { font-size: 1.4rem !important; }
-body.lang-te.font-size-xlarge h1 { font-size: 3.6rem !important; }
-body.lang-te.font-size-xlarge h2 { font-size: 3.2rem !important; }
-body.lang-te.font-size-xlarge h3 { font-size: 2.8rem !important; }
-body.lang-te.font-size-xlarge h4 { font-size: 2.4rem !important; }
-body.lang-te.font-size-xlarge h5 { font-size: 2.0rem !important; }
-body.lang-te.font-size-xlarge h6 { font-size: 1.6rem !important; }
 
 /* Hindi-specific text styling */
 body.lang-hi .navbar-brand,
@@ -612,92 +225,36 @@ body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi
 }
 
 .navbar-nav .nav-link:hover {
-  background: rgba(255,255,255,0.1) !important;
-  transform: translateY(-1px);
-  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-/* Modern Navbar Styles */
-.navbar {
-  background: #fff !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 4px 24px rgba(79,70,229,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
-  font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 0.75rem 1.5rem !important;
-  margin-bottom: 1.5rem;
-}
-.navbar-brand {
-  color: #4F46E5 !important;
-  font-weight: 700 !important;
-  font-size: 1.5rem !important;
-  letter-spacing: 0.5px;
-  text-shadow: none !important;
-}
-.navbar-nav .nav-link {
-  color: #4F46E5 !important;
-  background: none !important;
-  border-radius: 1.2rem !important;
-  font-weight: 500;
-  font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  padding: 0.5rem 1.2rem !important;
-  margin: 0 0.25rem;
-  font-size: 1rem !important;
-}
-.navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
-  background: #F3F4F6 !important;
-  color: #312E81 !important;
-  box-shadow: 0 2px 8px rgba(79,70,229,0.08);
-}
-.dropdown-menu {
-  border-radius: 1rem !important;
-  box-shadow: 0 4px 24px rgba(79,70,229,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
-  font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #fff !important;
-}
-.dropdown-item {
-  font-size: 1rem !important;
-  color: #4F46E5 !important;
-  border-radius: 0.75rem !important;
-  padding: 0.5rem 1.2rem !important;
-  transition: background 0.2s, color 0.2s;
-}
-.dropdown-item:hover {
-  background: #F3F4F6 !important;
-  color: #312E81 !important;
-}
-.btn-outline-primary {
-  border-radius: 1.2rem !important;
-  font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  border: 2px solid #4F46E5 !important;
-  color: #4F46E5 !important;
-  background: #fff !important;
-  font-weight: 500;
-}
-.btn-outline-primary:hover {
-  background: #4F46E5 !important;
-  color: #fff !important;
-}
-.form-select {
-  font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #4F46E5 !important;
-  background: #F3F4F6 !important;
-  border-radius: 1.2rem !important;
-  font-size: 1rem !important;
+/* Navbar right side controls vertical centering */
+.navbar .d-flex {
+  align-items: center;
+  height: 100%;
 }
 
-@media (max-width: 991px) {
-  .navbar {
-    border-radius: 0.75rem !important;
-    padding: 0.5rem 0.5rem !important;
-  }
-  .navbar-brand {
-    font-size: 1.2rem !important;
-  }
-  .nav-link, .dropdown-item {
-    font-size: 0.95rem !important;
-    padding: 0.4rem 1rem !important;
-  }
+.navbar .form-select {
+  margin-bottom: 0;
+}
+
+.navbar .btn {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.navbar .dropdown {
+  display: flex;
+  align-items: center;
+}
+
+.navbar .dropdown-toggle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
 }
 
 /* Cards with Facebook Blue Effect - Light Theme */
@@ -775,31 +332,7 @@ body.lang-hi h1, body.lang-hi h2, body.lang-hi h3, body.lang-hi h4, body.lang-hi
   margin-bottom: 8px;
 }
 
-/* Language-specific form element styling - responsive to font size */
-/* Telugu form elements - font size responsive */
-body.lang-te.font-size-small .form-control,
-body.lang-te.font-size-small .form-select,
-body.lang-te.font-size-small .form-label,
-body.lang-te.font-size-small input,
-body.lang-te.font-size-small textarea,
-body.lang-te.font-size-small select,
-body.lang-te.font-size-small option {
-  font-family: 'Mandali';
-  font-weight: normal;
-  font-size: 1.0rem !important;
-}
-
-body.lang-te.font-size-small .form-control::placeholder {
-  font-size: 0.9rem !important;
-}
-
-body.lang-te.font-size-medium .form-control,
-body.lang-te.font-size-medium .form-select,
-body.lang-te.font-size-medium .form-label,
-body.lang-te.font-size-medium input,
-body.lang-te.font-size-medium textarea,
-body.lang-te.font-size-medium select,
-body.lang-te.font-size-medium option,
+/* Language-specific form element styling */
 body.lang-te .form-control,
 body.lang-te .form-select,
 body.lang-te .form-label,
@@ -807,46 +340,13 @@ body.lang-te input,
 body.lang-te textarea,
 body.lang-te select,
 body.lang-te option {
-  font-family: 'Mandali';
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Segoe UI', sans-serif;
   font-weight: normal;
-  font-size: 1.4rem !important;
+  font-size: 1.1rem !important;
 }
 
-body.lang-te.font-size-medium .form-control::placeholder,
 body.lang-te .form-control::placeholder {
   font-size: 1.05rem !important;
-}
-
-body.lang-te.font-size-large .form-control,
-body.lang-te.font-size-large .form-select,
-body.lang-te.font-size-large .form-label,
-body.lang-te.font-size-large input,
-body.lang-te.font-size-large textarea,
-body.lang-te.font-size-large select,
-body.lang-te.font-size-large option {
-  font-family: 'Mandali';
-  font-weight: normal;
-  font-size: 1.6rem !important;
-}
-
-body.lang-te.font-size-large .form-control::placeholder {
-  font-size: 1.2rem !important;
-}
-
-body.lang-te.font-size-xlarge .form-control,
-body.lang-te.font-size-xlarge .form-select,
-body.lang-te.font-size-xlarge .form-label,
-body.lang-te.font-size-xlarge input,
-body.lang-te.font-size-xlarge textarea,
-body.lang-te.font-size-xlarge select,
-body.lang-te.font-size-xlarge option {
-  font-family: 'Mandali';
-  font-weight: normal;
-  font-size: 1.8rem !important;
-}
-
-body.lang-te.font-size-xlarge .form-control::placeholder {
-  font-size: 1.4rem !important;
 }
 
 body.lang-hi .form-control,
@@ -954,6 +454,53 @@ body.lang-hi {
   transition: all 0.3s ease;
 }
 
+/* Medical Tips Table - Horizontal Mobile Layout */
+.mobile-table.table-sm {
+  font-size: 0.85rem;
+}
+
+.mobile-table th {
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 8px 6px !important;
+  vertical-align: middle;
+}
+
+.mobile-table td {
+  padding: 6px 6px !important;
+  vertical-align: middle;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.mobile-table .small {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* Ensure horizontal scrolling on very small screens */
+@media (max-width: 575.98px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mobile-table {
+    min-width: 600px; /* Force horizontal layout */
+  }
+  
+  .mobile-table th,
+  .mobile-table td {
+    padding: 6px 4px !important;
+    font-size: 0.7rem;
+  }
+  
+  .mobile-table .small {
+    font-size: 0.65rem;
+  }
+}
+
 /* Headings - Light Theme */
 h1, h2, h3, h4, h5, h6 {
   color: var(--fb-text-dark);
@@ -965,6 +512,7 @@ h2 {
   padding-bottom: 10px;
   margin-bottom: 25px;
   position: relative;
+  font-size: 1.5rem; /* Mobile-first smaller size */
 }
 
 h2::after {
@@ -976,6 +524,25 @@ h2::after {
   height: 3px;
   background: var(--fb-blue-light);
   border-radius: 2px;
+}
+
+/* Mobile-first h2 responsive sizing */
+@media (min-width: 576px) {
+  h2 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 992px) {
+  h2 {
+    font-size: 2.25rem;
+  }
 }
 
 /* Animation for chicken effect */
@@ -998,51 +565,24 @@ h2::after {
   background: var(--fb-white);
   border: 2px solid var(--fb-light-gray);
   color: var(--fb-text-dark);
-  font-family: 'Mandali' ;
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
   font-weight: normal;
 }
 
 #langSelect option {
   background: var(--fb-white);
   color: var(--fb-text-dark);
-  font-family: 'Mandali' ;
+  font-family: 'Ramabhadra Regular', 'Noto Sans Telugu', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
   font-weight: normal;
 }
 
-/* Language selector styling - responsive to font size */
-/* Telugu language selector font sizes */
-body.lang-te.font-size-small #langSelect {
-  font-size: 1.2rem !important;
-}
-
-body.lang-te.font-size-small #langSelect option {
-  font-size: 1.3rem !important;
-}
-
-body.lang-te.font-size-medium #langSelect,
+/* Larger text for Telugu language selector */
 body.lang-te #langSelect {
-  font-size: 1.6rem !important;
+  font-size: 1.1rem !important;
 }
 
-body.lang-te.font-size-medium #langSelect option,
 body.lang-te #langSelect option {
-  font-size: 1.7rem !important;
-}
-
-body.lang-te.font-size-large #langSelect {
-  font-size: 1.8rem !important;
-}
-
-body.lang-te.font-size-large #langSelect option {
-  font-size: 1.9rem !important;
-}
-
-body.lang-te.font-size-xlarge #langSelect {
-  font-size: 2.0rem !important;
-}
-
-body.lang-te.font-size-xlarge #langSelect option {
-  font-size: 2.1rem !important;
+  font-size: 1.1rem !important;
 }
 
 /* Font size selector styling */
@@ -1131,149 +671,51 @@ strong {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  /* Mobile-native H2 sizing */
-  h2 {
-    font-size: 1.4rem !important;
-    line-height: 1.3 !important;
-    margin-bottom: 1rem !important;
-    padding-bottom: 0.5rem !important;
-  }
-  
-  /* Font size specific mobile H2 adjustments */
-  body.font-size-small h2 { font-size: 1.2rem !important; }
-  body.font-size-medium h2 { font-size: 1.4rem !important; }
-  body.font-size-large h2 { font-size: 1.6rem !important; }
-  body.font-size-xlarge h2 { font-size: 1.8rem !important; }
-  
-  /* Language-specific mobile H2 adjustments - responsive to font size */
-  body.lang-te.font-size-small h2 { font-size: 1.2rem !important; }
-  body.lang-te.font-size-medium h2 { font-size: 1.5rem !important; }
-  body.lang-te.font-size-large h2 { font-size: 1.7rem !important; }
-  body.lang-te.font-size-xlarge h2 { font-size: 1.9rem !important; }
-  body.lang-te h2 { font-size: 1.5rem !important; } /* default fallback */
-  body.lang-hi h2 { font-size: 1.4rem !important; }
-  
-  /* Mobile-native button sizing - remove all rounded styles */
-  .btn {
-    font-size: 0.8rem !important;
-    padding: 6px 12px !important;
-    min-height: auto !important;
-    border-radius: 0 !important; /* Native mobile style - no rounded corners */
-    font-weight: 500 !important;
-    border: 1px solid #ddd !important;
-    background: #f8f9fa !important;
-    color: #333 !important;
-  }
-  
-  /* Button size variants for mobile */
-  .btn-sm {
-    font-size: 0.75rem !important;
-    padding: 4px 8px !important;
-    border-radius: 0 !important; /* Native style */
-  }
-  
-  .btn-lg {
-    font-size: 0.9rem !important;
-    padding: 8px 16px !important;
-    border-radius: 0 !important; /* Native style */
-  }
-  
-  /* Specific button type adjustments - native mobile colors */
-  .btn-primary {
-    background: #007bff !important;
-    border-color: #007bff !important;
-    color: #fff !important;
-    border-radius: 0 !important;
-  }
-  
-  .btn-success {
-    background: #28a745 !important;
-    border-color: #28a745 !important;
-    color: #fff !important;
-    border-radius: 0 !important;
-  }
-  
-  .btn-secondary {
-    background: #6c757d !important;
-    border-color: #6c757d !important;
-    color: #fff !important;
-    border-radius: 0 !important;
-  }
-  
-  .btn-danger {
-    background: #dc3545 !important;
-    border-color: #dc3545 !important;
-    color: #fff !important;
-    border-radius: 0 !important;
-  }
-  
-  .btn-warning {
-    background: #ffc107 !important;
-    border-color: #ffc107 !important;
-    color: #212529 !important;
-    border-radius: 0 !important;
-  }
-  
-  .btn-info {
-    background: #17a2b8 !important;
-    border-color: #17a2b8 !important;
-    color: #fff !important;
-    border-radius: 0 !important;
-  }
-  
-  /* Outline button adjustments - native mobile style */
-  .btn-outline-primary, .btn-outline-secondary, .btn-outline-success,
-  .btn-outline-danger, .btn-outline-warning, .btn-outline-info {
-    background: transparent !important;
-    border-radius: 0 !important;
-    border-width: 1px !important;
-    font-size: 0.8rem !important;
-    padding: 5px 10px !important;
-  }
-  
-  /* Expand/collapse buttons - use simple arrows */
-  .btn[data-bs-toggle="collapse"], 
-  .btn[aria-expanded], 
-  .collapse-toggle,
-  .expand-btn {
-    background: #f8f9fa !important;
-    border: 1px solid #ddd !important;
-    border-radius: 0 !important;
-    color: #333 !important;
-    font-size: 0.8rem !important;
-    padding: 4px 8px !important;
-    position: relative;
-  }
-  
-  /* Arrow indicator for expand buttons */
-  .btn[data-bs-toggle="collapse"]::after, 
-  .btn[aria-expanded]::after,
-  .collapse-toggle::after,
-  .expand-btn::after {
-    content: "▼" !important;
-    margin-left: 4px !important;
-    font-size: 0.7rem !important;
-    transition: transform 0.2s ease !important;
-  }
-  
-  /* Rotate arrow when expanded */
-  .btn[aria-expanded="true"]::after,
-  .collapse-toggle.expanded::after,
-  .expand-btn.expanded::after {
-    transform: rotate(180deg) !important;
-  }
-  
   .card {
     margin-bottom: 20px;
   }
   
   .navbar {
-    min-height: 60px;
+    min-height: 48px !important;
+    padding: 0.25rem 1rem !important;
+  }
+  
+  .navbar .container-fluid {
+    padding: 0 !important;
   }
   
   .navbar-brand {
-    font-size: 1.8rem !important;
+    font-size: 1.4rem !important;
     font-weight: 900 !important;
+    padding: 0.25rem 0 !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  .navbar-toggler {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 1rem !important;
+    border: none !important;
+  }
+  
+  .navbar-toggler span {
+    width: 20px !important;
+    height: 2px !important;
+    margin-bottom: 3px !important;
+  }
+  
+  .navbar .d-flex {
+    gap: 0.25rem;
+  }
+  
+  .navbar .form-select {
+    font-size: 0.8rem !important;
+    padding: 0.2rem 0.4rem !important;
+    width: 100px !important;
+  }
+  
+  .navbar .btn {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
   }
   
   .navbar-nav {
@@ -1290,182 +732,1025 @@ strong {
     justify-content: center;
   }
   
-  /* Note: Button sizing moved to comprehensive mobile button section above */
-}
-
-/* Modern Navigation Styles */
-.navbar .nav-link:hover {
-  background: rgba(255,255,255,0.1) !important;
-  transform: translateY(-1px);
-  transition: all 0.3s ease;
-}
-
-.navbar .dropdown-menu {
-  animation: fadeInDown 0.3s ease;
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
   }
 }
 
-.dropdown-item:hover {
-  background: linear-gradient(135deg, #667eea, #764ba2) !important;
-  color: white !important;
-  transform: translateX(5px);
-  transition: all 0.3s ease;
+/* PWA Mobile-First Enhancements */
+/* Touch-friendly button sizes (44px minimum) */
+.btn {
+  min-height: 44px;
+  min-width: 44px;
 }
 
-/* Mobile Navigation Hover Effects */
-#mobileNav .nav-link:hover {
-  background: #FC8019 !important;
-  color: #fff !important;
-  transform: translateX(5px);
+/* Stat Cards for Dashboard */
+.stat-card {
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
 }
 
-#mobileNav .nav-link:hover i {
-  color: #fff !important;
+.stat-card:hover {
+  transform: translateY(-2px);
 }
 
-/* Mobile Navigation Drawer Styles */
-#mobileNav.offcanvas {
-  width: 75vw !important;
-  max-width: 350px !important;
-  z-index: 1050 !important;
+.stat-icon {
+  font-size: 2.5rem;
+  margin-right: 1rem;
+  opacity: 0.8;
 }
 
-/* Loading Animation */
-.loading-overlay {
+.stat-content h6 {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.stat-content h4 {
+  margin: 0;
+  font-weight: bold;
+}
+
+/* Quick Action Cards */
+.quick-action-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-action-card:hover {
+  background: #f8f9fa;
+  border-color: #1877f2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.15);
+}
+
+.quick-action-card i {
+  font-size: 2rem;
+  color: #1877f2;
+  margin-bottom: 0.5rem;
+}
+
+.quick-action-card span {
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Enhanced Mobile Navigation */
+@media (max-width: 768px) {
+  /* PWA Install Button Mobile */
+  #installBtn {
+    bottom: 80px !important; /* Above mobile nav if present */
+    right: 15px !important;
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+  }
+  
+  /* PWA Notification Mobile */
+  .pwa-notification {
+    left: 10px !important;
+    right: 10px !important;
+    transform: none !important;
+    width: auto !important;
+    min-width: auto !important;
+  }
+  
+  /* Stat Cards Mobile */
+  .stat-card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .stat-icon {
+    font-size: 2rem;
+    margin-right: 0.75rem;
+  }
+  
+  /* Quick Action Cards Mobile */
+  .quick-action-card {
+    min-height: 80px;
+    padding: 0.75rem;
+  }
+  
+  .quick-action-card i {
+    font-size: 1.5rem;
+  }
+  
+  /* Bottom spacing for PWA */
+  .container-fluid:last-child {
+    padding-bottom: 2rem;
+  }
+}
+
+/* Bottom Navigation for Mobile PWA */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid #e9ecef;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none; /* Hidden by default, shown on mobile */
+}
+
+.bottom-nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  max-width: 100%;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #6c757d;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  flex: 1;
+  max-width: 80px;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item.active {
+  color: #1877f2;
+  background: rgba(24, 119, 242, 0.1);
+  text-decoration: none;
+}
+
+.bottom-nav-item i {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.bottom-nav-item span {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Show bottom nav only on mobile */
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: block;
+  }
+  
+  /* Add bottom padding to body to prevent content overlap */
+  body {
+    padding-bottom: 80px !important;
+  }
+  
+  /* Show main mobile nav toggle when bottom nav is present */
+  .navbar-toggler {
+    display: block !important;
+  }
+  
+  /* Adjust PWA install button position */
+  #installBtn {
+    bottom: 90px !important;
+  }
+}
+
+/* Dark theme for bottom nav */
+@media (prefers-color-scheme: dark) {
+  .bottom-nav {
+    background: #2d3748;
+    border-top-color: #4a5568;
+  }
+  
+  .bottom-nav-item {
+    color: #a0aec0;
+  }
+  
+  .bottom-nav-item:hover,
+  .bottom-nav-item.active {
+    color: #63b3ed;
+    background: rgba(99, 179, 237, 0.1);
+  }
+}
+
+/* PWA Offline Indicator */
+.offline-indicator {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(102, 126, 234, 0.9);
+  right: 0;
+  background: #dc3545;
+  color: white;
+  text-align: center;
+  padding: 8px;
   z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(5px);
+  font-size: 14px;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
 }
 
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255,255,255,0.3);
+.offline-indicator.show {
+  transform: translateY(0);
+}
+
+/* Pull to refresh indicator */
+.pull-to-refresh {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1877f2;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 0 0 20px 20px;
+  font-size: 14px;
+  transition: top 0.3s ease;
+  z-index: 1000;
+}
+
+.pull-to-refresh.show {
+  top: 0;
+}
+
+/* Loading animation */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--fb-glow);
+  border-top: 2px solid var(--fb-blue);
   border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Card Hover Effects */
-.card {
-  transition: all 0.3s ease;
-  border: none !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+/* Modal fixes for proper layering and interaction */
+.modal {
+  z-index: 1055 !important;
+  pointer-events: none !important;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+.modal-backdrop {
+  z-index: 1050 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  pointer-events: none !important;
 }
 
-/* Button Improvements */
-.btn {
-  border-radius: 25px !important;
-  transition: all 0.3s ease;
+.modal-backdrop.show {
+  opacity: 0.5 !important;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+.modal-dialog {
+  z-index: 1056 !important;
+  margin: 1.75rem auto;
+  pointer-events: auto !important;
+  position: relative;
 }
 
-/* Form Improvements */
-.form-control, .form-select {
-  border-radius: 15px !important;
-  border: 2px solid #e9ecef;
-  transition: all 0.3s ease;
+.modal-content {
+  background: var(--fb-white);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1057 !important;
 }
 
-.form-control:focus, .form-select:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+.modal-header {
+  background: linear-gradient(90deg, var(--fb-blue), var(--fb-blue-dark));
+  color: white;
+  border-radius: 15px 15px 0 0;
+  border-bottom: none;
 }
 
-/* Mobile Drawer Navigation Styles */
-#mobileNav.offcanvas {
-  width: 75vw !important;
-  max-width: 400px !important;
-  background: #ffffff !important;
-  border-radius: 0 1.5rem 1.5rem 0 !important;
-  box-shadow: 0 4px 32px rgba(252,128,25,0.15);
-  color: #0d27a9;
-  padding-top: 1.5rem;
-}
-#mobileNav .offcanvas-header {
-  border-bottom: 2px solid #FC8019;
-  background: #fff8f0;
-  border-radius: 0 1.5rem 0 0;
-}
-#mobileNav .offcanvas-title {
-  color: #FC8019;
-  font-weight: 900;
-  font-size: 1.5rem;
-}
-#mobileNav .nav-link {
-  color: #282c3f !important;
-  font-size: 1.15rem !important;
+.modal-title {
+  color: white;
   font-weight: 600;
-  border-radius: 1rem;
-  padding: 1rem 1.2rem !important;
-  margin-bottom: 0.5rem;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--fb-light-gray);
+  padding: 1rem 2rem;
+}
+
+/* Ensure form fields in modals are interactive */
+.modal .form-control,
+.modal .form-select {
+  position: relative;
+  z-index: 1058 !important;
+  background: var(--fb-white) !important;
+  border: 2px solid var(--fb-light-gray) !important;
+  color: var(--fb-text-dark) !important;
+  pointer-events: auto !important;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus {
+  z-index: 1059 !important;
+  border-color: var(--fb-blue) !important;
+  box-shadow: 0 0 0 0.2rem var(--fb-glow) !important;
+  outline: none !important;
+}
+
+.modal .btn {
+  z-index: 1058 !important;
+  pointer-events: auto !important;
+  position: relative;
+}
+
+.modal .btn:hover,
+.modal .btn:focus {
+  z-index: 1059 !important;
+}
+
+/* Prevent modal from blocking page interaction */
+.modal.show {
+  padding-right: 0 !important;
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.modal.show .modal-dialog {
+  pointer-events: auto !important;
+}
+
+body.modal-open {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+
+/* Remove modal backdrop interference completely */
+.modal-backdrop {
+  display: none !important;
+}
+
+/* Bootstrap 5 close button styling */
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  opacity: 0.8;
+  padding: 0.5rem;
+  margin: -0.5rem -0.5rem -0.5rem auto;
+  z-index: 1060 !important;
+  pointer-events: auto !important;
+  position: relative;
+}
+
+.btn-close:hover,
+.btn-close:focus {
+  opacity: 1;
+  color: white;
+  z-index: 1061 !important;
+}
+
+/* Additional modal interaction fixes */
+.modal-header,
+.modal-body,
+.modal-footer {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1058 !important;
+}
+
+.modal-title {
+  color: white;
+  font-weight: 600;
+  pointer-events: auto !important;
+}
+
+/* Badge improvements for better visibility */
+.badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 10px;
+}
+
+.badge-primary {
+  background: linear-gradient(45deg, var(--fb-blue), var(--fb-blue-dark)) !important;
+  color: white !important;
+  border: 1px solid var(--fb-blue-dark);
+}
+
+.badge-success {
+  background: linear-gradient(45deg, #28a745, #20c997) !important;
+  color: white !important;
+  border: 1px solid #1e7e34;
+}
+
+.badge-secondary {
+  background: linear-gradient(45deg, #6c757d, #5a6268) !important;
+  color: white !important;
+  border: 1px solid #545b62;
+}
+
+/* Additional Telugu text size enhancements */
+body.lang-te .alert {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .modal-title {
+  font-size: 1.5rem !important;
+}
+
+body.lang-te .modal-body {
+  font-size: 1.1rem !important;
+}
+
+body.lang-te .tooltip {
+  font-size: 1.0rem !important;
+}
+
+body.lang-te .dropdown-item {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te .badge {
+  font-size: 0.9rem !important;
+}
+
+body.lang-te .pagination .page-link {
+  font-size: 1.05rem !important;
+}
+
+body.lang-te small, body.lang-te .small {
+  font-size: 0.95rem !important;
+}
+
+/* Improved line height for Telugu text readability */
+body.lang-te {
+  line-height: 1.6 !important;
+}
+
+body.lang-te p, body.lang-te li, body.lang-te div {
+  line-height: 1.55 !important;
+}
+
+/* Mobile-First Template Utilities */
+.mobile-container {
+  padding: 0.75rem;
+}
+
+@media (min-width: 576px) {
+  .mobile-container {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .mobile-container {
+    padding: 2rem;
+  }
+}
+
+.mobile-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.mobile-section {
+  margin-bottom: 2rem;
+}
+
+.mobile-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--fb-blue);
+}
+
+.mobile-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Touch-friendly elements */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
-  transition: background 0.2s, color 0.2s;
+  justify-content: center;
 }
-#mobileNav .nav-link i {
-  font-size: 1.3rem;
-  margin-right: 1rem;
-  color: #FC8019;
+
+.mobile-button {
+  min-height: 44px;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
 }
-#mobileNav .nav-link:hover {
-  background: #FC8019 !important;
-  color: #fff !important;
+
+.mobile-input {
+  min-height: 44px;
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 0.75rem;
 }
-#mobileNav .dropdown-menu {
-  background: #fff8f0 !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 2px 12px rgba(252,128,25,0.08);
+
+/* Mobile-first table styles */
+.mobile-table-card {
+  overflow: hidden;
+  border-radius: 12px;
 }
-#mobileNav .dropdown-item {
-  color: #282c3f !important;
-  font-size: 1.1rem !important;
-  border-radius: 0.75rem !important;
-  padding: 0.8rem 1.2rem !important;
+
+.mobile-table {
+  font-size: 0.9rem;
+  margin-bottom: 0;
 }
-#mobileNav .dropdown-item:hover {
-  background: #FC8019 !important;
-  color: #fff !important;
-}
-#mobileNav .form-select {
-  border-radius: 1rem !important;
-  margin-bottom: 1rem;
-  font-size: 1rem !important;
-}
-@media (max-width: 991px) {
-  #mobileNav.offcanvas {
-    width: 75vw !important;
-    max-width: 400px !important;
+
+@media (max-width: 767px) {
+  .mobile-table th,
+  .mobile-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
   }
+  
+  .mobile-header {
+    font-size: 1.1rem;
+  }
+  
+  .mobile-content {
+    font-size: 0.9rem;
+  }
+}
+
+/* =====================================
+   MOBILE UX BEST PRACTICES IMPLEMENTATION
+   ===================================== */
+
+/* Navigation - Bottom Tab Bar + Hamburger Menu */
+.mobile-nav-enhanced {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-top: 2px solid #e9ecef;
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  backdrop-filter: blur(10px);
+}
+
+/* Breadcrumbs for Deep Navigation */
+.mobile-breadcrumb-nav {
+  background: linear-gradient(90deg, #f8f9fa, #ffffff);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-size: 0.85rem;
+}
+
+.mobile-breadcrumb-nav a {
+  color: #1877f2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.mobile-breadcrumb-nav .active {
+  color: #6c757d;
+  font-weight: 600;
+}
+
+/* Forms - Large Touch Targets + Auto-focus */
+.mobile-form-enhanced {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 1.5rem;
+}
+
+.mobile-form-group {
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.mobile-form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-form-control {
+  min-height: 50px;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  font-size: 1rem;
+  padding: 0.875rem 1rem;
+  transition: all 0.3s ease;
+  background: #fafbfc;
+  width: 100%;
+}
+
+.mobile-form-control:focus {
+  border-color: #1877f2;
+  box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.1);
+  background: white;
+  outline: none;
+}
+
+/* Mobile Button Components */
+.mobile-btn-primary {
+  background: linear-gradient(135deg, #1877f2, #42a5f5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(24,119,242,0.2);
+}
+
+.mobile-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(24,119,242,0.3);
+  color: white;
+  text-decoration: none;
+}
+
+.mobile-btn-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
+.mobile-btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
+  color: white;
+  text-decoration: none;
+}
+
+.mobile-btn-outline-secondary {
+  background: transparent;
+  color: #6c757d;
+  border: 2px solid #6c757d;
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  transition: all 0.3s ease;
+}
+
+.mobile-btn-outline-secondary:hover {
+  background: #6c757d;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.mobile-btn-outline-info {
+  background: transparent;
+  color: #17a2b8;
+  border: 2px solid #17a2b8;
+  border-radius: 12px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  transition: all 0.3s ease;
+}
+
+.mobile-btn-outline-info:hover {
+  background: #17a2b8;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.mobile-btn-outline-primary {
+  background: transparent;
+  color: #1877f2;
+  border: 2px solid #1877f2;
+  border-radius: 12px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  transition: all 0.3s ease;
+}
+
+.mobile-btn-outline-primary:hover {
+  background: #1877f2;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.mobile-btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  min-height: 56px;
+}
+
+/* Mobile Metric Components */
+.mobile-metric-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mobile-metric-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.mobile-metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-metric-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
+  line-height: 1.2;
+}
+
+/* Mobile Info Components */
+.mobile-info-item {
+  margin-bottom: 0.75rem;
+}
+
+.mobile-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.mobile-info-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-info-value {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.mobile-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Mobile Alert Components */
+.mobile-alert {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-alert.alert-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.2);
+  color: #856404;
+}
+
+.mobile-alert.alert-success {
+  background: rgba(40, 167, 69, 0.1);
+  border-color: rgba(40, 167, 69, 0.2);
+  color: #155724;
+}
+
+.mobile-alert.alert-info {
+  background: rgba(23, 162, 184, 0.1);
+  border-color: rgba(23, 162, 184, 0.2);
+  color: #0c5460;
+}
+
+/* Mobile Navigation List Styles - Mobile-First Design */
+.nav-list {
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  color: var(--fb-text-dark);
+  text-decoration: none;
+  border-bottom: 1px solid var(--fb-light-gray);
+  transition: all 0.2s ease;
+  min-height: 56px; /* Touch-friendly height */
+}
+
+.nav-list-item:hover {
+  background: var(--fb-light-bg);
+  color: var(--fb-blue);
+  text-decoration: none;
+}
+
+.nav-list-item:active {
+  background: rgba(24, 119, 242, 0.1);
+}
+
+.nav-list-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.nav-list-item.text-danger:hover {
+  color: #c82333 !important;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.nav-text {
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.nav-section-header {
+  padding: 12px 20px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fb-text-muted);
+  background: var(--fb-light-bg);
+  border-bottom: 1px solid var(--fb-light-gray);
+  margin-top: 8px;
+}
+
+.nav-section-header:first-child {
+  margin-top: 0;
+}
+
+/* Mobile-First Responsive Breakpoints */
+@media (max-width: 767.98px) {
+  .nav-list-item {
+    padding: 18px 20px;
+    min-height: 60px;
+  }
+  
+  .nav-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    margin-right: 18px;
+  }
+  
+  .nav-text {
+    font-size: 17px;
+  }
+}
+
+/* Touch-friendly active states */
+@media (hover: none) and (pointer: coarse) {
+  .nav-list-item:active {
+    background: var(--fb-blue);
+    color: white;
+  }
+  
+  .nav-list-item.text-danger:active {
+    background: #dc3545;
+    color: white !important;
+  }
+}
+
+/* Mobile Auto-Save Indicator */
+.mobile-autosave-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: var(--fb-blue);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transform: translateY(60px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  pointer-events: none;
+  display: none;
+}
+
+.mobile-autosave-indicator.show {
+  transform: translateY(0);
+  opacity: 1;
+  display: block;
+}
+
+.mobile-autosave-indicator.saving {
+  background: #ffc107;
+  color: #212529;
+}
+
+.mobile-autosave-indicator.saved {
+  background: #28a745;
+  color: white;
+}
+
+.mobile-autosave-indicator.error {
+  background: #dc3545;
+  color: white;
 }

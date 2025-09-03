@@ -1,111 +1,130 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <h2 class="mb-4" data-i18n="bedding_title">🛏️ Bedding Tips</h2>
-      
-      <div class="row g-4">
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-primary">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0" data-i18n="best_materials">🌾 Best Materials</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_best_materials_content">Rice husk, wood shavings, chopped straw, sand, paper shreds.</p>
-            </div>
+<div class="mobile-container">
+  <div class="mobile-section">
+    <h2 class="mobile-header text-center mb-mobile-3" data-i18n="bedding_title">🛏️ Bedding Tips</h2>
+    
+    <div class="row g-mobile-2">
+      <div class="col-12 col-md-6">
+        <div class="mobile-card card border-primary shadow-sm h-100">
+          <div class="card-header bg-primary text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="best_materials">🌾 Best Materials</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_best_materials_content">Rice husk, wood shavings, chopped straw, sand.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-success">
-            <div class="card-header bg-success text-white">
-              <h5 class="mb-0" data-i18n="powders_additives">🧪 Powders/Additives</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_powders_content">Lime powder (thin layer), diatomaceous earth (food-grade), bioenzymes/probiotics.</p>
-            </div>
+      <div class="col-12 col-md-6">
+        <div class="mobile-card card border-success shadow-sm h-100">
+          <div class="card-header bg-success text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="powders_additives">🧪 Additives</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_powders_content">Lime powder, diatomaceous earth, probiotics.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-info">
-            <div class="card-header bg-info text-white">
-              <h5 class="mb-0" data-i18n="layering">📏 Layering</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_layering_content">Spread bedding 2–4 inches thick. For chicks, use 1–2 inches; for adults, 3–4 inches.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-info shadow-sm h-100">
+          <div class="card-header bg-info text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="layering">📏 Layering</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_layering_content">Spread bedding 2–4 inches thick. For chicks, use 1–2 inches; for adults, 3–4 inches.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-warning">
-            <div class="card-header bg-warning text-dark">
-              <h5 class="mb-0" data-i18n="powder_application">🥄 Powder Application</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_powder_application_content">Sprinkle lime/diatomaceous earth before bedding and mix a little into bedding, especially in damp areas.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-warning shadow-sm h-100">
+          <div class="card-header bg-warning text-dark p-mobile-2">
+            <h6 class="mb-0" data-i18n="powder_application">🥄 Powder Application</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_powder_application_content">Sprinkle lime/diatomaceous earth before bedding and mix a little into bedding, especially in damp areas.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-secondary">
-            <div class="card-header bg-secondary text-white">
-              <h5 class="mb-0" data-i18n="turning">🔄 Turning</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_turning_content">Stir bedding daily, remove wet/caked spots, add fresh bedding and powder as needed.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-secondary shadow-sm h-100">
+          <div class="card-header bg-secondary text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="turning">🔄 Turning</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_turning_content">Stir bedding daily, remove wet/caked spots, add fresh bedding and powder as needed.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-danger">
-            <div class="card-header bg-danger text-white">
-              <h5 class="mb-0" data-i18n="moisture_control">💧 Moisture Control</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_moisture_control_content">Keep bedding dry, use fans/ventilation to reduce humidity.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-danger shadow-sm h-100">
+          <div class="card-header bg-danger text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="moisture_control">💧 Moisture Control</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_moisture_control_content">Keep bedding dry, use fans/ventilation to reduce humidity.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-dark">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0" style="color: white;" data-i18n="depth_adjustment">📐 Depth Adjustment</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_depth_adjustment_content">Increase thickness in cold weather, reduce if bedding is too compact.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-dark shadow-sm h-100">
+          <div class="card-header bg-primary text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="depth_adjustment">📐 Depth Adjustment</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_depth_adjustment_content">Increase thickness in cold weather, reduce if bedding is too compact.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-success">
-            <div class="card-header bg-success text-white">
-              <h5 class="mb-0" data-i18n="cleaning">🧽 Cleaning</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_cleaning_content">Remove all bedding and disinfect between flocks, reapply powders before new bedding.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-success shadow-sm h-100">
+          <div class="card-header bg-success text-white p-mobile-2">
+            <h6 class="mb-0" data-i18n="cleaning">🧽 Cleaning</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_cleaning_content">Remove all bedding and disinfect between flocks, reapply powders before new bedding.</p>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 border-warning">
-            <div class="card-header bg-warning text-dark">
-              <h5 class="mb-0" data-i18n="safety">⚠️ Safety</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text" data-i18n="bedding_safety_content">Avoid overusing powders, use only untreated wood, monitor ammonia smell.</p>
-            </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="mobile-card card border-warning shadow-sm h-100">
+          <div class="card-header bg-warning text-dark p-mobile-2">
+            <h6 class="mb-0" data-i18n="safety">⚠️ Safety</h6>
+          </div>
+          <div class="card-body p-mobile-2">
+            <p class="mobile-content card-text" data-i18n="bedding_safety_content">Avoid overusing powders, use only untreated wood, monitor ammonia smell.</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  /* Bedding tips specific styling */
+  @media (max-width: 575.98px) {
+    .card-header h6 {
+      font-size: 0.85rem !important;
+    }
+    
+    .mobile-content {
+      font-size: 0.8rem !important;
+      line-height: 1.4;
+    }
+  }
+
+  /* Touch feedback */
+  @media (hover: none) and (pointer: coarse) {
+    .mobile-card:active {
+      transform: scale(0.98);
+    }
+  }
+</style>
 {% endblock %}

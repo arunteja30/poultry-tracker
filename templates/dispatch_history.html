@@ -1,90 +1,106 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 data-i18n="dispatch_history_title">📋 Dispatch History</h2>
-        <div>
-          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary btn-sm" data-i18n="back_to_dispatch">← Back to Dispatch</a>
-        </div>
-      </div>
+<div class="mobile-container">
+  <div class="mobile-section">
+    <!-- Mobile Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mobile-header m-0" data-i18n="dispatch_history_title">
+        <i class="bi bi-clock-history me-2"></i>Dispatch History
+      </h2>
+      <a href="{{ url_for('bird_dispatch') }}" class="mobile-btn-outline-secondary btn-sm" data-i18n="back_to_dispatch">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
+    </div>
 
-      {% if not cycle %}
-      <!-- No Active Cycle -->
-      <div class="row">
-        <div class="col-12">
-          <div class="card text-center p-5">
-            <div class="card-body">
-              <div class="mb-4" style="font-size: 4rem;">🐔</div>
-              <h3 data-i18n="no_cycle">No Active Cycle</h3>
-              <p class="text-muted mb-4" data-i18n="setup_instruction">Please set up a new cycle to start tracking your poultry farm data.</p>
-              <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg" data-i18n="setup_new_cycle">Setup New Cycle</a>
-            </div>
-          </div>
-        </div>
+    {% if not cycle %}
+    <!-- No Active Cycle -->
+    <div class="mobile-card text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-house-x" style="font-size: 4rem; color: #dee2e6;"></i>
       </div>
-      {% else %}
+      <h4 class="text-muted mb-3" data-i18n="no_cycle">No Active Cycle</h4>
+      <p class="text-muted mb-4" data-i18n="setup_instruction">
+        Please set up a new cycle to start tracking your poultry farm data.
+      </p>
+      <a href="{{ url_for('setup') }}" class="mobile-btn-primary" data-i18n="setup_new_cycle">
+        <i class="bi bi-plus-circle me-2"></i>Setup New Cycle
+      </a>
+    </div>
+    {% else %}
 
-      <!-- Current Cycle Info -->
-      {% if cycle %}
-      <div class="alert alert-info">
-        <strong data-i18n="current_cycle">Current Cycle:</strong> <span data-i18n="started">Started</span> {{ cycle.start_date }} | 
-        <strong data-i18n="remaining_birds">Remaining Birds:</strong> {{ cycle.current_birds }}
-      </div>
-      {% endif %}
-
-      <!-- Summary Statistics -->
-      <div class="row mb-4">
-        <div class="col-md-3">
-          <div class="card bg-primary text-white">
-            <div class="card-body text-center">
-              <h4>{{ summary.total_birds_dispatched }}</h4>
-              <p class="mb-0" data-i18n="total_birds_dispatched">Total Birds Dispatched</p>
-            </div>
+    <!-- Current Cycle Info -->
+    {% if cycle %}
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-info-circle me-2"></i>Current Cycle
+      </h5>
+      <div class="row g-3">
+        <div class="col-6 col-md-6">
+          <div class="mobile-info-item">
+            <small class="text-muted">
+              <i class="bi bi-calendar-start me-1"></i>Started
+            </small>
+            <div class="fw-medium">{{ cycle.start_date }}</div>
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="card bg-success text-white">
-            <div class="card-body text-center">
-              <h4>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</h4>
-              <p class="mb-0" data-i18n="total_weight_dispatched">Total Weight Dispatched</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card bg-warning text-white">
-            <div class="card-body text-center">
-              <h4>{{ "%.3f"|format(summary.avg_weight_per_bird) }} kg</h4>
-              <p class="mb-0" data-i18n="avg_weight_per_bird">Overall Avg Weight/Bird</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card bg-info text-white">
-            <div class="card-body text-center">
-              <h4>{{ summary.completed_dispatches }}</h4>
-              <p class="mb-0" data-i18n="completed_dispatches">Completed Dispatches</p>
+        <div class="col-6 col-md-6">
+          <div class="mobile-info-item">
+            <small class="text-muted">
+              <i class="bi bi-pie-chart me-1"></i>Remaining Birds
+            </small>
+            <div class="fw-medium">
+              <span class="badge bg-success">{{ cycle.current_birds }}</span>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    {% endif %}
 
-      <!-- Dispatch History Table -->
-      {% if dispatches %}
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title mb-0" data-i18n="all_dispatches">🚚 All Dispatches for Current Cycle</h5>
-          <button class="btn btn-sm btn-outline-primary expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="true">
-          </button>
+    <!-- Summary Statistics -->
+    <div class="mobile-card mb-4">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-graph-up me-2"></i>Dispatch Summary
+      </h5>
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
+            <div class="mobile-metric-value text-primary">{{ summary.total_birds_dispatched }}</div>
+            <div class="mobile-metric-label" data-i18n="total_birds_dispatched">Total Birds</div>
+          </div>
         </div>
-        <div class="collapse show" id="dispatchHistoryCollapse">
-          <div class="card-body">
-            <!-- Desktop Table -->
-            <div class="table-responsive d-none d-md-block">
-            <table class="table table-sm table-hover">
-              <thead class="table-dark">
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+            <div class="mobile-metric-value text-success">{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</div>
+            <div class="mobile-metric-label" data-i18n="total_weight_dispatched">Total Weight</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-warning bg-opacity-10">
+            <div class="mobile-metric-value text-warning">{{ "%.3f"|format(summary.avg_weight_per_bird) }} kg</div>
+            <div class="mobile-metric-label" data-i18n="avg_weight_per_bird">Avg Weight/Bird</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+            <div class="mobile-metric-value text-info">{{ summary.completed_dispatches }}</div>
+            <div class="mobile-metric-label" data-i18n="completed_dispatches">Completed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dispatch History Table -->
+    {% if dispatches %}
+    <div class="mobile-card">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-list-check me-2"></i>All Dispatches
+      </h5>
+      
+      <!-- Desktop Table -->
+      <div class="table-responsive d-none d-lg-block">
+        <table class="table table-sm table-hover">
+        <thead class="table-dark">
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Vehicle No</th>
@@ -169,185 +185,436 @@
             </table>
           </div>
 
-          <!-- Mobile Cards -->
-          <div class="d-md-none">
-            {% for dispatch in dispatches %}
-            <div class="card mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h6 class="card-title mb-0">
-                    <span class="badge bg-secondary me-2">#{{ loop.index }}</span>
-                    <strong>{{ dispatch.vehicle_no }}</strong>
-                  </h6>
-                  {% if dispatch.status == 'completed' %}
-                    <span class="badge bg-success">✅ Completed</span>
-                  {% else %}
-                    <span class="badge bg-warning">⏳ Active</span>
-                  {% endif %}
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="driver">Driver:</small><br>
-                    <strong>{{ dispatch.driver_name }}</strong>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="vendor">Vendor:</small><br>
-                    <strong>{{ dispatch.vendor_name or '-' }}</strong>
-                  </div>
-                </div>
-                <div class="row mt-2">
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="date_time">Date & Time:</small><br>
-                    <strong>{{ dispatch.dispatch_date }}</strong><br>
-                    <small>{{ dispatch.dispatch_time }}</small>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="birds">Birds:</small><br>
-                    {% if dispatch.status == 'completed' %}
-                      <span class="badge bg-success">{{ dispatch.total_birds }}</span>
-                    {% else %}
-                      <span class="badge bg-warning">In Progress</span>
-                    {% endif %}
-                  </div>
-                </div>
+      <!-- Mobile Cards -->
+      <div class="mobile-list-container d-lg-none">
+        {% for dispatch in dispatches %}
+        <div class="mobile-data-card mobile-swipeable mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+          <!-- Header -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h6 class="mobile-card-title mb-1">
+                <span class="badge bg-secondary me-2">#{{ loop.index }}</span>
+                <i class="bi bi-truck-front me-2"></i>{{ dispatch.vehicle_no }}
+              </h6>
+              <div class="d-flex align-items-center">
                 {% if dispatch.status == 'completed' %}
-                <div class="row mt-2">
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="weight">Weight:</small><br>
-                    <strong>{{ "%.1f"|format(dispatch.total_weight) }} kg</strong>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted" data-i18n="avg_bird">Avg/Bird:</small><br>
-                    <strong>{{ "%.3f"|format(dispatch.avg_weight_per_bird) }} kg</strong>
-                  </div>
-                </div>
+                  <span class="badge bg-success me-2">
+                    <i class="bi bi-check-circle me-1"></i>Completed
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning me-2">
+                    <i class="bi bi-clock me-1"></i>Active
+                  </span>
                 {% endif %}
-                <div class="mt-3">
-                  <div class="d-grid gap-2">
-                    <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                       class="btn {{ 'btn-info' if dispatch.status == 'completed' else 'btn-primary' }} btn-sm">
-                      {{ '👁️ View Details' if dispatch.status == 'completed' else '⚖️ Weigh Birds' }}
-                    </a>
-                    {% if session.role == 'admin' %}
-                    <form method="POST" action="{{ url_for('delete_dispatch', dispatch_id=dispatch.id) }}" 
-                          onsubmit="return confirm('Are you sure you want to delete this dispatch? This action cannot be undone.')">
-                      <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete Dispatch">
-                        🗑️ Delete Dispatch
-                      </button>
-                    </form>
-                    {% endif %}
-                  </div>
-                </div>
+                <small class="text-muted">{{ dispatch.dispatch_date }}</small>
               </div>
             </div>
-            {% endfor %}
-            
-            <!-- Mobile Summary Card -->
-            {% if summary.total_birds_dispatched > 0 %}
-            <div class="card bg-info text-white">
-              <div class="card-body">
-                <h6 class="card-title" data-i18n="summary">📊 Summary</h6>
-                <div class="row text-center">
-                  <div class="col-4">
-                    <strong>{{ summary.total_birds_dispatched }}</strong><br>
-                    <small data-i18n="total_birds">Total Birds</small>
-                  </div>
-                  <div class="col-4">
-                    <strong>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</strong><br>
-                    <small data-i18n="total_weight">Total Weight</small>
-                  </div>
-                  <div class="col-4">
-                    <strong>{{ summary.completed_dispatches }}</strong><br>
-                    <small data-i18n="completed">Completed</small>
-                  </div>
-                </div>
-              </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}">
+                    <i class="bi bi-{{ 'eye' if dispatch.status == 'completed' else 'scale' }} me-2"></i>
+                    {{ 'View Details' if dispatch.status == 'completed' else 'Weigh Birds' }}
+                  </a>
+                </li>
+                {% if session.role == 'admin' %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="POST" action="{{ url_for('delete_dispatch', dispatch_id=dispatch.id) }}" 
+                        style="display: inline-block;" 
+                        onsubmit="return confirm('Are you sure you want to delete this dispatch? This action cannot be undone.')">
+                    <button type="submit" class="dropdown-item text-danger">
+                      <i class="bi bi-trash me-2"></i>Delete
+                    </button>
+                  </form>
+                </li>
+                {% endif %}
+              </ul>
             </div>
-            {% endif %}
           </div>
-        </div>
-        </div>
-      </div>
-      {% else %}
-      <div class="alert alert-info">
-        <h5 data-i18n="no_dispatches_yet">📋 No dispatches yet</h5>
-        <p class="mb-0" data-i18n="no_dispatches_message">No dispatches have been recorded for the current cycle yet.</p>
-        <a href="{{ url_for('bird_dispatch') }}" class="btn btn-primary mt-2" data-i18n="start_first_dispatch">🚚 Start First Dispatch</a>
-      </div>
-      {% endif %}
 
-      <!-- Export Options -->
-      {% if dispatches %}
-      <div class="card mt-4">
-        <div class="card-body">
-          <h6 class="card-title" data-i18n="export_options">📊 Export Options</h6>
-          <p class="text-muted" data-i18n="export_instruction">Export dispatch data for analysis and record keeping.</p>
-          <div class="btn-group">
-            <button class="btn btn-outline-primary btn-sm" onclick="printTable()" data-i18n="print_report">🖨️ Print Report</button>
-            <a href="{{ url_for('export_dispatch_excel') }}" class="btn btn-outline-success btn-sm" data-i18n="export_excel">📊 Export Excel</a>
+          <!-- Driver and Vendor Info -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div class="mobile-info-item">
+                <small class="text-muted">
+                  <i class="bi bi-person me-1"></i>Driver
+                </small>
+                <div class="fw-medium">{{ dispatch.driver_name }}</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mobile-info-item">
+                <small class="text-muted">
+                  <i class="bi bi-building me-1"></i>Vendor
+                </small>
+                <div class="fw-medium">{{ dispatch.vendor_name or '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Info -->
+          <div class="row g-2 mb-3">
+            <div class="col-12">
+              <div class="mobile-info-item">
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>Dispatch Time
+                </small>
+                <div class="fw-medium">{{ dispatch.dispatch_time }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Birds and Weight Metrics -->
+          {% if dispatch.status == 'completed' %}
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <div class="mobile-metric-card text-center bg-success bg-opacity-10">
+                <div class="mobile-metric-value text-success">{{ dispatch.total_birds }}</div>
+                <div class="mobile-metric-label">Birds</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
+                <div class="mobile-metric-value text-primary">{{ "%.1f"|format(dispatch.total_weight) }}</div>
+                <div class="mobile-metric-label">Weight (kg)</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mobile-metric-card text-center bg-info bg-opacity-10">
+                <div class="mobile-metric-value text-info">{{ "%.3f"|format(dispatch.avg_weight_per_bird) }}</div>
+                <div class="mobile-metric-label">Avg/Bird (kg)</div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="mobile-alert alert alert-warning">
+            <i class="bi bi-clock me-2"></i>Weighing in progress...
+          </div>
+          {% endif %}
+
+          <!-- Action Button -->
+          <div class="mt-3">
+            <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+               class="mobile-btn-{{ 'outline-info' if dispatch.status == 'completed' else 'primary' }} w-100">
+              <i class="bi bi-{{ 'eye' if dispatch.status == 'completed' else 'scale' }} me-2"></i>
+              {{ 'View Details' if dispatch.status == 'completed' else 'Continue Weighing' }}
+            </a>
           </div>
         </div>
+        {% endfor %}
       </div>
-      {% endif %}
     </div>
+    {% else %}
+    <!-- No Dispatches State -->
+    <div class="mobile-card text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-truck" style="font-size: 4rem; color: #dee2e6;"></i>
+      </div>
+      <h5 class="text-muted mb-3">No Dispatches Yet</h5>
+      <p class="text-muted mb-4">No dispatches have been recorded for the current cycle yet.</p>
+      <a href="{{ url_for('bird_dispatch') }}" class="mobile-btn-primary">
+        <i class="bi bi-truck me-2"></i>Start First Dispatch
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Export Options -->
+    {% if dispatches %}
+    <div class="mobile-card">
+      <h6 class="mobile-card-title">
+        <i class="bi bi-download me-2"></i>Export Options
+      </h6>
+      <div class="d-flex gap-2 flex-wrap">
+        <button onclick="printTable()" class="mobile-btn-outline-primary">
+          <i class="bi bi-printer me-2"></i>Print Report
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
   </div>
 </div>
 
+<!-- Enhanced Mobile UX JavaScript -->
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize mobile UX enhancements
+  if (window.mobileUX) {
+    window.mobileUX.init();
+  }
+
+  // Print function
   function printTable() {
     window.print();
   }
+  
+  // Touch feedback for interactive elements
+  document.querySelectorAll('.mobile-data-card, .mobile-btn-primary, .mobile-btn-outline-info').forEach(element => {
+    element.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(0.98)';
+    });
+    
+    element.addEventListener('touchend', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+
+  // Add swipe gestures for dispatch cards
+  const dispatchCards = document.querySelectorAll('.mobile-swipeable');
+  dispatchCards.forEach(card => {
+    if (window.mobileUX && window.mobileUX.addSwipeGesture) {
+      window.mobileUX.addSwipeGesture(card, {
+        onSwipeLeft: () => {
+          const actionBtn = card.querySelector('a[href*="weighing_screen"]');
+          if (actionBtn) {
+            window.location.href = actionBtn.href;
+          }
+        },
+        onSwipeRight: () => {
+          card.style.transform = 'translateX(0)';
+          card.style.transition = 'transform 0.3s ease';
+        }
+      });
+    }
+  });
+});
+
+// Global print function
+function printTable() {
+  window.print();
+}
+  
+  // Touch Feedback
+  function addTouchFeedback() {
+    const touchElements = document.querySelectorAll('.mobile-btn, .mobile-card, .badge');
+    
+    touchElements.forEach(element => {
+      element.addEventListener('touchstart', function() {
+        this.style.transform = 'scale(0.98)';
+        this.style.transition = 'transform 0.1s ease';
+      });
+      
+      element.addEventListener('touchend', function() {
+        this.style.transform = '';
+      });
+      
+      element.addEventListener('touchcancel', function() {
+        this.style.transform = '';
+      });
+    });
+  }
+  
+  // Enhanced Collapse Management
+  function setupCollapseHandlers() {
+    const collapseElement = document.getElementById('dispatchHistoryCollapse');
+    const toggleButton = document.querySelector('[data-bs-target="#dispatchHistoryCollapse"]');
+    
+    if (collapseElement && toggleButton) {
+      collapseElement.addEventListener('shown.bs.collapse', function() {
+        const expandText = toggleButton.querySelector('.expand-text');
+        const collapseText = toggleButton.querySelector('.collapse-text');
+        if (expandText && collapseText) {
+          expandText.classList.remove('d-none');
+          collapseText.classList.add('d-none');
+        }
+        
+        // Smooth scroll on mobile
+        if (isMobile) {
+          toggleButton.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'nearest' 
+          });
+        }
+      });
+      
+      collapseElement.addEventListener('hidden.bs.collapse', function() {
+        const expandText = toggleButton.querySelector('.expand-text');
+        const collapseText = toggleButton.querySelector('.collapse-text');
+        if (expandText && collapseText) {
+          expandText.classList.add('d-none');
+          collapseText.classList.remove('d-none');
+        }
+      });
+    }
+  }
+  
+  // Swipe gesture support for dispatch cards
+  function initSwipeGestures() {
+    if (!isMobile) return;
+    
+    const cards = document.querySelectorAll('.mobile-card.border-success, .mobile-card.border-warning');
+    
+    cards.forEach(card => {
+      let startX = 0;
+      let startY = 0;
+      
+      card.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      });
+      
+      card.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        
+        if (Math.abs(diffX) > 50) {
+          if (diffX > 0) {
+            // Swipe left - animate
+            card.style.transform = 'translateX(-10px)';
+            setTimeout(() => {
+              card.style.transform = '';
+            }, 200);
+          } else {
+            // Swipe right - animate
+            card.style.transform = 'translateX(10px)';
+            setTimeout(() => {
+              card.style.transform = '';
+            }, 200);
+          }
+        }
+      });
+    });
+  }
+  
+  // Initialize all features
+  document.addEventListener('DOMContentLoaded', function() {
+    setupCollapseHandlers();
+    
+    if (isMobile) {
+      addTouchFeedback();
+      initSwipeGestures();
+    }
+  });
 </script>
 
 <style>
+  /* Mobile-First Responsive Design */
   @media print {
-    .btn, .card-header, .alert {
+    .mobile-btn, .card-header, .mobile-alert-info {
       display: none !important;
     }
-    .card {
+    .mobile-card {
       border: none !important;
       box-shadow: none !important;
     }
   }
 
+  /* Mobile optimizations */
   @media (max-width: 576px) {
-    .btn, .btn-sm, .btn-lg {
-      font-size: 0.85rem !important;
-      padding: 0.3rem 0.7rem !important;
-      border-radius: 0.3rem !important;
+    .mobile-container {
+      padding: 0.75rem;
     }
-    .card-header h5, h2, h3, h5, .card-title {
+    
+    .mobile-title {
+      font-size: 1.3rem !important;
+    }
+    
+    .mobile-metric h4 {
       font-size: 1.1rem !important;
-      margin-bottom: 0.5rem !important;
     }
-    .card-header {
-      padding: 0.5rem 1rem !important;
+    
+    .mobile-metric p {
+      font-size: 0.8rem !important;
     }
-    .card-body {
-      padding: 0.7rem 0.7rem !important;
+    
+    .fs-6 {
+      font-size: 0.9rem !important;
+    }
+    
+    .badge {
+      font-size: 0.75rem !important;
+      padding: 0.3rem 0.5rem !important;
+    }
+    
+    .mobile-metric {
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      background: rgba(0,0,0,0.02);
+      margin: 0.25rem 0;
     }
   }
-</style>
 
-<script>
-// Simple arrow rotation for expand/collapse
-document.addEventListener('DOMContentLoaded', function() {
-  const expandButtons = document.querySelectorAll('.expand-btn');
-  expandButtons.forEach(button => {
-    const targetId = button.getAttribute('data-bs-target');
-    const targetElement = document.querySelector(targetId);
-    
-    if (targetElement) {
-      targetElement.addEventListener('shown.bs.collapse', function() {
-        button.setAttribute('aria-expanded', 'true');
-      });
-      
-      targetElement.addEventListener('hidden.bs.collapse', function() {
-        button.setAttribute('aria-expanded', 'false');
-      });
+  /* Medium screens */
+  @media (max-width: 768px) {
+    .mobile-card {
+      margin-bottom: 1rem !important;
     }
-  });
-});
-</script>
-{% endif %}
+    
+    .mobile-summary-card {
+      background: linear-gradient(135deg, #17a2b8, #138496);
+      color: white;
+    }
+    
+    .mobile-summary-card .text-primary,
+    .mobile-summary-card .text-success,
+    .mobile-summary-card .text-info {
+      color: white !important;
+    }
+  }
+
+  /* Touch interactions */
+  .mobile-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .mobile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .mobile-metric-card:hover {
+    transform: scale(1.02);
+  }
+
+  .mobile-btn {
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Enhanced spacing */
+  .mobile-section {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Accessibility improvements */
+  .mobile-collapse-btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+
+  /* Loading states */
+  .mobile-btn.loading {
+    position: relative;
+    color: transparent;
+  }
+
+  .mobile-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
 {% endblock %}

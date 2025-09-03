@@ -4,60 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🐔 Ramesh Farms - Login</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1877f2">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="bg-light">
-<div class="container">
-    <div class="row justify-content-center min-vh-100 align-items-center">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <h1 class="h3 mb-3 font-weight-normal">🐔 <span data-i18n="ramesh_farms"></span>Ramesh Farms</span></h1>
-                        <p class="text-muted" data-i18n="poultry_tracker_login">Poultry Tracker Login</p>
-                    </div>
-
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-                    {% endwith %}
-
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label" data-i18n="username">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required autofocus>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label" data-i18n="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg" data-i18n="login">Login</button>
-                        </div>
-                    </form>
-
-                    <hr class="my-4">
-
-                    <!-- <div class="text-center">
-                        <small class="text-muted">
-                            <strong>Default Accounts:</strong><br>
-                            Admin: admin / admin123<br>
-                            User: user / user123
-                        </small> -->
+<div class="mobile-container">
+    <div class="d-flex justify-content-center align-items-center min-vh-100 p-3">
+        <div class="mobile-card w-100" style="max-width: 400px;">
+            <!-- App Logo & Branding -->
+            <div class="text-center mb-4">
+                <div class="mobile-app-icon mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                    🐔
                 </div>
+                <h1 class="h3 mb-2 fw-bold text-primary">Ramesh Farms</h1>
+                <p class="text-muted small" data-i18n="poultry_tracker_login">Poultry Tracker Login</p>
             </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show mobile-alert" role="alert">
+                <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' }} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Login Form -->
+            <form method="POST" class="mobile-form-enhanced" data-autosave="false">
+                <div class="mobile-form-group">
+                    <label for="username" class="mobile-form-label" data-i18n="username">
+                        <i class="bi bi-person me-2"></i>Username
+                    </label>
+                    <input type="text" 
+                           class="mobile-input-enhanced form-control" 
+                           id="username" 
+                           name="username" 
+                           required 
+                           autofocus
+                           placeholder="Enter your username">
+                </div>
+                
+                <div class="mobile-form-group">
+                    <label for="password" class="mobile-form-label" data-i18n="password">
+                        <i class="bi bi-lock me-2"></i>Password
+                    </label>
+                    <div class="position-relative">
+                        <input type="password" 
+                               class="mobile-input-enhanced form-control" 
+                               id="password" 
+                               name="password" 
+                               required
+                               placeholder="Enter your password">
+                        <button type="button" 
+                                class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3" 
+                                onclick="togglePassword()"
+                                style="border: none; background: none; color: #6c757d;">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="mobile-btn-primary w-100 mb-3" data-i18n="login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                </button>
+            </form>
+
+            <!-- Additional Info -->
+            <div class="text-center">
+                <small class="text-muted">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Secure login for poultry management
+                </small>
+            </div>
+
+            <!-- Debug Info (Hidden in production) -->
+            <!-- 
+            <div class="mt-4 p-3 bg-light rounded small text-muted">
+                <strong>Default Accounts:</strong><br>
+                Admin: admin / admin123<br>
+                User: user / user123
+            </div>
+            -->
         </div>
     </div>
 </div>
-</div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/mobile-ux.js') }}"></script>
+<script>
+    // Password toggle functionality
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.className = 'bi bi-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.className = 'bi bi-eye';
+        }
+    }
+
+    // Enhanced mobile login experience
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add touch feedback to login button
+        const loginBtn = document.querySelector('[type="submit"]');
+        if (loginBtn) {
+            loginBtn.classList.add('mobile-touch-enhanced');
+        }
+
+        // Auto-focus on mobile (but not on small screens to avoid virtual keyboard)
+        const usernameInput = document.getElementById('username');
+        if (usernameInput && window.innerWidth >= 768) {
+            setTimeout(() => usernameInput.focus(), 300);
+        }
+
+        // Form submission enhancement
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('[type="submit"]');
+            submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin me-2"></i>Logging in...';
+            submitBtn.disabled = true;
+        });
+
+        // Add loading states
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
+    });
+</script>
+
+<!-- Add CSS for loading animation -->
+<style>
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.mobile-app-icon {
+    box-shadow: 0 8px 32px rgba(24, 119, 242, 0.3);
+}
+
+.mobile-alert {
+    border-radius: 12px;
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 576px) {
+    .mobile-container {
+        padding: 1rem;
+    }
+    
+    .mobile-app-icon {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 2rem !important;
+    }
+}
+</style>
 </body>
 </html>
