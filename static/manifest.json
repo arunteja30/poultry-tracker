@@ -1,0 +1,58 @@
+{
+    "name": "Poultry Tracker - Ramesh Farms",
+    "short_name": "Poultry Tracker",
+    "description": "Track poultry cycles, feed, expenses, and tips with mobile-first PWA features. Complete farm management solution.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1877f2",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "categories": ["productivity", "utilities", "business"],
+    "lang": "en",
+    "dir": "ltr",
+    "screenshots": [
+        {
+            "src": "/static/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "label": "Poultry Tracker Dashboard"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "View farm dashboard",
+            "url": "/dashboard",
+            "icons": [{"src": "/static/icons/icon-192x192.png", "sizes": "192x192"}]
+        },
+        {
+            "name": "Daily Entry",
+            "short_name": "Daily",
+            "description": "Add daily data",
+            "url": "/daily",
+            "icons": [{"src": "/static/icons/icon-192x192.png", "sizes": "192x192"}]
+        }
+    ],
+    "icons": [
+        {
+            "src": "/static/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/static/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/static/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
