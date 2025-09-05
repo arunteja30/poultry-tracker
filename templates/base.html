@@ -75,7 +75,7 @@
               </ul>
             </li>
             <!-- Admin Group -->
-            {% if session.role == 'admin' %}
+            {% if session.role in ['admin', 'super_admin'] %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_admin" style="color: #fff;">
                 <i class="me-2">👑</i>Admin
@@ -86,6 +86,32 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{{ url_for('import_data') }}" data-i18n="nav_import"><i class="me-2">📥</i>Import Data</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('export') }}" data-i18n="nav_export"><i class="me-2">📤</i>Export Data</a></li>
+              </ul>
+            </li>
+            {% endif %}
+            <!-- Super Admin Group -->
+            {% if session.role == 'super_admin' %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fff;">
+                <i class="me-2">🏢</i>Super Admin
+              </a>
+              <ul class="dropdown-menu border-0" style="background: #f8f9fa;">
+                <li><a class="dropdown-item" href="{{ url_for('company_management') }}"><i class="me-2">🏢</i>Company Management</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user_management') }}"><i class="me-2">👥</i>User Management</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="dropdown-item-text">
+                  <small class="text-muted">Switch Company:</small>
+                </li>
+                {% for company in get_all_companies() %}
+                  <li><a class="dropdown-item" href="{{ url_for('switch_company', company_id=company.id) }}">
+                    {% if session.selected_company_id == company.id %}
+                      <i class="me-2">✅</i>
+                    {% else %}
+                      <i class="me-2">🏢</i>
+                    {% endif %}
+                    {{ company.name }}
+                  </a></li>
+                {% endfor %}
               </ul>
             </li>
             {% endif %}

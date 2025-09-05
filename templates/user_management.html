@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mobile-header text-center mb-mobile-3">👥 User Management</h2>
+  
+  <!-- Add New User Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Add New User</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('create_user') }}">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="username" class="form-label">Username *</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label">Password *</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="role" class="form-label">Role *</label>
+            <select class="form-control" id="role" name="role" required>
+              <option value="">Select Role</option>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="company_id" class="form-label">Company *</label>
+            <select class="form-control" id="company_id" name="company_id" required>
+              <option value="">Select Company</option>
+              {% for company in companies %}
+                <option value="{{ company.id }}">{{ company.name }} ({{ company.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="full_name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="full_name" name="full_name">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone</label>
+          <input type="text" class="form-control" id="phone" name="phone">
+        </div>
+        <button type="submit" class="btn btn-primary">Add User</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Existing Users -->
+  <div class="card">
+    <div class="card-header">
+      <h5>Existing Users ({{ users|length }})</h5>
+    </div>
+    <div class="card-body">
+      {% if users %}
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Role</th>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Last Login</th>
+                <th>Created By/Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+                <tr>
+                  <td><strong>{{ user.username }}</strong></td>
+                  <td>{{ user.full_name or '-' }}</td>
+                  <td>
+                    {% if user.role == 'super_admin' %}
+                      <span class="badge bg-danger">Super Admin</span>
+                    {% elif user.role == 'admin' %}
+                      <span class="badge bg-warning">Admin</span>
+                    {% else %}
+                      <span class="badge bg-info">User</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if user.get_company() %}
+                      {{ user.get_company().name }}
+                      <small class="text-muted">({{ user.get_company().code }})</small>
+                    {% else %}
+                      <span class="text-muted">No Company</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ user.email or '-' }}</td>
+                  <td>{{ user.phone or '-' }}</td>
+                  <td>
+                    {% if user.status == 'active' %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ user.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if user.last_login %}
+                      {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                      <span class="text-muted">Never</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      {% if user.created_date %}
+                        {{ user.created_date.strftime('%Y-%m-%d %H:%M') }}
+                      {% endif %}
+                      {% if user.created_by %}
+                        {% set created_user = get_user_by_id(user.created_by) %}
+                        <br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + user.created_by|string }}
+                      {% endif %}
+                    </small>
+                  </td>
+                  <td>
+                    {% if user.status == 'active' %}
+                      <a href="{{ url_for('update_user_status', user_id=user.id, status='inactive') }}" 
+                         class="btn btn-sm btn-warning"
+                         onclick="return confirm('Deactivate this user?')">
+                        Deactivate
+                      </a>
+                    {% else %}
+                      <a href="{{ url_for('update_user_status', user_id=user.id, status='active') }}" 
+                         class="btn btn-sm btn-success"
+                         onclick="return confirm('Activate this user?')">
+                        Activate
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted">No users found.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    <a href="{{ url_for('company_management') }}" class="btn btn-info">Manage Companies</a>
+  </div>
+</div>
+
+<style>
+.badge {
+  font-size: 0.9em;
+}
+.table td {
+  vertical-align: middle;
+}
+</style>
+{% endblock %}

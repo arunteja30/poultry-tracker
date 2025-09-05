@@ -21,20 +21,47 @@ app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in p
 db = SQLAlchemy(app)
 
 # ---------------- Models ----------------
+class Company(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    code = db.Column(db.String(20), unique=True, nullable=False)  # Short code like 'COMP1', 'COMP2'
+    address = db.Column(db.String(500))
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(120))
+    contact_person = db.Column(db.String(120))
+    status = db.Column(db.String(20), default='active')  # 'active' or 'inactive'
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer)  # User ID who created
+    notes = db.Column(db.String(500))
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
-    role = db.Column(db.String(20), default='user')  # 'user' or 'admin'
+    role = db.Column(db.String(20), default='user')  # 'user', 'admin', 'super_admin'
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)  # Nullable for super_admin
+    full_name = db.Column(db.String(120))
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(20))
+    status = db.Column(db.String(20), default='active')  # 'active' or 'inactive'
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer)  # User ID who created
+    last_login = db.Column(db.DateTime)
     
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
     
     def check_password(self, password):
         return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
+    
+    def get_company(self):
+        if self.company_id:
+            return Company.query.get(self.company_id)
+        return None
 
 class Cycle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
     start_date = db.Column(db.String(50))
     start_time = db.Column(db.String(50))
     start_birds = db.Column(db.Integer)
@@ -44,10 +71,16 @@ class Cycle(db.Model):
     notes = db.Column(db.String(500))
     status = db.Column(db.String(20), default='active')  # 'active' or 'archived'
     end_date = db.Column(db.String(50))  # Date when cycle was completed/archived
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    modified_date = db.Column(db.DateTime)
 
 class Daily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cycle_id = db.Column(db.Integer)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    cycle_id = db.Column(db.Integer, db.ForeignKey('cycle.id'))
     entry_date = db.Column(db.String(20))
     mortality = db.Column(db.Integer, default=0)
     feed_bags_consumed = db.Column(db.Integer, default=0)
@@ -63,6 +96,11 @@ class Daily(db.Model):
     total_mortality = db.Column(db.Integer, default=0.0)
     remaining_bags = db.Column(db.Float, default=0.0)
     total_bags_consumed = db.Column(db.Float, default=0.0)
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    modified_date = db.Column(db.DateTime)
     # Extension fields for future use (avoid migration problems)
     daily_ext1 = db.Column(db.String(500), nullable=True)  # For daily screen extensions
     daily_ext2 = db.Column(db.String(500), nullable=True)
@@ -71,10 +109,16 @@ class Daily(db.Model):
 
 class Medicine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cycle_id = db.Column(db.Integer, nullable=True)  # Allow null for existing data
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    cycle_id = db.Column(db.Integer, db.ForeignKey('cycle.id'), nullable=True)  # Allow null for existing data
     name = db.Column(db.String(120))
     price = db.Column(db.Float, default=0.0)
     qty = db.Column(db.Integer, default=0)
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    modified_date = db.Column(db.DateTime)
     # Extension fields for medicines screen
     medicine_ext1 = db.Column(db.String(500), nullable=True)  # For medicines screen extensions
     medicine_ext2 = db.Column(db.String(500), nullable=True)
@@ -84,7 +128,8 @@ class Medicine(db.Model):
 
 class Feed(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cycle_id = db.Column(db.Integer, nullable=True)  # Allow null for existing data
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    cycle_id = db.Column(db.Integer, db.ForeignKey('cycle.id'), nullable=True)  # Allow null for existing data
     bill_number = db.Column(db.String(50))
     date = db.Column(db.String(20))
     feed_name = db.Column(db.String(120))
@@ -93,6 +138,11 @@ class Feed(db.Model):
     total_feed_kg = db.Column(db.Float, default=0.0)
     price_per_kg = db.Column(db.Float, default=0.0)
     total_cost = db.Column(db.Float, default=0.0)
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    modified_date = db.Column(db.DateTime)
     # Extension fields for feed management screen
     feed_ext1 = db.Column(db.String(500), nullable=True)  # For feed management screen extensions
     feed_ext2 = db.Column(db.String(500), nullable=True)
@@ -101,7 +151,8 @@ class Feed(db.Model):
 
 class BirdDispatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cycle_id = db.Column(db.Integer, nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    cycle_id = db.Column(db.Integer, db.ForeignKey('cycle.id'), nullable=False)
     vehicle_no = db.Column(db.String(50), nullable=False)
     driver_name = db.Column(db.String(120), nullable=False)
     dispatch_date = db.Column(db.String(20), nullable=False)
@@ -112,6 +163,11 @@ class BirdDispatch(db.Model):
     avg_weight_per_bird = db.Column(db.Float, default=0.0)  # kg
     notes = db.Column(db.String(500))
     status = db.Column(db.String(20), default='active')  # 'active', 'completed'
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    modified_date = db.Column(db.DateTime)
     # Extension fields for bird dispatch screen
     dispatch_ext1 = db.Column(db.String(500), nullable=True)  # For bird dispatch screen extensions
     dispatch_ext2 = db.Column(db.String(500), nullable=True)
@@ -120,12 +176,16 @@ class BirdDispatch(db.Model):
 
 class WeighingRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    dispatch_id = db.Column(db.Integer, nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    dispatch_id = db.Column(db.Integer, db.ForeignKey('bird_dispatch.id'), nullable=False)
     serial_no = db.Column(db.Integer, nullable=False)
     no_of_birds = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Float, nullable=False)  # kg
     avg_weight_per_bird = db.Column(db.Float, default=0.0)  # kg
     timestamp = db.Column(db.String(20), nullable=False)
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
     # Extension fields for weighing screen
     weighing_ext1 = db.Column(db.String(500), nullable=True)  # For weighing screen extensions
     weighing_ext2 = db.Column(db.String(500), nullable=True)
@@ -134,11 +194,17 @@ class WeighingRecord(db.Model):
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    cycle_id = db.Column(db.Integer, nullable=True)  # Allow null for existing data
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    cycle_id = db.Column(db.Integer, db.ForeignKey('cycle.id'), nullable=True)  # Allow null for existing data
     name = db.Column(db.String(120), nullable=False)
     date = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     notes = db.Column(db.String(500))
+    # Audit fields
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    modified_date = db.Column(db.DateTime)
     # Extension fields for expenses screen
     expense_ext1 = db.Column(db.String(500), nullable=True)  # For expenses screen extensions
     expense_ext2 = db.Column(db.String(500), nullable=True)
@@ -147,27 +213,142 @@ class Expense(db.Model):
 
 # ---------------- Safe DB creation ----------------
 def init_database():
-    """Initialize database tables and default users"""
+    """Initialize database tables, default companies and users"""
     try:
         # Always ensure tables exist
+        if
         db.create_all()
         print("Database tables created successfully")
         
-        # Check if default users exist, create them if they don't
-        if not User.query.filter_by(username='admin').first():
-            admin_user = User(username='admin', role='admin')
-            admin_user.set_password('admin123')
-            db.session.add(admin_user)
-            print("Created admin user: admin/admin123")
+        # Create default companies first
+        company1 = Company.query.filter_by(code='COMP1').first()
+        if not company1:
+            company1 = Company(
+                name='Company 1',
+                code='COMP1',
+                address='Address for Company 1',
+                phone='1234567890',
+                email='company1@example.com',
+                contact_person='Company 1 Manager',
+                status='active',
+                created_date=datetime.utcnow(),
+                notes='Default company 1'
+            )
+            db.session.add(company1)
+            print("Created Company 1")
             
-        if not User.query.filter_by(username='user').first():
-            regular_user = User(username='user', role='user')
-            regular_user.set_password('user123')
-            db.session.add(regular_user)
-            print("Created regular user: user/user123")
+        company2 = Company.query.filter_by(code='COMP2').first()
+        if not company2:
+            company2 = Company(
+                name='Company 2',
+                code='COMP2',
+                address='Address for Company 2',
+                phone='0987654321',
+                email='company2@example.com',
+                contact_person='Company 2 Manager',
+                status='active',
+                created_date=datetime.utcnow(),
+                notes='Default company 2'
+            )
+            db.session.add(company2)
+            print("Created Company 2")
+            
+        # Commit companies first to get their IDs
+        db.session.commit()
+        
+        # Get fresh references after commit
+        company1 = Company.query.filter_by(code='COMP1').first()
+        company2 = Company.query.filter_by(code='COMP2').first()
+        
+        # Create super admin user (can manage all companies)
+        if not User.query.filter_by(username='superadmin').first():
+            super_admin = User(
+                username='superadmin',
+                role='super_admin',
+                company_id=company1.id,  # Default company for super admin
+                full_name='Super Administrator',
+                email='superadmin@example.com',
+                phone='9999999999',
+                status='active',
+                created_date=datetime.utcnow()
+            )
+            super_admin.set_password('super123')
+            db.session.add(super_admin)
+            print("Created super admin user: superadmin/super123")
+            
+        # Create admin users for each company
+        if not User.query.filter_by(username='admin1').first():
+            admin1 = User(
+                username='admin1',
+                role='admin',
+                company_id=company1.id,
+                full_name='Company 1 Admin',
+                email='admin1@company1.com',
+                phone='1111111111',
+                status='active',
+                created_date=datetime.utcnow()
+            )
+            admin1.set_password('admin123')
+            db.session.add(admin1)
+            print("Created Company 1 admin: admin1/admin123")
+            
+        if not User.query.filter_by(username='admin2').first():
+            admin2 = User(
+                username='admin2',
+                role='admin',
+                company_id=company2.id,
+                full_name='Company 2 Admin',
+                email='admin2@company2.com',
+                phone='2222222222',
+                status='active',
+                created_date=datetime.utcnow()
+            )
+            admin2.set_password('admin123')
+            db.session.add(admin2)
+            print("Created Company 2 admin: admin2/admin123")
+            
+        # Create sample regular users
+        if not User.query.filter_by(username='user1').first():
+            user1 = User(
+                username='user1',
+                role='user',
+                company_id=company1.id,
+                full_name='Company 1 User',
+                email='user1@company1.com',
+                phone='3333333333',
+                status='active',
+                created_date=datetime.utcnow()
+            )
+            user1.set_password('user123')
+            db.session.add(user1)
+            print("Created Company 1 user: user1/user123")
+            
+        if not User.query.filter_by(username='user2').first():
+            user2 = User(
+                username='user2',
+                role='user',
+                company_id=company2.id,
+                full_name='Company 2 User',
+                email='user2@company2.com',
+                phone='4444444444',
+                status='active',
+                created_date=datetime.utcnow()
+            )
+            user2.set_password('user123')
+            db.session.add(user2)
+            print("Created Company 2 user: user2/user123")
             
         db.session.commit()
-        print("Default users created successfully")
+        print("Default companies and users created successfully")
+        
+        # Print summary
+        print("\n=== MULTI-COMPANY SETUP COMPLETE ===")
+        print("Companies:")
+        print("  Company 1 (COMP1) - Admin: admin1/admin123, User: user1/user123")
+        print("  Company 2 (COMP2) - Admin: admin2/admin123, User: user2/user123")
+        print("Super Admin: superadmin/super123 (can manage all companies)")
+        print("=======================================\n")
+        
     except Exception as e:
         db.session.rollback()
         print(f"Database initialization error: {e}")
@@ -192,19 +373,93 @@ def admin_required(f):
         if 'user_id' not in session:
             return redirect(url_for('login'))
         user = User.query.get(session['user_id'])
-        if not user or user.role != 'admin':
+        if not user or user.role not in ['admin', 'super_admin']:
             flash('Access denied. Admin privileges required.', 'error')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def super_admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        user = User.query.get(session['user_id'])
+        if not user or user.role != 'super_admin':
+            flash('Access denied. Super Admin privileges required.', 'error')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
 
 def get_current_user():
     if 'user_id' in session:
-        return User.query.get(session['user_id'])
+        user = User.query.get(session['user_id'])
+        if user:
+            # Update last login
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+        return user
     return None
 
-def get_active_cycle():
-    return Cycle.query.filter_by(status='active').order_by(Cycle.id.desc()).first()
+def get_active_cycle(user=None):
+    """Get active cycle for the current user's company"""
+    if not user:
+        user = get_current_user()
+    
+    if not user:
+        return None
+    
+    # Super admin can see all cycles, but should select a company
+    if user.role == 'super_admin':
+        # For super admin, get the first active cycle (or implement company selection)
+        return Cycle.query.filter_by(status='active').order_by(Cycle.id.desc()).first()
+    
+    if not user.company_id:
+        return None
+        
+    return Cycle.query.filter_by(company_id=user.company_id, status='active').order_by(Cycle.id.desc()).first()
+
+def get_user_company_id():
+    """Get the company ID for the current user"""
+    user = get_current_user()
+    if not user:
+        return None
+    
+    # Super admin should have a way to select company, for now return None
+    if user.role == 'super_admin':
+        return session.get('selected_company_id')  # We'll implement company selection later
+    
+    return user.company_id
+
+@app.context_processor
+def inject_template_vars():
+    """Make company data and other variables available to all templates"""
+    def get_all_companies():
+        return Company.query.filter_by(status='active').order_by(Company.name).all()
+    
+    def get_current_company():
+        user = get_current_user()
+        if not user:
+            return None
+        
+        if user.role == 'super_admin':
+            company_id = session.get('selected_company_id')
+            if company_id:
+                return Company.query.get(company_id)
+        
+        return user.get_company()
+    
+    def get_user_by_id(user_id):
+        """Get user information by ID for audit trail display"""
+        if user_id:
+            return User.query.get(user_id)
+        return None
+    
+    return dict(
+        get_all_companies=get_all_companies,
+        get_current_company=get_current_company,
+        get_user_by_id=get_user_by_id
+    )
 
 def calc_cumulative_stats(cycle_id):
     rows = Daily.query.filter_by(cycle_id=cycle_id).all()
@@ -296,7 +551,12 @@ def feed_management():
         price_per_kg = float(request.form.get('price_per_kg', 45) or 45)
         total_feed_kg = feed_bags * bag_weight
         total_cost = round(total_feed_kg * price_per_kg, 2)
+        
+        user = get_current_user()
+        company_id = get_user_company_id()
+        
         feed = Feed(
+            company_id=company_id,
             cycle_id=cycle.id,
             bill_number=bill_number,
             date=feed_date,
@@ -305,7 +565,9 @@ def feed_management():
             bag_weight=bag_weight,
             total_feed_kg=total_feed_kg,
             price_per_kg=price_per_kg,
-            total_cost=total_cost
+            total_cost=total_cost,
+            created_by=user.id,
+            created_date=datetime.utcnow()
         )
         db.session.add(feed)
         db.session.commit()
@@ -370,10 +632,25 @@ def login():
         user = User.query.filter_by(username=username).first()
         
         if user and user.check_password(password):
+            # Update last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
             session['user_id'] = user.id
             session['username'] = user.username
             session['role'] = user.role
-            flash(f'Welcome {user.username}!', 'success')
+            session['company_id'] = user.company_id
+            
+            # For super admin, allow company selection
+            if user.role == 'super_admin':
+                session['selected_company_id'] = user.company_id  # Default to their assigned company
+                flash(f'Welcome Super Admin {user.full_name or user.username}! You can switch between companies.', 'success')
+            else:
+                session['selected_company_id'] = user.company_id
+                company = user.get_company()
+                company_name = company.name if company else 'Unknown Company'
+                flash(f'Welcome {user.full_name or user.username} ({company_name})!', 'success')
+            
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'error')
@@ -385,6 +662,23 @@ def logout():
     session.clear()
     flash('You have been logged out', 'info')
     return redirect(url_for('login'))
+
+@app.route('/switch_company/<int:company_id>')
+@login_required
+def switch_company(company_id):
+    user = get_current_user()
+    if user.role != 'super_admin':
+        flash('Access denied. Only super admin can switch companies.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    company = Company.query.get(company_id)
+    if not company:
+        flash('Invalid company selected.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    session['selected_company_id'] = company_id
+    flash(f'Switched to {company.name}', 'success')
+    return redirect(url_for('dashboard'))
 
 @app.route('/')
 @login_required
@@ -492,12 +786,16 @@ def setup():
     existing_cycle = get_active_cycle()
     if request.method=='POST':
         action = request.form.get('action', 'new')
+        user = get_current_user()
+        company_id = get_user_company_id()
         
         if action == 'reset' and existing_cycle:
             # Archive current cycle
             existing_cycle.status = 'archived'
             existing_cycle.end_date = date.today().isoformat()
             existing_cycle.notes = f"Archived on {datetime.now().isoformat()} - {existing_cycle.notes}"
+            existing_cycle.modified_by = user.id
+            existing_cycle.modified_date = datetime.utcnow()
             
             # Feed management data is preserved (not deleted) for historical records
             # This maintains consistency with daily data preservation
@@ -509,7 +807,19 @@ def setup():
         driver = request.form.get('driver','')
         notes = request.form.get('notes','')
         
-        c = Cycle(start_date=start_date, start_time=start_time, start_birds=start_birds, current_birds=start_birds, start_feed_bags=start_feed_bags, driver=driver, notes=notes, status='active')
+        c = Cycle(
+            company_id=company_id,
+            start_date=start_date, 
+            start_time=start_time, 
+            start_birds=start_birds, 
+            current_birds=start_birds, 
+            start_feed_bags=start_feed_bags, 
+            driver=driver, 
+            notes=notes, 
+            status='active',
+            created_by=user.id,
+            created_date=datetime.utcnow()
+        )
         db.session.add(c)
         db.session.commit()
         
@@ -822,7 +1132,12 @@ def daily():
             fcr = round((total_feed_kg / (avg_weight * live_after)),3) if (avg_weight>0 and live_after>0) else 0
         except Exception:
             fcr = 0
+            
+        user = get_current_user()
+        company_id = get_user_company_id()
+        
         row = Daily(
+            company_id=company_id,
             cycle_id=cycle.id,
             entry_date=entry_date,
             mortality=mortality,
@@ -837,7 +1152,9 @@ def daily():
             mortality_rate=mortality_rate,
             total_mortality=total_mortality,
             remaining_bags=remaining_bags,
-            total_bags_consumed=total_bags_consumed
+            total_bags_consumed=total_bags_consumed,
+            created_by=user.id,
+            created_date=datetime.utcnow()
         )
         cycle.current_birds = cycle.current_birds - mortality
         # Do not update cycle.start_feed_bags here, as available bags is now managed by Feed model
@@ -976,7 +1293,19 @@ def medicines():
         name = request.form.get('name')
         price = float(request.form.get('price',0) or 0)
         qty = int(request.form.get('qty',0) or 0)
-        m = Medicine(cycle_id=cycle.id, name=name, price=price, qty=qty)
+        
+        user = get_current_user()
+        company_id = get_user_company_id()
+        
+        m = Medicine(
+            company_id=company_id,
+            cycle_id=cycle.id, 
+            name=name, 
+            price=price, 
+            qty=qty,
+            created_by=user.id,
+            created_date=datetime.utcnow()
+        )
         db.session.add(m)
         db.session.commit()
         flash(f'Medicine "{name}" added successfully for cycle #{cycle.id}!', 'success')
@@ -1005,7 +1334,19 @@ def expenses():
             flash('Name and valid amount are required!', 'error')
             return redirect(url_for('expenses'))
         
-        expense = Expense(cycle_id=cycle.id, name=name, date=expense_date, amount=amount, notes=notes)
+        user = get_current_user()
+        company_id = get_user_company_id()
+        
+        expense = Expense(
+            company_id=company_id,
+            cycle_id=cycle.id, 
+            name=name, 
+            date=expense_date, 
+            amount=amount, 
+            notes=notes,
+            created_by=user.id,
+            created_date=datetime.utcnow()
+        )
         db.session.add(expense)
         db.session.commit()
         flash(f'Expense "{name}" added successfully for cycle #{cycle.id}!', 'success')
@@ -1053,8 +1394,12 @@ def bird_dispatch():
             flash('Vehicle number and driver name are required!', 'error')
             return redirect(url_for('bird_dispatch'))
         
+        user = get_current_user()
+        company_id = get_user_company_id()
+        
         # Create new dispatch record
         dispatch = BirdDispatch(
+            company_id=company_id,
             cycle_id=cycle.id,
             vehicle_no=vehicle_no,
             driver_name=driver_name,
@@ -1062,7 +1407,9 @@ def bird_dispatch():
             dispatch_date=dispatch_date,
             dispatch_time=dispatch_time,
             notes=notes,
-            status='active'
+            status='active',
+            created_by=user.id,
+            created_date=datetime.utcnow()
         )
         db.session.add(dispatch)
         db.session.commit()
@@ -1136,13 +1483,19 @@ def add_weighing_record(dispatch_id):
         timestamp_to_use = datetime.now().isoformat(timespec='seconds')
     
     # Create weighing record
+    user = get_current_user()
+    company_id = get_user_company_id()
+    
     record = WeighingRecord(
+        company_id=company_id,
         dispatch_id=dispatch_id,
         serial_no=next_serial,
         no_of_birds=no_of_birds,
         weight=weight,
         avg_weight_per_bird=avg_weight_per_bird,
-        timestamp=timestamp_to_use
+        timestamp=timestamp_to_use,
+        created_by=user.id,
+        created_date=datetime.utcnow()
     )
     
     db.session.add(record)
@@ -1309,8 +1662,8 @@ def create_pdf_report(cycle, title="Farm Report"):
     total_medical_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
     total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
     survival_rate = (cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0
-    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len(entries))
-    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len(entries))
+    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0]))
+    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len([entry for entry in daily_entries if entry.avg_weight > 0]))
     
     # Cycle Overview (like the HTML card)
     story.append(Paragraph("🐔 Cycle Overview", heading_style))
@@ -1567,7 +1920,7 @@ def create_pdf_report(cycle, title="Farm Report"):
         ['Feed Costs', f"₹{total_feed_cost:.2f}"],
         ['Medicine Costs', f"₹{total_medical_cost:.2f}"],
         ['Other Expenses', f"₹{total_expense_cost:.2f}"],
-        ['TOTAL COSTS', f"₹{(total_feed_cost + total_medicine_cost + total_expense_cost):.2f}"]
+        ['TOTAL COSTS', f"₹{(total_feed_cost + total_medical_cost + total_expense_cost):.2f}"]
     ]
     
     financial_table = Table(financial_data, colWidths=[3*inch, 2*inch])
@@ -2526,6 +2879,126 @@ def export_all_cycles():
                      as_attachment=True,
                      mimetype='application/pdf')
 
+# ==================== COMPANY MANAGEMENT ROUTES (SUPER ADMIN ONLY) ====================
+
+@app.route('/company_management')
+@super_admin_required
+def company_management():
+    """Company management for super admin"""
+    companies = Company.query.order_by(Company.name).all()
+    return render_template('company_management.html', companies=companies)
+
+@app.route('/create_company', methods=['POST'])
+@super_admin_required
+def create_company():
+    """Create a new company"""
+    name = request.form.get('name', '').strip()
+    code = request.form.get('code', '').strip()
+    address = request.form.get('address', '').strip()
+    phone = request.form.get('phone', '').strip()
+    email = request.form.get('email', '').strip()
+    contact_person = request.form.get('contact_person', '').strip()
+    notes = request.form.get('notes', '').strip()
+    
+    if not name or not code:
+        flash('Company name and code are required!', 'error')
+        return redirect(url_for('company_management'))
+    
+    # Check if code already exists
+    existing = Company.query.filter_by(code=code).first()
+    if existing:
+        flash('Company code already exists!', 'error')
+        return redirect(url_for('company_management'))
+    
+    user = get_current_user()
+    company = Company(
+        name=name,
+        code=code,
+        address=address,
+        phone=phone,
+        email=email,
+        contact_person=contact_person,
+        status='active',
+        created_date=datetime.utcnow(),
+        created_by=user.id,
+        notes=notes
+    )
+    
+    db.session.add(company)
+    db.session.commit()
+    
+    flash(f'Company "{name}" created successfully!', 'success')
+    return redirect(url_for('company_management'))
+
+@app.route('/user_management')
+@super_admin_required  
+def user_management():
+    """User management for super admin"""
+    users = User.query.join(Company).order_by(Company.name, User.username).all()
+    companies = Company.query.filter_by(status='active').order_by(Company.name).all()
+    return render_template('user_management.html', users=users, companies=companies)
+
+@app.route('/create_user', methods=['POST'])
+@super_admin_required
+def create_user():
+    """Create a new user"""
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    role = request.form.get('role', '').strip()
+    company_id = request.form.get('company_id')
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    phone = request.form.get('phone', '').strip()
+    
+    if not username or not password or not role or not company_id:
+        flash('Username, password, role, and company are required!', 'error')
+        return redirect(url_for('user_management'))
+    
+    # Check if username already exists
+    existing = User.query.filter_by(username=username).first()
+    if existing:
+        flash('Username already exists!', 'error')
+        return redirect(url_for('user_management'))
+    
+    current_user = get_current_user()
+    new_user = User(
+        username=username,
+        role=role,
+        company_id=int(company_id),
+        full_name=full_name,
+        email=email,
+        phone=phone,
+        status='active',
+        created_date=datetime.utcnow(),
+        created_by=current_user.id
+    )
+    new_user.set_password(password)
+    
+    db.session.add(new_user)
+    db.session.commit()
+    
+    flash(f'User "{username}" created successfully!', 'success')
+    return redirect(url_for('user_management'))
+
+@app.route('/update_user_status/<int:user_id>/<status>')
+@super_admin_required
+def update_user_status(user_id, status):
+    """Update user status (active/inactive)"""
+    user = User.query.get_or_404(user_id)
+    
+    if status not in ['active', 'inactive']:
+        flash('Invalid status!', 'error')
+        return redirect(url_for('user_management'))
+    
+    user.status = status
+    current_user = get_current_user()
+    user.modified_by = current_user.id
+    user.modified_date = datetime.utcnow()
+    
+    db.session.commit()
+    
+    flash(f'User status updated to {status}!', 'success')
+    return redirect(url_for('user_management'))
 
 
 if __name__ == '__main__':

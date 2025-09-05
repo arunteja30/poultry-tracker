@@ -114,6 +114,28 @@
                 <strong>Notes:</strong> {{ r.daily_notes }}
               </div>
               {% endif %}
+              
+              <!-- Audit Trail Information -->
+              <div class="col-12 pt-2 mt-2 border-top">
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>
+                  {% if r.created_date %}
+                    Created: {{ r.created_date.strftime('%Y-%m-%d %H:%M') }}
+                  {% endif %}
+                  {% if r.created_by %}
+                    {% set created_user = get_user_by_id(r.created_by) %}
+                    by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + r.created_by|string }}
+                  {% endif %}
+                  {% if r.modified_date %}
+                    <br><i class="bi bi-pencil me-1"></i>
+                    Modified: {{ r.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                    {% if r.modified_by %}
+                      {% set modified_user = get_user_by_id(r.modified_by) %}
+                      by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + r.modified_by|string }}
+                    {% endif %}
+                  {% endif %}
+                </small>
+              </div>
             </div>
           </div>
 

@@ -47,6 +47,7 @@
                 <th scope="col" class="text-center" data-i18n="table_medicine_price">Price (₹)</th>
                 <th scope="col" class="text-center" data-i18n="table_medicine_qty">Quantity</th>
                 <th scope="col" class="text-center" data-i18n="table_total_value">Total Value</th>
+                <th scope="col" class="text-center" data-i18n="audit_info">Created By/Date</th>
                 {% if session.role == 'admin' %}
                 <th scope="col" class="text-center" data-i18n="table_actions">Actions</th>
                 {% endif %}
@@ -66,6 +67,24 @@
                   </td>
                   <td class="text-center">
                     <span class="badge bg-warning text-dark">₹{{ "%.2f"|format((m.price|float) * (m.qty|int if m.qty else 1)) }}</span>
+                  </td>
+                  <td class="text-center">
+                    <small class="text-muted">
+                      {% if m.created_date %}
+                        {{ m.created_date.strftime('%Y-%m-%d %H:%M') }}
+                      {% endif %}
+                      {% if m.created_by %}
+                        {% set created_user = get_user_by_id(m.created_by) %}
+                        <br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + m.created_by|string }}
+                      {% endif %}
+                      {% if m.modified_date %}
+                        <br><i class="bi bi-pencil me-1"></i>{{ m.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                        {% if m.modified_by %}
+                          {% set modified_user = get_user_by_id(m.modified_by) %}
+                          by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + m.modified_by|string }}
+                        {% endif %}
+                      {% endif %}
+                    </small>
                   </td>
                   {% if session.role == 'admin' %}
                   <td class="text-center">

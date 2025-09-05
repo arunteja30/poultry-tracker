@@ -62,6 +62,7 @@
               <th data-i18n="expense_date">Date</th>
               <th data-i18n="expense_amount">Amount (₹)</th>
               <th data-i18n="expense_notes">Notes</th>
+              <th data-i18n="audit_info">Created By/Date</th>
               {% if session.role == 'admin' %}
               <th data-i18n="actions">Actions</th>
               {% endif %}
@@ -74,6 +75,24 @@
               <td>{{ expense.date }}</td>
               <td><span class="text-danger">₹{{ "%.2f"|format(expense.amount) }}</span></td>
               <td>{{ expense.notes or '-' }}</td>
+              <td>
+                <small class="text-muted">
+                  {% if expense.created_date %}
+                    {{ expense.created_date.strftime('%Y-%m-%d %H:%M') }}
+                  {% endif %}
+                  {% if expense.created_by %}
+                    {% set created_user = get_user_by_id(expense.created_by) %}
+                    <br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + expense.created_by|string }}
+                  {% endif %}
+                  {% if expense.modified_date %}
+                    <br><i class="bi bi-pencil me-1"></i>{{ expense.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                    {% if expense.modified_by %}
+                      {% set modified_user = get_user_by_id(expense.modified_by) %}
+                      by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + expense.modified_by|string }}
+                    {% endif %}
+                  {% endif %}
+                </small>
+              </td>
               {% if session.role == 'admin' %}
               <td>
                 <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" style="display: inline;" 
@@ -118,6 +137,31 @@
                 <strong>{{ expense.notes or '-' }}</strong>
               </div>
             </div>
+            
+            <!-- Audit Trail Information -->
+            <div class="row mt-2">
+              <div class="col-12">
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>
+                  {% if expense.created_date %}
+                    Created: {{ expense.created_date.strftime('%Y-%m-%d %H:%M') }}
+                  {% endif %}
+                  {% if expense.created_by %}
+                    {% set created_user = get_user_by_id(expense.created_by) %}
+                    by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + expense.created_by|string }}
+                  {% endif %}
+                  {% if expense.modified_date %}
+                    <br><i class="bi bi-pencil me-1"></i>
+                    Modified: {{ expense.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                    {% if expense.modified_by %}
+                      {% set modified_user = get_user_by_id(expense.modified_by) %}
+                      by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + expense.modified_by|string }}
+                    {% endif %}
+                  {% endif %}
+                </small>
+              </div>
+            </div>
+            
             {% if session.role == 'admin' %}
             <div class="row mt-2">
               <div class="col-12 text-end">

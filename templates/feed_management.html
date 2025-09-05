@@ -61,6 +61,7 @@
             <th data-i18n="feed_total_feed">Total Feed (kg)</th>
             <th data-i18n="feed_price_per_kg">Price/kg (₹)</th>
             <th data-i18n="feed_total_cost">Total Cost (₹)</th>
+            <th data-i18n="audit_info">Created By/Date</th>
             <th data-i18n="actions">Actions</th>
           </tr>
         </thead>
@@ -75,6 +76,24 @@
             <td>{{ feed.total_feed_kg }}</td>
             <td>{{ feed.price_per_kg }}</td>
             <td>{{ feed.total_cost }}</td>
+            <td>
+              <small class="text-muted">
+                {% if feed.created_date %}
+                  {{ feed.created_date.strftime('%Y-%m-%d %H:%M') }}
+                {% endif %}
+                {% if feed.created_by %}
+                  {% set created_user = get_user_by_id(feed.created_by) %}
+                  <br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + feed.created_by|string }}
+                {% endif %}
+                {% if feed.modified_date %}
+                  <br><i class="bi bi-pencil me-1"></i>{{ feed.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                  {% if feed.modified_by %}
+                    {% set modified_user = get_user_by_id(feed.modified_by) %}
+                    by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + feed.modified_by|string }}
+                  {% endif %}
+                {% endif %}
+              </small>
+            </td>
             <td>
               <button type="button" class="btn btn-sm btn-danger" onclick="deleteFeed({{ feed.id }}, '{{ feed.feed_name }}', '{{ feed.bill_number }}')" data-i18n="delete" title="Delete Feed Entry">
                 🗑️ Delete
@@ -103,6 +122,28 @@
             <div><strong data-i18n="feed_total_feed">Total Feed (kg):</strong> {{ feed.total_feed_kg }}</div>
             <div><strong data-i18n="feed_price_per_kg">Price/kg (₹):</strong> {{ feed.price_per_kg }}</div>
             <div><strong data-i18n="feed_total_cost">Total Cost (₹):</strong> {{ feed.total_cost }}</div>
+            
+            <!-- Audit Trail Information -->
+            <div class="pt-2 mt-2 border-top">
+              <small class="text-muted">
+                <i class="bi bi-clock me-1"></i>
+                {% if feed.created_date %}
+                  Created: {{ feed.created_date.strftime('%Y-%m-%d %H:%M') }}
+                {% endif %}
+                {% if feed.created_by %}
+                  {% set created_user = get_user_by_id(feed.created_by) %}
+                  by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + feed.created_by|string }}
+                {% endif %}
+                {% if feed.modified_date %}
+                  <br><i class="bi bi-pencil me-1"></i>
+                  Modified: {{ feed.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                  {% if feed.modified_by %}
+                    {% set modified_user = get_user_by_id(feed.modified_by) %}
+                    by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + feed.modified_by|string }}
+                  {% endif %}
+                {% endif %}
+              </small>
+            </div>
           </div>
         {% endfor %}
         <div class="mt-2 text-end">
