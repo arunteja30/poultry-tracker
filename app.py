@@ -14,8 +14,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poultry.db'
+app = Flask(__name__, instance_relative_config=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{app.instance_path}/poultry.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
@@ -1109,6 +1109,7 @@ def add_weighing_record(dispatch_id):
     
     no_of_birds = int(request.form.get('no_of_birds', 0))
     weight = float(request.form.get('weight', 0))
+    device_timestamp = request.form.get('device_timestamp', '')
     
     if no_of_birds <= 0 or weight <= 0:
         flash('Please enter valid number of birds and weight!', 'error')
@@ -1121,6 +1122,19 @@ def add_weighing_record(dispatch_id):
     # Calculate average weight per bird for this record
     avg_weight_per_bird = round(weight / no_of_birds, 3)
     
+    # Use device timestamp if provided, otherwise use server time
+    if device_timestamp:
+        try:
+            # Parse and format the device timestamp
+            from datetime import datetime as dt
+            device_dt = dt.fromisoformat(device_timestamp.replace('Z', '+00:00'))
+            timestamp_to_use = device_dt.isoformat(timespec='seconds')
+        except ValueError:
+            # Fallback to server time if device timestamp is invalid
+            timestamp_to_use = datetime.now().isoformat(timespec='seconds')
+    else:
+        timestamp_to_use = datetime.now().isoformat(timespec='seconds')
+    
     # Create weighing record
     record = WeighingRecord(
         dispatch_id=dispatch_id,
@@ -1128,7 +1142,7 @@ def add_weighing_record(dispatch_id):
         no_of_birds=no_of_birds,
         weight=weight,
         avg_weight_per_bird=avg_weight_per_bird,
-        timestamp=datetime.now().isoformat(timespec='seconds')
+        timestamp=timestamp_to_use
     )
     
     db.session.add(record)
@@ -1295,8 +1309,8 @@ def create_pdf_report(cycle, title="Farm Report"):
     total_medical_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
     total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
     survival_rate = (cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0
-    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0])) if daily_entries else 0
-    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len([entry for entry in daily_entries if entry.avg_weight > 0])) if daily_entries else 0
+    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len(entries))
+    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len(entries))
     
     # Cycle Overview (like the HTML card)
     story.append(Paragraph("🐔 Cycle Overview", heading_style))
@@ -1553,7 +1567,7 @@ def create_pdf_report(cycle, title="Farm Report"):
         ['Feed Costs', f"₹{total_feed_cost:.2f}"],
         ['Medicine Costs', f"₹{total_medical_cost:.2f}"],
         ['Other Expenses', f"₹{total_expense_cost:.2f}"],
-        ['TOTAL COSTS', f"₹{(total_feed_cost + total_medical_cost + total_expense_cost):.2f}"]
+        ['TOTAL COSTS', f"₹{(total_feed_cost + total_medicine_cost + total_expense_cost):.2f}"]
     ]
     
     financial_table = Table(financial_data, colWidths=[3*inch, 2*inch])
@@ -2207,7 +2221,7 @@ def income_estimate():
         if use_custom_fcr is not None:
             fcr = use_custom_fcr
         else:
-            fcr = sum(e.fcr for e in entries if e.fcr) / max(len(entries),1)
+            fcr = sum(e.fcr for e in entries if e.fcr) / max(1, len(entries))
         
         return {
             'total_birds': cycle.current_birds,
@@ -2464,7 +2478,7 @@ def export_all_cycles():
         total_mortality = sum(entry.mortality for entry in daily_entries)
         total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
         total_feed_cost = sum(feed.total_cost for feed in feeds) if feeds else 0
-        total_medicine_cost = sum(med.price for med in medicines if med.price) if medicines else 0
+        total_medicine_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
         total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
         total_dispatched = sum(d.total_birds for d in dispatches if d.status == 'completed')
         
@@ -2513,5 +2527,6 @@ def export_all_cycles():
                      mimetype='application/pdf')
 
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

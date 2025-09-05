@@ -1,297 +1,191 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="mobile-container">
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="bird_dispatch_title">
+    🚛 Bird Dispatch
+  </h2>
+
+  {% if not cycle %}
+  <!-- No Active Cycle -->
   <div class="mobile-section">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mobile-header m-0" data-i18n="bird_dispatch_title">
-        <i class="bi bi-truck me-2"></i>Bird Dispatch
-      </h2>
-      <a href="{{ url_for('dispatch_history') }}" class="mobile-btn-outline-info btn-sm" data-i18n="dispatch_history">
-        <i class="bi bi-clock-history me-1"></i>History
-      </a>
-    </div>
-
-    {% if not cycle %}
-    <!-- No Active Cycle -->
-    <div class="mobile-card text-center py-5">
-      <div class="mb-4">
-        <i class="bi bi-house-x" style="font-size: 4rem; color: #dee2e6;"></i>
-      </div>
-      <h4 class="text-muted mb-3" data-i18n="no_cycle">No Active Cycle</h4>
-      <p class="text-muted mb-4" data-i18n="setup_instruction">
-        Please set up a new cycle to start tracking your poultry farm data.
-      </p>
-      <a href="{{ url_for('setup') }}" class="mobile-btn-primary" data-i18n="setup_new_cycle">
-        <i class="bi bi-plus-circle me-2"></i>Setup New Cycle
-      </a>
-    </div>
-    {% else %}
-
-    <!-- Current Cycle Info -->
-    <div class="mobile-card mb-4">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-info-circle me-2"></i>Current Cycle
-      </h5>
-      <div class="row g-3">
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
-            <div class="mobile-metric-value text-primary">{{ cycle.start_date }}</div>
-            <div class="mobile-metric-label">Start Date</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center bg-success bg-opacity-10">
-            <div class="mobile-metric-value text-success">{{ cycle.current_birds }}</div>
-            <div class="mobile-metric-label">Available Birds</div>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          <div class="mobile-metric-card text-center bg-info bg-opacity-10">
-            <div class="mobile-metric-value text-info">{{ cycle.driver or 'N/A' }}</div>
-            <div class="mobile-metric-label">Farm Driver</div>
-          </div>
-        </div>
+    <div class="mobile-card card text-center">
+      <div class="card-body p-mobile-3">
+        <div class="mb-3" style="font-size: 3rem;">🐔</div>
+        <h5 class="mobile-header" data-i18n="no_cycle">No Active Cycle</h5>
+        <p class="mobile-content text-muted mb-3" data-i18n="setup_instruction">
+          Please set up a new cycle to start tracking your poultry farm data.
+        </p>
+        <a href="{{ url_for('setup') }}" class="mobile-button btn btn-primary w-100" data-i18n="setup_new_cycle">
+          Setup New Cycle
+        </a>
       </div>
     </div>
+  </div>
+  {% else %}
 
-    <!-- Summary Statistics -->
-    {% if recent_dispatches %}
-    <div class="mobile-card mb-4">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-graph-up me-2"></i>Dispatch Summary
-      </h5>
-      <div class="row g-3">
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
-            <div class="mobile-metric-value text-primary">{{ recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_birds') }}</div>
-            <div class="mobile-metric-label">Total Birds Dispatched</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center bg-success bg-opacity-10">
-            <div class="mobile-metric-value text-success">{{ "%.1f"|format(recent_dispatches | selectattr('status', 'equalto', 'completed') | sum(attribute='total_weight')) }} kg</div>
-            <div class="mobile-metric-label">Total Weight</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center bg-info bg-opacity-10">
-            <div class="mobile-metric-value text-info">{{ recent_dispatches | length }}</div>
-            <div class="mobile-metric-label">Vehicles</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center bg-warning bg-opacity-10">
-            <div class="mobile-metric-value text-warning">
-              {% set completed_dispatches = recent_dispatches | selectattr('status', 'equalto', 'completed') | list %}
-              {% set total_birds = completed_dispatches | sum(attribute='total_birds') %}
-              {% set total_weight = completed_dispatches | sum(attribute='total_weight') %}
-              {% if total_birds > 0 %}
-                {{ "%.3f"|format(total_weight / total_birds) }} kg
-              {% else %}
-                0.000 kg
-              {% endif %}
+  <!-- Current Cycle Status Card -->
+  <div class="mobile-section">
+    <div class="mobile-card card border-info">
+      <div class="card-body p-mobile-2">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <h6 class="mobile-header text-info mb-2">🏠 Current Cycle Status</h6>
+            <div class="mobile-content">
+              <strong>Available Birds: {{ cycle.current_birds }}</strong>
+              <small class="text-muted d-block">Started: {{ cycle.start_date }}</small>
             </div>
-            <div class="mobile-metric-label">Avg Bird Weight</div>
+          </div>
+          <div class="ms-2">
+            <a href="{{ url_for('dispatch_history') }}" class="btn btn-outline-info btn-sm mobile-button">
+              📊 History
+            </a>
           </div>
         </div>
       </div>
     </div>
-    {% endif %}
+  </div>
 
-    <!-- New Dispatch Form -->
-    <div class="mobile-card mb-4">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-truck me-2"></i>Register New Vehicle
-      </h5>
-      
-      <form method="POST" class="mobile-form-enhanced">
-        <!-- Vehicle Number -->
-        <div class="mobile-form-group">
-          <label for="vehicle_no" class="mobile-form-label" data-i18n="vehicle_number_label">
-            <i class="bi bi-truck me-2"></i>Vehicle Number *
-          </label>
-          <input type="text" class="mobile-form-control" id="vehicle_no" name="vehicle_no" 
-                 placeholder="e.g., AP01AB1234" required style="text-transform: uppercase;">
-          <div class="invalid-feedback">Please enter a valid vehicle number.</div>
-        </div>
+  <!-- New Dispatch Form -->
+  <div class="card p-3 p-md-4 shadow rounded-4 mb-4">
+    <h5 class="card-title text-center mb-4">📝 Register New Vehicle</h5>
+    
+    <form method="POST" class="row g-3">
+      <!-- Vehicle Number -->
+      <div class="col-12 col-md-6">
+        <label for="vehicle_no" class="form-label" data-i18n="vehicle_number_label">
+          Vehicle Number *
+        </label>
+        <input type="text" class="form-control" id="vehicle_no" name="vehicle_no" 
+               placeholder="e.g., AP01AB1234" required style="text-transform: uppercase;">
+      </div>
 
-        <!-- Driver Name -->
-        <div class="mobile-form-group">
-          <label for="driver_name" class="mobile-form-label" data-i18n="driver_name_label">
-            <i class="bi bi-person me-2"></i>Driver Name *
-          </label>
-          <input type="text" class="mobile-form-control" id="driver_name" name="driver_name" 
-                 placeholder="Enter driver's full name" required>
-          <div class="invalid-feedback">Please enter the driver's name.</div>
-        </div>
+      <!-- Driver Name -->
+      <div class="col-12 col-md-6">
+        <label for="driver_name" class="form-label" data-i18n="driver_name_label">
+          Driver Name *
+        </label>
+        <input type="text" class="form-control" id="driver_name" name="driver_name" 
+               placeholder="Enter driver's full name" required>
+      </div>
 
-        <!-- Vendor/Buyer Name -->
-        <div class="mobile-form-group">
-          <label for="vendor_name" class="mobile-form-label" data-i18n="vendor_name_label">
-            <i class="bi bi-building me-2"></i>Vendor/Buyer Name
-          </label>
-          <input type="text" class="mobile-form-control" id="vendor_name" name="vendor_name" 
-                 placeholder="Enter vendor or buyer name">
-          <div class="invalid-feedback">Please enter a valid vendor name.</div>
-        </div>
+      <!-- Vendor/Buyer Name -->
+      <div class="col-12">
+        <label for="vendor_name" class="form-label" data-i18n="vendor_name_label">
+          Vendor/Buyer Name
+        </label>
+        <input type="text" class="form-control" id="vendor_name" name="vendor_name" 
+               placeholder="Enter vendor or buyer name">
+      </div>
 
-        <!-- Date and Time Row -->
-        <div class="row g-3 mb-3">
-          <div class="col-6">
-            <label for="dispatch_date" class="mobile-form-label" data-i18n="dispatch_date_label">
-              <i class="bi bi-calendar-date me-2"></i>Dispatch Date
-            </label>
-            <input type="date" class="mobile-form-control" id="dispatch_date" name="dispatch_date">
-            <div class="invalid-feedback">Please select a valid date.</div>
-          </div>
-          <div class="col-6">
-            <label for="dispatch_time" class="mobile-form-label" data-i18n="dispatch_time_label">
-              <i class="bi bi-clock me-2"></i>Dispatch Time
-            </label>
-            <input type="time" class="mobile-form-control" id="dispatch_time" name="dispatch_time">
-            <div class="invalid-feedback">Please select a valid time.</div>
-          </div>
-        </div>
+      <!-- Date and Time Row -->
+      <div class="col-6">
+        <label for="dispatch_date" class="form-label" data-i18n="dispatch_date_label">
+          Dispatch Date
+        </label>
+        <input type="date" class="form-control" id="dispatch_date" name="dispatch_date">
+      </div>
+      <div class="col-6">
+        <label for="dispatch_time" class="form-label" data-i18n="dispatch_time_label">
+          Dispatch Time
+        </label>
+        <input type="time" class="form-control" id="dispatch_time" name="dispatch_time">
+      </div>
 
-        <!-- Notes -->
-        <div class="mobile-form-group">
-          <label for="notes" class="mobile-form-label" data-i18n="notes_label">
-            <i class="bi bi-journal-text me-2"></i>Notes
-          </label>
-          <textarea class="mobile-form-control" id="notes" name="notes" rows="3"
-                    placeholder="Any additional notes about this dispatch"></textarea>
-          <div class="invalid-feedback">Please enter valid notes.</div>
-        </div>
+      <!-- Notes -->
+      <div class="col-12">
+        <label for="notes" class="form-label" data-i18n="notes_label">
+          Notes
+        </label>
+        <textarea class="form-control" id="notes" name="notes" rows="2"
+                  placeholder="Any additional notes about this dispatch"></textarea>
+      </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="mobile-btn-primary w-100" data-i18n="register_vehicle_button">
-          <i class="bi bi-truck me-2"></i>Register Vehicle & Start Weighing
+      <!-- Submit Button -->
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary btn-lg w-100" data-i18n="register_vehicle_button">
+          🚛 Register Vehicle & Start Weighing
         </button>
-      </form>
-    </div>
+      </div>
+    </form>
+  </div>
 
     <!-- Recent Dispatches -->
     {% if recent_dispatches %}
-    <div class="mobile-card">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-list-check me-2"></i>Recent Dispatches
-      </h5>
+    <div class="card p-3 p-md-4 shadow rounded-4 mb-4">
+      <h5 class="card-title text-center mb-4">📋 Recent Dispatches</h5>
       
-      <!-- Mobile Cards View -->
-      <div class="mobile-list-container">
-        {% for dispatch in recent_dispatches %}
-        <div class="mobile-data-card mobile-swipeable mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
-          <!-- Header -->
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <h6 class="mobile-card-title mb-1">
-                <i class="bi bi-truck-front me-2"></i>{{ dispatch.vehicle_no }}
-              </h6>
-              <div class="d-flex align-items-center">
+      <!-- Desktop Table -->
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Vehicle</th>
+              <th>Driver</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for dispatch in recent_dispatches %}
+            <tr>
+              <td><strong>{{ dispatch.vehicle_no }}</strong></td>
+              <td>{{ dispatch.driver_name }}</td>
+              <td>
                 {% if dispatch.status == 'completed' %}
-                  <span class="badge bg-success me-2">
-                    <i class="bi bi-check-circle me-1"></i>Completed
-                  </span>
+                  <span class="badge bg-success">✅ Completed</span>
                 {% else %}
-                  <span class="badge bg-warning me-2">
-                    <i class="bi bi-clock me-1"></i>Active
-                  </span>
+                  <span class="badge bg-warning">⏳ Active</span>
                 {% endif %}
-                <small class="text-muted">{{ dispatch.dispatch_date }}</small>
-              </div>
-            </div>
-            <div class="dropdown">
-              <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-three-dots-vertical"></i>
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  {% if dispatch.status == 'active' %}
-                    <a class="dropdown-item" href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}">
-                      <i class="bi bi-scale me-2"></i>Weigh Birds
-                    </a>
-                  {% else %}
-                    <a class="dropdown-item" href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}">
-                      <i class="bi bi-eye me-2"></i>View Details
-                    </a>
-                  {% endif %}
-                </li>
-              </ul>
-            </div>
-          </div>
+              </td>
+              <td>{{ dispatch.dispatch_date }}</td>
+              <td>
+                {% if dispatch.status == 'active' %}
+                  <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                     class="btn btn-primary btn-sm">
+                    ⚖️ Weigh
+                  </a>
+                {% else %}
+                  <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
+                     class="btn btn-outline-info btn-sm">
+                    👁️ View
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
 
-          <!-- Driver and Vendor Info -->
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <div class="mobile-info-item">
-                <small class="text-muted">
-                  <i class="bi bi-person me-1"></i>Driver
-                </small>
-                <div class="fw-medium">{{ dispatch.driver_name }}</div>
-              </div>
+      <!-- Mobile List View -->
+      <div class="d-md-none">
+        {% for dispatch in recent_dispatches %}
+        <div class="card p-3 mb-3 {{ 'border-success' if dispatch.status == 'completed' else 'border-warning' }}">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h6 class="mb-1">🚚 {{ dispatch.vehicle_no }}</h6>
+              <small class="text-muted">{{ dispatch.driver_name }}</small>
             </div>
-            <div class="col-6">
-              <div class="mobile-info-item">
-                <small class="text-muted">
-                  <i class="bi bi-building me-1"></i>Vendor
-                </small>
-                <div class="fw-medium">{{ dispatch.vendor_name or '-' }}</div>
-              </div>
-            </div>
+            <span class="badge {{ 'bg-success' if dispatch.status == 'completed' else 'bg-warning' }}">
+              {{ '✅ Done' if dispatch.status == 'completed' else '⏳ Active' }}
+            </span>
           </div>
-
-          <!-- Time Info -->
-          <div class="row g-2 mb-3">
-            <div class="col-12">
-              <div class="mobile-info-item">
-                <small class="text-muted">
-                  <i class="bi bi-clock me-1"></i>Dispatch Time
-                </small>
-                <div class="fw-medium">{{ dispatch.dispatch_time }}</div>
-              </div>
-            </div>
+          
+          <div class="mb-3">
+            <small class="text-muted">📅 {{ dispatch.dispatch_date }}</small>
           </div>
-
-          <!-- Birds and Weight Metrics -->
-          {% if dispatch.status == 'completed' %}
-          <div class="row g-2 mb-3">
-            <div class="col-4">
-              <div class="mobile-metric-card text-center bg-success bg-opacity-10">
-                <div class="mobile-metric-value text-success">{{ dispatch.total_birds }}</div>
-                <div class="mobile-metric-label">Birds</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
-                <div class="mobile-metric-value text-primary">{{ "%.1f"|format(dispatch.total_weight) }}</div>
-                <div class="mobile-metric-label">Weight (kg)</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="mobile-metric-card text-center bg-info bg-opacity-10">
-                <div class="mobile-metric-value text-info">{{ "%.3f"|format(dispatch.avg_weight_per_bird) }}</div>
-                <div class="mobile-metric-label">Avg/Bird (kg)</div>
-              </div>
-            </div>
-          </div>
-          {% else %}
-          <div class="mobile-alert alert alert-warning">
-            <i class="bi bi-clock me-2"></i>Weighing in progress...
-          </div>
-          {% endif %}
-
-          <!-- Action Button -->
-          <div class="mt-3">
+          
+          <div class="d-grid">
             {% if dispatch.status == 'active' %}
               <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                 class="mobile-btn-primary w-100" data-i18n="weigh_birds_button">
-                <i class="bi bi-scale me-2"></i>Continue Weighing
+                 class="btn btn-primary btn-sm">
+                ⚖️ Continue Weighing
               </a>
             {% else %}
               <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
-                 class="mobile-btn-outline-info w-100" data-i18n="view_details_button">
-                <i class="bi bi-eye me-2"></i>View Details
+                 class="btn btn-outline-info btn-sm">
+                👁️ View Details
               </a>
             {% endif %}
           </div>
@@ -301,25 +195,22 @@
     </div>
     {% else %}
     <!-- No Dispatches State -->
-    <div class="mobile-card text-center py-5">
-      <div class="mb-4">
-        <i class="bi bi-truck" style="font-size: 4rem; color: #dee2e6;"></i>
+    <div class="mobile-section">
+      <div class="mobile-card card text-center">
+        <div class="card-body p-mobile-3">
+          <div class="mb-3" style="font-size: 3rem;">🚛</div>
+          <h5 class="mobile-header">No Dispatches Yet</h5>
+          <p class="mobile-content text-muted mb-0">Register your first vehicle above to start dispatching birds to vendors.</p>
+        </div>
       </div>
-      <h5 class="text-muted mb-3">No Dispatches Yet</h5>
-      <p class="text-muted mb-4">Register your first vehicle above to start dispatching birds to vendors.</p>
     </div>
     {% endif %}
-  </div>
+
+  {% endif %}
 </div>
 
-<!-- Enhanced Mobile UX JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize mobile UX enhancements
-  if (window.mobileUX) {
-    window.mobileUX.init();
-  }
-
   // Auto-uppercase vehicle number
   const vehicleInput = document.getElementById('vehicle_no');
   if (vehicleInput) {
@@ -345,125 +236,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeString = now.toTimeString().slice(0, 5);
     timeInput.value = timeString;
   }
-
-  // Form validation enhancement
-  const form = document.querySelector('.mobile-form-enhanced');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      let isValid = true;
-      
-      // Validate vehicle number (basic format check)
-      const vehicleNo = vehicleInput.value.trim();
-      if (vehicleNo.length < 6) {
-        vehicleInput.classList.add('is-invalid');
-        isValid = false;
-      } else {
-        vehicleInput.classList.remove('is-invalid');
-      }
-      
-      // Validate driver name
-      const driverInput = document.getElementById('driver_name');
-      if (driverInput.value.trim().length < 2) {
-        driverInput.classList.add('is-invalid');
-        isValid = false;
-      } else {
-        driverInput.classList.remove('is-invalid');
-      }
-      
-      if (!isValid) {
-        e.preventDefault();
-        
-        // Show error message
-        const errorAlert = document.createElement('div');
-        errorAlert.className = 'alert alert-danger mt-3';
-        errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Please correct the errors above before submitting.';
-        
-        // Remove existing error alerts
-        document.querySelectorAll('.alert-danger').forEach(el => {
-          if (el.textContent.includes('Please correct')) el.remove();
-        });
-        
-        form.appendChild(errorAlert);
-        
-        // Scroll to first error
-        const firstError = form.querySelector('.is-invalid');
-        if (firstError) {
-          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          firstError.focus();
-        }
-      } else {
-        // Show loading state
-        const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2 spinner-border spinner-border-sm"></i>Registering Vehicle...';
-      }
-    });
-  }
-
-  // Add swipe gestures for dispatch cards
-  const dispatchCards = document.querySelectorAll('.mobile-swipeable');
-  dispatchCards.forEach(card => {
-    if (window.mobileUX && window.mobileUX.addSwipeGesture) {
-      window.mobileUX.addSwipeGesture(card, {
-        onSwipeLeft: () => {
-          const actionBtn = card.querySelector('a[href*="weighing_screen"]');
-          if (actionBtn) {
-            window.location.href = actionBtn.href;
-          }
-        },
-        onSwipeRight: () => {
-          card.style.transform = 'translateX(0)';
-          card.style.transition = 'transform 0.3s ease';
-        }
-      });
-    }
-  });
-
-  // Touch feedback for interactive elements
-  document.querySelectorAll('.mobile-data-card, .mobile-btn-primary, .mobile-btn-outline-info').forEach(element => {
-    element.addEventListener('touchstart', function() {
-      this.style.transform = 'scale(0.98)';
-    });
-    
-    element.addEventListener('touchend', function() {
-      this.style.transform = 'scale(1)';
-    });
-  });
-
-  // Auto-save form data to localStorage
-  const formInputs = form ? form.querySelectorAll('input, textarea') : [];
-  formInputs.forEach(input => {
-    input.addEventListener('input', function() {
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-      localStorage.setItem('bird_dispatch_form', JSON.stringify(data));
-    });
-  });
-
-  // Load saved form data
-  const savedData = localStorage.getItem('bird_dispatch_form');
-  if (savedData) {
-    try {
-      const data = JSON.parse(savedData);
-      formInputs.forEach(input => {
-        if (data[input.name] !== undefined && input.type !== 'date' && input.type !== 'time') {
-          input.value = data[input.name];
-        }
-      });
-    } catch (e) {
-      console.log('Error loading saved form data:', e);
-    }
-  }
-
-  // Clear saved data on successful form submission
-  if (form) {
-    form.addEventListener('submit', function() {
-      setTimeout(() => {
-        localStorage.removeItem('bird_dispatch_form');
-      }, 1000);
-    });
-  }
 });
 </script>
-{% endif %}
+
+<!-- Mobile-friendly CSS -->
+<style>
+/* Mobile touch enhancements */
+@media (max-width: 768px) {
+  .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .card:active {
+    transform: scale(0.98);
+  }
+  
+  .btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Card hover effects for touch */
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  /* Better spacing for mobile */
+  .card p-3 {
+    padding: 1rem !important;
+  }
+  
+  /* Touch feedback */
+  .btn:active {
+    transform: scale(0.96);
+  }
+  
+  /* Status badges more prominent on mobile */
+  .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* Accessibility improvements */
+.btn:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Form improvements for mobile */
+@media (max-width: 576px) {
+  .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .col-6 {
+    margin-bottom: 1rem;
+  }
+}
+</style>
+
 {% endblock %}
