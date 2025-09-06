@@ -15,19 +15,20 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 
 app = Flask(__name__, instance_relative_config=True)
-database_url = os.environ.get("postgresql://poultry_management_user:6OVgW0lwlDGiNTsEzWezCkG6yaPGozVA@dpg-d2u6upje5dus73eflbe0-a/poultry_management")
+database_url = os.environ.get("url-here")
 
-if database_url:
-    # Render gives a Postgres connection string starting with "postgres://"
-    # SQLAlchemy prefers "postgresql://", so we fix it
-    if database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
+# if database_url:
+#     # Render gives a Postgres connection string starting with "postgres://"
+#     # SQLAlchemy prefers "postgresql://", so we fix it
+#     if database_url.startswith("postgres://"):
+#         database_url = database_url.replace("postgres://", "postgresql://", 1)
+#
+#     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+# else:
+#     # Local development fallback (SQLite file)
+#     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///poultry.db"
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-else:
-    # Local development fallback (SQLite file)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///poultry.db"
-
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
@@ -234,19 +235,19 @@ def init_database():
         
         # Create super admin user (can manage all companies)
         if not User.query.filter_by(username='superadmin').first():
-            super_admin = User(
-                username='superadmin',
-                role='super_admin',
-                company_id=company1.id,  # Default company for super admin
-                full_name='Super Administrator',
-                email='superadmin@example.com',
-                phone='9999999999',
-                status='active',
-                created_date=datetime.utcnow()
-            )
-            super_admin.set_password('super123')
-            db.session.add(super_admin)
-            print("Created super admin user: superadmin/super123")
+                   super_admin = User(
+                       username='superadmin',
+                       role='super_admin',
+                       company_id=None,  # Super admin is not tied to any specific company
+                       full_name='Super Administrator',
+                       email='superadmin@example.com',
+                       phone='9999999999',
+                       status='active',
+                       created_date=datetime.utcnow()
+                   )
+                   super_admin.set_password('super123')
+                   db.session.add(super_admin)
+                   print("Created super admin user: superadmin/super123")
             
             
         db.session.commit()
@@ -551,9 +552,9 @@ def login():
             
             # For super admin, allow company selection
             if user.role == 'super_admin':
-                session['selected_company_id'] = user.company_id  # Default to their assigned company
-                flash(f'Welcome Super Admin {user.full_name or user.username}! You can switch between companies.', 'success')
-            else:
+                session['selected_company_id'] = None  # Super admin starts with no company selected
+                flash(f'Welcome Super Admin {user.full_name or user.username}! Please select a company to manage or create a new one.', 'success')
+           else:
                 session['selected_company_id'] = user.company_id
                 company = user.get_company()
                 company_name = company.name if company else 'Unknown Company'
