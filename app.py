@@ -543,7 +543,7 @@ def login():
             if user.role == 'super_admin':
                 session['selected_company_id'] = None  # Super admin starts with no company selected
                 flash(f'Welcome Super Admin {user.full_name or user.username}! Please select a company to manage or create a new one.', 'success')
-           else:
+            else:
                 session['selected_company_id'] = user.company_id
                 company = user.get_company()
                 company_name = company.name if company else 'Unknown Company'
