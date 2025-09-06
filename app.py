@@ -15,8 +15,6 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 
 app = Flask(__name__, instance_relative_config=True)
-# app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{app.instance_path}/poultry.db'
-# Detect if DATABASE_URL is set (Render sets this automatically for Postgres)
 database_url = os.environ.get("postgresql://poultry_management_user:6OVgW0lwlDGiNTsEzWezCkG6yaPGozVA@dpg-d2u6upje5dus73eflbe0-a/poultry_management")
 
 if database_url:
@@ -230,49 +228,9 @@ def init_database():
     """Initialize database tables, default companies and users"""
     try:
         # Always ensure tables exist
-        if
         db.create_all()
         print("Database tables created successfully")
         
-        # Create default companies first
-        company1 = Company.query.filter_by(code='COMP1').first()
-        if not company1:
-            company1 = Company(
-                name='Company 1',
-                code='COMP1',
-                address='Address for Company 1',
-                phone='1234567890',
-                email='company1@example.com',
-                contact_person='Company 1 Manager',
-                status='active',
-                created_date=datetime.utcnow(),
-                notes='Default company 1'
-            )
-            db.session.add(company1)
-            print("Created Company 1")
-            
-        company2 = Company.query.filter_by(code='COMP2').first()
-        if not company2:
-            company2 = Company(
-                name='Company 2',
-                code='COMP2',
-                address='Address for Company 2',
-                phone='0987654321',
-                email='company2@example.com',
-                contact_person='Company 2 Manager',
-                status='active',
-                created_date=datetime.utcnow(),
-                notes='Default company 2'
-            )
-            db.session.add(company2)
-            print("Created Company 2")
-            
-        # Commit companies first to get their IDs
-        db.session.commit()
-        
-        # Get fresh references after commit
-        company1 = Company.query.filter_by(code='COMP1').first()
-        company2 = Company.query.filter_by(code='COMP2').first()
         
         # Create super admin user (can manage all companies)
         if not User.query.filter_by(username='superadmin').first():
@@ -290,76 +248,12 @@ def init_database():
             db.session.add(super_admin)
             print("Created super admin user: superadmin/super123")
             
-        # Create admin users for each company
-        if not User.query.filter_by(username='admin1').first():
-            admin1 = User(
-                username='admin1',
-                role='admin',
-                company_id=company1.id,
-                full_name='Company 1 Admin',
-                email='admin1@company1.com',
-                phone='1111111111',
-                status='active',
-                created_date=datetime.utcnow()
-            )
-            admin1.set_password('admin123')
-            db.session.add(admin1)
-            print("Created Company 1 admin: admin1/admin123")
-            
-        if not User.query.filter_by(username='admin2').first():
-            admin2 = User(
-                username='admin2',
-                role='admin',
-                company_id=company2.id,
-                full_name='Company 2 Admin',
-                email='admin2@company2.com',
-                phone='2222222222',
-                status='active',
-                created_date=datetime.utcnow()
-            )
-            admin2.set_password('admin123')
-            db.session.add(admin2)
-            print("Created Company 2 admin: admin2/admin123")
-            
-        # Create sample regular users
-        if not User.query.filter_by(username='user1').first():
-            user1 = User(
-                username='user1',
-                role='user',
-                company_id=company1.id,
-                full_name='Company 1 User',
-                email='user1@company1.com',
-                phone='3333333333',
-                status='active',
-                created_date=datetime.utcnow()
-            )
-            user1.set_password('user123')
-            db.session.add(user1)
-            print("Created Company 1 user: user1/user123")
-            
-        if not User.query.filter_by(username='user2').first():
-            user2 = User(
-                username='user2',
-                role='user',
-                company_id=company2.id,
-                full_name='Company 2 User',
-                email='user2@company2.com',
-                phone='4444444444',
-                status='active',
-                created_date=datetime.utcnow()
-            )
-            user2.set_password('user123')
-            db.session.add(user2)
-            print("Created Company 2 user: user2/user123")
             
         db.session.commit()
         print("Default companies and users created successfully")
         
         # Print summary
         print("\n=== MULTI-COMPANY SETUP COMPLETE ===")
-        print("Companies:")
-        print("  Company 1 (COMP1) - Admin: admin1/admin123, User: user1/user123")
-        print("  Company 2 (COMP2) - Admin: admin2/admin123, User: user2/user123")
         print("Super Admin: superadmin/super123 (can manage all companies)")
         print("=======================================\n")
         
