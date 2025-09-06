@@ -15,11 +15,26 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 
 app = Flask(__name__, instance_relative_config=True)
-database_url = os.environ.get("postgresql://poultry_management_user:6OVgW0lwlDGiNTsEzWezCkG6yaPGozVA@dpg-d2u6upje5dus73eflbe0-a/poultry_management")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+# Fix the database configuration
+database_url = os.environ.get("DATABASE_URL")  # Get from environment variable
+
+if database_url:
+    # Render gives a Postgres connection string starting with "postgres://"
+    # SQLAlchemy prefers "postgresql://", so we fix it
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+else:
+    # Local development fallback (SQLite file)
+    # Create instance directory if it doesn't exist
+    os.makedirs(app.instance_path, exist_ok=True)
+    sqlite_path = os.path.join(app.instance_path, 'poultry.db')
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{sqlite_path}"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
 db = SQLAlchemy(app)
 
 # ---------------- Models ----------------
@@ -49,13 +64,13 @@ class User(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.Integer)  # User ID who created
     last_login = db.Column(db.DateTime)
-    
+
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode()).hexdigest()
-    
+
     def check_password(self, password):
         return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
-    
+
     def get_company(self):
         if self.company_id:
             return Company.query.get(self.company_id)
@@ -220,8 +235,8 @@ def init_database():
         # Always ensure tables exist
         db.create_all()
         print("Database tables created successfully")
-        
-        
+
+
         # Create super admin user (can manage all companies)
         if not User.query.filter_by(username='superadmin').first():
                    super_admin = User(
@@ -237,16 +252,16 @@ def init_database():
                    super_admin.set_password('super123')
                    db.session.add(super_admin)
                    print("Created super admin user: superadmin/super123")
-            
-            
+
+
         db.session.commit()
         print("Default companies and users created successfully")
-        
+
         # Print summary
         print("\n=== MULTI-COMPANY SETUP COMPLETE ===")
         print("Super Admin: superadmin/super123 (can manage all companies)")
         print("=======================================\n")
-        
+
     except Exception as e:
         db.session.rollback()
         print(f"Database initialization error: {e}")
@@ -303,18 +318,18 @@ def get_active_cycle(user=None):
     """Get active cycle for the current user's company"""
     if not user:
         user = get_current_user()
-    
+
     if not user:
         return None
-    
+
     # Super admin can see all cycles, but should select a company
     if user.role == 'super_admin':
         # For super admin, get the first active cycle (or implement company selection)
         return Cycle.query.filter_by(status='active').order_by(Cycle.id.desc()).first()
-    
+
     if not user.company_id:
         return None
-        
+
     return Cycle.query.filter_by(company_id=user.company_id, status='active').order_by(Cycle.id.desc()).first()
 
 def get_user_company_id():
@@ -322,11 +337,11 @@ def get_user_company_id():
     user = get_current_user()
     if not user:
         return None
-    
+
     # Super admin should have a way to select company, for now return None
     if user.role == 'super_admin':
         return session.get('selected_company_id')  # We'll implement company selection later
-    
+
     return user.company_id
 
 @app.context_processor
@@ -334,25 +349,25 @@ def inject_template_vars():
     """Make company data and other variables available to all templates"""
     def get_all_companies():
         return Company.query.filter_by(status='active').order_by(Company.name).all()
-    
+
     def get_current_company():
         user = get_current_user()
         if not user:
             return None
-        
+
         if user.role == 'super_admin':
             company_id = session.get('selected_company_id')
             if company_id:
                 return Company.query.get(company_id)
-        
+
         return user.get_company()
-    
+
     def get_user_by_id(user_id):
         """Get user information by ID for audit trail display"""
         if user_id:
             return User.query.get(user_id)
         return None
-    
+
     return dict(
         get_all_companies=get_all_companies,
         get_current_company=get_current_company,
@@ -362,12 +377,12 @@ def inject_template_vars():
 def calc_cumulative_stats(cycle_id):
     rows = Daily.query.filter_by(cycle_id=cycle_id).all()
     cycle = Cycle.query.get(cycle_id)
-    
+
     total_feed = sum(r.feed_bags_consumed for r in rows)
     avg_fcr = round(sum(r.fcr for r in rows if r.fcr>0)/max(1,len([r for r in rows if r.fcr>0])),3) if rows else 0
     avg_weight = round(sum(r.avg_weight for r in rows if r.avg_weight>0)/max(1,len([r for r in rows if r.avg_weight>0])),3) if rows else 0
     total_mort = sum(r.mortality for r in rows)
-    
+
     # Calculate cumulative FCR = total feed consumed (kg) / total weight gained (kg)
     cumulative_fcr = 0
     if cycle and cycle.current_birds > 0 and avg_weight > 0:
@@ -377,12 +392,12 @@ def calc_cumulative_stats(cycle_id):
         total_weight_gained_kg = cycle.current_birds * (avg_weight - starting_weight_kg)
         if total_weight_gained_kg > 0:
             cumulative_fcr = round(total_feed_kg / total_weight_gained_kg, 3)
-    
+
     return {
-        "total_feed_bags": total_feed, 
-        "avg_fcr": avg_fcr, 
+        "total_feed_bags": total_feed,
+        "avg_fcr": avg_fcr,
         "cumulative_fcr": cumulative_fcr,
-        "avg_weight": avg_weight, 
+        "avg_weight": avg_weight,
         "total_mortality": total_mort
     }
 
@@ -390,45 +405,45 @@ def calc_todays_fcr(cycle_id):
     """Calculate today's FCR by comparing today's values with yesterday's values"""
     today = date.today().isoformat()
     yesterday = (date.today() - pd.Timedelta(days=1)).isoformat()
-    
+
     today_row = Daily.query.filter_by(cycle_id=cycle_id, entry_date=today).first()
     yesterday_row = Daily.query.filter_by(cycle_id=cycle_id, entry_date=yesterday).first()
-    
+
     if not today_row:
         return None
-        
+
     cycle = Cycle.query.get(cycle_id)
     if not cycle:
         return None
-    
+
     # Calculate today's feed consumption and weight gain
     todays_feed_kg = today_row.feed_bags_consumed * 50  # Convert bags to kg
-    
+
     if yesterday_row and yesterday_row.avg_weight > 0 and today_row.avg_weight > 0:
         # Calculate weight gain from yesterday to today
         weight_gain_per_bird = today_row.avg_weight - yesterday_row.avg_weight
         total_weight_gain_kg = cycle.current_birds * weight_gain_per_bird
-        
+
         if total_weight_gain_kg > 0:
             todays_fcr = round(todays_feed_kg / total_weight_gain_kg, 3)
             return todays_fcr
-    
+
     # Fallback: if no yesterday data, use traditional FCR calculation for today
     if today_row.avg_weight > 0 and cycle.current_birds > 0:
         # Estimate weight gain assuming 45g starting weight and linear growth
         cycle_start_date = datetime.fromisoformat(cycle.start_date).date() if cycle.start_date else date.today()
         days_running = (date.today() - cycle_start_date).days + 1
-        
+
         if days_running > 1:
             # Estimate daily weight gain
             starting_weight_kg = 0.045
             total_weight_gain = today_row.avg_weight - starting_weight_kg
             daily_weight_gain = total_weight_gain / days_running
             estimated_todays_gain = cycle.current_birds * daily_weight_gain
-            
+
             if estimated_todays_gain > 0:
                 return round(todays_feed_kg / estimated_todays_gain, 3)
-    
+
     return None
 
 # ---------- Routes ----------
@@ -439,7 +454,7 @@ def feed_management():
     cycle = get_active_cycle()
     if not cycle:
         return redirect(url_for('setup'))
-        
+
     if request.method == 'POST':
         bill_number = request.form.get('bill_number', '')
         feed_date = request.form.get('date', date.today().isoformat())
@@ -449,10 +464,10 @@ def feed_management():
         price_per_kg = float(request.form.get('price_per_kg', 45) or 45)
         total_feed_kg = feed_bags * bag_weight
         total_cost = round(total_feed_kg * price_per_kg, 2)
-        
+
         user = get_current_user()
         company_id = get_user_company_id()
-        
+
         feed = Feed(
             company_id=company_id,
             cycle_id=cycle.id,
@@ -481,17 +496,17 @@ def feed_management():
 @admin_required
 def delete_feed(feed_id):
     feed = Feed.query.get_or_404(feed_id)
-    
+
     # Check if the feed belongs to the current active cycle
     cycle = get_active_cycle()
     if not cycle or feed.cycle_id != cycle.id:
         flash('Cannot delete feed from a different cycle.', 'error')
         return redirect(url_for('feed_management'))
-    
+
     # Store feed info for flash message
     feed_name = feed.feed_name
     bill_number = feed.bill_number
-    
+
     try:
         db.session.delete(feed)
         db.session.commit()
@@ -499,7 +514,7 @@ def delete_feed(feed_id):
     except Exception as e:
         db.session.rollback()
         flash('Error deleting feed entry. Please try again.', 'error')
-    
+
     return redirect(url_for('feed_management'))
 
 @app.route('/end_current_cycle', methods=['POST'])
@@ -510,10 +525,10 @@ def end_current_cycle():
         cycle.status = 'archived'
         cycle.end_date = date.today().isoformat()
         cycle.notes = f"Ended on {datetime.now().isoformat()} - {cycle.notes or ''}"
-        
+
         # Feed management data is preserved (not deleted) for historical records
         # This maintains consistency with daily data preservation
-        
+
         db.session.commit()
         flash('Current cycle ended and archived. All data has been preserved for historical records. You can now start a new cycle.', 'info')
     else:
@@ -526,19 +541,19 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
+
         user = User.query.filter_by(username=username).first()
-        
+
         if user and user.check_password(password):
             # Update last login time
             user.last_login = datetime.utcnow()
             db.session.commit()
-            
+
             session['user_id'] = user.id
             session['username'] = user.username
             session['role'] = user.role
             session['company_id'] = user.company_id
-            
+
             # For super admin, allow company selection
             if user.role == 'super_admin':
                 session['selected_company_id'] = None  # Super admin starts with no company selected
