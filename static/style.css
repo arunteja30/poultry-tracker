@@ -863,19 +863,21 @@ strong {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #ffffff;
-  border-top: 1px solid #e9ecef;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  background: #1879e0;
+  border-top: 1px solid #2d4373;
+  box-shadow: 0 -4px 24px rgba(24,119,242,0.08);
   z-index: 1000;
-  display: none; /* Hidden by default, shown on mobile */
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .bottom-nav-container {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0;
-  max-width: 100%;
+  padding: 0 16px;
 }
 
 .bottom-nav-item {
@@ -883,72 +885,57 @@ strong {
   flex-direction: column;
   align-items: center;
   text-decoration: none;
-  color: #6c757d;
-  padding: 8px 12px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 8px;
+  border-radius: 14px;
+  transition: all 0.2s;
   min-width: 60px;
-  flex: 1;
-  max-width: 80px;
+  text-align: center;
+  background: transparent;
 }
 
-.bottom-nav-item:hover,
+.bottom-nav-item:hover {
+  color: #0a1d08;
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 2px 8px rgba(24,119,242,0.08);
+}
+
 .bottom-nav-item.active {
-  color: #1877f2;
-  background: rgba(24, 119, 242, 0.1);
-  text-decoration: none;
+  color: #ffffff;
+  background: rgba(237, 242, 237, 0.18);
+  box-shadow: 0 2px 8px rgba(24,119,242,0.12);
 }
 
 .bottom-nav-item i {
-  font-size: 1.2rem;
-  margin-bottom: 4px;
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.bottom-nav-item.active i,
+.bottom-nav-item:hover i {
+  color: #ffffff;
 }
 
 .bottom-nav-item span {
-  font-size: 0.7rem;
-  font-weight: 500;
-  text-align: center;
-  line-height: 1;
+  font-size: 0.8rem;
+  line-height: 1.1;
 }
 
-/* Show bottom nav only on mobile */
-@media (max-width: 768px) {
-  .bottom-nav {
-    display: block;
-  }
-  
-  /* Add bottom padding to body to prevent content overlap */
-  body {
-    padding-bottom: 80px !important;
-  }
-  
-  /* Show main mobile nav toggle when bottom nav is present */
-  .navbar-toggler {
-    display: block !important;
-  }
-  
-  /* Adjust PWA install button position */
-  #installBtn {
-    bottom: 90px !important;
-  }
+body {
+  padding-bottom: 80px;
 }
 
-/* Dark theme for bottom nav */
-@media (prefers-color-scheme: dark) {
-  .bottom-nav {
-    background: #2d3748;
-    border-top-color: #4a5568;
-  }
-  
-  .bottom-nav-item {
-    color: #a0aec0;
-  }
-  
-  .bottom-nav-item:hover,
-  .bottom-nav-item.active {
-    color: #63b3ed;
-    background: rgba(99, 179, 237, 0.1);
-  }
+@media (min-width: 768px) {
+  .bottom-nav { display: none; }
+  body { padding-bottom: 0; }
+}
+
+@media (max-width: 480px) {
+  .bottom-nav-item span { font-size: 0.75rem; }
+  .bottom-nav-item i { font-size: 1.3rem; }
 }
 
 /* PWA Offline Indicator */

@@ -5,9 +5,12 @@
     <h2 class="mobile-header text-center mb-mobile-3" data-i18n="weighing_screen_title">
       ⚖️ Weighing Screen
     </h2>
-    <a href="{{ url_for('bird_dispatch') }}" class="btn btn-outline-secondary btn-sm" data-i18n="back_to_dispatch">
+    <a href="{{ url_for('bird_dispatch') }}" class="btn btn-outline-secondary btn-sm d-none d-md-inline-block" data-i18n="back_to_dispatch">
       ← Back
     </a>
+  </div>
+  <div class="mb-3 d-md-none">
+    <a href="{{ url_for('bird_dispatch') }}" class="btn btn-outline-secondary btn-sm w-100" data-i18n="back_to_dispatch">← Back</a>
   </div>
 
   <!-- Vehicle Info Card -->

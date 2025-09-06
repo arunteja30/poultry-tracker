@@ -97,6 +97,15 @@
               </div>
               <div class="col-6">
                 <strong>Feed Used:</strong> {{ r.feed_bags_consumed }} bags
+              </div> 
+              <div class="col-6">
+                <strong>Remaining Bags:</strong> {{ r.remaining_bags }} bags
+              </div>
+               <div class="col-6">
+                <strong>Total Feed:</strong> {{ r.total_bags_consumed }} bags
+              </div>
+              <div class="col-6">
+                <strong>Feed Added:</strong> {{ r.feed_bags_added }} bags
               </div>
               <div class="col-6">
                 <strong>Weight:</strong> {{ "{:,.0f}".format(r.avg_weight * 1000) }}g

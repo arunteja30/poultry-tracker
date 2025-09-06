@@ -3,7 +3,10 @@
 <div class="mobile-container">
   <div class="d-flex justify-content-between align-items-center mb-mobile-3">
     <h2 class="mobile-header" data-i18n="expenses_title">💰 Expenses</h2>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mobile-button" data-i18n="back_to_dashboard">← Back</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mobile-button d-none d-md-inline-block" data-i18n="back_to_dashboard">← Back</a>
+  </div>
+  <div class="mb-3 d-md-none">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mobile-button w-100" data-i18n="back_to_dashboard">← Back</a>
   </div>
 
   <!-- Add New Expense Form -->
