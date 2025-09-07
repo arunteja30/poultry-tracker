@@ -2,7 +2,9 @@
 {% block content %}
 <div class="mobile-container">
   <div class="d-flex justify-content-between align-items-center mb-mobile-3">
-    <h2 class="mobile-header" data-i18n="expenses_title">💰 Expenses</h2>
+    <h2 class="mobile-header text-center mb-mobile-3" data-i18n="expenses_title">
+      <span data-i18n="expenses_title">💸 Expenses Management</span>
+    </h2>
     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mobile-button d-none d-md-inline-block" data-i18n="back_to_dashboard">← Back</a>
   </div>
   <div class="mb-3 d-md-none">
@@ -13,30 +15,30 @@
   <div class="mobile-section">
     <div class="mobile-card card">
       <div class="card-header bg-primary text-white p-mobile-2">
-        <h6 class="mb-0" data-i18n="add_expense_header">💳 Add Expense</h6>
+        <h6 class="mb-0" data-i18n="add_expense_header">Add New Expense</h6>
       </div>
       <div class="card-body p-mobile-2">
         <form method="POST">
           <div class="row g-2">
             <div class="col-12 col-md-6">
-              <label for="name" class="form-label mobile-content" data-i18n="expense_name_label">Name *</label>
+              <label for="expense_name" class="form-label" data-i18n="expense_name_label">Expense Name</label>
               <input type="text" class="mobile-input form-control" id="name" name="name" required placeholder="Transport, Labor, etc.">
             </div>
             <div class="col-6 col-md-3">
-              <label for="date" class="form-label mobile-content" data-i18n="expense_date_label">Date *</label>
+              <label for="expense_date" class="form-label" data-i18n="expense_date_label">Date</label>
               <input type="date" class="mobile-input form-control" id="date" name="date" value="{{ date.today() }}" required>
             </div>
             <div class="col-6 col-md-3">
-              <label for="amount" class="form-label mobile-content" data-i18n="expense_amount_label">Amount (₹) *</label>
+              <label for="expense_amount" class="form-label" data-i18n="expense_amount_label">Amount (₹)</label>
               <input type="number" class="mobile-input form-control" id="amount" name="amount" step="0.01" min="0" required placeholder="0.00">
             </div>
             <div class="col-12">
-              <label for="notes" class="form-label mobile-content" data-i18n="expense_notes_label">Notes</label>
+              <label for="expense_notes" class="form-label" data-i18n="expense_notes_label">Notes</label>
               <textarea class="mobile-input form-control" id="notes" name="notes" rows="2" placeholder="Additional details..."></textarea>
             </div>
           </div>
           <div class="mt-3">
-            <button type="submit" class="mobile-button btn btn-success w-100" data-i18n="add_expense_btn">💰 Add Expense</button>
+            <button type="submit" class="btn btn-success w-100" data-i18n="add_expense_btn">Add Expense</button>
           </div>
         </form>
       </div>
@@ -46,7 +48,7 @@
   <!-- Expenses List -->
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0" data-i18n="expenses_list_header">📋 Expenses List ({{ expenses|length }} entries)</h5>
+    <h5 class="mb-0" data-i18n="expenses_list_header">Expenses List</h5>
     <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="true">
       <span class="expand-text" data-i18n="collapse">🔼 Collapse</span>
       <span class="collapse-text d-none" data-i18n="expand">🔽 Expand</span>
@@ -66,9 +68,7 @@
               <th data-i18n="expense_amount">Amount (₹)</th>
               <th data-i18n="expense_notes">Notes</th>
               <th data-i18n="audit_info">Created By/Date</th>
-              {% if session.role == 'admin' %}
               <th data-i18n="actions">Actions</th>
-              {% endif %}
             </tr>
           </thead>
           <tbody>

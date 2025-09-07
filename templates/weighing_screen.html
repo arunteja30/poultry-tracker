@@ -17,20 +17,20 @@
   <div class="mobile-section">
     <div class="mobile-card card border-primary">
       <div class="card-body p-mobile-2">
-        <h6 class="mobile-header text-primary mb-2">🚛 Dispatch Information</h6>
+        <h6 class="mobile-header text-primary mb-2" data-i18n="dispatch_information">🚛 <span data-i18n="dispatch_information">Dispatch Information</span></h6>
         <div class="mobile-content">
           <div class="row g-2">
             <div class="col-6">
-              <strong>Vehicle:</strong> {{ dispatch.vehicle_no }}
+              <strong data-i18n="vehicle">Vehicle:</strong> {{ dispatch.vehicle_no }}
             </div>
             <div class="col-6">
-              <strong>Driver:</strong> {{ dispatch.driver_name }}
+              <strong data-i18n="driver">Driver:</strong> {{ dispatch.driver_name }}
             </div>
             <div class="col-6">
-              <strong>Vendor:</strong> {{ dispatch.vendor_name or 'N/A' }}
+              <strong data-i18n="vendor">Vendor:</strong> {{ dispatch.vendor_name or 'N/A' }}
             </div>
             <div class="col-6">
-              <strong>Date:</strong> {{ dispatch.dispatch_date }}
+              <strong data-i18n="date">Date:</strong> {{ dispatch.dispatch_date }}
             </div>
           </div>
         </div>
@@ -42,12 +42,12 @@
   <div class="mobile-section">
     <div class="mobile-card card border-info">
       <div class="card-body p-mobile-2">
-        <h6 class="mobile-header text-info mb-3">📊 Weighing Summary</h6>
+        <h6 class="mobile-header text-info mb-3" data-i18n="weighing_summary">📊 <span data-i18n="weighing_summary">Weighing Summary</span></h6>
         <div class="row g-3 text-center">
           <div class="col-6 col-md-3">
             <div class="p-3 bg-info bg-opacity-10 rounded">
               <div class="h4 mb-1 text-info">{{ total_birds }}</div>
-              <small class="text-muted" data-i18n="total_birds">Total Birds</small>
+              <small class="text-muted" data-i18n="total_birds"><span data-i18n="total_birds">Total Birds</span></small>
             </div>
           </div>
           <div class="col-6 col-md-3">

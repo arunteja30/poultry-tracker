@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="mobile-container">
-  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="meds_title">💊 Medicines</h2>
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="meds_title">
+    <span data-i18n="meds_title">💊 Medicines</span>
+  </h2>
 
   <div class="mobile-section">
     <div class="mobile-card card">
@@ -48,9 +50,7 @@
                 <th scope="col" class="text-center" data-i18n="table_medicine_qty">Quantity</th>
                 <th scope="col" class="text-center" data-i18n="table_total_value">Total Value</th>
                 <th scope="col" class="text-center" data-i18n="audit_info">Created By/Date</th>
-                {% if session.role == 'admin' %}
                 <th scope="col" class="text-center" data-i18n="table_actions">Actions</th>
-                {% endif %}
               </tr>
             </thead>
             <tbody>

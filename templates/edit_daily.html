@@ -5,35 +5,35 @@
     <!-- Header with Back Button -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="mobile-header m-0" data-i18n="edit_daily_title">
-        <i class="bi bi-pencil-square me-2"></i>Edit Daily Entry
+        <i class="bi bi-pencil-square me-2"></i><span data-i18n="edit_daily_title">Edit Daily Entry</span>
       </h2>
       <a href="{{ url_for('daywise') }}" class="mobile-btn-outline-secondary btn-sm" data-i18n="back_to_daily_reports">
-        <i class="bi bi-arrow-left me-1"></i>Back
+        <i class="bi bi-arrow-left me-1"></i><span data-i18n="back_to_daily_reports">Back</span>
       </a>
     </div>
 
     <!-- Entry Info Card -->
     <div class="mobile-card mb-4">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-info-circle me-2"></i>Entry Information
+      <h5 class="mobile-card-title" data-i18n="entry_information">
+        <i class="bi bi-info-circle me-2"></i><span data-i18n="entry_information">Entry Information</span>
       </h5>
       <div class="row g-3">
         <div class="col-6 col-md-4">
           <div class="mobile-metric-card text-center bg-primary bg-opacity-10">
             <div class="mobile-metric-value text-primary">{{ entry.entry_date }}</div>
-            <div class="mobile-metric-label">Date</div>
+            <div class="mobile-metric-label" data-i18n="date"><span data-i18n="date">Date</span></div>
           </div>
         </div>
         <div class="col-6 col-md-4">
           <div class="mobile-metric-card text-center bg-info bg-opacity-10">
             <div class="mobile-metric-value text-info">{{ loop.index if loop else 'N/A' }}</div>
-            <div class="mobile-metric-label">Day</div>
+            <div class="mobile-metric-label" data-i18n="day"><span data-i18n="day">Day</span></div>
           </div>
         </div>
         <div class="col-12 col-md-4">
           <div class="mobile-metric-card text-center bg-success bg-opacity-10">
             <div class="mobile-metric-value text-success">{{ cycle.id }}</div>
-            <div class="mobile-metric-label">Cycle ID</div>
+            <div class="mobile-metric-label" data-i18n="cycle_id"><span data-i18n="cycle_id">Cycle ID</span></div>
           </div>
         </div>
       </div>
@@ -41,43 +41,43 @@
 
     <!-- Edit Form -->
     <div class="mobile-card">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-clipboard-data me-2"></i>Edit Entry Data
+      <h5 class="mobile-card-title" data-i18n="edit_entry_data">
+        <i class="bi bi-clipboard-data me-2"></i><span data-i18n="edit_entry_data">Edit Entry Data</span>
       </h5>
       
       <form method="POST" class="mobile-form-enhanced">
         <!-- Mortality Section -->
         <div class="mobile-form-group">
           <label for="mortality" class="mobile-form-label" data-i18n="mortality">
-            <i class="bi bi-exclamation-triangle me-2"></i>Mortality
+            <i class="bi bi-exclamation-triangle me-2"></i><span data-i18n="mortality">Mortality</span>
           </label>
           <input id="mortality" type="number" name="mortality" class="mobile-form-control"
                  value="{{ entry.mortality }}" min="0" required
-                 placeholder="Enter mortality count">
+                 placeholder="Enter mortality count" data-i18n-placeholder="mortality_ph">
           <small class="text-muted">
-            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.mortality }}
+            <i class="bi bi-clock-history me-1"></i><span data-i18n="current">Current:</span> {{ entry.mortality }}
           </small>
-          <div class="invalid-feedback">Please enter a valid mortality count.</div>
+          <div class="invalid-feedback" data-i18n="mortality_validation"><span data-i18n="mortality_validation">Please enter a valid mortality count.</span></div>
         </div>
 
         <!-- Feed Consumption Section -->
         <div class="mobile-form-group">
           <label for="feed-consumed" class="mobile-form-label" data-i18n="feed_bags_consumed">
-            <i class="bi bi-basket me-2"></i>Feed Bags Consumed
+            <i class="bi bi-basket me-2"></i><span data-i18n="feed_bags_consumed">Feed Bags Consumed</span>
           </label>
           <input id="feed-consumed" type="number" step="0.1" name="feed_bags_consumed" 
                  class="mobile-form-control" value="{{ entry.feed_bags_consumed }}" min="0" required
-                 placeholder="Enter feed consumed">
+                 placeholder="Enter feed consumed" data-i18n-placeholder="feed_consumed_ph">
           <small class="text-muted">
-            <i class="bi bi-clock-history me-1"></i>Current: {{ entry.feed_bags_consumed }}
+            <i class="bi bi-clock-history me-1"></i><span data-i18n="current">Current:</span> {{ entry.feed_bags_consumed }}
           </small>
-          <div class="invalid-feedback">Please enter a valid feed consumption amount.</div>
+          <div class="invalid-feedback" data-i18n="feed_validation"><span data-i18n="feed_validation">Please enter a valid feed consumption amount.</span></div>
         </div>
 
         <!-- Feed Added Section -->
         <div class="mobile-form-group">
           <label for="feed-added" class="mobile-form-label" data-i18n="feed_bags_added">
-            <i class="bi bi-plus-circle me-2"></i>Feed Bags Added
+            <i class="bi bi-plus-circle me-2"></i><span data-i18n="feed_bags_added">Feed Bags Added</span>
           </label>
           <input id="feed-added" type="number" step="0.1" name="feed_bags_added" 
                  class="mobile-form-control" value="{{ entry.feed_bags_added }}" min="0"

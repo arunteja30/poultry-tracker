@@ -3,7 +3,7 @@
 <div class="mobile-container">
   <div class="mobile-section">
     <h2 class="mobile-header" data-i18n="setup_title">
-      <i class="bi bi-gear-fill me-2"></i>Initial Setup
+      <i class="bi bi-gear-fill me-2"></i><span data-i18n="setup_title">Initial Setup</span>
     </h2>
 
     {% if existing_cycle %}
@@ -12,10 +12,7 @@
         <i class="bi bi-exclamation-triangle-fill me-3 mt-1"></i>
         <div>
           <h6 class="mb-2" data-i18n="existing_cycle_warning">Active Cycle Found</h6>
-          <p class="mb-0 small" data-i18n="existing_cycle_msg">
-            You have an active cycle with {{ existing_cycle.current_birds }} birds started on {{ existing_cycle.start_date }}.
-            Starting a new cycle will archive the current one.
-          </p>
+          <p class="mb-0 small" data-i18n="existing_cycle_msg">You have an active cycle with {{ existing_cycle.current_birds }} birds started on {{ existing_cycle.start_date }}. Starting a new cycle will archive the current one.</p>
         </div>
       </div>
     </div>
@@ -24,7 +21,7 @@
     <!-- Main Setup Form -->
     <div class="mobile-card">
       <h5 class="mobile-card-title" data-i18n="setup_subtitle">
-        <i class="bi bi-clipboard-data me-2"></i>Configure your poultry cycle
+        <i class="bi bi-clipboard-data me-2"></i><span data-i18n="setup_subtitle">Configure your poultry cycle</span>
       </h5>
       
       <form method="POST" class="mobile-form-enhanced" data-autosave="true">
@@ -36,13 +33,13 @@
         
         <!-- Birds Information -->
         <div class="mobile-form-section">
-          <h6 class="mobile-form-section-title">
-            <i class="bi bi-egg me-2"></i>Birds Information
+          <h6 class="mobile-form-section-title" data-i18n="birds_info">
+            <i class="bi bi-egg me-2"></i><span data-i18n="birds_info">Birds Information</span>
           </h6>
           
           <div class="mobile-form-group">
             <label for="start-birds" class="mobile-form-label" data-i18n="start_birds">
-              <i class="bi bi-plus-circle me-2"></i>Start Birds
+              <i class="bi bi-plus-circle me-2"></i><span data-i18n="start_birds">Start Birds</span>
             </label>
             <input id="start-birds" 
                    type="number" 
@@ -55,8 +52,8 @@
           </div>
 
           <div class="mobile-form-group">
-            <label for="avg_chicks_weight" class="mobile-form-label">
-              <i class="bi bi-speedometer2 me-2"></i>Avg Chicks Weight (g)
+            <label for="avg_chicks_weight" class="mobile-form-label" data-i18n="avg_chicks_weight">
+              <i class="bi bi-speedometer2 me-2"></i><span data-i18n="avg_chicks_weight">Avg Chicks Weight (g)</span>
             </label>
             <input id="avg_chicks_weight" 
                    type="number" 
@@ -69,15 +66,15 @@
 
         <!-- Date & Time Information -->
         <div class="mobile-form-section">
-          <h6 class="mobile-form-section-title">
-            <i class="bi bi-calendar-event me-2"></i>Arrival Information
+          <h6 class="mobile-form-section-title" data-i18n="arrival_info">
+            <i class="bi bi-calendar-event me-2"></i><span data-i18n="arrival_info">Arrival Information</span>
           </h6>
           
           <div class="row">
             <div class="col-md-6">
               <div class="mobile-form-group">
                 <label for="start-date" class="mobile-form-label" data-i18n="arrival_dt">
-                  <i class="bi bi-calendar3 me-2"></i>Arrival Date
+                  <i class="bi bi-calendar3 me-2"></i><span data-i18n="arrival_dt">Arrival Date</span>
                 </label>
                 <input id="start-date" 
                        type="date" 
@@ -102,13 +99,13 @@
 
         <!-- Farm Information -->
         <div class="mobile-form-section">
-          <h6 class="mobile-form-section-title">
-            <i class="bi bi-building me-2"></i>Farm Details
+          <h6 class="mobile-form-section-title" data-i18n="farm_info">
+            <i class="bi bi-building me-2"></i><span data-i18n="farm_info">Farm Details</span>
           </h6>
           
           <div class="mobile-form-group">
-            <label for="hatchery_name" class="mobile-form-label">
-              <i class="bi bi-house me-2"></i>Hatchery Name
+            <label for="hatchery_name" class="mobile-form-label" data-i18n="hatchery_name">
+              <i class="bi bi-house me-2"></i><span data-i18n="hatchery_name">Hatchery Name</span>
             </label>
             <input id="hatchery_name" 
                    type="text" 
@@ -118,8 +115,8 @@
           </div>
 
           <div class="mobile-form-group">
-            <label for="farm_owner" class="mobile-form-label">
-              <i class="bi bi-person-badge me-2"></i>Farm Owner
+            <label for="farm_owner" class="mobile-form-label" data-i18n="farm_owner">
+              <i class="bi bi-person-badge me-2"></i><span data-i18n="farm_owner">Farm Owner</span>
             </label>
             <input id="farm_owner" 
                    type="text" 
@@ -130,7 +127,7 @@
 
           <div class="mobile-form-group">
             <label for="driver" class="mobile-form-label" data-i18n="driver">
-              <i class="bi bi-truck me-2"></i>Driver Name
+              <i class="bi bi-truck me-2"></i><span data-i18n="driver">Driver Name</span>
             </label>
             <input id="driver" 
                    type="text" 
@@ -143,13 +140,13 @@
 
         <!-- Notes Section -->
         <div class="mobile-form-section">
-          <h6 class="mobile-form-section-title">
-            <i class="bi bi-journal-text me-2"></i>Additional Notes
+          <h6 class="mobile-form-section-title" data-i18n="additional_notes">
+            <i class="bi bi-journal-text me-2"></i><span data-i18n="additional_notes">Additional Notes</span>
           </h6>
           
           <div class="mobile-form-group">
             <label for="notes" class="mobile-form-label" data-i18n="notes">
-              <i class="bi bi-card-text me-2"></i>Notes
+              <i class="bi bi-card-text me-2"></i><span data-i18n="notes">Notes</span>
             </label>
             <textarea id="notes" 
                       name="notes" 

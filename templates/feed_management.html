@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="mobile-container">
-  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="feed_management_title">🌾 Feed Management</h2>
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="feed_management_title">
+    <span data-i18n="feed_management_title">🌾 Feed Management</span>
+  </h2>
   
   <div class="mobile-section">
     <div class="mobile-card card">
       <div class="card-header bg-success text-white p-mobile-2">
-        <h6 class="mb-0">➕ Add New Feed</h6>
+        <h6 class="mb-0" data-i18n="add_new_feed">➕ Add New Feed</h6>
       </div>
       <div class="card-body p-mobile-2">
         <form method="POST">

@@ -6,13 +6,13 @@
       <div class="mobile-card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <div>
-            <h4 class="mobile-title mb-0" data-i18n="income_estimate_title">Income Estimate</h4>
+            <h4 class="mobile-title mb-0" data-i18n="income_estimate_title"><span data-i18n="income_estimate_title">Income Estimate</span></h4>
           </div>
           <div class="d-flex gap-2 flex-wrap">
-            <span class="badge bg-info" data-i18n="cycle_cumulative">Cycle & Cumulative</span>
+            <span class="badge bg-info" data-i18n="cycle_cumulative"><span data-i18n="cycle_cumulative">Cycle & Cumulative</span></span>
             {% if session.role == 'admin' %}
             <a href="{{ url_for('export_income_estimate') }}" class="mobile-btn mobile-btn-success" data-i18n="export_income">
-              <i class="bi bi-download me-1"></i>Export
+              <i class="bi bi-download me-1"></i><span data-i18n="export_income">Export</span>
             </a>
             {% endif %}
           </div>
@@ -22,9 +22,9 @@
           <form method="GET" class="mobile-form-section mb-4">
             <div class="row">
               <div class="col-12">
-                <label for="cycle_id" class="form-label" data-i18n="select_cycle">Select Cycle</label>
+                <label for="cycle_id" class="form-label" data-i18n="select_cycle"><span data-i18n="select_cycle">Select Cycle</span></label>
                 <select class="form-select mobile-form-control" name="cycle_id" id="cycle_id" onchange="this.form.submit()">
-                  <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles">All Cycles</option>
+                  <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles"><span data-i18n="all_cycles">All Cycles</span></option>
                   {% for c in all_cycles %}
                     <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>
                       <span data-i18n="cycle">Cycle</span> #{{ c.id }} ({{ c.start_date }})
@@ -39,11 +39,11 @@
           <form method="POST" class="mobile-form-enhanced">
             <div class="row g-3">
               <div class="col-6 col-lg-3">
-                <label for="chick_cost" class="form-label" data-i18n="chick_cost">Chick Cost (per bird)</label>
+                <label for="chick_cost" class="form-label" data-i18n="chick_cost"><span data-i18n="chick_cost">Chick Cost (per bird)</span></label>
                 <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="chick_cost" id="chick_cost" value="{{ chick_price }}" required>
               </div>
               <div class="col-6 col-lg-3">
-                <label for="feed_cost" class="form-label" data-i18n="feed_cost">Feed Cost (per kg)</label>
+                <label for="feed_cost" class="form-label" data-i18n="feed_cost"><span data-i18n="feed_cost">Feed Cost (per kg)</span></label>
                 <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="feed_cost" id="feed_cost" value="{{ feed_cost or 45 }}" required>
               </div>
               <div class="col-6 col-lg-3">

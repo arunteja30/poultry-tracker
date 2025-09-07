@@ -3,14 +3,14 @@
 <div class="mobile-container">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mobile-header text-center mb-mobile-3" data-i18n="dispatch_history_title">
-      📊 Dispatch History
+      📊 <span data-i18n="dispatch_history_title"></span>Dispatch History</span>
     </h2>
     <a href="{{ url_for('bird_dispatch') }}" class="btn btn-outline-secondary btn-sm d-none d-md-inline-block" data-i18n="back_to_dispatch">
-      ← Back
+      ← <span data-i18n="back_to_dispatch">Back</span>
     </a>
   </div>
   <div class="mb-3 d-md-none">
-    <a href="{{ url_for('bird_dispatch') }}" class="btn btn-outline-secondary btn-sm w-100" data-i18n="back_to_dispatch">← Back</a>
+    <a href="{{ url_for('bird_dispatch') }}" class="btn btn-outline-secondary btn-sm w-100" data-i18n="back_to_dispatch">← <span data-i18n="back_to_dispatch">Back</span></a>
   </div>
 
   {% if not cycle %}
@@ -36,14 +36,14 @@
   <div class="mobile-section">
     <div class="mobile-card card border-info">
       <div class="card-body p-mobile-2">
-        <h6 class="mobile-header text-info mb-2">🏠 Current Cycle</h6>
+        <h6 class="mobile-header text-info mb-2" data-i18n="current_cycle_info">🏠 <span data-i18n="current_cycle_info">Current Cycle</span></h6>
         <div class="mobile-content">
           <div class="row g-2">
             <div class="col-6">
-              <strong>Started:</strong> {{ cycle.start_date }}
+              <strong data-i18n="started">Started:</strong> {{ cycle.start_date }}
             </div>
             <div class="col-6">
-              <strong>Remaining Birds:</strong> <span class="badge bg-success">{{ cycle.current_birds }}</span>
+              <strong data-i18n="remaining_birds">Remaining Birds:</strong> <span class="badge bg-success">{{ cycle.current_birds }}</span>
             </div>
           </div>
         </div>
@@ -90,20 +90,20 @@
   <!-- Dispatch History Table -->
   {% if dispatches %}
   <div class="card p-3 p-md-4 shadow rounded-4 mb-4">
-    <h5 class="card-title text-center mb-4">📋 All Dispatches</h5>
-    
+    <h5 class="card-title text-center mb-4" data-i18n="dispatches">📋 All Dispatches</h5>
+
     <!-- Desktop Table -->
     <div class="table-responsive d-none d-md-block">
       <table class="table table-hover">
         <thead class="table-light">
           <tr>
             <th>#</th>
-            <th>Vehicle</th>
-            <th>Driver</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Birds</th>
-            <th>Action</th>
+            <th data-i18n="vehicle">Vehicle</th>
+            <th data-i18n="driver">Driver</th>
+            <th data-i18n="date">Date</th>
+            <th data-i18n="status">Status</th>
+            <th data-i18n="birds">Birds</th>
+            <th data-i18n="action">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -115,9 +115,9 @@
             <td>{{ dispatch.dispatch_date }}</td>
             <td>
               {% if dispatch.status == 'completed' %}
-                <span class="badge bg-success">✅ Completed</span>
+                <span class="badge bg-success" data-i18n="completed">✅ Completed</span>
               {% else %}
-                <span class="badge bg-warning">⏳ Active</span>
+                <span class="badge bg-warning" data-i18n="active">⏳ Active</span>
               {% endif %}
             </td>
             <td>
@@ -140,9 +140,9 @@
         {% if summary.total_birds_dispatched > 0 %}
         <tfoot class="table-info">
           <tr>
-            <th colspan="5">TOTAL</th>
-            <th>{{ summary.total_birds_dispatched }} birds<br>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</th>
-            <th>{{ summary.completed_dispatches }} Completed</th>
+            <th colspan="5" data-i18n="total">TOTAL</th>
+            <th><span data-i18n="birds_unit">{{ summary.total_birds_dispatched }} birds</span><br>{{ "%.1f"|format(summary.total_weight_dispatched) }} kg</th>
+            <th><span data-i18n="completed_count">{{ summary.completed_dispatches }} Completed</span></th>
           </tr>
         </tfoot>
         {% endif %}

@@ -47,9 +47,9 @@
     </div>
 
     <!-- Cycle Selection and Quick Actions -->
-    <div class="mobile-card mb-4">
+   
       <h5 class="mobile-card-title">
-        <i class="bi bi-gear me-2"></i>Cycle Management
+        <i class="bi bi-gear me-2"></i><span data-i18n="cycle_management">Cycle Management</span>
       </h5>
       
       <!-- Cycle Selection -->
@@ -70,30 +70,30 @@
       <!-- Quick Actions -->
       <div class="d-grid gap-2">
         <a href="{{ url_for('income_estimate') }}?cycle_id={{ cycle.id }}" class="mobile-btn-primary">
-          <i class="bi bi-calculator me-2"></i>Income Estimate
+          <i class="bi bi-calculator me-2"></i><span data-i18n="income_estimate">Income Estimate</span>
         </a>
         <div class="row g-2">
           {% if cycle.status == 'active' %}
           <div class="col-6">
             <a href="{{ url_for('daily') }}" class="mobile-btn-outline-info w-100">
-              <i class="bi bi-plus-circle me-1"></i>Add Daily
+              <i class="bi bi-plus-circle me-1"></i><span data-i18n="add_daily">Add Daily</span>
             </a>
           </div>
           {% endif %}
           <div class="col-6">
-            <a href="{{ url_for('bird_dispatch') }}" class="mobile-btn-outline-warning w-100">
-              <i class="bi bi-truck me-1"></i>Dispatch
+            <a href="{{ url_for('bird_dispatch') }}" class="mobile-btn-outline-info w-100">
+              <i class="bi bi-truck me-1"></i><span data-i18n="dispatch">Dispatch</span>
             </a>
           </div>
         </div>
       </div>
-    </div>
+    
 
 <!-- Cycle Overview -->
 
-<div class="row mb-4">
+<div class="row mb-3 mt-4">
   <div class="col-md-8">
-    <div class="card">
+    <div class="card w-100" style="width:100%;"> 
       <div class="card-header">
         <h5 data-i18n="cycle_overview">🐔 Cycle Overview</h5>
       </div>
@@ -112,17 +112,17 @@
           <div class="col-md-6">
             <dl class="row">
               <dt class="col-sm-5" data-i18n="end_date">End Date:</dt>
-              <dd class="col-sm-7">{{ cycle.end_date or 'Ongoing' }}</dd>
+              <dd class="col-sm-7">{{ cycle.end_date or '<span data-i18n="ongoing">Ongoing</span>'|safe }}</dd>
               <dt class="col-sm-5" data-i18n="duration">Duration:</dt>
               <dd class="col-sm-7">
                 {% if cycle.end_date %}
                   {{ duration }} days
                 {% else %}
-                  {{ current_duration }} days (ongoing)
+                  {{ current_duration }} <span data-i18n="days">days</span> (<span data-i18n="ongoing">ongoing</span>)
                 {% endif %}
               </dd>
               <dt class="col-sm-5" data-i18n="notes">Notes:</dt>
-              <dd class="col-sm-7">{{ cycle.notes or 'None' }}</dd>
+              <dd class="col-sm-7">{{ cycle.notes or '<span data-i18n="none">None</span>'|safe }}</dd>
             </dl>
           </div>
         </div>
@@ -145,8 +145,9 @@
     {"title": "Total Bags Consumed", "i18n": "key_total_bags_consumed", "value": total_bags_consumed, "class": "text-info"},
     {"title": "Feed to Weight Ratio", "i18n": "key_feed_to_weight_ratio", "value": feed_to_weight_ratio if feed_to_weight_ratio is not none else 'N/A', "class": "text-info"},
     {"title": "Mortality Rate", "i18n": "key_mortality_rate", "value": (stats.total_mortality / cycle.start_birds * 100)|round(2) if cycle.start_birds > 0 else 'N/A', "class": "text-danger", "suffix": "%"},
-    {"title": "Avg feed by Each Bird (kg)", "i18n": "key_avg_feed_per_bird", "value": ((total_bags_consumed * 50) / cycle.current_birds)|round(3) if cycle.current_birds > 0 else 'N/A', "class": "text-info"}
-  ] %}
+    {"title": "Avg feed by Each Bird (kg)", "i18n": "key_avg_feed_per_bird", "value": ((total_bags_consumed * 50) / cycle.current_birds)|round(3) if cycle.current_birds > 0 else 'N/A', "class": "text-info"},
+    {"title": "Medical Expenses", "i18n": "key_medical_expenses", "value": "₹%s" % ("%.2f"|format(total_medical_cost) if total_medical_cost > 0 else 'N/A'), "class": "text-warning"},
+       ] %}
   {% for metric in metrics %}
     <div class="col-6 col-md-3 mb-3">
       <div class="card text-center h-100 metric-card">
@@ -164,7 +165,7 @@
 <div class="row mb-4">
   <div class="col-6 col-md-3 mb-3">
     <div class="card text-center h-100 metric-card">
-      <div class="card-header bg-success metric-header" style="color: white;">Dispatched Birds</div>
+      <div class="card-header bg-success metric-header" style="color: white;" data-i18n="dispatched_birds">Dispatched Birds</div>
       <div class="card-body d-flex align-items-center justify-content-center">
         <h4 class="card-title text-success mb-0">{{ dispatch_summary.total_birds_dispatched }}</h4>
       </div>
@@ -172,25 +173,16 @@
   </div>
   <div class="col-6 col-md-3 mb-3">
     <div class="card text-center h-100 metric-card">
-      <div class="card-header bg-info metric-header" style="color: white;">Dispatched Weight</div>
+      <div class="card-header bg-info metric-header" style="color: white;" data-i18n="dispatched_weight">Dispatched Weight</div>
       <div class="card-body d-flex align-items-center justify-content-center">
         <h4 class="card-title text-info mb-0">{{ "%.1f"|format(dispatch_summary.total_weight_dispatched) }} kg</h4>
       </div>
     </div>
   </div>
+
   <div class="col-6 col-md-3 mb-3">
     <div class="card text-center h-100 metric-card">
-      <div class="card-header bg-warning metric-header" style="color: white;">Medical Expenses</div>
-      <div class="card-body d-flex align-items-center justify-content-center">
-        <h4 class="card-title text-warning mb-0">
-          ₹{{ "%.0f"|format(total_medical_cost) if total_medical_cost > 0 else 'N/A' }}
-        </h4>
-      </div>
-    </div>
-  </div>
-  <div class="col-6 col-md-3 mb-3">
-    <div class="card text-center h-100 metric-card">
-      <div class="card-header bg-secondary metric-header" style="color: white;">Avg Dispatch Weight</div>
+      <div class="card-header bg-secondary metric-header" style="color: white;" data-i18n="avg_dispatch_weight">Avg Dispatch Weight</div>
       <div class="card-body d-flex align-items-center justify-content-center">
         <h4 class="card-title text-secondary mb-0">{{ "%.3f"|format(dispatch_summary.avg_weight_per_bird) }} kg</h4>
       </div>
@@ -205,12 +197,12 @@
     <div class="card mobile-section">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0" data-i18n="fcr_trend_chart">📈 FCR Trend</h6>
-        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#fcrChartCollapse" aria-expanded="false">
-          <span class="expand-text d-none">🔼</span>
-          <span class="collapse-text">🔽</span>
+        <button class="btn btn-sm  mobile-collapse-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#fcrChartCollapse" aria-expanded="false">
+                <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+                <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
         </button>
       </div>
-      <div class="collapse d-lg-block" id="fcrChartCollapse">
+      <div class="collapse show d-lg-block" id="fcrChartCollapse">
         <div class="card-body">
           <canvas id="fcrChart" height="200" class="mobile-chart"></canvas>
           <!-- Debug info for FCR chart -->
@@ -228,12 +220,12 @@
     <div class="card mobile-section">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0" data-i18n="weight_trend_chart">⚖️ Weight Trend</h6>
-        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#weightChartCollapse" aria-expanded="false">
-          <span class="expand-text d-none">🔼</span>
-          <span class="collapse-text">🔽</span>
+        <button class="btn btn-sm  mobile-collapse-btn d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#weightChartCollapse" aria-expanded="false">
+            <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+            <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
         </button>
       </div>
-      <div class="collapse d-lg-block" id="weightChartCollapse">
+      <div class="collapse show d-lg-block" id="weightChartCollapse">
         <div class="card-body">
           <canvas id="weightChart" height="200" class="mobile-chart"></canvas>
           <!-- Debug info for Weight chart -->
@@ -254,10 +246,10 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">💊 Medicines Summary</h5>
-        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="false">
-          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
-          <span class="collapse-text" data-i18n="expand">🔽</span>
+        <h5 class="mb-0" data-i18n="medicines_summary">💊 Medicines Summary</h5>
+        <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#medicinesSummaryCollapse" aria-expanded="false">
+          <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+            <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
         </button>
       </div>
       <div class="collapse" id="medicinesSummaryCollapse">
@@ -268,10 +260,10 @@
           <table class="table table-sm table-striped">
             <thead class="table-dark">
               <tr>
-                <th>Medicine Name</th>
-                <th>Price per Unit (₹)</th>
-                <th>Quantity Used</th>
-                <th>Total Cost (₹)</th>
+                <th data-i18n="medicine_name">Medicine Name</th>
+                <th data-i18n="price_per_unit">Price per Unit (₹)</th>
+                <th data-i18n="quantity_used">Quantity Used</th>
+                <th data-i18n="total_cost">Total Cost (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -284,7 +276,7 @@
               </tr>
               {% endfor %}
               <tr class="table-info">
-                <td colspan="3"><strong>Total Medical Expenses</strong></td>
+                <td colspan="3"><strong data-i18n="total_medical_expenses">Total Medical Expenses</strong></td>
                 <td><strong class="text-success">₹{{ "%.2f"|format(total_medical_cost) }}</strong></td>
               </tr>
             </tbody>
@@ -338,10 +330,10 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">💰 Expenses Summary</h5>
-        <button class="btn btn-outline-primary btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
-          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
-          <span class="collapse-text" data-i18n="expand">🔽</span>
+        <h5 class="mb-0" data-i18n="expenses_summary">💰 Expenses Summary</h5>
+        <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#expensesCollapse" aria-expanded="false">
+         <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+            <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
         </button>
       </div>
       <div class="collapse" id="expensesCollapse">
@@ -352,10 +344,10 @@
             <table class="table table-sm table-striped">
               <thead class="table-dark">
                 <tr>
-                  <th>Expense Name</th>
-                  <th>Date</th>
-                  <th>Amount (₹)</th>
-                  <th>Notes</th>
+                  <th data-i18n="expense_name">Expense Name</th>
+                  <th data-i18n="date">Date</th>
+                  <th data-i18n="amount">Amount (₹)</th>
+                  <th data-i18n="notes">Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -368,7 +360,7 @@
                 </tr>
                 {% endfor %}
                 <tr class="table-info">
-                  <td colspan="3"><strong>Total Expenses</strong></td>
+                  <td colspan="3"><strong data-i18n="total_expenses">Total Expenses</strong></td>
                   <td><strong class="text-danger">₹{{ "%.2f"|format(total_expense_cost) }}</strong></td>
                 </tr>
               </tbody>
@@ -403,7 +395,7 @@
             <!-- Total Summary Card -->
             <div class="card border-danger">
               <div class="card-body text-center">
-                <h6 class="card-title text-danger">Total Expenses</h6>
+                <h6 class="card-title text-danger" data-i18n="total_expenses">Total Expenses</h6>
                 <h4 class="text-danger">₹{{ "%.2f"|format(total_expense_cost) }}</h4>
               </div>
             </div>
@@ -420,10 +412,10 @@
   <div class="col-12">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">🚚 Dispatch History</h5>
-        <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="false">
-          <span class="expand-text d-none" data-i18n="collapse">🔼</span>
-          <span class="collapse-text" data-i18n="expand">🔽</span>
+        <h5 class="mb-0" data-i18n="dispatch_history">🚚 Dispatch History</h5>
+        <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dispatchHistoryCollapse" aria-expanded="false">
+          <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+            <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
         </button>
       </div>
       <div class="collapse" id="dispatchHistoryCollapse">
@@ -434,14 +426,14 @@
             <table class="table table-sm table-striped">
               <thead class="table-dark">
                 <tr>
-                  <th>Vehicle</th>
-                  <th>Driver</th>
-                  <th>Vendor</th>
-                  <th>Date</th>
-                  <th>Birds</th>
-                  <th>Weight (kg)</th>
-                  <th>Avg/Bird (kg)</th>
-                  <th>Status</th>
+                  <th data-i18n="vehicle">Vehicle</th>
+                  <th data-i18n="driver">Driver</th>
+                  <th data-i18n="vendor">Vendor</th>
+                  <th data-i18n="date">Date</th>
+                  <th data-i18n="birds">Birds</th>
+                  <th data-i18n="weight_kg">Weight (kg)</th>
+                  <th data-i18n="avg_bird_kg">Avg/Bird (kg)</th>
+                  <th data-i18n="status">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -559,9 +551,9 @@
 <div class="card d-none d-lg-block mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0" data-i18n="daily_entries_history">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
-    <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
-      <span class="expand-text" data-i18n="collapse">🔼</span>
-      <span class="collapse-text d-none" data-i18n="expand">🔽</span>
+    <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesDesktopCollapse" aria-expanded="true">
+      <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+            <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
     </button>
   </div>
   <div class="collapse show" id="dailyEntriesDesktopCollapse">
@@ -667,14 +659,14 @@
 </div>
 
 <!-- Daily Entries Card View (Mobile) -->
-<div class="d-block d-md-none">
+<div class="d-block d-md-none mb-4">
   <!-- Daily Entries for Mobile View -->
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">📅 Daily Entries ({{ daily_entries|length }} entries)</h5>
-      <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesMobileCollapse" aria-expanded="false">
-        <span class="expand-text d-none" data-i18n="collapse">🔼</span>
-        <span class="collapse-text" data-i18n="expand">🔽</span>
+      <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#dailyEntriesMobileCollapse" aria-expanded="false">
+        <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+        <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
       </button>
     </div>
     <div class="collapse" id="dailyEntriesMobileCollapse">
@@ -717,9 +709,9 @@
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0" data-i18n="feed_list_header">📦 Feed List</h5>
-      <button class="btn btn-sm btn-outline-primary mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#feedListMobileCollapse" aria-expanded="false">
-        <span class="expand-text d-none" data-i18n="collapse">🔼</span>
-        <span class="collapse-text" data-i18n="expand">🔽</span>
+      <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#feedListMobileCollapse" aria-expanded="false">
+        <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+            <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
       </button>
     </div>
     <div class="collapse" id="feedListMobileCollapse">

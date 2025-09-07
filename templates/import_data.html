@@ -3,13 +3,13 @@
 <div class="mobile-container">
   <div class="mobile-section">
     <h2 class="mobile-header" data-i18n="import_title">
-      <i class="bi bi-cloud-upload me-2"></i>Import Data
+      <i class="bi bi-cloud-upload me-2"></i><span data-i18n="import_title">Import Data</span>
     </h2>
 
     <!-- Import File Section -->
     <div class="mobile-card">
       <h5 class="mobile-card-title" data-i18n="import_file_title">
-        <i class="bi bi-folder2-open me-2"></i>Import from File
+        <i class="bi bi-folder2-open me-2"></i><span data-i18n="import_file_title">Import from File</span>
       </h5>
       <p class="text-muted mb-4" data-i18n="import_file_desc">
         Upload Excel or CSV file with daily data to import previous records.
@@ -18,7 +18,7 @@
       <form method="POST" enctype="multipart/form-data" class="mobile-form-enhanced" data-autosave="false">
         <div class="mobile-form-group">
           <label for="file" class="mobile-form-label" data-i18n="select_file">
-            <i class="bi bi-file-earmark-arrow-up me-2"></i>Select File
+            <i class="bi bi-file-earmark-arrow-up me-2"></i><span data-i18n="select_file">Select File</span>
           </label>
           <input type="file" 
                  class="mobile-input-enhanced form-control" 
@@ -27,20 +27,19 @@
                  accept=".xlsx,.xls,.csv" 
                  required>
           <small class="form-text text-muted" data-i18n="file_format_help">
-            <i class="bi bi-info-circle me-1"></i>
-            Supported formats: Excel (.xlsx, .xls) or CSV (.csv)
+            <i class="bi bi-info-circle me-1"></i><span data-i18n="file_format_help">Supported formats: Excel (.xlsx, .xls) or CSV (.csv)</span>
           </small>
         </div>
         
         <!-- Import Options Info -->
         <div class="mobile-alert alert alert-info">
           <h6 class="mb-3" data-i18n="import_options">
-            <i class="bi bi-clipboard-data me-2"></i>Import Options
+            <i class="bi bi-clipboard-data me-2"></i><span data-i18n="import_options">Import Options</span>
           </h6>
           
           <div class="mobile-form-section">
             <h6 class="mobile-form-section-title text-success" data-i18n="exported_files">
-              <i class="bi bi-arrow-clockwise me-2"></i>Exported Files
+              <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="exported_files">Exported Files</span>
             </h6>
             <p class="small mb-3" data-i18n="exported_desc">
               Upload files exported from this system to import complete data including daily records and medicines.
@@ -49,7 +48,7 @@
           
           <div class="mobile-form-section">
             <h6 class="mobile-form-section-title text-primary" data-i18n="custom_files">
-              <i class="bi bi-bar-chart me-2"></i>Custom Files
+              <i class="bi bi-bar-chart me-2"></i><span data-i18n="custom_files">Custom Files</span>
             </h6>
             <p class="small mb-3" data-i18n="custom_desc">
               Upload Excel/CSV files with daily data only.
@@ -58,13 +57,13 @@
           
           <div class="mobile-form-section">
             <h6 class="mobile-form-section-title" data-i18n="required_columns">
-              <i class="bi bi-table me-2"></i>Required Columns for Custom Files
+              <i class="bi bi-table me-2"></i><span data-i18n="required_columns">Required Columns for Custom Files</span>
             </h6>
             <div class="row g-2">
               <div class="col-12 col-md-6">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>date</strong><br>
+                    <strong data-i18n="col_date">date</strong><br>
                     <span class="text-muted" data-i18n="col_date_desc">Entry date (YYYY-MM-DD)</span>
                   </div>
                 </div>
@@ -72,7 +71,7 @@
               <div class="col-12 col-md-6">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>mortality</strong><br>
+                    <strong data-i18n="col_mortality">mortality</strong><br>
                     <span class="text-muted" data-i18n="col_mortality_desc">Number of dead birds</span>
                   </div>
                 </div>
@@ -80,7 +79,7 @@
               <div class="col-12 col-md-6">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>feed_bags_consumed</strong><br>
+                    <strong data-i18n="col_feed_consumed">feed_bags_consumed</strong><br>
                     <span class="text-muted" data-i18n="col_feed_consumed_desc">Feed bags used</span>
                   </div>
                 </div>
@@ -88,7 +87,7 @@
               <div class="col-12 col-md-6">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>feed_bags_added</strong><br>
+                    <strong data-i18n="col_feed_added">feed_bags_added</strong><br>
                     <span class="text-muted" data-i18n="col_feed_added_desc">Feed bags added</span>
                   </div>
                 </div>
@@ -96,7 +95,7 @@
               <div class="col-12 col-md-6">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>avg_weight</strong><br>
+                    <strong data-i18n="col_avg_weight">avg_weight</strong><br>
                     <span class="text-muted" data-i18n="col_avg_weight_desc">Average weight in kg</span>
                   </div>
                 </div>
@@ -104,7 +103,7 @@
               <div class="col-12 col-md-6">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>fcr</strong><br>
+                    <strong data-i18n="col_fcr">fcr</strong><br>
                     <span class="text-muted" data-i18n="col_fcr_desc">Feed conversion ratio</span>
                   </div>
                 </div>
@@ -112,7 +111,7 @@
               <div class="col-12">
                 <div class="mobile-metric-card bg-light">
                   <div class="small">
-                    <strong>medicines</strong><br>
+                    <strong data-i18n="col_medicines">medicines</strong><br>
                     <span class="text-muted" data-i18n="col_medicines_desc">Medicines given (optional)</span>
                   </div>
                 </div>

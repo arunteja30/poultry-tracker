@@ -3,28 +3,28 @@
 <div class="mobile-container">
   <div class="mobile-section">
     <h2 class="mobile-header" data-i18n="cycle_history_title">
-      <i class="bi bi-clock-history me-2"></i>Cycle History
+      <i class="bi bi-clock-history me-2"></i><span data-i18n="cycle_history_title">Cycle History</span>
     </h2>
-    <p class="text-muted mb-4" data-i18n="cycle_history_desc">Compare performance across different poultry cycles</p>
+    <p class="text-muted mb-4" data-i18n="cycle_history_desc"><span data-i18n="cycle_history_desc">Compare performance across different poultry cycles</span></p>
 
     {% if cycle_data %}
     <!-- Mobile Cards View -->
     <div class="d-block d-lg-none">
       <div class="mobile-list-container" style="max-height: 70vh; overflow-y: auto;">
         {% for data in cycle_data %}
-        <div class="mobile-data-card mobile-swipeable mb-3 {% if data.cycle.status == 'active' %}border-success{% endif %}">
+        <div class="mobile-data-card mobile-swipeable mb-3 p-3 {% if data.cycle.status == 'active' %}border-success{% endif %}" style="background: #ffffff; border: 1px solid #c50808;">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
               <h6 class="mobile-card-title mb-1">
-                <i class="bi bi-diagram-3 me-2"></i>Cycle #{{ data.cycle.id }}
+                <i class="bi bi-diagram-3 me-2"></i><span data-i18n="cycle_label">Cycle</span> #{{ data.cycle.id }}
                 {% if data.cycle.status == 'active' %}
-                  <span class="badge bg-success ms-2" data-i18n="status_active">Active</span>
+                <span class="badge bg-success ms-2" data-i18n="status_active"><span data-i18n="status_active">Active</span></span>
                 {% endif %}
               </h6>
               <p class="text-muted small mb-0">
-                <i class="bi bi-calendar3 me-1"></i>{{ data.cycle.start_date }} 
+                <i class="bi bi-calendar3 me-1"></i>{{ data.cycle.start_date }}
                 <span class="ms-2">
-                  <i class="bi bi-clock me-1"></i>{{ data.duration_days }} days
+                  <i class="bi bi-clock me-1"></i>{{ data.duration_days }} <span data-i18n="days">days</span>
                 </span>
               </p>
             </div>
@@ -34,21 +34,21 @@
               </button>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('cycle_details', cycle_id=data.cycle.id) }}">
-                    <i class="bi bi-bar-chart me-2"></i>View Details
+                  <a class="dropdown-item" href="{{ url_for('cycle_details', cycle_id=data.cycle.id) }}" data-i18n="view_details_button">
+                    <i class="bi bi-bar-chart me-2"></i><span data-i18n="view_details_button">View Details</span>
                   </a>
                 </li>
                 {% if data.cycle.status == 'archived' and session.role == 'admin' %}
                 <li>
-                  <a class="dropdown-item" href="{{ url_for('export_cycle', cycle_id=data.cycle.id) }}">
-                    <i class="bi bi-download me-2"></i>Export Data
+                  <a class="dropdown-item" href="{{ url_for('export_cycle', cycle_id=data.cycle.id) }}" data-i18n="export_data">
+                    <i class="bi bi-download me-2"></i><span data-i18n="export_data">Export Data</span>
                   </a>
                 </li>
                 <li>
-                  <form method="POST" action="{{ url_for('unarchive_cycle', cycle_id=data.cycle.id) }}" 
+                  <form method="POST" action="{{ url_for('unarchive_cycle', cycle_id=data.cycle.id) }}"
                         onsubmit="return confirm('Are you sure you want to unarchive this cycle?')">
                     <button type="submit" class="dropdown-item text-warning">
-                      <i class="bi bi-arrow-clockwise me-2"></i>Unarchive
+                      <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="unarchive">Unarchive</span>
                     </button>
                   </form>
                 </li>
@@ -56,10 +56,10 @@
                 {% if session.role == 'admin' %}
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}" 
+                  <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}"
                         onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.')">
                     <button type="submit" class="dropdown-item text-danger">
-                      <i class="bi bi-trash me-2"></i>Delete
+                      <i class="bi bi-trash me-2"></i><span data-i18n="delete">Delete</span>
                     </button>
                   </form>
                 </li>
@@ -73,13 +73,13 @@
             <div class="col-6">
               <div class="mobile-metric-card text-center">
                 <div class="mobile-metric-value text-primary">{{ data.cycle.start_birds }}</div>
-                <div class="mobile-metric-label">Initial Birds</div>
+                <div class="mobile-metric-label" data-i18n="initial_birds">Initial Birds</div>
               </div>
             </div>
             <div class="col-6">
               <div class="mobile-metric-card text-center">
                 <div class="mobile-metric-value text-success">{{ data.final_birds }}</div>
-                <div class="mobile-metric-label">Final Birds</div>
+                <div class="mobile-metric-label" data-i18n="final_birds">Final Birds</div>
               </div>
             </div>
             <div class="col-6">
@@ -87,7 +87,7 @@
                 <div class="mobile-metric-value {% if data.survival_rate >= 95 %}text-success{% elif data.survival_rate >= 90 %}text-warning{% else %}text-danger{% endif %}">
                   {{ data.survival_rate }}%
                 </div>
-                <div class="mobile-metric-label">Survival Rate</div>
+                <div class="mobile-metric-label" data-i18n="survival_rate">Survival Rate</div>
               </div>
             </div>
             <div class="col-6">
@@ -95,7 +95,7 @@
                 <div class="mobile-metric-value {% if data.avg_fcr > 0 and data.avg_fcr <= 1.8 %}text-success{% elif data.avg_fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
                   {{ data.avg_fcr if data.avg_fcr > 0 else 'N/A' }}
                 </div>
-                <div class="mobile-metric-label">Avg FCR</div>
+                <div class="mobile-metric-label" data-i18n="avg_fcr">Avg FCR</div>
               </div>
             </div>
           </div>
@@ -103,11 +103,11 @@
           <!-- Additional Info -->
           <div class="mobile-info-list">
             <div class="mobile-info-item">
-              <span class="mobile-info-label">Final Weight:</span>
+              <span class="mobile-info-label" data-i18n="final_weight_label">Final Weight:</span>
               <span class="mobile-info-value">{{ "%.3f kg"|format(data.final_weight) if data.final_weight > 0 else 'N/A' }}</span>
             </div>
             <div class="mobile-info-item">
-              <span class="mobile-info-label">Feed/Bird:</span>
+              <span class="mobile-info-label" data-i18n="feed_per_bird_label">Feed/Bird:</span>
               <span class="mobile-info-value">{{ data.feed_per_bird }} bags</span>
             </div>
             <div class="mobile-info-item">
@@ -131,7 +131,7 @@
       <div class="mobile-card">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="mobile-card-title mb-0" data-i18n="cycle_history_table">
-            <i class="bi bi-table me-2"></i>Cycle History Table
+            <i class="bi bi-table me-2"></i><span data-i18n="cycle_history_table">Cycle History Table</span>
           </h5>
           <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#cycleHistoryDesktopCollapse" aria-expanded="true">
             <span class="expand-text" data-i18n="collapse">
@@ -142,91 +142,91 @@
             </span>
           </button>
         </div>
-        
+
         <div class="collapse show" id="cycleHistoryDesktopCollapse">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
-                <tr>
-                  <th data-i18n="table_cycle_id">Cycle ID</th>
-                  <th data-i18n="table_start_date">Start Date</th>
-                  <th data-i18n="table_duration">Duration (Days)</th>
-                  <th data-i18n="table_status">Status</th>
-                  <th data-i18n="table_initial_birds">Initial Birds</th>
-                  <th data-i18n="table_final_birds">Final Birds</th>
-                  <th data-i18n="table_survival_rate">Survival Rate</th>
-                  <th data-i18n="table_avg_fcr">Avg FCR</th>
-                  <th data-i18n="table_final_weight">Final Weight (kg)</th>
-                  <th data-i18n="table_feed_efficiency">Feed/Bird (bags)</th>
-                  <th data-i18n="table_actions">Actions</th>
-                </tr>
+              <tr>
+                <th data-i18n="table_cycle_id">Cycle ID</th>
+                <th data-i18n="table_start_date">Start Date</th>
+                <th data-i18n="table_duration">Duration (Days)</th>
+                <th data-i18n="table_status">Status</th>
+                <th data-i18n="table_initial_birds">Initial Birds</th>
+                <th data-i18n="table_final_birds">Final Birds</th>
+                <th data-i18n="table_survival_rate">Survival Rate</th>
+                <th data-i18n="table_avg_fcr">Avg FCR</th>
+                <th data-i18n="table_final_weight">Final Weight (kg)</th>
+                <th data-i18n="table_feed_efficiency">Feed/Bird (bags)</th>
+                <th data-i18n="table_actions">Actions</th>
+              </tr>
               </thead>
               <tbody>
-                {% for data in cycle_data %}
-                <tr class="{% if data.cycle.status == 'active' %}table-success{% endif %}">
-                  <td>
-                    <strong>#{{ data.cycle.id }}</strong>
-                    {% if data.cycle.status == 'active' %}
-                      <span class="badge bg-success ms-1" data-i18n="status_active">Active</span>
-                    {% endif %}
-                  </td>
-                  <td>{{ data.cycle.start_date }}</td>
-                  <td>{{ data.duration_days }}</td>
-                  <td>
-                    {% if data.cycle.status == 'active' %}
-                      <span class="badge bg-success" data-i18n="status_active">Active</span>
-                    {% else %}
-                      <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
-                    {% endif %}
-            </td>
-                  <td>{{ data.cycle.start_birds }}</td>
-                  <td>{{ data.final_birds }}</td>
-                  <td>
+              {% for data in cycle_data %}
+              <tr class="{% if data.cycle.status == 'active' %}table-success{% endif %}">
+                <td>
+                  <strong>#{{ data.cycle.id }}</strong>
+                  {% if data.cycle.status == 'active' %}
+                  <span class="badge bg-success ms-1" data-i18n="status_active">Active</span>
+                  {% endif %}
+                </td>
+                <td>{{ data.cycle.start_date }}</td>
+                <td>{{ data.duration_days }}</td>
+                <td>
+                  {% if data.cycle.status == 'active' %}
+                  <span class="badge bg-success" data-i18n="status_active">Active</span>
+                  {% else %}
+                  <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
+                  {% endif %}
+                </td>
+                <td>{{ data.cycle.start_birds }}</td>
+                <td>{{ data.final_birds }}</td>
+                <td>
                     <span class="{% if data.survival_rate >= 95 %}text-success{% elif data.survival_rate >= 90 %}text-warning{% else %}text-danger{% endif %}">
                       {{ data.survival_rate }}%
                     </span>
-                  </td>
-                  <td>
+                </td>
+                <td>
                     <span class="{% if data.avg_fcr > 0 and data.avg_fcr <= 1.8 %}text-success{% elif data.avg_fcr <= 2.2 %}text-warning{% else %}text-danger{% endif %}">
                       {{ data.avg_fcr if data.avg_fcr > 0 else 'N/A' }}
                     </span>
-                  </td>
-                  <td>{{ "%.3f"|format(data.final_weight) if data.final_weight > 0 else 'N/A' }}</td>
-                  <td>{{ data.feed_per_bird }}</td>
-                  <td>
-                    <div class="btn-group btn-group-sm">
-                      <a href="{{ url_for('cycle_details', cycle_id=data.cycle.id) }}" 
-                         class="btn btn-outline-primary btn-sm" 
-                         data-i18n="btn_view_details">
-                        <i class="bi bi-bar-chart me-1"></i>Details
-                      </a>
-                      {% if data.cycle.status == 'archived' and session.role == 'admin' %}
-                      <a href="{{ url_for('export_cycle', cycle_id=data.cycle.id) }}" 
-                         class="btn btn-outline-success btn-sm"
-                         data-i18n="btn_export">
-                        <i class="bi bi-download me-1"></i>Export
-                      </a>
-                      <form method="POST" action="{{ url_for('unarchive_cycle', cycle_id=data.cycle.id) }}" 
-                            style="display: inline;"
-                            onsubmit="return confirm('Are you sure you want to unarchive this cycle?')">
-                        <button type="submit" class="btn btn-outline-warning btn-sm" data-i18n="btn_unarchive">
-                          <i class="bi bi-arrow-clockwise me-1"></i>Unarchive
-                        </button>
-                      </form>
-                      {% endif %}
-                      {% if session.role == 'admin' %}
-                      <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}" 
-                            style="display: inline;"
-                            onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.');">
-                        <button type="submit" class="btn btn-outline-danger btn-sm" data-i18n="btn_delete">
-                          <i class="bi bi-trash me-1"></i>Delete
-                        </button>
-                      </form>
-                      {% endif %}
-                    </div>
-                  </td>
-                </tr>
-                {% endfor %}
+                </td>
+                <td>{{ "%.3f"|format(data.final_weight) if data.final_weight > 0 else 'N/A' }}</td>
+                <td>{{ data.feed_per_bird }}</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a href="{{ url_for('cycle_details', cycle_id=data.cycle.id) }}"
+                       class="btn btn-outline-primary btn-sm"
+                       data-i18n="btn_view_details">
+                      <i class="bi bi-bar-chart me-1"></i>Details
+                    </a>
+                    {% if data.cycle.status == 'archived' and session.role == 'admin' %}
+                    <a href="{{ url_for('export_cycle', cycle_id=data.cycle.id) }}"
+                       class="btn btn-outline-success btn-sm"
+                       data-i18n="btn_export">
+                      <i class="bi bi-download me-1"></i>Export
+                    </a>
+                    <form method="POST" action="{{ url_for('unarchive_cycle', cycle_id=data.cycle.id) }}"
+                          style="display: inline;"
+                          onsubmit="return confirm('Are you sure you want to unarchive this cycle?')">
+                      <button type="submit" class="btn btn-outline-warning btn-sm" data-i18n="btn_unarchive">
+                        <i class="bi bi-arrow-clockwise me-1"></i><span data-i18n="unarchive">Unarchive</span>
+                      </button>
+                    </form>
+                    {% endif %}
+                    {% if session.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_cycle', cycle_id=data.cycle.id) }}"
+                          style="display: inline;"
+                          onsubmit="return confirm('Are you sure you want to delete this cycle? This action cannot be undone.');">
+                      <button type="submit" class="btn btn-outline-danger btn-sm" data-i18n="btn_delete">
+                        <i class="bi bi-trash me-1"></i><span data-i18n="delete">Delete</span>
+                      </button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
               </tbody>
             </table>
           </div>
@@ -243,23 +243,23 @@
       <h5 class="text-muted mb-3" data-i18n="no_cycle_history">No Cycle History Found</h5>
       <p class="text-muted mb-4" data-i18n="no_cycle_history_desc">Start your first poultry cycle to see history data here.</p>
       <a href="{{ url_for('setup') }}" class="mobile-btn-primary">
-        <i class="bi bi-plus-circle me-2"></i>Start New Cycle
+        <i class="bi bi-plus-circle me-2"></i><span data-i18n="start_new_cycle">Start New Cycle</span>
       </a>
     </div>
     {% endif %}
 
     <!-- Summary Stats Card -->
     {% if cycle_data %}
-    <div class="mobile-card mt-4">
+    <div class="mobile-card mt-4 p-3">
       <h5 class="mobile-card-title">
-        <i class="bi bi-graph-up me-2"></i>Performance Summary
+        <i class="bi bi-graph-up me-2"></i><span data-i18n="performance_summary">Performance Summary</span>
       </h5>
-      
+
       <div class="row g-3">
         <div class="col-6 col-md-3">
           <div class="mobile-metric-card text-center">
             <div class="mobile-metric-value text-primary">{{ cycle_data|length }}</div>
-            <div class="mobile-metric-label">Total Cycles</div>
+            <div class="mobile-metric-label" data-i18n="total_cycles">Total Cycles</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -268,7 +268,7 @@
               {% set active_cycles = cycle_data | selectattr('cycle.status', 'equalto', 'active') | list %}
               {{ active_cycles|length }}
             </div>
-            <div class="mobile-metric-label">Active Cycles</div>
+            <div class="mobile-metric-label" data-i18n="active_cycles">Active Cycles</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -277,7 +277,7 @@
               {% set avg_survival = (cycle_data | map(attribute='survival_rate') | sum / cycle_data|length) | round(1) %}
               {{ avg_survival }}%
             </div>
-            <div class="mobile-metric-label">Avg Survival</div>
+            <div class="mobile-metric-label" data-i18n="avg_survival">Avg Survival</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -286,7 +286,7 @@
               {% set avg_duration = (cycle_data | map(attribute='duration_days') | sum / cycle_data|length) | round(0) %}
               {{ avg_duration }}
             </div>
-            <div class="mobile-metric-label">Avg Duration</div>
+            <div class="mobile-metric-label" data-i18n="avg_duration">Avg Duration</div>
           </div>
         </div>
       </div>
@@ -296,14 +296,14 @@
     <!-- Action Buttons -->
     <div class="mobile-button-stack mt-4">
       <a href="{{ url_for('setup') }}" class="mobile-btn-primary">
-        <i class="bi bi-plus-circle me-2"></i>Start New Cycle
+        <i class="bi bi-plus-circle me-2"></i><span data-i18n="start_new_cycle">Start New Cycle</span>
       </a>
-      <a href="{{ url_for('dashboard') }}" class="mobile-btn-outline-secondary">
-        <i class="bi bi-house me-2"></i>Back to Dashboard
+      <a href="{{ url_for('dashboard') }}" class="mobile-btn-outline-secondary mt-2">
+        <i class="bi bi-house me-2"></i><span data-i18n="back_to_dashboard">Back to Dashboard</span>
       </a>
       {% if session.role == 'admin' %}
       <a href="{{ url_for('import_data') }}" class="mobile-btn-outline-info">
-        <i class="bi bi-cloud-upload me-2"></i>Import Data
+        <i class="bi bi-cloud-upload me-2"></i><span data-i18n="import_data">Import Data</span>
       </a>
       {% endif %}
     </div>
@@ -312,38 +312,38 @@
 
 <!-- JavaScript for enhanced interactions -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Toggle collapse buttons
-    const collapseButtons = document.querySelectorAll('[data-bs-toggle="collapse"]');
-    collapseButtons.forEach(button => {
-        const target = document.querySelector(button.getAttribute('data-bs-target'));
-        if (target) {
-            target.addEventListener('shown.bs.collapse', function() {
-                button.querySelector('.expand-text').classList.add('d-none');
-                button.querySelector('.collapse-text').classList.remove('d-none');
-            });
-            target.addEventListener('hidden.bs.collapse', function() {
-                button.querySelector('.collapse-text').classList.add('d-none');
-                button.querySelector('.expand-text').classList.remove('d-none');
-            });
-        }
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+      // Toggle collapse buttons
+      const collapseButtons = document.querySelectorAll('[data-bs-toggle="collapse"]');
+      collapseButtons.forEach(button => {
+          const target = document.querySelector(button.getAttribute('data-bs-target'));
+          if (target) {
+              target.addEventListener('shown.bs.collapse', function() {
+                  button.querySelector('.expand-text').classList.add('d-none');
+                  button.querySelector('.collapse-text').classList.remove('d-none');
+              });
+              target.addEventListener('hidden.bs.collapse', function() {
+                  button.querySelector('.collapse-text').classList.add('d-none');
+                  button.querySelector('.expand-text').classList.remove('d-none');
+              });
+          }
+      });
 
-    // Add swipe gestures for mobile cards
-    const swipeableCards = document.querySelectorAll('.mobile-swipeable');
-    swipeableCards.forEach(card => {
-        card.classList.add('mobile-touch-enhanced');
-    });
+      // Add swipe gestures for mobile cards
+      const swipeableCards = document.querySelectorAll('.mobile-swipeable');
+      swipeableCards.forEach(card => {
+          card.classList.add('mobile-touch-enhanced');
+      });
 
-    // Auto-refresh every 5 minutes for active cycles
-    if (document.querySelector('.badge.bg-success')) {
-        setInterval(() => {
-            // Check if page is visible
-            if (!document.hidden) {
-                window.location.reload();
-            }
-        }, 300000); // 5 minutes
-    }
-});
+      // Auto-refresh every 5 minutes for active cycles
+      if (document.querySelector('.badge.bg-success')) {
+          setInterval(() => {
+              // Check if page is visible
+              if (!document.hidden) {
+                  window.location.reload();
+              }
+          }, 300000); // 5 minutes
+      }
+  });
 </script>
 {% endblock %}

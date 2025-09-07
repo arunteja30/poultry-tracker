@@ -2,50 +2,52 @@
 
 {% block content %}
 <div class="container-fluid">
-  <h2 class="mobile-header text-center mb-mobile-3">🏢 Company Management</h2>
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="company_management_title">
+    <span data-i18n="company_management_title">3e2 Company Management</span>
+  </h2>
   
   <!-- Add New Company Form -->
   <div class="card mb-4">
     <div class="card-header">
-      <h5>Add New Company</h5>
+      <h5 data-i18n="add_new_company">Add New Company</h5>
     </div>
     <div class="card-body">
       <form method="POST" action="{{ url_for('create_company') }}">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="name" class="form-label">Company Name *</label>
+            <label for="name" class="form-label" data-i18n="company_name">Company Name *</label>
             <input type="text" class="form-control" id="name" name="name" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="code" class="form-label">Company Code *</label>
+            <label for="code" class="form-label" data-i18n="company_code">Company Code *</label>
             <input type="text" class="form-control" id="code" name="code" required placeholder="e.g., COMP1, COMP2">
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="contact_person" class="form-label">Contact Person</label>
+            <label for="contact_person" class="form-label" data-i18n="contact_person">Contact Person</label>
             <input type="text" class="form-control" id="contact_person" name="contact_person">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="phone" class="form-label">Phone</label>
+            <label for="phone" class="form-label" data-i18n="phone">Phone</label>
             <input type="text" class="form-control" id="phone" name="phone">
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label" data-i18n="email">Email</label>
             <input type="email" class="form-control" id="email" name="email">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="address" class="form-label">Address</label>
+            <label for="address" class="form-label" data-i18n="address">Address</label>
             <input type="text" class="form-control" id="address" name="address">
           </div>
         </div>
         <div class="mb-3">
-          <label for="notes" class="form-label">Notes</label>
+          <label for="notes" class="form-label" data-i18n="notes">Notes</label>
           <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Add Company</button>
+        <button type="submit" class="btn btn-primary" data-i18n="add_company">Add Company</button>
       </form>
     </div>
   </div>
@@ -53,22 +55,46 @@
   <!-- Existing Companies -->
   <div class="card">
     <div class="card-header">
-      <h5>Existing Companies ({{ companies|length }})</h5>
+      <h5 data-i18n="existing_companies">Existing Companies ({{ companies|length }})</h5>
     </div>
     <div class="card-body">
       {% if companies %}
-        <div class="table-responsive">
+        <!-- Mobile Company List -->
+        <div class="d-block d-md-none">
+          {% for company in companies %}
+            <div class="card mb-2 shadow-sm">
+              <div class="card-body p-2">
+                <div class="d-flex align-items-center justify-content-between">
+                  <strong>{{ company.name }}</strong>
+                  <button class="btn btn-sm btn-link p-0" type="button" onclick="toggleCompanyDetails('company-details-{{ company.id }}', this)">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+                <div id="company-details-{{ company.id }}" class="collapse">
+                  <div class="mb-1"><span class="fw-bold">Code:</span> <span class="badge bg-secondary">{{ company.code }}</span></div>
+                  <div class="mb-1"><span class="fw-bold">Contact:</span> {{ company.contact_person or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Phone:</span> {{ company.phone or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Email:</span> {{ company.email or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Status:</span> {% if company.status == 'active' %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">{{ company.status }}</span>{% endif %}</div>
+                  <div class="mb-1"><span class="fw-bold">Created:</span> {% if company.created_date %}{{ company.created_date.strftime('%Y-%m-%d %H:%M') }}{% endif %}{% if company.created_by %}{% set created_user = get_user_by_id(company.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + company.created_by|string }}{% endif %}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <!-- Desktop/Tablet Company Table -->
+        <div class="table-responsive d-none d-md-block">
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>Company Name</th>
-                <th>Code</th>
-                <th>Contact Person</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Created By/Date</th>
-                <th>Actions</th>
+                <th data-i18n="company_name">Company Name</th>
+                <th data-i18n="company_code">Code</th>
+                <th data-i18n="contact_person">Contact Person</th>
+                <th data-i18n="phone">Phone</th>
+                <th data-i18n="email">Email</th>
+                <th data-i18n="status">Status</th>
+                <th data-i18n="created_by_date">Created By/Date</th>
+                <th data-i18n="actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -114,8 +140,8 @@
   </div>
 
   <div class="mt-3">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
-    <a href="{{ url_for('user_management') }}" class="btn btn-info">Manage Users</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" data-i18n="back_to_dashboard">Back to Dashboard</a>
+    <a href="{{ url_for('user_management') }}" class="btn btn-info" data-i18n="manage_users">Manage Users</a>
   </div>
 </div>
 
@@ -124,4 +150,19 @@
   font-size: 0.9em;
 }
 </style>
+
+<script>
+function toggleCompanyDetails(id, btn) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    btn.querySelector('i').classList.remove('bi-chevron-up');
+    btn.querySelector('i').classList.add('bi-chevron-down');
+  } else {
+    el.classList.add('show');
+    btn.querySelector('i').classList.remove('bi-chevron-down');
+    btn.querySelector('i').classList.add('bi-chevron-up');
+  }
+}
+</script>
 {% endblock %}

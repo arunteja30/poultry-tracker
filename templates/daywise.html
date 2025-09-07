@@ -23,11 +23,11 @@
     {% else %}
 
     <!-- Summary Stats -->
-    <div class="mobile-card mb-4">
+   
       <h5 class="mobile-card-title">
         <i class="bi bi-graph-up me-2"></i>Cycle Overview
       </h5>
-      <div class="row g-3">
+      <div class="row g-3 mb-3">
         <div class="col-6 col-md-3">
           <div class="mobile-metric-card text-center">
             <div class="mobile-metric-value text-primary">{{ cycle.start_birds }}</div>
@@ -38,6 +38,14 @@
           <div class="mobile-metric-card text-center">
             <div class="mobile-metric-value text-success">{{ cycle.current_birds }}</div>
             <div class="mobile-metric-label">Current Birds</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center">
+            {% set avg_fcr = rows|map(attribute='fcr')|select('number')|list %}
+            {% set avg_fcr_val = (avg_fcr|sum / (avg_fcr|length) if avg_fcr|length > 0 else 0) %}
+            <div class="mobile-metric-value text-info">{{ '%.2f'|format(avg_fcr_val) }}</div>
+            <div class="mobile-metric-label">Avg FCR</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
@@ -57,7 +65,7 @@
           </div>
         </div>
       </div>
-    </div>
+  
 
     <!-- Mobile List View -->
     <div class="d-block d-lg-none">
@@ -65,7 +73,7 @@
       <div class="mobile-list-container" style="max-height: 70vh; overflow-y: auto;">
         {% set rows_list = rows|list %}
         {% for r in rows_list|reverse %}
-        <div class="mobile-card mb-3">
+        <div class="mobile-card mb-4 p-3" style="background: #ffffff; border: 1px solid #dee2e6;">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">
               <i class="bi bi-calendar-day me-2"></i>Day {{ loop.revindex }} - {{ r.entry_date }}
@@ -87,40 +95,40 @@
           <div class="small text-muted">
             <div class="row g-1">
               <div class="col-6">
-                <strong>Mortality:</strong> {{ r.mortality }} ({{ r.mortality_rate }}%)
+                <strong data-i18n="mortality">Mortality:</strong> {{ r.mortality }} ({{ r.mortality_rate }}%)
               </div>
               <div class="col-6">
-                <strong>Total Deaths:</strong> {{ r.total_mortality }}
+                <strong data-i18n="total_deaths">Total Deaths:</strong> {{ r.total_mortality }}
               </div>
               <div class="col-6">
-                <strong>Birds Alive:</strong> {{ r.birds_survived }}
+                <strong data-i18n="birds_alive">Birds Alive:</strong> {{ r.birds_survived }}
               </div>
               <div class="col-6">
-                <strong>Feed Used:</strong> {{ r.feed_bags_consumed }} bags
+                <strong data-i18n="feed_used">Feed Used:</strong> {{ r.feed_bags_consumed }} bags
               </div> 
               <div class="col-6">
-                <strong>Remaining Bags:</strong> {{ r.remaining_bags }} bags
+                <strong data-i18n="remaining_bags">Remaining Bags:</strong> {{ r.remaining_bags }} bags
               </div>
                <div class="col-6">
-                <strong>Total Feed:</strong> {{ r.total_bags_consumed }} bags
+                <strong data-i18n="total_feed">Total Feed:</strong> {{ r.total_bags_consumed }} bags
               </div>
               <div class="col-6">
-                <strong>Feed Added:</strong> {{ r.feed_bags_added }} bags
+                <strong data-i18n="feed_added">Feed Added:</strong> {{ r.feed_bags_added }} bags
               </div>
               <div class="col-6">
-                <strong>Weight:</strong> {{ "{:,.0f}".format(r.avg_weight * 1000) }}g
+                <strong data-i18n="weight">Weight:</strong> {{ "{:,.0f}".format(r.avg_weight * 1000) }}g
               </div>
               <div class="col-6">
-                <strong>FCR:</strong> {{ r.fcr }}
+                <strong data-i18n="fcr">FCR:</strong> {{ r.fcr }}
               </div>
               {% if r.medicines %}
               <div class="col-12">
-                <strong>Medicines:</strong> {{ r.medicines }}
+                <strong data-i18n="medicines">Medicines:</strong> {{ r.medicines }}
               </div>
               {% endif %}
               {% if r.daily_notes %}
               <div class="col-12">
-                <strong>Notes:</strong> {{ r.daily_notes }}
+                <strong data-i18n="notes">Notes:</strong> {{ r.daily_notes }}
               </div>
               {% endif %}
               
@@ -129,18 +137,18 @@
                 <small class="text-muted">
                   <i class="bi bi-clock me-1"></i>
                   {% if r.created_date %}
-                    Created: {{ r.created_date.strftime('%Y-%m-%d %H:%M') }}
+                    <span data-i18n="created">Created:</span> {{ r.created_date.strftime('%Y-%m-%d %H:%M') }}
                   {% endif %}
                   {% if r.created_by %}
                     {% set created_user = get_user_by_id(r.created_by) %}
-                    by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + r.created_by|string }}
+                    <span data-i18n="by">by</span> {{ created_user.full_name or created_user.username if created_user else 'User ID ' + r.created_by|string }}
                   {% endif %}
                   {% if r.modified_date %}
                     <br><i class="bi bi-pencil me-1"></i>
-                    Modified: {{ r.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                    <span data-i18n="modified">Modified:</span> {{ r.modified_date.strftime('%Y-%m-%d %H:%M') }}
                     {% if r.modified_by %}
                       {% set modified_user = get_user_by_id(r.modified_by) %}
-                      by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + r.modified_by|string }}
+                      <span data-i18n="by">by</span> {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + r.modified_by|string }}
                     {% endif %}
                   {% endif %}
                 </small>
@@ -150,13 +158,13 @@
 
           {% if session.role == 'admin' %}
           <div class="d-flex gap-2 pt-2 mt-2 border-top">
-            <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-pencil me-1"></i>Edit
+            <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-outline-primary" data-i18n="edit_daily_entry">
+              <i class="bi bi-pencil me-1"></i><span data-i18n="edit">Edit</span>
             </a>
             <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" class="d-inline"
                   onsubmit="return confirm('Are you sure you want to delete this entry?')">
-              <button type="submit" class="btn btn-sm btn-outline-danger">
-                <i class="bi bi-trash me-1"></i>Delete
+              <button type="submit" class="btn btn-sm btn-outline-danger" data-i18n="delete_daily_entry">
+                <i class="bi bi-trash me-1"></i><span data-i18n="delete">Delete</span>
               </button>
             </form>
           </div>
@@ -171,10 +179,10 @@
         <div class="mb-4">
           <i class="bi bi-calendar-plus" style="font-size: 4rem; color: #dee2e6;"></i>
         </div>
-        <h5 class="text-muted mb-3">No Daily Entries Found</h5>
-        <p class="text-muted mb-4">Start adding daily data to track your poultry farm progress.</p>
-        <a href="{{ url_for('daily') }}" class="mobile-btn-primary">
-          <i class="bi bi-plus-circle me-2"></i>Add Daily Entry
+        <h5 class="text-muted mb-3" data-i18n="no_daily_entries_found">No Daily Entries Found</h5>
+        <p class="text-muted mb-4" data-i18n="start_adding_daily_data">Start adding daily data to track your poultry farm progress.</p>
+        <a href="{{ url_for('daily') }}" class="mobile-btn-primary" data-i18n="add_daily_entry">
+          <i class="bi bi-plus-circle me-2"></i><span data-i18n="add_daily_entry">Add Daily Entry</span>
         </a>
       </div>
       {% endif %}
@@ -182,28 +190,28 @@
 
     <!-- Charts Section -->
     {% if rows|length > 0 %}
-    <div class="mobile-card mt-4">
+    <div class="mobile-card mt-4 p-3">
       <h5 class="mobile-card-title">
-        <i class="bi bi-graph-up me-2"></i>Performance Charts
+        <i class="bi bi-graph-up me-2" data-i18n="performance_charts"></i>Performance Charts
       </h5>
       
       <!-- Chart Type Controls -->
       <div class="mobile-form-group">
-        <label class="mobile-form-label">Chart Type:</label>
+        <label class="mobile-form-label" data-i18n="chart_type">Chart Type:</label>
         <div class="btn-group w-100" role="group">
           <input type="radio" class="btn-check" name="chartType" id="lineChart" value="line" checked>
           <label class="btn btn-outline-primary" for="lineChart">
-            <i class="bi bi-graph-up me-1"></i>Line
+            <i class="bi bi-graph-up me-1" data-i18n="line_chart"></i>Line
           </label>
           
           <input type="radio" class="btn-check" name="chartType" id="barChart" value="bar">
           <label class="btn btn-outline-primary" for="barChart">
-            <i class="bi bi-bar-chart me-1"></i>Bar
+            <i class="bi bi-bar-chart me-1" data-i18n="bar_chart"></i>Bar
           </label>
           
           <input type="radio" class="btn-check" name="chartType" id="tilesView" value="tiles">
           <label class="btn btn-outline-success" for="tilesView">
-            <i class="bi bi-grid-3x3-gap me-1"></i>Tiles
+            <i class="bi bi-grid-3x3-gap me-1" data-i18n="tiles_view"></i>Tiles
           </label>
         </div>
       </div>
@@ -212,7 +220,7 @@
       <div class="row g-3" id="chartsContainer">
         <div class="col-12 col-md-6">
           <div class="mobile-card bg-light">
-            <h6 class="text-center mb-3">FCR Trend</h6>
+            <h6 class="text-center mb-3" data-i18n="fcr_trend">FCR Trend</h6>
             <div style="height: 250px; position: relative;">
               <canvas id="fcrChart"></canvas>
             </div>
@@ -220,7 +228,7 @@
         </div>
         <div class="col-12 col-md-6">
           <div class="mobile-card bg-light">
-            <h6 class="text-center mb-3">Avg Weight (g)</h6>
+            <h6 class="text-center mb-3" data-i18n="avg_weight">Avg Weight (g)</h6>
             <div style="height: 250px; position: relative;">
               <canvas id="weightChart"></canvas>
             </div>
@@ -228,7 +236,7 @@
         </div>
         <div class="col-12 col-md-6">
           <div class="mobile-card bg-light">
-            <h6 class="text-center mb-3">Feed Consumed</h6>
+            <h6 class="text-center mb-3" data-i18n="feed_consumed">Feed Consumed</h6>
             <div style="height: 250px; position: relative;">
               <canvas id="feedChart"></canvas>
             </div>
@@ -236,7 +244,7 @@
         </div>
         <div class="col-12 col-md-6">
           <div class="mobile-card bg-light">
-            <h6 class="text-center mb-3">Daily Mortality</h6>
+            <h6 class="text-center mb-3" data-i18n="daily_mortality">Daily Mortality</h6>
             <div style="height: 250px; position: relative;">
               <canvas id="mortalityChart"></canvas>
             </div>
@@ -252,8 +260,8 @@
     <!-- Desktop Table View -->
     <div class="d-none d-lg-block mt-4">
       <div class="mobile-card">
-        <h5 class="mobile-card-title">
-          <i class="bi bi-table me-2"></i>Detailed Data Table
+        <h5 class="mobile-card-title p-3">
+          <i class="bi bi-table me-2" data-i18n="detailed_data_table"></i>Detailed Data Table
         </h5>
         <div class="table-responsive">
           <table class="table table-hover table-sm mb-0">
@@ -275,7 +283,7 @@
                 <th class="text-center" data-i18n="table_medicines">Medicines</th>
                 <th class="text-center" data-i18n="notes">Notes</th>
                 {% if session.role == 'admin' %}
-                <th class="text-center">Actions</th>
+                <th class="text-center" data-i18n="actions">Actions</th>
                 {% endif %}
               </tr>
             </thead>

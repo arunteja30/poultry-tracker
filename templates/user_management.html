@@ -2,28 +2,30 @@
 
 {% block content %}
 <div class="container-fluid">
-  <h2 class="mobile-header text-center mb-mobile-3">👥 User Management</h2>
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="user_management_title">
+    <span data-i18n="user_management_title">465 User Management</span>
+  </h2>
   
   <!-- Add New User Form -->
   <div class="card mb-4">
     <div class="card-header">
-      <h5>Add New User</h5>
+      <h5 data-i18n="add_new_user">Add New User</h5>
     </div>
     <div class="card-body">
       <form method="POST" action="{{ url_for('create_user') }}">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="username" class="form-label">Username *</label>
+            <label for="username" class="form-label" data-i18n="username">Username *</label>
             <input type="text" class="form-control" id="username" name="username" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="password" class="form-label">Password *</label>
+            <label for="password" class="form-label" data-i18n="password">Password *</label>
             <input type="password" class="form-control" id="password" name="password" required>
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="role" class="form-label">Role *</label>
+            <label for="role" class="form-label" data-i18n="role">Role *</label>
             <select class="form-control" id="role" name="role" required>
               <option value="">Select Role</option>
               <option value="user">User</option>
@@ -32,7 +34,7 @@
             </select>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="company_id" class="form-label">Company *</label>
+            <label for="company_id" class="form-label" data-i18n="company">Company *</label>
             <select class="form-control" id="company_id" name="company_id" required>
               <option value="">Select Company</option>
               {% for company in companies %}
@@ -43,19 +45,19 @@
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="full_name" class="form-label">Full Name</label>
+            <label for="full_name" class="form-label" data-i18n="full_name">Full Name</label>
             <input type="text" class="form-control" id="full_name" name="full_name">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label" data-i18n="email">Email</label>
             <input type="email" class="form-control" id="email" name="email">
           </div>
         </div>
         <div class="mb-3">
-          <label for="phone" class="form-label">Phone</label>
+          <label for="phone" class="form-label" data-i18n="phone">Phone</label>
           <input type="text" class="form-control" id="phone" name="phone">
         </div>
-        <button type="submit" class="btn btn-primary">Add User</button>
+        <button type="submit" class="btn btn-primary" data-i18n="add_user">Add User</button>
       </form>
     </div>
   </div>
@@ -63,24 +65,65 @@
   <!-- Existing Users -->
   <div class="card">
     <div class="card-header">
-      <h5>Existing Users ({{ users|length }})</h5>
+      <h5 data-i18n="existing_users">Existing Users ({{ users|length }})</h5>
     </div>
     <div class="card-body">
       {% if users %}
-        <div class="table-responsive">
+        <!-- Mobile User List -->
+        <div class="d-block d-md-none">
+          {% for user in users %}
+            <div class="card mb-2 shadow-sm">
+              <div class="card-body p-2">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <div>
+                    <strong class="me-2">{{ user.username }}</strong>
+                    {% if user.role == 'super_admin' %}
+                      <span class="badge bg-danger">Super Admin</span>
+                    {% elif user.role == 'admin' %}
+                      <span class="badge bg-warning">Admin</span>
+                    {% else %}
+                      <span class="badge bg-info">User</span>
+                    {% endif %}
+                  </div>
+                  <button class="btn btn-sm btn-link p-0" type="button" onclick="toggleUserDetails('user-details-{{ user.id }}', this)">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+                <div id="user-details-{{ user.id }}" class="collapse">
+                  <div class="mb-1"><span class="fw-bold">Full Name:</span> {{ user.full_name or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Company:</span> {% if user.get_company() %}{{ user.get_company().name }} <small class="text-muted">({{ user.get_company().code }})</small>{% else %}<span class="text-muted">No Company</span>{% endif %}</div>
+                  <div class="mb-1"><span class="fw-bold">Email:</span> {{ user.email or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Phone:</span> {{ user.phone or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Status:</span> {% if user.status == 'active' %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">{{ user.status }}</span>{% endif %}</div>
+                  <div class="mb-1"><span class="fw-bold">Last Login:</span> {% if user.last_login %}{{ user.last_login.strftime('%Y-%m-%d %H:%M') }}{% else %}<span class="text-muted">Never</span>{% endif %}</div>
+                  <div class="mb-1"><span class="fw-bold">Created:</span> {% if user.created_date %}{{ user.created_date.strftime('%Y-%m-%d %H:%M') }}{% endif %}{% if user.created_by %}{% set created_user = get_user_by_id(user.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + user.created_by|string }}{% endif %}</div>
+                  <div class="mt-2">
+                    {% if user.status == 'active' %}
+                      <a href="{{ url_for('update_user_status', user_id=user.id, status='inactive') }}" class="btn btn-sm btn-warning me-2" onclick="return confirm('Deactivate this user?')" data-i18n="deactivate">Deactivate</a>
+                    {% else %}
+                      <a href="{{ url_for('update_user_status', user_id=user.id, status='active') }}" class="btn btn-sm btn-success me-2" onclick="return confirm('Activate this user?')" data-i18n="activate">Activate</a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <!-- Desktop/Tablet User Table -->
+        <div class="table-responsive d-none d-md-block">
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>Username</th>
-                <th>Full Name</th>
-                <th>Role</th>
-                <th>Company</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Last Login</th>
-                <th>Created By/Date</th>
-                <th>Actions</th>
+                <th data-i18n="username">Username</th>
+                <th data-i18n="full_name">Full Name</th>
+                <th data-i18n="role">Role</th>
+                <th data-i18n="company">Company</th>
+                <th data-i18n="email">Email</th>
+                <th data-i18n="phone">Phone</th>
+                <th data-i18n="status">Status</th>
+                <th data-i18n="last_login">Last Login</th>
+                <th data-i18n="created_by_date">Created By/Date</th>
+                <th data-i18n="actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -159,8 +202,8 @@
   </div>
 
   <div class="mt-3">
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
-    <a href="{{ url_for('company_management') }}" class="btn btn-info">Manage Companies</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" data-i18n="back_to_dashboard">Back to Dashboard</a>
+    <a href="{{ url_for('company_management') }}" class="btn btn-info" data-i18n="manage_companies">Manage Companies</a>
   </div>
 </div>
 
@@ -172,4 +215,19 @@
   vertical-align: middle;
 }
 </style>
+
+<script>
+function toggleUserDetails(id, btn) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    btn.querySelector('i').classList.remove('bi-chevron-up');
+    btn.querySelector('i').classList.add('bi-chevron-down');
+  } else {
+    el.classList.add('show');
+    btn.querySelector('i').classList.remove('bi-chevron-down');
+    btn.querySelector('i').classList.add('bi-chevron-up');
+  }
+}
+</script>
 {% endblock %}

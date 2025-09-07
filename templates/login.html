@@ -21,7 +21,7 @@
                 <div class="mobile-app-icon mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
                     🐔
                 </div>
-                <h1 class="h3 mb-2 fw-bold text-primary">Ramesh Farms</h1>
+                <h1 class="h3 mb-2 fw-bold text-primary" data-i18n="ramesh_farms">Ramesh Farms</h1>
                 <p class="text-muted small" data-i18n="poultry_tracker_login">Poultry Tracker Login</p>
             </div>
 
@@ -42,7 +42,7 @@
             <form method="POST" class="mobile-form-enhanced" data-autosave="false">
                 <div class="mobile-form-group">
                     <label for="username" class="mobile-form-label" data-i18n="username">
-                        <i class="bi bi-person me-2"></i>Username
+                        <i class="bi bi-person me-2"></i><span data-i18n="username">Username</span>
                     </label>
                     <input type="text" 
                            class="mobile-input-enhanced form-control" 
@@ -50,12 +50,13 @@
                            name="username" 
                            required 
                            autofocus
-                           placeholder="Enter your username">
+                           placeholder="Enter your username"
+                           data-i18n-placeholder="username_placeholder">
                 </div>
                 
                 <div class="mobile-form-group">
                     <label for="password" class="mobile-form-label" data-i18n="password">
-                        <i class="bi bi-lock me-2"></i>Password
+                        <i class="bi bi-lock me-2"></i><span data-i18n="password">Password</span>
                     </label>
                     <div class="position-relative">
                         <input type="password" 
@@ -63,7 +64,8 @@
                                id="password" 
                                name="password" 
                                required
-                               placeholder="Enter your password">
+                               placeholder="Enter your password"
+                               data-i18n-placeholder="password_placeholder">
                         <button type="button" 
                                 class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3" 
                                 onclick="togglePassword()"
@@ -74,7 +76,7 @@
                 </div>
                 
                 <button type="submit" class="mobile-btn-primary w-100 mb-3" data-i18n="login">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    <i class="bi bi-box-arrow-in-right me-2"></i><span data-i18n="login">Login</span>
                 </button>
             </form>
 
@@ -82,7 +84,7 @@
             <div class="text-center">
                 <small class="text-muted">
                     <i class="bi bi-shield-check me-1"></i>
-                    Secure login for poultry management
+                    <span data-i18n="secure_login_text">Secure login for poultry management</span>
                 </small>
             </div>
 
