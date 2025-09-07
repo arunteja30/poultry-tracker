@@ -3,34 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐔 Ramesh Farms - Login</title>
+    <title>Login - Poultry Tracker</title>
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1877f2">
+    <meta name="theme-color" content="#2c3e50">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            color: var(--dark-text);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="1000,100 1000,0 0,100"/></svg>');
+            background-size: cover;
+            background-position: bottom;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 450px;
+            border: none;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .app-logo {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .app-logo:hover {
+            transform: translateY(-5px);
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .back-home-btn {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .back-home-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            background: white;
+        }
+
+        .form-control:valid {
+            border-color: var(--success-color);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            z-index: 3;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: var(--secondary-color);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.25rem;
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            color: #2980b9;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .security-info {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 12px;
+            color: #666;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .floating-shapes::before,
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .floating-shapes::before {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            right: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-shapes::after {
+            width: 150px;
+            height: 150px;
+            bottom: 15%;
+            left: 15%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+                border-radius: 15px;
+            }
+            
+            .app-logo {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+            
+            .login-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        .poultry-icon {
+            color: var(--warning-color);
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="mobile-container">
-    <div class="d-flex justify-content-center align-items-center min-vh-100 p-3">
-        <div class="mobile-card w-100" style="max-width: 400px;">
+<body>
+    <div class="floating-shapes"></div>
+    
+    <div class="login-container">
+        <div class="login-card">
             <!-- App Logo & Branding -->
-            <div class="text-center mb-4">
-                <div class="mobile-app-icon mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
-                    🐔
+            <div class="login-header">
+                <div class="app-logo">
+                    <i class="fas fa-egg poultry-icon"></i>
                 </div>
-                <h1 class="h3 mb-2 fw-bold text-primary" data-i18n="ramesh_farms">Ramesh Farms</h1>
-                <p class="text-muted small" data-i18n="poultry_tracker_login">Poultry Tracker Login</p>
+                <h1 class="login-title">
+                    Poultry Tracker
+                </h1>
+                <p class="login-subtitle">Sign in to your farm management dashboard</p>
+                <a href="{{ url_for('home') }}" class="back-home-btn">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Home
+                </a>
             </div>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show mobile-alert" role="alert">
-                <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' }} me-2"></i>
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' if category == 'info' else 'check-circle' }} me-2"></i>
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -39,149 +330,131 @@
             {% endwith %}
 
             <!-- Login Form -->
-            <form method="POST" class="mobile-form-enhanced" data-autosave="false">
-                <div class="mobile-form-group">
-                    <label for="username" class="mobile-form-label" data-i18n="username">
-                        <i class="bi bi-person me-2"></i><span data-i18n="username">Username</span>
+            <form method="POST" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user me-2"></i>Username
                     </label>
                     <input type="text" 
-                           class="mobile-input-enhanced form-control" 
+                           class="form-control" 
                            id="username" 
                            name="username" 
                            required 
                            autofocus
-                           placeholder="Enter your username"
-                           data-i18n-placeholder="username_placeholder">
+                           placeholder="Enter your username">
                 </div>
                 
-                <div class="mobile-form-group">
-                    <label for="password" class="mobile-form-label" data-i18n="password">
-                        <i class="bi bi-lock me-2"></i><span data-i18n="password">Password</span>
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>Password
                     </label>
-                    <div class="position-relative">
+                    <div class="input-group">
                         <input type="password" 
-                               class="mobile-input-enhanced form-control" 
+                               class="form-control" 
                                id="password" 
                                name="password" 
                                required
-                               placeholder="Enter your password"
-                               data-i18n-placeholder="password_placeholder">
+                               placeholder="Enter your password">
                         <button type="button" 
-                                class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3" 
-                                onclick="togglePassword()"
-                                style="border: none; background: none; color: #6c757d;">
-                            <i class="bi bi-eye" id="toggleIcon"></i>
+                                class="password-toggle" 
+                                onclick="togglePassword()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
                         </button>
                     </div>
                 </div>
                 
-                <button type="submit" class="mobile-btn-primary w-100 mb-3" data-i18n="login">
-                    <i class="bi bi-box-arrow-in-right me-2"></i><span data-i18n="login">Login</span>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
                 </button>
             </form>
 
-            <!-- Additional Info -->
-            <div class="text-center">
-                <small class="text-muted">
-                    <i class="bi bi-shield-check me-1"></i>
-                    <span data-i18n="secure_login_text">Secure login for poultry management</span>
-                </small>
+            <!-- Security Info -->
+            <div class="security-info">
+                <i class="fas fa-shield-alt me-2"></i>
+                <small>Secure login for your poultry farm management system</small>
             </div>
-
-            <!-- Debug Info (Hidden in production) -->
-            <!-- 
-            <div class="mt-4 p-3 bg-light rounded small text-muted">
-                <strong>Default Accounts:</strong><br>
-                Admin: admin / admin123<br>
-                User: user / user123
-            </div>
-            -->
         </div>
     </div>
-</div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ url_for('static', filename='js/mobile-ux.js') }}"></script>
-<script>
-    // Password toggle functionality
-    function togglePassword() {
-        const passwordInput = document.getElementById('password');
-        const toggleIcon = document.getElementById('toggleIcon');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.className = 'bi bi-eye-slash';
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.className = 'bi bi-eye';
-        }
-    }
-
-    // Enhanced mobile login experience
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add touch feedback to login button
-        const loginBtn = document.querySelector('[type="submit"]');
-        if (loginBtn) {
-            loginBtn.classList.add('mobile-touch-enhanced');
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Password toggle functionality
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
         }
 
-        // Auto-focus on mobile (but not on small screens to avoid virtual keyboard)
-        const usernameInput = document.getElementById('username');
-        if (usernameInput && window.innerWidth >= 768) {
-            setTimeout(() => usernameInput.focus(), 300);
-        }
+        // Enhanced login experience
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.login-form');
+            const loginBtn = document.getElementById('loginBtn');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
 
-        // Form submission enhancement
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            const submitBtn = form.querySelector('[type="submit"]');
-            submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin me-2"></i>Logging in...';
-            submitBtn.disabled = true;
-        });
+            // Auto-focus on desktop (avoid virtual keyboard on mobile)
+            if (window.innerWidth >= 768) {
+                setTimeout(() => usernameInput.focus(), 300);
+            }
 
-        // Add loading states
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('input', function() {
-                this.classList.remove('is-invalid');
+            // Form validation feedback
+            [usernameInput, passwordInput].forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                    if (this.value.length > 0) {
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-valid');
+                    }
+                });
+
+                input.addEventListener('blur', function() {
+                    if (this.value.length === 0) {
+                        this.classList.remove('is-valid');
+                    }
+                });
+            });
+
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                if (!usernameInput.value.trim() || !passwordInput.value.trim()) {
+                    e.preventDefault();
+                    
+                    if (!usernameInput.value.trim()) {
+                        usernameInput.classList.add('is-invalid');
+                        usernameInput.focus();
+                    }
+                    if (!passwordInput.value.trim()) {
+                        passwordInput.classList.add('is-invalid');
+                    }
+                    return;
+                }
+
+                loginBtn.innerHTML = '<i class="fas fa-spinner animate-spin me-2"></i>Signing In...';
+                loginBtn.disabled = true;
+                
+                // Re-enable after 10 seconds as fallback
+                setTimeout(() => {
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Sign In';
+                    loginBtn.disabled = false;
+                }, 10000);
+            });
+
+            // Enter key handling
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    form.dispatchEvent(new Event('submit'));
+                }
             });
         });
-    });
-</script>
-
-<!-- Add CSS for loading animation -->
-<style>
-.animate-spin {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.mobile-app-icon {
-    box-shadow: 0 8px 32px rgba(24, 119, 242, 0.3);
-}
-
-.mobile-alert {
-    border-radius: 12px;
-    border: none;
-    margin-bottom: 1.5rem;
-}
-
-@media (max-width: 576px) {
-    .mobile-container {
-        padding: 1rem;
-    }
-    
-    .mobile-app-icon {
-        width: 70px !important;
-        height: 70px !important;
-        font-size: 2rem !important;
-    }
-}
-</style>
+    </script>
 </body>
 </html>

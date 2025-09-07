@@ -34,8 +34,8 @@
             <span style="display: block; height: 4px; background: #ffffff; border-radius: 2px;"></span>
           </span>
     </button>
-    <a class="navbar-brand chicken-icon d-inline-block align-middle fw-bold" href="{{ url_for('dashboard') }}" data-i18n="app_title" style="color: #ffffff; font-size: 1.4rem;">
-      Ramesh
+    <a class="navbar-brand chicken-icon d-inline-block align-middle " href="{{ url_for('dashboard') }}" data-i18n="app_title" style="color: #ffffff; font-size: 1.4rem;">
+      {{ get_current_company().name if get_current_company() else 'Poultry Tracker' }}
     </a>
     <!-- Desktop Navbar -->
     <div class="collapse navbar-collapse d-none d-lg-block" id="navmenu">
@@ -159,8 +159,8 @@
          style="width:85vw;max-width:400px;background: var(--fb-white);">
 
       <div class="offcanvas-header" style="background: var(--fb-blue); color: white; border-bottom: 1px solid var(--fb-light-gray);">
-        <h6 class="offcanvas-title fw-bold" data-i18n="app_title">
-          🐔 Ramesh Farms
+        <h6 class="offcanvas-title fw-bold " style="color: white;" data-i18n="app_title">
+          {% if get_current_company() %}{{ get_current_company().name }}{% else %}Poultry Tracker{% endif %}
         </h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
       </div>

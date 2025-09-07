@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - Poultry Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background: var(--light-bg);
+        }
+
+        .navbar {
+            background: white !important;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .poultry-icon {
+            color: var(--warning-color);
+        }
+
+        .contact-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+
+        .contact-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .contact-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .contact-section {
+            padding: 80px 0;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            height: 100%;
+        }
+
+        .contact-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .contact-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .contact-info {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .contact-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .steps-section {
+            background: white;
+            padding: 80px 0;
+        }
+
+        .step-item {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            color: #666;
+        }
+
+        .features-preview {
+            background: var(--light-bg);
+            padding: 80px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--success-color);
+            margin-right: 20px;
+            width: 50px;
+        }
+
+        .feature-content h6 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .feature-content p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .btn-cta {
+            background: white;
+            color: var(--primary-color);
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            color: var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        /* Mobile First Responsive Design */
+        @media (max-width: 1200px) {
+            .contact-hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .contact-hero {
+                padding: 80px 0 50px;
+            }
+            
+            .contact-hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .contact-hero p {
+                font-size: 1.1rem;
+            }
+            
+            .contact-section, .steps-section, .features-preview, .cta-section {
+                padding: 60px 0;
+            }
+            
+            .contact-card, .step-item, .feature-item {
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-nav {
+                text-align: center;
+                padding-top: 1rem;
+            }
+            
+            .navbar-nav .nav-link {
+                padding: 0.8rem 1rem;
+                font-size: 1.1rem;
+            }
+            
+            .contact-hero {
+                padding: 60px 0 40px;
+                text-align: center;
+            }
+            
+            .contact-hero h1 {
+                font-size: 1.9rem;
+                line-height: 1.2;
+                margin-bottom: 1rem;
+            }
+            
+            .contact-hero p {
+                font-size: 1rem;
+                padding: 0 15px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 0.8rem;
+                line-height: 1.3;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+                padding: 0 15px;
+            }
+            
+            .contact-card {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+                border-radius: 15px;
+            }
+            
+            .contact-icon {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .contact-title {
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+            }
+            
+            .contact-info {
+                font-size: 1rem;
+                margin-bottom: 15px;
+            }
+            
+            .contact-link {
+                font-size: 1.1rem;
+                padding: 10px 15px;
+                display: inline-block;
+                border-radius: 8px;
+                background: rgba(52, 152, 219, 0.1);
+                transition: all 0.3s ease;
+            }
+            
+            .contact-link:hover {
+                background: rgba(52, 152, 219, 0.2);
+            }
+            
+            .step-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            
+            .step-title {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            
+            .step-description {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            
+            .feature-item {
+                padding: 15px;
+                margin-bottom: 15px;
+                flex-direction: column;
+                text-align: center;
+                border-radius: 8px;
+            }
+            
+            .feature-item i {
+                margin-right: 0;
+                margin-bottom: 10px;
+                font-size: 1.8rem;
+            }
+            
+            .feature-content h6 {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            .feature-content p {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .cta-section h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+                line-height: 1.3;
+            }
+            
+            .cta-section p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+                padding: 0 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            
+            .back-home-btn {
+                padding: 6px 15px;
+                font-size: 0.9rem;
+                margin-top: 10px;
+            }
+            
+            .contact-hero {
+                padding: 50px 0 30px;
+            }
+            
+            .contact-hero h1 {
+                font-size: 1.7rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .contact-hero p {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+                line-height: 1.2;
+            }
+            
+            .section-subtitle {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .contact-section, .steps-section, .features-preview, .cta-section {
+                padding: 40px 0;
+            }
+            
+            .contact-card {
+                padding: 25px 15px;
+                margin-bottom: 15px;
+            }
+            
+            .contact-icon {
+                font-size: 2.2rem;
+                margin-bottom: 12px;
+            }
+            
+            .contact-title {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+            
+            .contact-info {
+                font-size: 0.95rem;
+                margin-bottom: 12px;
+            }
+            
+            .contact-link {
+                font-size: 1rem;
+                padding: 12px 20px;
+                width: 100%;
+                max-width: 250px;
+                text-align: center;
+                margin: 5px auto;
+                display: block;
+            }
+            
+            .step-number {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+                margin-bottom: 12px;
+            }
+            
+            .step-title {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            .step-description {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .feature-item {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .feature-item i {
+                font-size: 1.6rem;
+                margin-bottom: 8px;
+            }
+            
+            .feature-content h6 {
+                font-size: 1rem;
+                margin-bottom: 6px;
+            }
+            
+            .feature-content p {
+                font-size: 0.85rem;
+            }
+            
+            .cta-section h2 {
+                font-size: 1.5rem;
+                line-height: 1.2;
+            }
+            
+            .cta-section p {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .btn-cta {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                margin: 5px 0;
+                width: 100%;
+                max-width: 250px;
+                border-radius: 25px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .contact-hero h1 {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .contact-card {
+                padding: 20px 12px;
+            }
+            
+            .contact-link {
+                max-width: 220px;
+                font-size: 0.9rem;
+            }
+            
+            .btn-cta {
+                max-width: 220px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Touch-friendly enhancements */
+        @media (hover: none) and (pointer: coarse) {
+            .contact-link, .btn-cta, .back-home-btn, .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .contact-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .contact-card:active {
+                transform: scale(0.98);
+            }
+            
+            .feature-item:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* Improved mobile navbar */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: white;
+                margin-top: 10px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                padding: 1rem;
+            }
+            
+            .navbar-toggler {
+                border: none;
+                padding: 4px 8px;
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: none;
+            }
+        }
+
+        /* Better spacing for mobile cards */
+        @media (max-width: 768px) {
+            .row.g-4 {
+                gap: 1rem !important;
+            }
+            
+            .col-lg-6, .col-lg-3, .col-md-6 {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-egg poultry-icon me-2"></i>
+                Poultry Tracker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('contact') }}">Get Started</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary ms-2 px-3" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="contact-hero">
+        <div class="container">
+            <h1>
+                <i class="fas fa-rocket me-3"></i>
+                Get Started with Poultry Tracker
+            </h1>
+            <p>Ready to transform your poultry farm management? Let's get you started with our comprehensive solution.</p>
+        </div>
+    </section>
+
+    <!-- Contact Information -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="section-title">Contact Our Team</h2>
+                    <p class="section-subtitle">Get in touch with us to start your poultry farm digitization journey</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="contact-card text-center">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h4 class="contact-title">Email Us</h4>
+                        <p class="contact-info">Send us your requirements and we'll get back to you within 24 hours</p>
+                        <a href="mailto:mattechsoft@gmail.com?subject=Poultry Tracker Inquiry" 
+                           class="contact-link email-address" 
+                           data-copy="mattechsoft@gmail.com">
+                            <i class="fas fa-envelope me-2"></i>
+                            mattechsoft@gmail.com
+                        </a>
+                        <div class="mt-2">
+                            <small class="text-muted">Tap to email or copy address</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="contact-card text-center">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h4 class="contact-title">Call Us</h4>
+                        <p class="contact-info">Speak directly with our poultry farming experts for personalized guidance</p>
+                        <a href="tel:+919999999999" 
+                           class="contact-link phone-number" 
+                           data-copy="9999999999">
+                            <i class="fas fa-phone me-2"></i>
+                            +91 9999999999
+                        </a>
+                        <div class="mt-2">
+                            <small class="text-muted">Tap to call or copy number</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started Steps -->
+    <section class="steps-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="section-title">How to Get Started</h2>
+                    <p class="section-subtitle">Simple steps to begin your digital poultry farm management journey</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <h5 class="step-title">Contact Us</h5>
+                        <p class="step-description">Reach out via email or phone to discuss your farm requirements and get a personalized consultation.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <h5 class="step-title">Farm Assessment</h5>
+                        <p class="step-description">We'll analyze your current operations and recommend the best setup for your specific needs.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <h5 class="step-title">Account Setup</h5>
+                        <p class="step-description">We'll create your account, set up your farm profile, and provide login credentials for your team.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <h5 class="step-title">Training & Support</h5>
+                        <p class="step-description">Get comprehensive training on using the system and ongoing support whenever you need it.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Preview -->
+    <section class="features-preview">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="section-title">What You'll Get</h2>
+                    <p class="section-subtitle">Comprehensive tools to manage every aspect of your poultry operation</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="feature-content">
+                            <h6>Real-time Performance Analytics</h6>
+                            <p>Monitor FCR, mortality rates, weight gain, and profitability in real-time</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-heartbeat"></i>
+                        <div class="feature-content">
+                            <h6>Health & Medicine Tracking</h6>
+                            <p>Keep detailed records of vaccinations, treatments, and health interventions</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-wheat-awn"></i>
+                        <div class="feature-content">
+                            <h6>Feed Management System</h6>
+                            <p>Track feed consumption, calculate FCR, and optimize feeding schedules</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-truck"></i>
+                        <div class="feature-content">
+                            <h6>Dispatch & Weighing</h6>
+                            <p>Manage bird dispatch, record weights, and calculate pricing accurately</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-item">
+                        <i class="fas fa-calculator"></i>
+                        <div class="feature-content">
+                            <h6>Financial Management</h6>
+                            <p>Track all expenses, calculate profits, and generate financial reports</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <div class="feature-content">
+                            <h6>Multi-user Access</h6>
+                            <p>Give different access levels to farm workers, supervisors, and owners</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <div class="feature-content">
+                            <h6>Mobile Optimized</h6>
+                            <p>Access your farm data from anywhere using mobile devices or tablets</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="feature-content">
+                            <h6>Detailed Reports</h6>
+                            <p>Generate comprehensive PDF reports for analysis and record keeping</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="mb-4">Ready to Start Your Digital Farm Journey?</h2>
+                    <p class="mb-4" style="font-size: 1.1rem; opacity: 0.9;">
+                        Join the growing community of successful poultry farmers who have modernized their operations with our platform.
+                    </p>
+                    <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+                        <a href="mailto:mattechsoft@gmail.com?subject=Poultry Tracker - Get Started&body=Hi, I'm interested in getting started with Poultry Tracker for my farm. Please contact me to discuss my requirements." 
+                           class="btn btn-cta">
+                            <i class="fas fa-envelope me-2"></i>
+                            Email Us Now
+                        </a>
+                        <a href="tel:+919999999999" class="btn btn-cta">
+                            <i class="fas fa-phone me-2"></i>
+                            Call Us Today
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="mb-3">
+                        <i class="fas fa-egg poultry-icon me-2"></i>
+                        Poultry Tracker
+                    </h6>
+                    <p class="mb-0">Smart farm management for modern poultry operations.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-2">
+                        <i class="fas fa-envelope me-2"></i>
+                        mattechsoft@gmail.com
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-phone me-2"></i>
+                        +91 9999999999
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0">&copy; 2024 Poultry Tracker. Built with ❤️ by MatTech Soft.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Mobile-optimized Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add touch feedback to interactive elements
+            const interactiveElements = document.querySelectorAll('.contact-item, .step-item, .feature-preview-item, .btn');
+            
+            interactiveElements.forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                }, { passive: true });
+                
+                element.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                }, { passive: true });
+            });
+
+            // Optimize animations for mobile
+            if (window.innerWidth <= 768) {
+                // Reduce animation duration on mobile for better performance
+                const animatedElements = document.querySelectorAll('.contact-item, .step-item, .feature-preview-item');
+                animatedElements.forEach(element => {
+                    element.style.transition = 'all 0.2s ease';
+                });
+            }
+
+            // Handle orientation changes
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    // Recalculate viewport height for mobile browsers
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                }, 500);
+            });
+
+            // Set initial viewport height
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+            // Lazy loading for better mobile performance
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                });
+
+                // Observe sections for staggered animation
+                document.querySelectorAll('.contact-item, .step-item, .feature-preview-item').forEach((item, index) => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    item.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                    observer.observe(item);
+                });
+            }
+
+            // Prevent zoom on double tap for iOS
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+
+            // Copy to clipboard functionality for mobile
+            document.querySelectorAll('[data-copy]').forEach(element => {
+                element.addEventListener('click', async function() {
+                    const textToCopy = this.getAttribute('data-copy') || this.textContent;
+                    
+                    try {
+                        await navigator.clipboard.writeText(textToCopy);
+                        
+                        // Show feedback
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check text-success"></i> Copied!';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    } catch (err) {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = textToCopy;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        // Show feedback
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check text-success"></i> Copied!';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Phone number formatting and click to call
+            document.querySelectorAll('.phone-number').forEach(phone => {
+                phone.addEventListener('click', function() {
+                    const phoneNumber = this.textContent.replace(/\D/g, '');
+                    window.location.href = `tel:+91${phoneNumber}`;
+                });
+            });
+
+            // Email click to open mail app
+            document.querySelectorAll('.email-address').forEach(email => {
+                email.addEventListener('click', function() {
+                    const emailAddress = this.textContent;
+                    window.location.href = `mailto:${emailAddress}?subject=Poultry Tracker Inquiry`;
+                });
+            });
+
+            // Add loading states for buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.type !== 'button' || this.getAttribute('data-copy')) return;
+                    
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                    this.disabled = true;
+                    
+                    // Re-enable after navigation (fallback)
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }, 3000);
+                });
+            });
+
+            // Enhanced mobile scrolling
+            if (window.innerWidth <= 768) {
+                // Smooth scroll to sections
+                window.scrollTo = function(options) {
+                    if (options && options.behavior === 'smooth') {
+                        const start = window.pageYOffset;
+                        const target = options.top;
+                        const distance = target - start;
+                        const duration = 600;
+                        let startTime = null;
+
+                        function animation(currentTime) {
+                            if (startTime === null) startTime = currentTime;
+                            const timeElapsed = currentTime - startTime;
+                            const run = easeInOutQuad(timeElapsed, start, distance, duration);
+                            window.scrollTo(0, run);
+                            if (timeElapsed < duration) requestAnimationFrame(animation);
+                        }
+
+                        function easeInOutQuad(t, b, c, d) {
+                            t /= d / 2;
+                            if (t < 1) return c / 2 * t * t + b;
+                            t--;
+                            return -c / 2 * (t * (t - 2) - 1) + b;
+                        }
+
+                        requestAnimationFrame(animation);
+                    }
+                };
+            }
+        });
+
+        // Performance optimization for mobile
+        if (window.innerWidth <= 768) {
+            // Disable hover effects on touch devices
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (hover: none) {
+                    .contact-item:hover,
+                    .step-item:hover,
+                    .feature-preview-item:hover,
+                    .btn:hover {
+                        transform: none !important;
+                        box-shadow: inherit !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>

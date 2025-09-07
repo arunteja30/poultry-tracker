@@ -21,7 +21,7 @@
     <!-- Main Setup Form -->
     <div class="mobile-card">
       <h5 class="mobile-card-title" data-i18n="setup_subtitle">
-        <i class="bi bi-clipboard-data me-2"></i><span data-i18n="setup_subtitle">Configure your poultry cycle</span>
+        <i class="bi bi-clipboard-data p-3"></i><span data-i18n="setup_subtitle">Configure your poultry cycle</span>
       </h5>
       
       <form method="POST" class="mobile-form-enhanced" data-autosave="true">
@@ -182,7 +182,7 @@
       <!-- Other Options Card -->
       <div class="col-md-6">
         <div class="mobile-card bg-info bg-opacity-10 border-info">
-          <h6 class="mobile-card-title text-info">
+          <h6 class="mobile-card-title text-info p-3">
             <i class="bi bi-tools me-2"></i>Other Options
           </h6>
           <div class="mobile-button-stack">
@@ -194,7 +194,7 @@
             <a href="{{ url_for('cycle_history') }}" class="mobile-btn-outline-primary" data-i18n="view_cycle_history">
               <i class="bi bi-clock-history me-2"></i>View Cycle History
             </a>
-            <a href="{{ url_for('dashboard') }}" class="mobile-btn-outline-secondary" data-i18n="back_to_dashboard">
+            <a href="{{ url_for('dashboard') }}" class="mobile-btn-outline-secondary mt-2" data-i18n="back_to_dashboard">
               <i class="bi bi-house me-2"></i>Back to Dashboard
             </a>
             {% if existing_cycle and session.role == 'admin' %}

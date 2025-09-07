@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poultry Tracker - Smart Farm Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="1000,100 1000,0 0,100"/></svg>');
+            background-size: cover;
+            background-position: bottom;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .btn-hero {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            border: none;
+        }
+
+        .btn-primary-hero {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-primary-hero:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(231, 76, 60, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary-hero {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary-hero:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            text-decoration: none;
+        }
+
+        .features-section {
+            padding: 80px 0;
+            background: var(--light-bg);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.7;
+        }
+
+        .stats-section {
+            padding: 80px 0;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .stat-item {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--warning-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .why-choose-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .why-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .why-icon {
+            font-size: 2rem;
+            color: var(--success-color);
+            margin-right: 20px;
+            margin-top: 5px;
+        }
+
+        .why-content h5 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        .poultry-icon {
+            color: var(--warning-color);
+        }
+
+        /* Mobile First Responsive Design */
+        @media (max-width: 1200px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .features-section {
+                padding: 60px 0;
+            }
+            
+            .feature-card {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+            
+            .stats-section, .why-choose-section, .cta-section {
+                padding: 60px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 80px 0 60px;
+                text-align: center;
+            }
+            
+            .hero-title {
+                font-size: 2.2rem;
+                line-height: 1.2;
+                margin-bottom: 1rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+                padding: 0 10px;
+            }
+            
+            .btn-hero {
+                padding: 14px 25px;
+                font-size: 1rem;
+                margin: 8px 0;
+                display: block;
+                width: 100%;
+                max-width: 280px;
+                margin-left: auto;
+                margin-right: auto;
+                border-radius: 25px;
+            }
+            
+            .hero-buttons {
+                margin-top: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+                padding: 0 15px;
+            }
+            
+            .feature-card {
+                padding: 25px 20px;
+                margin-bottom: 15px;
+                border-radius: 12px;
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .feature-title {
+                font-size: 1.3rem;
+                margin-bottom: 10px;
+            }
+            
+            .navbar-nav {
+                text-align: center;
+                padding-top: 1rem;
+            }
+            
+            .navbar-nav .nav-link {
+                padding: 0.8rem 1rem;
+                font-size: 1.1rem;
+            }
+            
+            .stat-number {
+                font-size: 2.2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.95rem;
+            }
+            
+            .why-item {
+                margin-bottom: 25px;
+                text-align: left;
+            }
+            
+            .why-icon {
+                font-size: 1.8rem;
+                margin-right: 15px;
+            }
+            
+            .cta-section h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+            
+            .cta-section p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .hero-section {
+                padding: 60px 0 40px;
+            }
+            
+            .hero-title {
+                font-size: 1.9rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            
+            .btn-hero {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                max-width: 250px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+                line-height: 1.3;
+            }
+            
+            .section-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .features-section, .stats-section, .why-choose-section, .cta-section {
+                padding: 40px 0;
+            }
+            
+            .feature-card {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .feature-icon {
+                font-size: 2.2rem;
+                margin-bottom: 12px;
+            }
+            
+            .feature-title {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            
+            .feature-description {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .why-item {
+                flex-direction: column;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .why-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+                font-size: 2rem;
+            }
+            
+            .why-content h5 {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            .why-content p {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .cta-section h2 {
+                font-size: 1.5rem;
+                line-height: 1.3;
+            }
+            
+            .cta-section p {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .btn-light, .btn-outline-light {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                margin: 5px 0;
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .hero-title {
+                font-size: 1.7rem;
+            }
+            
+            .btn-hero {
+                max-width: 220px;
+                font-size: 0.9rem;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .feature-card {
+                padding: 18px 12px;
+            }
+        }
+
+        /* Touch-friendly enhancements */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-hero, .btn-light, .btn-outline-light, .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .feature-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .feature-card:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* Improved mobile navbar */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: white;
+                margin-top: 10px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                padding: 1rem;
+            }
+            
+            .navbar-toggler {
+                border: none;
+                padding: 4px 8px;
+            }
+            
+            .navbar-toggler:focus {
+                box-shadow: none;
+            }
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .floating-shapes::before,
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .floating-shapes::before {
+            width: 200px;
+            height: 200px;
+            top: 20%;
+            right: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-shapes::after {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 10%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#home">
+                <i class="fas fa-egg poultry-icon me-2"></i>
+                Poultry Tracker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#why-choose">Why Choose Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary ms-2 px-3" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="floating-shapes"></div>
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">
+                        <i class="fas fa-egg poultry-icon me-3"></i>
+                        Smart Poultry Farm Management
+                    </h1>
+                    <p class="hero-subtitle">
+                        Track your poultry operations, monitor bird health, manage feed efficiently, and maximize profits with our comprehensive farm management system.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('login') }}" class="btn-hero btn-primary-hero">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                        <a href="{{ url_for('contact') }}" class="btn-hero btn-secondary-hero">
+                            <i class="fas fa-rocket me-2"></i>Get Started
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-image">
+                        <i class="fas fa-chart-line" style="font-size: 15rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="section-title">Powerful Features for Modern Poultry Farming</h2>
+                    <p class="section-subtitle">Everything you need to manage your poultry farm efficiently and profitably</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h4 class="feature-title">Smart Analytics</h4>
+                        <p class="feature-description">
+                            Get detailed insights into your farm performance with beautiful charts, FCR analysis, mortality tracking, and profit calculations.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h4 class="feature-title">Health Monitoring</h4>
+                        <p class="feature-description">
+                            Track bird health, mortality rates, medicine usage, and vaccination schedules to ensure optimal flock health and productivity.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-wheat-awn"></i>
+                        </div>
+                        <h4 class="feature-title">Feed Management</h4>
+                        <p class="feature-description">
+                            Monitor feed consumption, calculate FCR, track feed costs, and optimize feeding schedules for maximum efficiency.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h4 class="feature-title">Dispatch Tracking</h4>
+                        <p class="feature-description">
+                            Manage bird dispatch, weighing records, vehicle tracking, and calculate average weights for accurate pricing.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h4 class="feature-title">Financial Management</h4>
+                        <p class="feature-description">
+                            Track expenses, medicine costs, feed costs, and generate comprehensive financial reports for better profitability.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="feature-title">Mobile Optimized</h4>
+                        <p class="feature-description">
+                            Access your farm data anywhere, anytime with our mobile-optimized interface and PWA capabilities for offline use.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Digital Tracking</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Access</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="stat-item">
+                        <span class="stat-number">Real-time</span>
+                        <span class="stat-label">Data Updates</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="stat-item">
+                        <span class="stat-number">Multi-user</span>
+                        <span class="stat-label">Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Section -->
+    <section id="why-choose" class="why-choose-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h2 class="section-title">Why Choose Our Poultry Tracker?</h2>
+                    <div class="why-item">
+                        <div class="why-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="why-content">
+                            <h5>Multi-Company Support</h5>
+                            <p>Manage multiple farms or companies with separate data and user access controls.</p>
+                        </div>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="why-content">
+                            <h5>Secure & Reliable</h5>
+                            <p>Your farm data is protected with enterprise-grade security and regular backups.</p>
+                        </div>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="why-content">
+                            <h5>Profit Optimization</h5>
+                            <p>Maximize your profits with detailed FCR analysis, cost tracking, and performance insights.</p>
+                        </div>
+                    </div>
+                    <div class="why-item">
+                        <div class="why-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="why-content">
+                            <h5>Expert Support</h5>
+                            <p>Get dedicated support from poultry farming experts and technical assistance when needed.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="text-center p-5">
+                        <i class="fas fa-egg" style="font-size: 12rem; color: var(--warning-color); opacity: 0.8;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="contact" class="cta-section">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="mb-4" style="color: white;">Ready to Modernize Your Poultry Farm?</h2>
+                    <p class="mb-4" style="font-size: 1.2rem; opacity: 0.9;">
+                        Join successful poultry farmers who are already using our system to optimize their operations and increase profits.
+                    </p>
+                    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3">
+                        <a href="{{ url_for('login') }}" class="btn btn-light btn-lg px-4 py-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Dashboard
+                        </a>
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="fas fa-envelope me-2"></i>Get Started Today
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="mb-3">
+                        <i class="fas fa-egg poultry-icon me-2"></i>
+                        Poultry Tracker
+                    </h6>
+                    <p class="mb-0">Smart farm management for modern poultry operations.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-2">
+                        <i class="fas fa-envelope me-2"></i>
+                        mattechsoft@gmail.com
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-phone me-2"></i>
+                        +91 9999999999
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0">&copy; 2024 Poultry Tracker. Built with ❤️ by MatTech Soft.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Mobile-optimized Scripts -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    // Offset for fixed navbar on mobile
+                    const offset = window.innerWidth <= 768 ? 80 : 70;
+                    const targetPosition = target.offsetTop - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    const navbarCollapse = document.querySelector('.navbar-collapse');
+                    if (navbarCollapse.classList.contains('show')) {
+                        const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                        bsCollapse.hide();
+                    }
+                }
+            });
+        });
+
+        // Navbar transparency and mobile handling
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.backdropFilter = 'blur(10px)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.backdropFilter = 'blur(10px)';
+            }
+        });
+
+        // Mobile-specific enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add touch feedback to interactive elements
+            const interactiveElements = document.querySelectorAll('.btn-hero, .feature-card, .navbar-brand');
+            
+            interactiveElements.forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                }, { passive: true });
+                
+                element.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                }, { passive: true });
+            });
+
+            // Optimize animations for mobile
+            if (window.innerWidth <= 768) {
+                // Reduce animation duration on mobile for better performance
+                const animatedElements = document.querySelectorAll('.feature-card, .floating-shapes');
+                animatedElements.forEach(element => {
+                    element.style.transition = 'all 0.2s ease';
+                });
+            }
+
+            // Handle orientation changes
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    // Recalculate viewport height for mobile browsers
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                }, 500);
+            });
+
+            // Set initial viewport height
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+            // Lazy loading for better mobile performance
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                });
+
+                // Observe feature cards for staggered animation
+                document.querySelectorAll('.feature-card').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                    observer.observe(card);
+                });
+            }
+
+            // Prevent zoom on double tap for iOS
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const navbar = document.querySelector('.navbar-collapse');
+                const toggler = document.querySelector('.navbar-toggler');
+                
+                if (navbar.classList.contains('show') && 
+                    !navbar.contains(event.target) && 
+                    !toggler.contains(event.target)) {
+                    const bsCollapse = new bootstrap.Collapse(navbar);
+                    bsCollapse.hide();
+                }
+            });
+
+            // Add loading states for buttons
+            document.querySelectorAll('.btn-hero, .btn-light, .btn-outline-light').forEach(button => {
+                button.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                    this.disabled = true;
+                    
+                    // Re-enable after navigation (fallback)
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }, 3000);
+                });
+            });
+        });
+
+        // PWA-like behavior for mobile
+        if ('serviceWorker' in navigator && window.innerWidth <= 768) {
+            // Add to home screen prompt for mobile users
+            let deferredPrompt;
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                deferredPrompt = e;
+                // Show custom install button if needed
+            });
+        }
+
+        // Performance optimization for mobile
+        if (window.innerWidth <= 768) {
+            // Disable hover effects on touch devices
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (hover: none) {
+                    .feature-card:hover,
+                    .btn-hero:hover,
+                    .why-item:hover {
+                        transform: none !important;
+                        box-shadow: inherit !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>

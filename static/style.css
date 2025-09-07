@@ -68,13 +68,13 @@ body.font-size-xlarge h5 { font-size: 2rem !important; }
 body.font-size-xlarge h6 { font-size: 1.7rem !important; }
 
 /* Font size adjustments for navigation */
-body.font-size-small .navbar-brand { font-size: 1.8rem !important; }
+body.font-size-small .navbar-brand { font-size: 1.2rem !important; }
 body.font-size-small .nav-link { font-size: 0.9rem !important; }
-body.font-size-medium .navbar-brand { font-size: 2.2rem !important; }
+body.font-size-medium .navbar-brand { font-size: 1.8rem !important; }
 body.font-size-medium .nav-link { font-size: 1rem !important; }
-body.font-size-large .navbar-brand { font-size: 2.6rem !important; }
+body.font-size-large .navbar-brand { font-size: 2.2rem !important; }
 body.font-size-large .nav-link { font-size: 1.1rem !important; }
-body.font-size-xlarge .navbar-brand { font-size: 3rem !important; }
+body.font-size-xlarge .navbar-brand { font-size: 2.5rem !important; }
 body.font-size-xlarge .nav-link { font-size: 1.2rem !important; }
 
 * {

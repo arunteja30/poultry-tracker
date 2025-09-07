@@ -13,54 +13,54 @@
       <h5 class="mobile-card-title" data-i18n="create_new_user">
         <i class="bi bi-person-plus me-2"></i>Create New User
       </h5>
-      
+
       <form method="POST" class="mobile-form-enhanced" data-autosave="false">
         <input name="action" type="hidden" value="create">
-        
+
         <div class="mobile-form-group">
           <label for="username" class="mobile-form-label" data-i18n="username">
             <i class="bi bi-person me-2"></i>Username
           </label>
-          <input id="username" 
-                 type="text" 
-                 name="username" 
-                 class="mobile-input-enhanced form-control" 
-                 required 
+          <input id="username"
+                 type="text"
+                 name="username"
+                 class="mobile-input-enhanced form-control"
+                 required
                  placeholder="Enter username">
         </div>
-        
+
         <div class="mobile-form-group">
           <label for="password" class="mobile-form-label" data-i18n="password">
             <i class="bi bi-lock me-2"></i>Password
           </label>
           <div class="position-relative">
-            <input id="password" 
-                   type="password" 
-                   name="password" 
-                   class="mobile-input-enhanced form-control" 
-                   required 
+            <input id="password"
+                   type="password"
+                   name="password"
+                   class="mobile-input-enhanced form-control"
+                   required
                    placeholder="Enter password">
-            <button type="button" 
-                    class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3" 
+            <button type="button"
+                    class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3"
                     onclick="togglePasswordVisibility('password')"
                     style="border: none; background: none; color: #6c757d;">
               <i class="bi bi-eye" id="togglePasswordIcon"></i>
             </button>
           </div>
         </div>
-        
+
         <div class="mobile-form-group">
           <label for="role" class="mobile-form-label" data-i18n="role">
             <i class="bi bi-shield me-2"></i>Role
           </label>
-          <select id="role" 
-                  name="role" 
+          <select id="role"
+                  name="role"
                   class="mobile-input-enhanced form-control">
             <option value="user" data-i18n="user_role">User</option>
             <option value="admin" data-i18n="admin_role">Admin</option>
           </select>
         </div>
-        
+
         <button type="submit" class="mobile-btn-primary w-100" data-i18n="create_user">
           <i class="bi bi-person-plus me-2"></i>Create User
         </button>
@@ -68,11 +68,11 @@
     </div>
 
     <!-- Existing Users List -->
-    <div class="mobile-card mt-4">
+    <div class="mobile-card mt-4 p-3">
       <h5 class="mobile-card-title" data-i18n="existing_users">
         <i class="bi bi-people me-2"></i>Existing Users
       </h5>
-      
+
       {% if users %}
       <!-- Mobile Cards View -->
       <div class="d-block d-lg-none">
@@ -84,7 +84,7 @@
                 <h6 class="mobile-card-title mb-1">
                   <i class="bi bi-person-circle me-2"></i>{{ user.username }}
                   {% if user.id == session.user_id %}
-                    <span class="badge bg-primary ms-2" data-i18n="you">You</span>
+                  <span class="badge bg-primary ms-2" data-i18n="you">You</span>
                   {% endif %}
                 </h6>
                 <p class="text-muted small mb-0">
@@ -97,7 +97,7 @@
                   </span>
                 </p>
               </div>
-              
+
               <div class="dropdown">
                 <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
                   <i class="bi bi-three-dots-vertical"></i>
@@ -111,8 +111,8 @@
                   {% if user.id != session.user_id %}
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" 
-                          onsubmit="return confirm('Are you sure you want to delete this user?')" 
+                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST"
+                          onsubmit="return confirm('Are you sure you want to delete this user?')"
                           class="dropdown-item-form">
                       <button type="submit" class="dropdown-item text-danger">
                         <i class="bi bi-trash me-2"></i>Delete User
@@ -133,22 +133,22 @@
         <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead class="table-light">
-              <tr>
-                <th data-i18n="username">Username</th>
-                <th data-i18n="role">Role</th>
-                        <th data-i18n="actions">Actions</th>
-              </tr>
+            <tr>
+              <th data-i18n="username">Username</th>
+              <th data-i18n="role">Role</th>
+              <th data-i18n="actions">Actions</th>
+            </tr>
             </thead>
             <tbody>
-              {% for user in users %}
-              <tr>
-                <td>
-                  <strong>{{ user.username }}</strong>
-                  {% if user.id == session.user_id %}
-                    <span class="badge bg-primary ms-2" data-i18n="you">You</span>
-                  {% endif %}
-                </td>
-                <td>
+            {% for user in users %}
+            <tr>
+              <td>
+                <strong>{{ user.username }}</strong>
+                {% if user.id == session.user_id %}
+                <span class="badge bg-primary ms-2" data-i18n="you">You</span>
+                {% endif %}
+              </td>
+              <td>
                   <span class="badge {% if user.role == 'admin' %}bg-success{% else %}bg-secondary{% endif %}">
                     {% if user.role == 'admin' %}
                       <i class="bi bi-shield-check me-1"></i><span data-i18n="admin_role">Admin</span>
@@ -156,25 +156,25 @@
                       <i class="bi bi-person me-1"></i><span data-i18n="user_role">User</span>
                     {% endif %}
                   </span>
-                </td>
-                <td>
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ user.id }}" data-i18n="edit">
-                      <i class="bi bi-pencil me-1"></i>Edit
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ user.id }}" data-i18n="edit">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                  </button>
+                  {% if user.id != session.user_id %}
+                  <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this user?')"
+                        style="display: inline;">
+                    <button class="btn btn-outline-danger btn-sm" data-i18n="delete" type="submit">
+                      <i class="bi bi-trash me-1"></i>Delete
                     </button>
-                    {% if user.id != session.user_id %}
-                    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST"
-                          onsubmit="return confirm('Are you sure you want to delete this user?')"
-                          style="display: inline;">
-                      <button class="btn btn-outline-danger btn-sm" data-i18n="delete" type="submit">
-                        <i class="bi bi-trash me-1"></i>Delete
-                      </button>
-                    </form>
-                    {% endif %}
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
             </tbody>
           </table>
         </div>
@@ -213,10 +213,10 @@
                 <label for="new_username" class="mobile-form-label" data-i18n="new_username">
                   <i class="bi bi-person me-2"></i>New Username
                 </label>
-                <input id="new_username" 
-                       type="text" 
-                       name="new_username" 
-                       class="mobile-input-enhanced form-control" 
+                <input id="new_username"
+                       type="text"
+                       name="new_username"
+                       class="mobile-input-enhanced form-control"
                        value="{{ user.username }}"
                        placeholder="Enter new username">
                 <small class="form-text text-muted" data-i18n="keep_current_username">
@@ -229,13 +229,13 @@
                   <i class="bi bi-lock me-2"></i>New Password
                 </label>
                 <div class="position-relative">
-                  <input id="new_password" 
-                         type="password" 
-                         name="new_password" 
+                  <input id="new_password"
+                         type="password"
+                         name="new_password"
                          class="mobile-input-enhanced form-control"
                          placeholder="Enter new password">
-                  <button type="button" 
-                          class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3" 
+                  <button type="button"
+                          class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-3"
                           onclick="togglePasswordVisibility('new_password')"
                           style="border: none; background: none; color: #6c757d;">
                     <i class="bi bi-eye"></i>
@@ -250,15 +250,15 @@
                 <label for="new_role" class="mobile-form-label" data-i18n="role">
                   <i class="bi bi-shield me-2"></i>Role
                 </label>
-                <select id="new_role" 
-                        name="new_role" 
+                <select id="new_role"
+                        name="new_role"
                         class="mobile-input-enhanced form-control">
                   <option value="user" {% if user.role == 'user' %}selected{% endif %} data-i18n="user_role">User</option>
                   <option value="admin" {% if user.role == 'admin' %}selected{% endif %} data-i18n="admin_role">Admin</option>
                 </select>
               </div>
             </div>
-            
+
             <div class="modal-footer">
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="cancel">
                 <i class="bi bi-x-circle me-1"></i>Cancel
@@ -290,246 +290,246 @@
 
 <!-- JavaScript for Enhanced Functionality -->
 <script>
-function togglePasswordVisibility(inputId) {
-  const input = document.getElementById(inputId);
-  const icon = input.nextElementSibling.querySelector('i');
-  
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.className = 'bi bi-eye-slash';
-  } else {
-    input.type = 'password';
-    icon.className = 'bi bi-eye';
-  }
-}
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = input.nextElementSibling.querySelector('i');
 
-// Enhanced form validation
-document.addEventListener('DOMContentLoaded', function() {
-  // Add touch feedback to buttons
-  const touchElements = document.querySelectorAll('.mobile-btn-primary, .btn');
-  touchElements.forEach(element => {
-    element.classList.add('mobile-touch-enhanced');
-  });
-
-  // Form validation
-  const forms = document.querySelectorAll('form');
-  forms.forEach(form => {
-    form.addEventListener('submit', function(e) {
-      const submitBtn = form.querySelector('[type="submit"]');
-      if (submitBtn) {
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin me-2"></i>Processing...';
-        submitBtn.disabled = true;
-        
-        // Re-enable button after 3 seconds as fallback
-        setTimeout(() => {
-          submitBtn.innerHTML = originalText;
-          submitBtn.disabled = false;
-        }, 3000);
-      }
-    });
-  });
-
-  // Auto-focus first input in modals
-  const modals = document.querySelectorAll('.modal');
-  modals.forEach(modal => {
-    modal.addEventListener('shown.bs.modal', function() {
-      const firstInput = modal.querySelector('input[type="text"]');
-      if (firstInput && window.innerWidth >= 768) {
-        setTimeout(() => firstInput.focus(), 100);
-      }
-    });
-  });
-});
-
-// CSS Animation for loading
-const style = document.createElement('style');
-style.textContent = `
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  .dropdown-item-form {
-    margin: 0;
-    padding: 0;
-  }
-  .dropdown-item-form .dropdown-item {
-    width: 100%;
-    text-align: left;
-    border: none;
-    background: none;
-  }
-`;
-document.head.appendChild(style);
-
-// Translation system functions
-function loadUserLang(langCode) {
-    try {
-        // This function would typically load translations
-        // For now, just store the selected language
-        localStorage.setItem('selectedLang', langCode);
-        console.log('Language set to:', langCode);
-    } catch(e) { 
-        console.error('Translation loading failed:', e); 
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'bi bi-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'bi bi-eye';
     }
-}
+  }
 
-function getTranslation(key) {
-    // Simple translation function
-    const translations = {
-        'username_password_required': 'Username and password are required',
-        'en': {
-            'username_password_required': 'Username and password are required'
-        },
-        'hi': {
-            'username_password_required': 'उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं'
-        },
-        'te': {
-            'username_password_required': 'వినియోగదారు పేరు మరియు పాస్‌వర్డ్ అవసరం'
-        }
-    };
-    
-    const currentLang = localStorage.getItem('selectedLang') || 'en';
-    return translations[currentLang] && translations[currentLang][key] || translations[key] || key;
-}
+  // Enhanced form validation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add touch feedback to buttons
+    const touchElements = document.querySelectorAll('.mobile-btn-primary, .btn');
+    touchElements.forEach(element => {
+      element.classList.add('mobile-touch-enhanced');
+    });
 
-// Load saved language or default to English
-document.addEventListener('DOMContentLoaded', function() {
-    const savedLang = localStorage.getItem('selectedLang') || 'en';
-    loadUserLang(savedLang);
-
-    // Listen for language changes from the global language selector
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        langSelect.addEventListener('change', (e) => {
-            loadUserLang(e.target.value);
-        });
-    }
-
-    // Handle form validation
+    // Form validation
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const action = form.querySelector('input[name="action"]');
-            if (action && action.value === 'create') {
-                const username = form.querySelector('input[name="username"]');
-                const password = form.querySelector('input[name="password"]');
+      form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('[type="submit"]');
+        if (submitBtn) {
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise animate-spin me-2"></i>Processing...';
+          submitBtn.disabled = true;
 
-                if (!username.value.trim() || !password.value.trim()) {
-                    e.preventDefault();
-                    alert(getTranslation('username_password_required') || 'Username and password are required');
-                    return false;
-                }
-            }
-        });
+          // Re-enable button after 3 seconds as fallback
+          setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }, 3000);
+        }
+      });
     });
-});
+
+    // Auto-focus first input in modals
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.addEventListener('shown.bs.modal', function() {
+        const firstInput = modal.querySelector('input[type="text"]');
+        if (firstInput && window.innerWidth >= 768) {
+          setTimeout(() => firstInput.focus(), 100);
+        }
+      });
+    });
+  });
+
+  // CSS Animation for loading
+  const style = document.createElement('style');
+  style.textContent = `
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .dropdown-item-form {
+      margin: 0;
+      padding: 0;
+    }
+    .dropdown-item-form .dropdown-item {
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: none;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Translation system functions
+  function loadUserLang(langCode) {
+      try {
+          // This function would typically load translations
+          // For now, just store the selected language
+          localStorage.setItem('selectedLang', langCode);
+          console.log('Language set to:', langCode);
+      } catch(e) {
+          console.error('Translation loading failed:', e);
+      }
+  }
+
+  function getTranslation(key) {
+      // Simple translation function
+      const translations = {
+          'username_password_required': 'Username and password are required',
+          'en': {
+              'username_password_required': 'Username and password are required'
+          },
+          'hi': {
+              'username_password_required': 'उपयोगकर्ता नाम और पासवर्ड आवश्यक हैं'
+          },
+          'te': {
+              'username_password_required': 'వినియోగదారు పేరు మరియు పాస్‌వర్డ్ అవసరం'
+          }
+      };
+
+      const currentLang = localStorage.getItem('selectedLang') || 'en';
+      return translations[currentLang] && translations[currentLang][key] || translations[key] || key;
+  }
+
+  // Load saved language or default to English
+  document.addEventListener('DOMContentLoaded', function() {
+      const savedLang = localStorage.getItem('selectedLang') || 'en';
+      loadUserLang(savedLang);
+
+      // Listen for language changes from the global language selector
+      const langSelect = document.getElementById('langSelect');
+      if (langSelect) {
+          langSelect.addEventListener('change', (e) => {
+              loadUserLang(e.target.value);
+          });
+      }
+
+      // Handle form validation
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+          form.addEventListener('submit', function(e) {
+              const action = form.querySelector('input[name="action"]');
+              if (action && action.value === 'create') {
+                  const username = form.querySelector('input[name="username"]');
+                  const password = form.querySelector('input[name="password"]');
+
+                  if (!username.value.trim() || !password.value.trim()) {
+                      e.preventDefault();
+                      alert(getTranslation('username_password_required') || 'Username and password are required');
+                      return false;
+                  }
+              }
+          });
+      });
+  });
 </script>
 
 <style>
-/* Users page specific styles */
-.card {
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+  /* Users page specific styles */
+  .card {
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
 
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    padding: 1rem;
-}
+  .card-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      padding: 1rem;
+  }
 
-.card-header h3 {
-    margin: 0;
-    color: #495057;
-}
+  .card-header h3 {
+      margin: 0;
+      color: #495057;
+  }
 
-.badge {
-    font-size: 0.75em;
-    font-weight: 500;
-}
+  .badge {
+      font-size: 0.75em;
+      font-weight: 500;
+  }
 
-.badge-primary {
-    background-color: #007bff !important;
-    color: white !important;
-}
+  .badge-primary {
+      background-color: #007bff !important;
+      color: white !important;
+  }
 
-.badge-success {
-    background-color: #28a745 !important;
-    color: white !important;
-}
+  .badge-success {
+      background-color: #28a745 !important;
+      color: white !important;
+  }
 
-.badge-secondary {
-    background-color: #6c757d !important;
-    color: white !important;
-}
+  .badge-secondary {
+      background-color: #6c757d !important;
+      color: white !important;
+  }
 
-.table th {
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-}
+  .table th {
+      background-color: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+  }
 
-.table td {
-    color: #212529;
-    vertical-align: middle;
-}
+  .table td {
+      color: #212529;
+      vertical-align: middle;
+  }
 
-.table td strong {
-    color: #007bff;
-    font-weight: 600;
-}
+  .table td strong {
+      color: #007bff;
+      font-weight: 600;
+  }
 
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    margin-right: 0.25rem;
-}
+  .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      margin-right: 0.25rem;
+  }
 
-.modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
+  .modal-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+  }
 
-.modal-header .btn-close {
-    padding: 0.5rem;
-    margin: -0.5rem -0.5rem -0.5rem auto;
-}
+  .modal-header .btn-close {
+      padding: 0.5rem;
+      margin: -0.5rem -0.5rem -0.5rem auto;
+  }
 
-.modal-title {
-    margin-bottom: 0;
-    line-height: 1.5;
-}
+  .modal-title {
+      margin-bottom: 0;
+      line-height: 1.5;
+  }
 
-.alert-info {
-    background-color: #d1ecf1;
-    border-color: #bee5eb;
-    color: #0c5460;
-}
+  .alert-info {
+      background-color: #d1ecf1;
+      border-color: #bee5eb;
+      color: #0c5460;
+  }
 
-.form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -5px;
-    margin-left: -5px;
-}
+  .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-right: -5px;
+      margin-left: -5px;
+  }
 
-.form-row > .col-md-4 {
-    padding-right: 5px;
-    padding-left: 5px;
-    flex: 0 0 33.333333%;
-    max-width: 33.333333%;
-}
+  .form-row > .col-md-4 {
+      padding-right: 5px;
+      padding-left: 5px;
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+  }
 
-@media (max-width: 768px) {
-    .form-row > .col-md-4 {
-        flex: 0 0 100%;
-        max-width: 100%;
-        margin-bottom: 1rem;
-    }
-}
+  @media (max-width: 768px) {
+      .form-row > .col-md-4 {
+          flex: 0 0 100%;
+          max-width: 100%;
+          margin-bottom: 1rem;
+      }
+  }
 </style>
 {% endblock %}
