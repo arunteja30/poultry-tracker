@@ -15,26 +15,11 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 
 app = Flask(__name__, instance_relative_config=True)
+database_url = os.environ.get("postgresql://poultry_management_user:6OVgW0lwlDGiNTsEzWezCkG6yaPGozVA@dpg-d2u6upje5dus73eflbe0-a/poultry_management")
 
-# Fix the database configuration
-database_url = os.environ.get("DATABASE_URL")  # Get from environment variable
-
-if database_url:
-    # Render gives a Postgres connection string starting with "postgres://"
-    # SQLAlchemy prefers "postgresql://", so we fix it
-    if database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
-    
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-else:
-    # Local development fallback (SQLite file)
-    # Create instance directory if it doesn't exist
-    os.makedirs(app.instance_path, exist_ok=True)
-    sqlite_path = os.path.join(app.instance_path, 'poultry.db')
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{sqlite_path}"
-
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
+app.secret_key = 'your-secret-key-change-this-in-production'  # Change this in production
 db = SQLAlchemy(app)
 
 # ---------------- Models ----------------
