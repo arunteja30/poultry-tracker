@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Super Admin Profile</h2>
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><strong>Username:</strong> {{ current_user.username }}</p>
+      <p><strong>Role:</strong> {{ current_user.role }}</p>
+      <p><strong>Email:</strong> {{ current_user.email or '-' }}</p>
+      <p><strong>Full Name:</strong> {{ current_user.full_name or '-' }}</p>
+      <p><strong>Phone:</strong> {{ current_user.phone or '-' }}</p>
+    </div>
+  </div>
+
+  {% if current_user.role == 'super_admin' %}
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>View Company Details</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('select_company') }}">
+        <div class="mb-3">
+          <label for="company_id" class="form-label">Select Company</label>
+          <select class="form-control" id="company_id" name="company_id" required>
+            <option value="">Choose a company</option>
+            {% for company in companies %}
+            <option value="{{ company.id }}">{{ company.name }} ({{ company.code }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">View Company Data</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

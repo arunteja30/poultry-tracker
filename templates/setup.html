@@ -12,7 +12,7 @@
         <i class="bi bi-exclamation-triangle-fill me-3 mt-1"></i>
         <div>
           <h6 class="mb-2" data-i18n="existing_cycle_warning">Active Cycle Found</h6>
-          <p class="mb-0 small" data-i18n="existing_cycle_msg">You have an active cycle with {{ existing_cycle.current_birds }} birds started on {{ existing_cycle.start_date }}. Starting a new cycle will archive the current one.</p>
+          <p class="mb-0 small" data-i18n="existing_cycle_msg">You have an active cycle with {{ existing_cycle.current_birds }} birds started on <span data-date="{{ existing_cycle.start_date }}">{{ existing_cycle.start_date }}</span>. Starting a new cycle will archive the current one.</p>
         </div>
       </div>
     </div>

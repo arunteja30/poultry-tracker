@@ -73,6 +73,11 @@ class User(db.Model):
     def check_password(self, password):
         return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
     
+    @property
+    def password(self):
+        """Return a masked password for display purposes only"""
+        return "••••••••" if self.password_hash else None
+    
     def get_company(self):
         if self.company_id:
             return Company.query.get(self.company_id)
@@ -330,10 +335,14 @@ def get_active_cycle(user=None):
     if not user:
         return None
     
-    # Super admin can see all cycles, but should select a company
+    # Super admin can see cycles based on selected company
     if user.role == 'super_admin':
-        # For super admin, get the first active cycle (or implement company selection)
-        return Cycle.query.filter_by(status='active').order_by(Cycle.id.desc()).first()
+        selected_company_id = session.get('selected_company_id')
+        if selected_company_id:
+            return Cycle.query.filter_by(company_id=selected_company_id, status='active').order_by(Cycle.id.desc()).first()
+        else:
+            # If no company selected, return None to prompt company selection
+            return None
     
     if not user.company_id:
         return None
@@ -379,7 +388,8 @@ def inject_template_vars():
     return dict(
         get_all_companies=get_all_companies,
         get_current_company=get_current_company,
-        get_user_by_id=get_user_by_id
+        get_user_by_id=get_user_by_id,
+        current_user=get_current_user()
     )
 
 def calc_cumulative_stats(cycle_id):
@@ -1226,28 +1236,32 @@ def medicines():
     cycle = get_active_cycle()
     if not cycle:
         return redirect(url_for('setup'))
-        
+    
     if request.method=='POST':
         name = request.form.get('name')
         price = float(request.form.get('price',0) or 0)
         qty = int(request.form.get('qty',0) or 0)
-        
+        medicine_ext1 = request.form.get('medicine_ext1', '').strip()  # Get notes from form
+    
         user = get_current_user()
         company_id = get_user_company_id()
-        
+    
         m = Medicine(
             company_id=company_id,
             cycle_id=cycle.id, 
             name=name, 
             price=price, 
             qty=qty,
+            medicine_ext1=medicine_ext1,  # Save notes
             created_by=user.id,
             created_date=datetime.utcnow()
         )
         db.session.add(m)
         db.session.commit()
-        flash(f'Medicine "{name}" added successfully for cycle #{cycle.id}!', 'success')
+        flash(f'Medicine \"{name}\" added successfully for cycle #{cycle.id}!', 'success')
         return redirect(url_for('medicines'))
+        
+        
         
     # Filter medicines by current cycle
     meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.id.desc()).all()
@@ -2178,6 +2192,75 @@ def users():
     
     return render_template('users.html', users=all_users)
 
+@app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
+@admin_required
+def edit_user(user_id):
+    """Edit a user (admin and super admin can edit users)"""
+    user = User.query.get_or_404(user_id)
+    current_user = get_current_user()
+    
+    # Security check: Only super admins can edit super admin users
+    if user.role == 'super_admin' and current_user.role != 'super_admin':
+        flash('Access denied. Only super admins can edit super admin users.', 'error')
+        return redirect(url_for('user_management'))
+    
+    # For regular admins, only allow editing of users in their company
+    if current_user.role == 'admin' and user.company_id != current_user.company_id:
+        flash('Access denied. You can only edit users in your company.', 'error')
+        return redirect(url_for('user_management'))
+    
+    if request.method == 'POST':
+        # Get form data
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        role = request.form.get('role', '').strip()
+        company_id = request.form.get('company_id')
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        
+        if not username or not role:
+            flash('Username and role are required!', 'error')
+            return redirect(url_for('edit_user', user_id=user_id))
+        
+        # Super admin users don't need a company
+        if role != 'super_admin' and not company_id:
+            flash('Company is required for non-super admin users!', 'error')
+            return redirect(url_for('edit_user', user_id=user_id))
+        
+        # Check if username already exists (excluding current user)
+        existing = User.query.filter(User.username == username, User.id != user_id).first()
+        if existing:
+            flash('Username already exists!', 'error')
+            return redirect(url_for('edit_user', user_id=user_id))
+        
+        # Security check: Only super admins can assign super admin role
+        if role == 'super_admin' and current_user.role != 'super_admin':
+            flash('Access denied. Only super admins can assign super admin role.', 'error')
+            return redirect(url_for('edit_user', user_id=user_id))
+        
+        # Update user information
+        user.username = username
+        user.role = role
+        user.company_id = int(company_id) if company_id and role != 'super_admin' else None
+        user.full_name = full_name
+        user.email = email
+        user.phone = phone
+        user.modified_by = current_user.id
+        user.modified_date = datetime.utcnow()
+        
+        # Update password if provided
+        if password:
+            user.set_password(password)
+        
+        db.session.commit()
+        flash(f'User "{username}" updated successfully!', 'success')
+        return redirect(url_for('user_management'))
+    
+    # GET request - show edit form
+    companies = Company.query.filter_by(status='active').order_by(Company.name).all()
+    return render_template('edit_user.html', user=user, companies=companies)
+
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
 @admin_required
 def delete_user(user_id):
@@ -2189,24 +2272,24 @@ def delete_user(user_id):
         # Security check: Only super admins can delete super admin users
         if user.role == 'super_admin' and current_user.role != 'super_admin':
             flash('Access denied. Only super admins can delete super admin users.', 'error')
-            return redirect(url_for('users'))
+            return redirect(url_for('user_management'))
         
         # Prevent user from deleting themselves
         if user.id == session.get('user_id'):
             flash('You cannot delete your own account / आप अपना खाता नहीं हटा सकते', 'error')
-            return redirect(url_for('users'))
+            return redirect(url_for('user_management'))
         
         # For regular admins, only allow deletion of users in their company
         if current_user.role == 'admin' and user.company_id != current_user.company_id:
             flash('You can only delete users from your own company.', 'error')
-            return redirect(url_for('users'))
+            return redirect(url_for('user_management'))
         
         # Prevent deletion of the last admin in a company
         if user.role == 'admin' and user.company_id:
             admin_count = User.query.filter_by(role='admin', company_id=user.company_id).count()
             if admin_count <= 1:
                 flash('Cannot delete the last admin user for this company / इस कंपनी के अंतिम व्यवस्थापक उपयोगकर्ता को नहीं हटा सकते', 'error')
-                return redirect(url_for('users'))
+                return redirect(url_for('user_management'))
         
         username = user.username
         db.session.delete(user)
@@ -2216,14 +2299,24 @@ def delete_user(user_id):
     except Exception as e:
         flash(f'Error deleting user: {str(e)} / उपयोगकर्ता हटाने में त्रुटि: {str(e)}', 'error')
     
-    return redirect(url_for('users'))
+    return redirect(url_for('user_management'))
 
 @app.route('/cycle_history')
 @login_required
 def cycle_history():
     """View all cycles (active and archived) for comparison"""
-    # Get all cycles ordered by most recent first
-    cycles = Cycle.query.order_by(Cycle.id.desc()).all()
+    current_user = get_current_user()
+    
+    # Get cycles based on user role and selected company
+    if current_user.role == 'super_admin':
+        selected_company_id = session.get('selected_company_id')
+        if selected_company_id:
+            cycles = Cycle.query.filter_by(company_id=selected_company_id).order_by(Cycle.id.desc()).all()
+        else:
+            cycles = []  # No cycles if no company selected
+    else:
+        # Regular admins see only their company's cycles
+        cycles = Cycle.query.filter_by(company_id=current_user.company_id).order_by(Cycle.id.desc()).all()
     
     cycle_data = []
     for cycle in cycles:
@@ -2289,7 +2382,30 @@ def cycle_history():
 def cycle_details(cycle_id):
     """View detailed information for a specific cycle"""
     cycle = Cycle.query.get_or_404(cycle_id)
-    cycles = Cycle.query.all()
+    current_user = get_current_user()
+    
+    # Security check: ensure user can access this cycle
+    if current_user.role == 'super_admin':
+        # Super admin can access any cycle, but should be from selected company
+        selected_company_id = session.get('selected_company_id')
+        if selected_company_id and cycle.company_id != selected_company_id:
+            flash('Access denied. This cycle belongs to a different company.', 'error')
+            return redirect(url_for('cycle_history'))
+    else:
+        # Regular users can only access cycles from their company
+        if cycle.company_id != current_user.company_id:
+            flash('Access denied. You can only view cycles from your company.', 'error')
+            return redirect(url_for('cycle_history'))
+    
+    # Get cycles for dropdown based on user role and selected company
+    if current_user.role == 'super_admin':
+        selected_company_id = session.get('selected_company_id')
+        if selected_company_id:
+            cycles = Cycle.query.filter_by(company_id=selected_company_id).all()
+        else:
+            cycles = []
+    else:
+        cycles = Cycle.query.filter_by(company_id=current_user.company_id).all()
 
     # Calculate duration
     if cycle.start_date:
@@ -2519,7 +2635,18 @@ def export_dispatch_excel():
 @app.route('/income_estimate', methods=['GET', 'POST'])
 def income_estimate():
     cycle = get_active_cycle()
-    all_cycles = Cycle.query.all()
+    current_user = get_current_user()
+    
+    # Get cycles based on user role and selected company
+    if current_user.role == 'super_admin':
+        selected_company_id = session.get('selected_company_id')
+        if selected_company_id:
+            all_cycles = Cycle.query.filter_by(company_id=selected_company_id).all()
+        else:
+            all_cycles = []
+    else:
+        all_cycles = Cycle.query.filter_by(company_id=current_user.company_id).all()
+    
     chick_cost = feed_cost = other_expenses = chick_price = 0.0
     feed_per_kg_price = 45  # Default feed price per kg (updated default)
     bag_weight = 50  # Default bag weight in kg
@@ -2920,12 +3047,34 @@ def create_company():
     flash(f'Company "{name}" created successfully!', 'success')
     return redirect(url_for('company_management'))
 
+@app.route('/profile')
+@login_required
+def profile():
+    """User profile page"""
+    current_user = get_current_user()
+    companies = []
+    
+    # Only super admin can see company selection
+    if current_user.role == 'super_admin':
+        companies = Company.query.filter_by(status='active').order_by(Company.name).all()
+    
+    return render_template('profile.html', companies=companies)
+
 @app.route('/user_management')
-@super_admin_required  
+@admin_required  
 def user_management():
     """User management for super admin"""
-    # Super admins can see all users including other super admins
-    users = User.query.join(Company, isouter=True).order_by(Company.name, User.username).all()
+    current_user = get_current_user()
+    
+    if current_user.role == 'super_admin':
+        # Super admins can see all users including other super admins
+        users = User.query.join(Company, isouter=True).order_by(Company.name, User.username).all()
+    else:
+        # Regular admins can only see users in their company (excluding super admins)
+        users = User.query.join(Company, isouter=True).filter(
+            User.role != 'super_admin'
+        ).order_by(Company.name, User.username).all()
+    
     companies = Company.query.filter_by(status='active').order_by(Company.name).all()
     return render_template('user_management.html', users=users, companies=companies)
 
@@ -3006,6 +3155,16 @@ def update_user_status(user_id, status):
     flash(f'User status updated to {status}!', 'success')
     return redirect(url_for('user_management'))
 
+@app.route('/select_company', methods=['POST'])
+@super_admin_required
+def select_company():
+    company_id = request.form.get('company_id')
+    if not company_id:
+        flash('Please select a company.', 'error')
+        return redirect(url_for('profile'))
+    session['selected_company_id'] = int(company_id)
+    flash('Company selected! You are now viewing data as admin for this company.', 'success')
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

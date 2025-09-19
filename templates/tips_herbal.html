@@ -3,512 +3,341 @@
 <div class="mobile-container">
   <div class="mobile-section">
     <h2 class="mobile-header text-center mb-mobile-3" data-i18n="herbal_title">🌿 Herbal Treatment Schedule</h2>
-    
     <div class="mobile-card card shadow-sm mb-mobile-3">
       <div class="card-header bg-success text-white p-mobile-2">
-        <h5 class="mb-0 text-center" data-i18n="treatment_schedule">📅 Treatment Schedule</h5>
+        <h5 class="mb-0 text-center" style="color: white;" data-i18n="treatment_schedule">📅 Treatment Schedule</h5>
       </div>
-        <div class="card-body p-0">
-          <!-- Desktop Table -->
-          <div class="table-responsive d-none d-lg-block">
-            <table class="table table-striped table-hover mb-0">
-              <thead class="table-dark">
-                <tr>
-                  <th data-i18n="day_range">Day Range</th>
-                  <th data-i18n="treatment">Treatment</th>
-                  <th data-i18n="ingredients_dose">Ingredients & Dose</th>
-                  <th data-i18n="frequency">Frequency</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="table-primary">
-                  <td><span class="badge bg-primary">1–7</span></td>
-                  <td data-i18n="sugar_electrolytes">Sugar + Electrolytes</td>
-                  <td data-i18n="sugar_electrolytes_dose">1 tsp sugar + 1 g electrolyte per 1L water</td>
-                  <td><span class="badge bg-success" data-i18n="daily_first_2_days">Daily (first 2 days)</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-primary">1–7</span></td>
-                  <td data-i18n="garlic_water">Garlic Water</td>
-                  <td data-i18n="garlic_water_dose">1–2 crushed garlic cloves per 1L water</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-info">
-                  <td><span class="badge bg-info">8–14</span></td>
-                  <td data-i18n="apple_cider_vinegar">Apple Cider Vinegar</td>
-                  <td data-i18n="apple_cider_vinegar_dose">5–10 ml ACV per 1L water</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-info">8–14</span></td>
-                  <td data-i18n="turmeric_water">Turmeric Water</td>
-                  <td data-i18n="turmeric_water_dose">½ tsp turmeric per 1L water</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-warning">
-                  <td><span class="badge bg-warning">15–21</span></td>
-                  <td data-i18n="amla_extract">Amla Extract</td>
-                  <td data-i18n="amla_extract_dose">1–2 tsp amla juice per 1L water</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-warning">15–21</span></td>
-                  <td data-i18n="fenugreek_seeds">Fenugreek Seeds</td>
-                  <td data-i18n="fenugreek_seeds_dose">1 tsp seeds soaked overnight in 250ml water, give water next day</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-success">
-                  <td><span class="badge bg-success">22–28</span></td>
-                  <td data-i18n="aloe_vera_juice">Aloe Vera Juice</td>
-                  <td data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-success">22–28</span></td>
-                  <td data-i18n="neem_leaves">Neem Leaves</td>
-                  <td data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-secondary">
-                  <td><span class="badge bg-secondary">29–35</span></td>
-                  <td data-i18n="sprouted_grains">Sprouted Grains</td>
-                  <td data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-secondary">29–35</span></td>
-                  <td data-i18n="sesame_seeds">Sesame Seeds</td>
-                  <td data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-danger">
-                  <td><span class="badge bg-danger">36–42</span></td>
-                  <td data-i18n="tulsi_water">Tulsi Water</td>
-                  <td data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-danger">36–42</span></td>
-                  <td data-i18n="ginger_water">Ginger Water</td>
-                  <td data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-secondary">43–50</span></td>
-                  <td data-i18n="curd_yogurt">Curd (Yogurt)</td>
-                  <td data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Mobile Cards -->
-          <div class="d-lg-none p-mobile-2">
-            <!-- Week 1 (Days 1-7) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-primary text-white">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 1 (Days 1-7)
-                </h6>
-              </div>
-              
-              <div class="mobile-treatment-card border-start border-primary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="sugar_electrolytes">Sugar + Electrolytes</h6>
-                  <span class="badge bg-success px-1 py-1" data-i18n="daily_first_2_days">Daily (first 2 days)</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="sugar_electrolytes_dose">1 tsp sugar + 1 g electrolyte per 1L water</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-primary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="garlic_water">Garlic Water</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="garlic_water_dose">1–2 crushed garlic cloves per 1L water</p>
-              </div>
+      <div class="card-body p-4">
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-lg-block">
+          <table class="table table-striped table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th data-i18n="day_range">Day Range</th>
+                <th data-i18n="treatment">Treatment</th>
+                <th data-i18n="ingredients_dose">Ingredients & Dose</th>
+                <th data-i18n="frequency">Frequency</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-primary">
+                <td><span class="badge bg-primary">1–7</span></td>
+                <td data-i18n="sugar_electrolytes">Sugar + Electrolytes</td>
+                <td data-i18n="sugar_electrolytes_dose">1 tsp sugar + 1 g electrolyte per 1L water</td>
+                <td><span class="badge bg-success" data-i18n="daily_first_2_days">Daily (first 2 days)</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-primary">1–7</span></td>
+                <td data-i18n="garlic_water">Garlic Water</td>
+                <td data-i18n="garlic_water_dose">1–2 crushed garlic cloves per 1L water</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+              <tr class="table-info">
+                <td><span class="badge bg-info">8–14</span></td>
+                <td data-i18n="apple_cider_vinegar">Apple Cider Vinegar</td>
+                <td data-i18n="apple_cider_vinegar_dose">5–10 ml ACV per 1L water</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-info">8–14</span></td>
+                <td data-i18n="turmeric_water">Turmeric Water</td>
+                <td data-i18n="turmeric_water_dose">½ tsp turmeric per 1L water</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+              <tr class="table-danger">
+                <td><span class="badge bg-danger">15–21</span></td>
+                <td data-i18n="amla_extract">Amla Extract</td>
+                <td data-i18n="amla_extract_dose">1–2 tsp amla juice per 1L water</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-danger">15–21</span></td>
+                <td data-i18n="fenugreek_seeds">Fenugreek Seeds</td>
+                <td data-i18n="fenugreek_seeds_dose">1 tsp seeds soaked overnight in 250ml water, give water next day</td>
+                <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+              </tr>
+              <tr class="table-success">
+                <td><span class="badge bg-success">22–28</span></td>
+                <td data-i18n="aloe_vera_juice">Aloe Vera Juice</td>
+                <td data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</td>
+                <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-success">22–28</span></td>
+                <td data-i18n="neem_leaves">Neem Leaves</td>
+                <td data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</td>
+                <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+              </tr>
+              <tr class="table-secondary">
+                <td><span class="badge bg-secondary">29–35</span></td>
+                <td data-i18n="sprouted_grains">Sprouted Grains</td>
+                <td data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-secondary">29–35</span></td>
+                <td data-i18n="sesame_seeds">Sesame Seeds</td>
+                <td data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+              <tr class="table-danger">
+                <td><span class="badge bg-danger">36–42</span></td>
+                <td data-i18n="tulsi_water">Tulsi Water</td>
+                <td data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</td>
+                <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-danger">36–42</span></td>
+                <td data-i18n="ginger_water">Ginger Water</td>
+                <td data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</td>
+                <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
+              </tr>
+              <tr class="table-light">
+                <td><span class="badge bg-secondary">43–50</span></td>
+                <td data-i18n="curd_yogurt">Curd (Yogurt)</td>
+                <td data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</td>
+                <td><span class="badge bg-danger" data-i18n="twice_weekly">2 days/week</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Mobile Cards -->
+        <div class="d-lg-none p-mobile-2">
+          <!-- Week 1 (Days 1-7) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-primary text-white">
+              <h6 class="mb-0 fw-bold">
+                <i class="bi bi-calendar-week me-2"></i>Week 1 (Days 1-7)
+              </h6>
             </div>
-
-            <!-- Week 2 (Days 8-14) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-info text-white">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 2 (Days 8-14)
-                </h6>
+            <div class="mobile-treatment-card border-start border-primary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="sugar_electrolytes">Sugar + Electrolytes</h6>
+                <span class="badge bg-success px-1 py-1" data-i18n="daily_first_2_days">Daily (first 2 days)</span>
               </div>
-              
-              <div class="mobile-treatment-card border-start border-info border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="apple_cider_vinegar">Apple Cider Vinegar</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="apple_cider_vinegar_dose">5–10 ml ACV per 1L water</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-info border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="turmeric_water">Turmeric Water</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="turmeric_water_dose">½ tsp turmeric per 1L water</p>
-              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="sugar_electrolytes_dose">1 tsp sugar + 1 g electrolyte per 1L water</p>
             </div>
-
-            <!-- Week 3 (Days 15-21) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-warning text-dark">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 3 (Days 15-21)
-                </h6>
+            <div class="mobile-treatment-card border-start border-primary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="garlic_water">Garlic Water</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
               </div>
-              
-              <div class="mobile-treatment-card border-start border-warning border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="amla_extract">Amla Extract</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="amla_extract_dose">1–2 tsp amla juice per 1L water</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-warning border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="fenugreek_seeds">Fenugreek Seeds</h6>
-                  <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="fenugreek_seeds_dose">1 tsp seeds soaked overnight in 250ml water, give water next day</p>
-              </div>
-            </div>
-
-            <!-- Week 4 (Days 22-28) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-success text-white">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 4 (Days 22-28)
-                </h6>
-              </div>
-              
-              <div class="mobile-treatment-card border-start border-success border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="aloe_vera_juice">Aloe Vera Juice</h6>
-                  <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-success border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="neem_leaves">Neem Leaves</h6>
-                  <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</p>
-              </div>
-            </div>
-
-            <!-- Week 5 (Days 29-35) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-secondary text-white">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 5 (Days 29-35)
-                </h6>
-              </div>
-              
-              <div class="mobile-treatment-card border-start border-secondary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="sprouted_grains">Sprouted Grains</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-secondary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="sesame_seeds">Sesame Seeds</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</p>
-              </div>
-            </div>
-
-            <!-- Week 6 (Days 36-42) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-danger text-white">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 6 (Days 36-42)
-                </h6>
-              </div>
-              
-              <div class="mobile-treatment-card border-start border-danger border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="tulsi_water">Tulsi Water</h6>
-                  <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-danger border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="ginger_water">Ginger Water</h6>
-                  <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</p>
-              </div>
-            </div>
-
-            <!-- Week 7+ (Days 43-50) -->
-            <div class="mobile-week-section mb-mobile-2">
-              <div class="week-header p-2 mb-2 rounded bg-dark text-white">
-                <h6 class="mb-0 fw-bold">
-                  <i class="bi bi-calendar-week me-2"></i>Week 7+ (Days 43-50)
-                </h6>
-              </div>
-              
-              <div class="mobile-treatment-card border-start border-dark border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="curd_yogurt">Curd (Yogurt)</h6>
-                  <span class="badge bg-warning px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</p>
-              </div>
-
-              <div class="mobile-treatment-card border-start border-dark border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <h6 class="treatment-title mb-0" data-i18n="coriander_seeds">Coriander Seeds</h6>
-                  <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
-                </div>
-                <p class="treatment-dose mb-0 small text-muted" data-i18n="coriander_seeds_dose">½ tsp crushed per 10 birds, mixed in feed</p>
-              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="garlic_water_dose">1–2 crushed garlic cloves per 1L water</p>
             </div>
           </div>
-                  </div>
-                  <p class="card-text" data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</p>
-                </div>
-              </div>
-
-              <div class="mobile-card mb-3 border-success">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0" data-i18n="neem_leaves">Neem Leaves</h6>
-                    <span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span>
-                  </div>
-                  <p class="card-text" data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</p>
-                </div>
-              </div>
+          <!-- Week 2 (Days 8-14) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-info text-white">
+              <h6 class="mb-0 fw-bold">
+                <i class="bi bi-calendar-week me-2"></i>Week 2 (Days 8-14)
+              </h6>
             </div>
-
-            <!-- Week 5 (Days 29-35) -->
-            <div class="mobile-section mb-4">
-              <h6 class="text-secondary mb-3">
+            <div class="mobile-treatment-card border-start border-info border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="apple_cider_vinegar">Apple Cider Vinegar</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="apple_cider_vinegar_dose">5–10 ml ACV per 1L water</p>
+            </div>
+            <div class="mobile-treatment-card border-start border-info border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="turmeric_water">Turmeric Water</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="turmeric_water_dose">½ tsp turmeric per 1L water</p>
+            </div>
+          </div>
+          <!-- Week 3 (Days 15-21) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-danger text-dark">
+              <h6 class="mb-0 fw-bold">
+                <i class="bi bi-calendar-week me-2"></i>Week 3 (Days 15-21)
+              </h6>
+            </div>
+            <div class="mobile-treatment-card border-start border-danger border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="amla_extract">Amla Extract</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="amla_extract_dose">1–2 tsp amla juice per 1L water</p>
+            </div>
+            <div class="mobile-treatment-card border-start border-danger border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="fenugreek_seeds">Fenugreek Seeds</h6>
+                <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="fenugreek_seeds_dose">1 tsp seeds soaked overnight in 250ml water, give water next day</p>
+            </div>
+          </div>
+          <!-- Week 4 (Days 22-28) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-success text-white">
+              <h6 class="mb-0 fw-bold">
+                <i class="bi bi-calendar-week me-2"></i>Week 4 (Days 22-28)
+              </h6>
+            </div>
+            <div class="mobile-treatment-card border-start border-success border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="aloe_vera_juice">Aloe Vera Juice</h6>
+                <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</p>
+            </div>
+            <div class="mobile-treatment-card border-start border-success border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="neem_leaves">Neem Leaves</h6>
+                <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</p>
+            </div>
+          </div>
+          <!-- Week 5 (Days 29-35) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-secondary text-white">
+              <h6 class="mb-0 fw-bold">
                 <i class="bi bi-calendar-week me-2"></i>Week 5 (Days 29-35)
               </h6>
-              
-              <div class="mobile-card mb-3 border-secondary">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0" data-i18n="sprouted_grains">Sprouted Grains</h6>
-                    <span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span>
-                  </div>
-                  <p class="card-text" data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</p>
-                </div>
-              </div>
-
-              <div class="mobile-card mb-3 border-secondary">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0" data-i18n="sesame_seeds">Sesame Seeds</h6>
-                    <span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span>
-                  </div>
-                  <p class="card-text" data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</p>
-                </div>
-              </div>
             </div>
-
-            <!-- Week 6 (Days 36-42) -->
-            <div class="mobile-section mb-4">
-              <h6 class="text-danger mb-3">
+            <div class="mobile-treatment-card border-start border-secondary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="sprouted_grains">Sprouted Grains</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</p>
+            </div>
+            <div class="mobile-treatment-card border-start border-secondary border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="sesame_seeds">Sesame Seeds</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</p>
+            </div>
+          </div>
+          <!-- Week 6 (Days 36-42) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-danger text-white">
+              <h6 class="mb-0 fw-bold">
                 <i class="bi bi-calendar-week me-2"></i>Week 6 (Days 36-42)
               </h6>
-              
-              <div class="mobile-card mb-3 border-danger">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0" data-i18n="tulsi_water">Tulsi Water</h6>
-                    <span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span>
-                  </div>
-                  <p class="card-text" data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</p>
-                </div>
-              </div>
-
-              <div class="mobile-card mb-3 border-danger">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0" data-i18n="ginger_water">Ginger Water</h6>
-                    <span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span>
-                  </div>
-                  <p class="card-text" data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</p>
-                </div>
-              </div>
             </div>
-
-            <!-- Week 7+ (Days 43-50) -->
-            <div class="mobile-section mb-4">
-              <h6 class="text-secondary mb-3">
+            <div class="mobile-treatment-card border-start border-danger border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="tulsi_water">Tulsi Water</h6>
+                <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</p>
+            </div>
+            <div class="mobile-treatment-card border-start border-danger border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="ginger_water">Ginger Water</h6>
+                <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
+              </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</p>
+            </div>
+          </div>
+          <!-- Week 7+ (Days 43-50) -->
+          <div class="mobile-week-section mb-mobile-2">
+            <div class="week-header p-2 mb-2 rounded bg-dark text-white">
+              <h6 class="mb-0 fw-bold">
                 <i class="bi bi-calendar-week me-2"></i>Week 7+ (Days 43-50)
               </h6>
-              
-              <div class="mobile-card mb-3 border-secondary">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0" data-i18n="curd_yogurt">Curd (Yogurt)</h6>
-                    <span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span>
-                  </div>
-                  <p class="card-text" data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</p>
-                </div>
-              </div>
             </div>
-          </div>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-warning">15–21</span></td>
-                  <td data-i18n="fenugreek_seeds">Fenugreek Seeds</td>
-                  <td data-i18n="fenugreek_seeds_dose">1 tsp seeds soaked overnight in 250ml water, give water next day</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-success">
-                  <td><span class="badge bg-success">22–28</span></td>
-                  <td data-i18n="aloe_vera_juice">Aloe Vera Juice</td>
-                  <td data-i18n="aloe_vera_juice_dose">5–10 ml aloe vera juice per 1L water</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-success">22–28</span></td>
-                  <td data-i18n="neem_leaves">Neem Leaves</td>
-                  <td data-i18n="neem_leaves_dose">2–3 leaves crushed in 500ml water, strain</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-secondary">
-                  <td><span class="badge bg-secondary">29–35</span></td>
-                  <td data-i18n="sprouted_grains">Sprouted Grains</td>
-                  <td data-i18n="sprouted_grains_dose">50–100g sprouted mung/wheat per 10 birds</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-secondary">29–35</span></td>
-                  <td data-i18n="sesame_seeds">Sesame Seeds</td>
-                  <td data-i18n="sesame_seeds_dose">1 tsp per 10 birds, mixed in feed</td>
-                  <td><span class="badge bg-warning" data-i18n="twice_weekly">2 days/week</span></td>
-                </tr>
-                <tr class="table-danger">
-                  <td><span class="badge bg-danger">36–42</span></td>
-                  <td data-i18n="tulsi_water">Tulsi Water</td>
-                  <td data-i18n="tulsi_water_dose">5–6 leaves crushed in 500ml water, strain</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-danger">36–42</span></td>
-                  <td data-i18n="ginger_water">Ginger Water</td>
-                  <td data-i18n="ginger_water_dose">½ tsp ginger juice per 1L water</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-secondary">43–50</span></td>
-                  <td data-i18n="curd_yogurt">Curd (Yogurt)</td>
-                  <td data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-                <tr class="table-light">
-                  <td><span class="badge bg-primary">43–50</span></td>
-                  <td data-i18n="coriander_seeds">Coriander Seeds</td>
-                  <td data-i18n="coriander_seeds_dose">½ tsp crushed per 10 birds, mixed in feed</td>
-                  <td><span class="badge bg-secondary" data-i18n="once_weekly">1 day/week</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-footer bg-light p-mobile-2">
-          <p class="mb-0 text-muted"><strong data-i18n="note_supplements">Note:</strong> Use clean water, observe birds for reactions, and do not overdose. These are supplements, not replacements for balanced feed or veterinary care.</p>
-        </div>
-      </div>
-
-      <!-- Key Benefits Section -->
-      <div class="mobile-card card border-info shadow-sm mb-mobile-3">
-        <div class="card-header bg-info text-white p-mobile-2">
-          <h5 class="mb-0 text-center">
-            <i class="bi bi-star me-2"></i><span data-i18n="key_benefits">Key Benefits</span>
-          </h5>
-        </div>
-        <div class="card-body p-mobile-2">
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <div class="benefit-card bg-light p-2 rounded">
-                <h6 class="text-primary mb-2">
-                  <i class="bi bi-shield-check me-1"></i><span data-i18n="immunity_boost">Immunity Boost</span>
-                </h6>
-                <ul class="list-unstyled mb-0 small">
-                  <li>• <span data-i18n="garlic_benefits">Garlic: Natural antibiotic</span></li>
-                  <li>• <span data-i18n="turmeric_benefits">Turmeric: Anti-inflammatory</span></li>
-                  <li>• <span data-i18n="amla_benefits">Amla: Vitamin C rich</span></li>
-                  <li>• <span data-i18n="tulsi_benefits">Tulsi: Natural adaptogen</span></li>
-                </ul>
+            <div class="mobile-treatment-card border-start border-dark border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="curd_yogurt">Curd (Yogurt)</h6>
+                <span class="badge bg-danger px-1 py-1" data-i18n="twice_weekly">2 days/week</span>
               </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="curd_yogurt_dose">1–2 tsp per 10 birds, mixed in feed</p>
             </div>
-            <div class="col-12 col-md-6">
-              <div class="benefit-card bg-light p-2 rounded">
-                <h6 class="text-success mb-2">
-                  <i class="bi bi-heart-pulse me-1"></i><span data-i18n="digestive_health">Digestive Health</span>
-                </h6>
-                <ul class="list-unstyled mb-0 small">
-                  <li>• <span data-i18n="fenugreek_benefits">Fenugreek: Improves digestion</span></li>
-                  <li>• <span data-i18n="ginger_benefits">Ginger: Reduces inflammation</span></li>
-                  <li>• <span data-i18n="curd_benefits">Curd: Probiotics for gut health</span></li>
-                  <li>• <span data-i18n="acv_benefits">ACV: Improves gut health</span></li>
-                </ul>
+            <div class="mobile-treatment-card border-start border-dark border-4 bg-white p-2 mb-2 rounded-end shadow-sm">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="treatment-title mb-0" data-i18n="coriander_seeds">Coriander Seeds</h6>
+                <span class="badge bg-secondary px-1 py-1" data-i18n="once_weekly">1 day/week</span>
               </div>
+              <p class="treatment-dose mb-0 small text-muted" data-i18n="coriander_seeds_dose">½ tsp crushed per 10 birds, mixed in feed</p>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Important Notes -->
-      <div class="mobile-card card border-warning shadow-sm mb-mobile-3">
-        <div class="card-header bg-warning text-dark p-mobile-2">
-          <h5 class="mb-0 text-center">
-            <i class="bi bi-exclamation-triangle me-2"></i><span data-i18n="important_notes">Important Notes</span>
-          </h5>
-        </div>
-        <div class="card-body p-mobile-2">
-          <div class="alert alert-danger mb-mobile-2" role="alert">
-            <i class="bi bi-exclamation-circle me-2"></i>
-            <strong data-i18n="caution">Caution:</strong>
-            <span data-i18n="no_overdose">Do not overdose. Start with smaller quantities and observe bird response.</span>
+      <div class="card-footer bg-light p-mobile-2">
+        <p class="mb-0 text-muted"><strong data-i18n="note_supplements">Note:</strong> Use clean water, observe birds for reactions, and do not overdose. These are supplements, not replacements for balanced feed or veterinary care.</p>
+      </div>
+    </div>
+    <!-- Key Benefits Section -->
+    <div class="mobile-card card border-info shadow-sm mb-mobile-3">
+      <div class="card-header bg-info text-white p-mobile-2">
+        <h5 class="mb-0 text-center">
+          <i class="bi bi-star me-2"></i><span data-i18n="key_benefits">Key Benefits</span>
+        </h5>
+      </div>
+      <div class="card-body p-mobile-2">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <div class="benefit-card bg-light p-2 rounded">
+              <h6 class="text-primary mb-2">
+                <i class="bi bi-shield-check me-1"></i><span data-i18n="immunity_boost">Immunity Boost</span>
+              </h6>
+              <ul class="list-unstyled mb-0 small">
+                <li>• <span data-i18n="garlic_benefits">Garlic: Natural antibiotic</span></li>
+                <li>• <span data-i18n="turmeric_benefits">Turmeric: Anti-inflammatory</span></li>
+                <li>• <span data-i18n="amla_benefits">Amla: Vitamin C rich</span></li>
+                <li>• <span data-i18n="tulsi_benefits">Tulsi: Natural adaptogen</span></li>
+              </ul>
+            </div>
           </div>
-          <div class="notes-list">
-            <div class="note-item mb-2 p-2 bg-light rounded">
-              <i class="bi bi-check-circle text-success me-2"></i>
-              <span data-i18n="fresh_preparation">Always prepare fresh solutions daily</span>
+          <div class="col-12 col-md-6">
+            <div class="benefit-card bg-light p-2 rounded">
+              <h6 class="text-success mb-2">
+                <i class="bi bi-heart-pulse me-1"></i><span data-i18n="digestive_health">Digestive Health</span>
+              </h6>
+              <ul class="list-unstyled mb-0 small">
+                <li>• <span data-i18n="fenugreek_benefits">Fenugreek: Improves digestion</span></li>
+                <li>• <span data-i18n="ginger_benefits">Ginger: Reduces inflammation</span></li>
+                <li>• <span data-i18n="curd_benefits">Curd: Probiotics for gut health</span></li>
+                <li>• <span data-i18n="acv_benefits">ACV: Improves gut health</span></li>
+              </ul>
             </div>
-            <div class="note-item mb-2 p-2 bg-light rounded">
-              <i class="bi bi-check-circle text-success me-2"></i>
-              <span data-i18n="clean_water">Use clean, filtered water for all preparations</span>
-            </div>
-            <div class="note-item mb-2 p-2 bg-light rounded">
-              <i class="bi bi-check-circle text-success me-2"></i>
-              <span data-i18n="gradual_introduction">Introduce new herbs gradually to avoid digestive upset</span>
-            </div>
-            <div class="note-item mb-2 p-2 bg-light rounded">
-              <i class="bi bi-check-circle text-success me-2"></i>
-              <span data-i18n="monitor_birds">Monitor birds closely for any adverse reactions</span>
-            </div>
-            <div class="note-item mb-2 p-2 bg-light rounded">
-              <i class="bi bi-check-circle text-success me-2"></i>
-              <span data-i18n="consult_vet">Consult veterinarian if birds show signs of illness</span>
-            </div>
-            <div class="note-item p-2 bg-light rounded">
-              <i class="bi bi-check-circle text-success me-2"></i>
-              <span data-i18n="quality_herbs">Use only high-quality, pesticide-free herbs</span>
-            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Important Notes -->
+    <div class="mobile-card card border-danger shadow-sm mb-mobile-3">
+      <div class="card-header bg-warning text-dark p-mobile-2">
+        <h5 class="mb-0 text-center">
+          <i class="bi bi-exclamation-triangle me-2"></i><span data-i18n="important_notes">Important Notes</span>
+        </h5>
+      </div>
+      <div class="card-body p-mobile-2">
+        <div class="alert alert-danger mb-mobile-2" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <strong data-i18n="caution">Caution:</strong>
+          <span data-i18n="no_overdose">Do not overdose. Start with smaller quantities and observe bird response.</span>
+        </div>
+        <div class="notes-list">
+          <div class="note-item mb-2 p-2 bg-light rounded">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span data-i18n="fresh_preparation">Always prepare fresh solutions daily</span>
+          </div>
+          <div class="note-item mb-2 p-2 bg-light rounded">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span data-i18n="clean_water">Use clean, filtered water for all preparations</span>
+          </div>
+          <div class="note-item mb-2 p-2 bg-light rounded">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span data-i18n="gradual_introduction">Introduce new herbs gradually to avoid digestive upset</span>
+          </div>
+          <div class="note-item mb-2 p-2 bg-light rounded">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span data-i18n="monitor_birds">Monitor birds closely for any adverse reactions</span>
+          </div>
+          <div class="note-item mb-2 p-2 bg-light rounded">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span data-i18n="consult_vet">Consult veterinarian if birds show signs of illness</span>
+          </div>
+          <div class="note-item p-2 bg-light rounded">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            <span data-i18n="quality_herbs">Use only high-quality, pesticide-free herbs</span>
           </div>
         </div>
       </div>
@@ -663,252 +492,3 @@
   });
 </script>
 {% endblock %}
-        this.setupMobileInteractions();
-        this.loadContent();
-      }
-
-      initializeApp() {
-        // Add mobile UX enhancements
-        this.addTouchFeedback();
-        this.setupPullToRefresh();
-        this.initializeOfflineDetection();
-      }
-
-      setupMobileInteractions() {
-        // Card touch effects
-        document.querySelectorAll('.mobile-card').forEach(card => {
-          card.addEventListener('touchstart', (e) => {
-            card.style.transform = 'scale(0.98)';
-            card.style.transition = 'transform 0.1s ease';
-          });
-
-          card.addEventListener('touchend', (e) => {
-            setTimeout(() => {
-              card.style.transform = 'scale(1)';
-            }, 100);
-          });
-        });
-
-        // Badge interactions
-        document.querySelectorAll('.badge').forEach(badge => {
-          badge.addEventListener('click', () => {
-            this.showFrequencyInfo(badge);
-          });
-        });
-
-        // Collapsible sections
-        this.setupCollapsibleSections();
-      }
-
-      setupCollapsibleSections() {
-        const sections = document.querySelectorAll('.mobile-section');
-        sections.forEach((section, index) => {
-          const header = section.querySelector('h6');
-          if (header) {
-            header.style.cursor = 'pointer';
-            header.innerHTML += ' <i class="bi bi-chevron-down ms-2 collapse-icon"></i>';
-            
-            header.addEventListener('click', () => {
-              this.toggleSection(section);
-            });
-
-            // Collapse all except first two sections on mobile
-            if (window.innerWidth < 768 && index > 1) {
-              this.collapseSection(section);
-            }
-          }
-        });
-      }
-
-      toggleSection(section) {
-        const cards = section.querySelectorAll('.mobile-card');
-        const icon = section.querySelector('.collapse-icon');
-        
-        if (section.classList.contains('collapsed')) {
-          this.expandSection(section);
-        } else {
-          this.collapseSection(section);
-        }
-      }
-
-      collapseSection(section) {
-        const cards = section.querySelectorAll('.mobile-card');
-        const icon = section.querySelector('.collapse-icon');
-        
-        cards.forEach(card => {
-          card.style.display = 'none';
-        });
-        
-        if (icon) {
-          icon.classList.remove('bi-chevron-down');
-          icon.classList.add('bi-chevron-right');
-        }
-        
-        section.classList.add('collapsed');
-      }
-
-      expandSection(section) {
-        const cards = section.querySelectorAll('.mobile-card');
-        const icon = section.querySelector('.collapse-icon');
-        
-        cards.forEach(card => {
-          card.style.display = 'block';
-        });
-        
-        if (icon) {
-          icon.classList.remove('bi-chevron-right');
-          icon.classList.add('bi-chevron-down');
-        }
-        
-        section.classList.remove('collapsed');
-      }
-
-      showFrequencyInfo(badge) {
-        const frequency = badge.textContent;
-        let message = '';
-        
-        switch(frequency) {
-          case 'Daily (first 2 days)':
-            message = 'Give this treatment every day for the first 2 days only.';
-            break;
-          case '2 days/week':
-            message = 'Give this treatment twice per week, with at least 2-3 days gap.';
-            break;
-          case '1 day/week':
-            message = 'Give this treatment once per week only.';
-            break;
-          default:
-            message = 'Follow the recommended frequency for best results.';
-        }
-        
-        this.showToast(message, 'info');
-      }
-
-      showToast(message, type = 'info') {
-        // Remove existing toasts
-        const existingToasts = document.querySelectorAll('.toast-container');
-        existingToasts.forEach(toast => toast.remove());
-
-        const toastHtml = `
-          <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
-            <div class="toast show" role="alert">
-              <div class="toast-header">
-                <i class="bi bi-info-circle text-${type} me-2"></i>
-                <strong class="me-auto">Treatment Info</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-              </div>
-              <div class="toast-body">
-                ${message}
-              </div>
-            </div>
-          </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', toastHtml);
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-          const toastEl = document.querySelector('.toast-container');
-          if (toastEl) toastEl.remove();
-        }, 5000);
-      }
-
-      addTouchFeedback() {
-        // Add haptic feedback for supported devices
-        document.addEventListener('touchstart', (e) => {
-          if (e.target.closest('.btn, .mobile-card, .badge')) {
-            if (navigator.vibrate) {
-              navigator.vibrate(10);
-            }
-          }
-        });
-      }
-
-      setupPullToRefresh() {
-        let startY = 0;
-        let currentY = 0;
-        let pullToRefreshThreshold = 100;
-        let isRefreshing = false;
-
-        document.addEventListener('touchstart', (e) => {
-          startY = e.touches[0].pageY;
-        });
-
-        document.addEventListener('touchmove', (e) => {
-          currentY = e.touches[0].pageY;
-          
-          if (window.scrollY === 0 && currentY > startY && !isRefreshing) {
-            const pullDistance = currentY - startY;
-            
-            if (pullDistance > pullToRefreshThreshold) {
-              this.triggerRefresh();
-              isRefreshing = true;
-            }
-          }
-        });
-
-        document.addEventListener('touchend', () => {
-          isRefreshing = false;
-        });
-      }
-
-      triggerRefresh() {
-        this.showToast('Refreshing herbal treatment schedule...', 'success');
-        
-        // Simulate refresh
-        setTimeout(() => {
-          this.loadContent();
-          this.showToast('Treatment schedule updated!', 'success');
-        }, 1000);
-      }
-
-      initializeOfflineDetection() {
-        window.addEventListener('online', () => {
-          this.showToast('Connection restored', 'success');
-        });
-
-        window.addEventListener('offline', () => {
-          this.showToast('You are offline. Data will sync when connection is restored.', 'warning');
-        });
-      }
-
-      loadContent() {
-        // Initialize internationalization if available
-        if (typeof initializeI18n === 'function') {
-          initializeI18n();
-        }
-
-        // Add any dynamic content loading here
-        this.animateCards();
-      }
-
-      animateCards() {
-        const cards = document.querySelectorAll('.mobile-card');
-        cards.forEach((card, index) => {
-          card.style.opacity = '0';
-          card.style.transform = 'translateY(20px)';
-          
-          setTimeout(() => {
-            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-          }, index * 100);
-        });
-      }
-    }
-
-    // Initialize the app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      new HerbalTipsApp();
-    });
-
-    // Handle responsive table on window resize
-    window.addEventListener('resize', () => {
-      // Refresh layout on orientation change
-      if (window.DeviceOrientationEvent) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-      }
-    });
-  </script>

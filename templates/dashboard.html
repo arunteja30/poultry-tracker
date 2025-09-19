@@ -12,7 +12,7 @@
         <div class="mobile-card card text-center">
           <div class="card-body p-mobile-2">
             <small class="text-muted" data-i18n="cycle_start">Cycle Started</small>
-            <div class="fw-bold mobile-content">{{ summary.start_date }}</div>
+            <div class="fw-bold mobile-content" data-date="{{ summary.start_date }}">{{ summary.start_date }}</div>
           </div>
         </div>
       </div>
@@ -232,6 +232,9 @@
   const feedBagsSeries = {{ feedbags_series|tojson }};
   const weightSeries = {{ weight_series|tojson }};
 
+  // Format dates to dd-mm-yyyy
+  const formattedDates = dates.map(date => formatDateToDDMMYYYY(date));
+
   let chartType = 'bar';
   let fcrChart, mortalityChart, feedChart, weightChart;
 
@@ -244,7 +247,7 @@
     fcrChart = new Chart(document.getElementById('fcrBarChart'), {
       type: type,
       data: {
-        labels: dates,
+        labels: formattedDates,
         datasets: [{
           label: 'FCR',
           data: fcrSeries,
@@ -274,7 +277,7 @@
     mortalityChart = new Chart(document.getElementById('mortalityBarChart'), {
       type: type,
       data: {
-        labels: dates,
+        labels: formattedDates,
         datasets: [{
           label: 'Mortality',
           data: mortalitySeries,
@@ -304,7 +307,7 @@
     feedChart = new Chart(document.getElementById('feedBarChart'), {
       type: type,
       data: {
-        labels: dates,
+        labels: formattedDates,
         datasets: [{
           label: 'Feed Bags',
           data: feedBagsSeries,
@@ -334,7 +337,7 @@
     weightChart = new Chart(document.getElementById('weightBarChart'), {
       type: type,
       data: {
-        labels: dates,
+        labels: formattedDates,
         datasets: [{
           label: 'Avg Weight (g)',
           data: weightSeries,

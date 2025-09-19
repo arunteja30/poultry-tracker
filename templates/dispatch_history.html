@@ -40,7 +40,7 @@
         <div class="mobile-content">
           <div class="row g-2">
             <div class="col-6">
-              <strong data-i18n="started">Started:</strong> {{ cycle.start_date }}
+              <strong data-i18n="started">Started:</strong> <span data-date="{{ cycle.start_date }}">{{ cycle.start_date }}</span>
             </div>
             <div class="col-6">
               <strong data-i18n="remaining_birds">Remaining Birds:</strong> <span class="badge bg-success">{{ cycle.current_birds }}</span>
@@ -112,7 +112,7 @@
             <td>{{ loop.index }}</td>
             <td><strong>{{ dispatch.vehicle_no }}</strong></td>
             <td>{{ dispatch.driver_name }}</td>
-            <td>{{ dispatch.dispatch_date }}</td>
+            <td class="date-cell" data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</td>
             <td>
               {% if dispatch.status == 'completed' %}
                 <span class="badge bg-success" data-i18n="completed">✅ Completed</span>
@@ -133,6 +133,13 @@
                  class="btn btn-sm {{ 'btn-outline-info' if dispatch.status == 'completed' else 'btn-primary' }}">
                 {{ '👁️ View' if dispatch.status == 'completed' else '⚖️ Weigh' }}
               </a>
+              {% if session.role in ['admin', 'super_admin'] %}
+                <form method="POST" action="{{ url_for('delete_dispatch', dispatch_id=dispatch.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this dispatch?');">
+                  <button type="submit" class="btn btn-outline-danger btn-sm ms-1" title="Delete Dispatch">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -174,13 +181,13 @@
             <small class="text-muted">kg</small>
           </div>
           <div class="col-4">
-            <div class="fw-bold">{{ dispatch.dispatch_date }}</div>
+            <div class="fw-bold date-cell" data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</div>
             <small class="text-muted">Date</small>
           </div>
         </div>
         {% else %}
         <div class="mb-3">
-          <small class="text-muted">📅 {{ dispatch.dispatch_date }}</small>
+          <small class="text-muted">📅 <span class="date-cell" data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</span></small>
         </div>
         {% endif %}
         
@@ -189,6 +196,13 @@
              class="btn btn-sm {{ 'btn-outline-info' if dispatch.status == 'completed' else 'btn-primary' }}">
             {{ '👁️ View Details' if dispatch.status == 'completed' else '⚖️ Continue Weighing' }}
           </a>
+          {% if session.role in ['admin', 'super_admin'] %}
+            <form method="POST" action="{{ url_for('delete_dispatch', dispatch_id=dispatch.id) }}" onsubmit="return confirm('Are you sure you want to delete this dispatch?');">
+              <button type="submit" class="btn btn-outline-danger btn-sm mt-2" title="Delete Dispatch">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </form>
+          {% endif %}
         </div>
       </div>
       {% endfor %}

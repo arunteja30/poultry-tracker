@@ -22,7 +22,7 @@
                 {% endif %}
               </h6>
               <p class="text-muted small mb-0">
-                <i class="bi bi-calendar3 me-1"></i>{{ data.cycle.start_date }}
+                <i class="bi bi-calendar3 me-1"></i><span data-date="{{ data.cycle.start_date }}">{{ data.cycle.start_date }}</span>
                 <span class="ms-2">
                   <i class="bi bi-clock me-1"></i>{{ data.duration_days }} <span data-i18n="days">days</span>
                 </span>
@@ -170,7 +170,7 @@
                   <span class="badge bg-success ms-1" data-i18n="status_active">Active</span>
                   {% endif %}
                 </td>
-                <td>{{ data.cycle.start_date }}</td>
+                <td><span data-date="{{ data.cycle.start_date }}">{{ data.cycle.start_date }}</span></td>
                 <td>{{ data.duration_days }}</td>
                 <td>
                   {% if data.cycle.status == 'active' %}

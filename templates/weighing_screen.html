@@ -30,7 +30,7 @@
               <strong data-i18n="vendor">Vendor:</strong> {{ dispatch.vendor_name or 'N/A' }}
             </div>
             <div class="col-6">
-              <strong data-i18n="date">Date:</strong> {{ dispatch.dispatch_date }}
+              <strong data-i18n="date">Date:</strong> <span data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</span>
             </div>
           </div>
         </div>

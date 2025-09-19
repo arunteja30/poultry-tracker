@@ -138,7 +138,7 @@
                   <span class="badge bg-warning">⏳ Active</span>
                 {% endif %}
               </td>
-              <td>{{ dispatch.dispatch_date }}</td>
+              <td class="date-cell" data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</td>
               <td>
                 {% if dispatch.status == 'active' %}
                   <a href="{{ url_for('weighing_screen', dispatch_id=dispatch.id) }}" 
@@ -173,7 +173,7 @@
           </div>
           
           <div class="mb-3">
-            <small class="text-muted">📅 {{ dispatch.dispatch_date }}</small>
+            <small class="text-muted">📅 <span class="date-cell">{{ dispatch.dispatch_date }}</span></small>
           </div>
           
           <div class="d-grid">

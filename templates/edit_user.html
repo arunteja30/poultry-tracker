@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="edit_user_title">
+    <span data-i18n="edit_user_title">Edit User</span>
+  </h2>
+
+  <!-- Edit User Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 data-i18n="edit_user">Edit User: {{ user.username }}</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('edit_user', user_id=user.id) }}">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="username" class="form-label" data-i18n="username">Username *</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="password" class="form-label" data-i18n="password">Password (leave blank to keep current)</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="password" name="password" placeholder="Enter new password or leave blank">
+              <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+                <span id="togglePasswordIcon" class="bi bi-eye"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="role" class="form-label" data-i18n="role">Role *</label>
+            <select class="form-control" id="role" name="role" required>
+              <option value="">Select Role</option>
+              <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+              <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+              {% if current_user.role == 'super_admin' %}
+              <option value="super_admin" {% if user.role == 'super_admin' %}selected{% endif %}>Super Admin</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="company_id" class="form-label" data-i18n="company">Company *</label>
+            <select class="form-control" id="company_id" name="company_id" {% if user.role == 'super_admin' %}disabled{% endif %}>
+              <option value="">Select Company</option>
+              {% for company in companies %}
+              <option value="{{ company.id }}" {% if user.company_id == company.id %}selected{% endif %}>{{ company.name }} ({{ company.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="full_name" class="form-label" data-i18n="full_name">Full Name</label>
+            <input type="text" class="form-control" id="full_name" name="full_name" value="{{ user.full_name or '' }}">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email or '' }}">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label" data-i18n="phone">Phone</label>
+          <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone or '' }}">
+        </div>
+        
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary" data-i18n="update_user">Update User</button>
+          <a href="{{ url_for('user_management') }}" class="btn btn-secondary" data-i18n="cancel">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .badge {
+    font-size: 0.9em;
+  }
+</style>
+
+<script>
+  // Show/Hide Password Toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    if (passwordInput && toggleBtn && toggleIcon) {
+      toggleBtn.addEventListener('click', function() {
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleIcon.classList.remove('bi-eye');
+          toggleIcon.classList.add('bi-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          toggleIcon.classList.remove('bi-eye-slash');
+          toggleIcon.classList.add('bi-eye');
+        }
+      });
+    }
+    
+    // Role change handler
+    const roleSelect = document.getElementById('role');
+    const companySelect = document.getElementById('company_id');
+    
+    if (roleSelect && companySelect) {
+      roleSelect.addEventListener('change', function() {
+        if (this.value === 'super_admin') {
+          companySelect.disabled = true;
+          companySelect.value = '';
+        } else {
+          companySelect.disabled = false;
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

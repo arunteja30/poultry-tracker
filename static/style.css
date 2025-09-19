@@ -1305,6 +1305,26 @@ body.lang-te p, body.lang-te li, body.lang-te div {
   }
 }
 
+/* Date formatting enhancements */
+.date-cell, [data-date] {
+  white-space: nowrap;
+}
+
+/* Loading state for date formatting */
+.date-cell.formatting, [data-date].formatting {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.date-cell.formatted, [data-date].formatted {
+  opacity: 1;
+}
+
+/* Ensure dates don't wrap in tables */
+table .date-cell {
+  min-width: 90px;
+}
+
 /* =====================================
    MOBILE UX BEST PRACTICES IMPLEMENTATION
    ===================================== */

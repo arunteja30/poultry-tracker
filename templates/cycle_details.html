@@ -8,41 +8,21 @@
         <h2 class="mobile-header m-0" data-i18n="cycle_details_title">
           <i class="bi bi-graph-up me-2"></i>Cycle Details
         </h2>
-        <p class="text-muted small mb-0">
-          <span data-i18n="cycle_id_label">Cycle ID:</span> #{{ cycle.id }} | 
-          <span data-i18n="status_label">Status:</span> 
-          {% if cycle.status == 'active' %}
-            <span class="badge bg-success" data-i18n="status_active">Active</span>
-          {% else %}
-            <span class="badge bg-secondary" data-i18n="status_archived">Archived</span>
-          {% endif %}
-        </p>
-      </div>
-      <div class="dropdown">
-        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-          <i class="bi bi-three-dots-vertical"></i>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="{{ url_for('cycle_history') }}" data-i18n="back_to_history">
-              <i class="bi bi-arrow-left me-2"></i>Back to History
-            </a>
-          </li>
+        <div class="mt-2 d-flex gap-2">
+          <a href="{{ url_for('cycle_history') }}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-2"></i>Back to History
+          </a>
           {% if session.role == 'admin' %}
-          <li>
-            <a class="dropdown-item" href="{{ url_for('export_cycle_details', cycle_id=cycle.id) }}" data-i18n="export_cycle_details">
+            <a href="{{ url_for('export_cycle_details', cycle_id=cycle.id) }}" class="btn btn-primary btn-sm">
               <i class="bi bi-download me-2"></i>Export Details
             </a>
-          </li>
+            {% if cycle.status == 'archived' %}
+              <a href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" class="btn btn-info btn-sm">
+                <i class="bi bi-file-earmark-arrow-down me-2"></i>Export Cycle
+              </a>
+            {% endif %}
           {% endif %}
-          {% if cycle.status == 'archived' and session.role == 'admin' %}
-          <li>
-            <a class="dropdown-item" href="{{ url_for('export_cycle', cycle_id=cycle.id) }}" data-i18n="export_cycle">
-              <i class="bi bi-file-earmark-arrow-down me-2"></i>Export Cycle
-            </a>
-          </li>
-          {% endif %}
-        </ul>
+        </div>
       </div>
     </div>
 
@@ -60,7 +40,7 @@
         <select class="mobile-form-control" id="cycle_select" onchange="changeCycle()">
           {% for c in all_cycles %}
             <option value="{{ c.id }}" {% if c.id == cycle.id %}selected{% endif %}>
-              Cycle #{{ c.id }} - {{ c.start_date }} 
+              Cycle #{{ c.id }} - <span data-date="{{ c.start_date }}">{{ c.start_date }}</span> 
               {% if c.status == 'active' %}(Active){% else %}(Archived){% endif %}
             </option>
           {% endfor %}
@@ -102,7 +82,7 @@
           <div class="col-md-6">
             <dl class="row">
               <dt class="col-sm-5" data-i18n="start_date">Start Date:</dt>
-              <dd class="col-sm-7">{{ cycle.start_date }}</dd>
+              <dd class="col-sm-7" data-date="{{ cycle.start_date }}">{{ cycle.start_date }}</dd>
               <dt class="col-sm-5" data-i18n="start_time">Start Time:</dt>
               <dd class="col-sm-7">{{ cycle.start_time or 'N/A' }}</dd>
               <dt class="col-sm-5" data-i18n="driver">Driver:</dt>
@@ -112,7 +92,13 @@
           <div class="col-md-6">
             <dl class="row">
               <dt class="col-sm-5" data-i18n="end_date">End Date:</dt>
-              <dd class="col-sm-7">{{ cycle.end_date or '<span data-i18n="ongoing">Ongoing</span>'|safe }}</dd>
+              <dd class="col-sm-7">
+                {% if cycle.end_date %}
+                  <span data-date="{{ cycle.end_date }}">{{ cycle.end_date }}</span>
+                {% else %}
+                  <span data-i18n="ongoing">Ongoing</span>
+                {% endif %}
+              </dd>
               <dt class="col-sm-5" data-i18n="duration">Duration:</dt>
               <dd class="col-sm-7">
                 {% if cycle.end_date %}
@@ -443,7 +429,7 @@
                   <td>{{ dispatch.driver_name }}</td>
                   <td>{{ dispatch.vendor_name or '-' }}</td>
                   <td>
-                    {{ dispatch.dispatch_date }}<br>
+                    <span data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</span><br>
                     <small class="text-muted">{{ dispatch.dispatch_time }}</small>
                   </td>
                   <td>
@@ -508,7 +494,7 @@
                 <div class="row mt-2">
                   <div class="col-6">
                     <small class="text-muted">Date & Time:</small><br>
-                    <strong>{{ dispatch.dispatch_date }}</strong><br>
+                    <strong><span data-date="{{ dispatch.dispatch_date }}">{{ dispatch.dispatch_date }}</span></strong><br>
                     <small>{{ dispatch.dispatch_time }}</small>
                   </div>
                   <div class="col-6">
@@ -588,7 +574,7 @@
         {% for entry in daily_entries|reverse %}
         <tr>
           <td class="text-center"><strong>{{ total_days - loop.index0 }}</strong></td>
-          <td class="text-center text-nowrap">{{ entry.entry_date }}</td>
+          <td class="text-center text-nowrap date-cell" data-date="{{ entry.entry_date }}">{{ entry.entry_date }}</td>
           <!-- Bird Related Fields -->
           <td class="text-center text-danger"><strong>{{ entry.mortality }}</strong></td>
           <td class="text-center text-danger"><strong>{{ entry.total_mortality }}</strong></td>
@@ -620,40 +606,46 @@
 <!-- Feed List Section (Desktop) -->
 
 <div class="card d-none d-md-block mb-4">
-  <div class="card-header">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0" data-i18n="feed_list_header">Feed List</h5>
+    <button class="btn btn-sm mobile-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#feedListDesktopCollapse" aria-expanded="true">
+      <span class="expand-text d-none"><i class="bi bi-chevron-up"></i></span>
+      <span class="collapse-text"><i class="bi bi-chevron-down"></i></span>
+    </button>
   </div>
-  <div class="card-body">
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th data-i18n="feed_bill_no">Bill No</th>
-          <th data-i18n="feed_date">Date</th>
-          <th data-i18n="feed_name">Feed Name</th>
-          <th data-i18n="feed_bags">Bags</th>
-          <th data-i18n="feed_bag_weight">Bag Weight (kg)</th>
-          <th data-i18n="feed_total_feed">Total Feed (kg)</th>
-          <th data-i18n="feed_price_per_kg">Price/kg (₹)</th>
-          <th data-i18n="feed_total_cost">Total Cost (₹)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for feed in feeds %}
-        <tr>
-          <td>{{ feed.bill_number }}</td>
-          <td>{{ feed.date }}</td>
-          <td>{{ feed.feed_name }}</td>
-          <td>{{ feed.feed_bags }}</td>
-          <td>{{ feed.bag_weight }}</td>
-          <td>{{ feed.total_feed_kg }}</td>
-          <td>{{ feed.price_per_kg }}</td>
-          <td>{{ feed.total_cost }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <div class="mt-3 text-end">
-      <h5 data-i18n="feed_total_feed_cost">Total Feed Cost: <span class="text-success">₹{{ total_feed_cost }}</span></h5>
+  <div class="collapse show" id="feedListDesktopCollapse">
+    <div class="card-body">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th data-i18n="feed_bill_no">Bill No</th>
+            <th data-i18n="feed_date">Date</th>
+            <th data-i18n="feed_name">Feed Name</th>
+            <th data-i18n="feed_bags">Bags</th>
+            <th data-i18n="feed_bag_weight">Bag Weight (kg)</th>
+            <th data-i18n="feed_total_feed">Total Feed (kg)</th>
+            <th data-i18n="feed_price_per_kg">Price/kg (₹)</th>
+            <th data-i18n="feed_total_cost">Total Cost (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for feed in feeds %}
+          <tr>
+            <td>{{ feed.bill_number }}</td>
+            <td><span data-date="{{ feed.date }}">{{ feed.date }}</span></td>
+            <td>{{ feed.feed_name }}</td>
+            <td>{{ feed.feed_bags }}</td>
+            <td>{{ feed.bag_weight }}</td>
+            <td>{{ feed.total_feed_kg }}</td>
+            <td>{{ feed.price_per_kg }}</td>
+            <td>{{ feed.total_cost }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="mt-3 text-end">
+        <h5 data-i18n="feed_total_feed_cost">Total Feed Cost: <span class="text-success">₹{{ total_feed_cost }}</span></h5>
+      </div>
     </div>
   </div>
 </div>
@@ -676,7 +668,7 @@
         {% for entry in daily_entries|reverse %}
           <div class="border rounded p-2 mb-2">
             <div style="color: #cc470e;font-weight:bold;"><strong data-i18n="table_day">Day:</strong> {{ total_days - loop.index0 }}</div>
-            <div><strong data-i18n="table_date">Date:</strong> {{ entry.entry_date }}</div>
+            <div><strong data-i18n="table_date">Date:</strong> <span data-date="{{ entry.entry_date }}">{{ entry.entry_date }}</span></div>
             
             <!-- Bird Related Fields -->
             <div class="text-danger"><strong data-i18n="table_mortality">Mortality:</strong> {{ entry.mortality }}</div>
@@ -720,7 +712,7 @@
         {% for feed in feeds %}
           <div class="border rounded p-2 mb-2">
             <div><strong data-i18n="feed_bill_no">Bill No:</strong> {{ feed.bill_number }}</div>
-            <div><strong data-i18n="feed_date">Date:</strong> {{ feed.date }}</div>
+            <div><strong data-i18n="feed_date">Date:</strong> <span data-date="{{ feed.date }}">{{ feed.date }}</span></div>
             <div><strong data-i18n="feed_name">Feed Name:</strong> {{ feed.feed_name }}</div>
             <div><strong data-i18n="feed_bags">Bags:</strong> {{ feed.feed_bags }}</div>
             <div><strong data-i18n="feed_bag_weight">Bag Weight (kg):</strong> {{ feed.bag_weight }}</div>
@@ -881,33 +873,20 @@ function validateChartData(data, labels) {
 }
 
 // FCR Chart with Mobile Optimization
-const fcrSeries = {{ fcr_series|tojson | safe }};
-const dates = {{ dates|tojson | safe }};
-const fcrCtx = document.getElementById('fcrChart');
-
-console.log('FCR Chart Debug:', {
-  fcrSeries: fcrSeries,
-  dates: dates,
-  fcrSeriesLength: fcrSeries ? fcrSeries.length : 0,
-  datesLength: dates ? dates.length : 0,
-  fcrCtx: fcrCtx
-});
+var fcrSeries = {{ fcr_series|tojson | safe }};
+var dates = {{ dates|tojson | safe }};
+var fcrCtx = document.getElementById('fcrChart');
 
 if (fcrCtx && fcrSeries && dates && fcrSeries.length > 0) {
-  // Filter out null/undefined values and format data
-  const validData = [];
-  const validLabels = [];
-  
-  for (let i = 0; i < Math.min(fcrSeries.length, dates.length); i++) {
+  var validData = [];
+  var validLabels = [];
+  for (var i = 0; i < Math.min(fcrSeries.length, dates.length); i++) {
     if (fcrSeries[i] !== null && fcrSeries[i] !== undefined && fcrSeries[i] > 0) {
       validData.push(parseFloat(fcrSeries[i]));
       validLabels.push(dates[i]);
     }
   }
-  
-  console.log('Valid FCR Data:', { validData, validLabels });
-  
-  const fcrChart = new Chart(fcrCtx, {
+  var fcrChart = new Chart(fcrCtx, {
     type: 'line',
     data: {
       labels: validLabels,
@@ -926,140 +905,24 @@ if (fcrCtx && fcrSeries && dates && fcrSeries.length > 0) {
         pointBorderWidth: 2
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: 'index'
-      },
-      plugins: {
-        tooltip: {
-          enabled: true,
-          mode: 'index',
-          intersect: false,
-          titleAlign: 'center',
-          bodyAlign: 'center',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          borderColor: '#dee2e6',
-          borderWidth: 1,
-          cornerRadius: 8,
-          displayColors: true,
-          titleFont: {
-            size: isMobile ? 12 : 14
-          },
-          bodyFont: {
-            size: isMobile ? 11 : 13
-          },
-          callbacks: {
-            label: function(context) {
-              return 'FCR: ' + context.parsed.y.toFixed(3);
-            }
-          }
-        },
-        legend: {
-          display: true,
-          position: 'top',
-          labels: {
-            padding: 20,
-            usePointStyle: true,
-            font: {
-              size: isMobile ? 10 : 12
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: false,
-          grid: {
-            color: 'rgba(0,0,0,0.1)',
-            lineWidth: 1
-          },
-          ticks: {
-            font: {
-              size: isMobile ? 10 : 12
-            },
-            maxTicksLimit: isMobile ? 6 : 10,
-            callback: function(value) {
-              return value.toFixed(2);
-            }
-          },
-          title: {
-            display: !isMobile,
-            text: 'FCR Value',
-            font: {
-              size: isMobile ? 11 : 13
-            }
-          }
-        },
-        x: {
-          grid: {
-            color: 'rgba(0,0,0,0.1)',
-            lineWidth: 1
-          },
-          ticks: {
-            font: {
-              size: isMobile ? 9 : 11
-            },
-            maxTicksLimit: isMobile ? 6 : 12,
-            maxRotation: isMobile ? 45 : 0
-          }
-        }
-      }
-    }
+    options: chartConfig
   });
-  
-  // Store chart reference for responsive updates
-  window.fcrChart = fcrChart;
-  console.log('FCR Chart created successfully');
-} else {
-  console.warn('FCR Chart not created - missing data or context:', {
-    hasContext: !!fcrCtx,
-    hasFCRSeries: !!fcrSeries,
-    hasDates: !!dates,
-    fcrSeriesLength: fcrSeries ? fcrSeries.length : 0
-  });
-  
-  // Show no data message
-  if (fcrCtx) {
-    fcrCtx.parentElement.innerHTML = `
-      <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle me-2"></i>
-        No FCR data available yet. Add daily entries to see the trend.
-      </div>
-    `;
-  }
 }
 
 // Weight Chart with Mobile Optimization
-const weightSeries = {{ weight_series|tojson | safe }};
-const weightCtx = document.getElementById('weightChart');
-
-console.log('Weight Chart Debug:', {
-  weightSeries: weightSeries,
-  dates: dates,
-  weightSeriesLength: weightSeries ? weightSeries.length : 0,
-  weightCtx: weightCtx
-});
+var weightSeries = {{ weight_series|tojson | safe }};
+var weightCtx = document.getElementById('weightChart');
 
 if (weightCtx && weightSeries && dates && weightSeries.length > 0) {
-  // Filter out null/undefined values and format data
-  const validWeightData = [];
-  const validWeightLabels = [];
-  
-  for (let i = 0; i < Math.min(weightSeries.length, dates.length); i++) {
-    if (weightSeries[i] !== null && weightSeries[i] !== undefined && weightSeries[i] > 0) {
-      validWeightData.push(parseFloat(weightSeries[i]));
-      validWeightLabels.push(dates[i]);
+  var validWeightData = [];
+  var validWeightLabels = [];
+  for (var j = 0; j < Math.min(weightSeries.length, dates.length); j++) {
+    if (weightSeries[j] !== null && weightSeries[j] !== undefined && weightSeries[j] > 0) {
+      validWeightData.push(parseFloat(weightSeries[j]));
+      validWeightLabels.push(dates[j]);
     }
   }
-  
-  console.log('Valid Weight Data:', { validWeightData, validWeightLabels });
-  
-  const weightChart = new Chart(weightCtx, {
+  var weightChart = new Chart(weightCtx, {
     type: 'line',
     data: {
       labels: validWeightLabels,
@@ -1078,112 +941,8 @@ if (weightCtx && weightSeries && dates && weightSeries.length > 0) {
         pointBorderWidth: 2
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: 'index'
-      },
-      plugins: {
-        tooltip: {
-          enabled: true,
-          mode: 'index',
-          intersect: false,
-          titleAlign: 'center',
-          bodyAlign: 'center',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          borderColor: '#dee2e6',
-          borderWidth: 1,
-          cornerRadius: 8,
-          displayColors: true,
-          titleFont: {
-            size: isMobile ? 12 : 14
-          },
-          bodyFont: {
-            size: isMobile ? 11 : 13
-          },
-          callbacks: {
-            label: function(context) {
-              return 'Weight: ' + context.parsed.y.toFixed(3) + ' kg';
-            }
-          }
-        },
-        legend: {
-          display: true,
-          position: 'top',
-          labels: {
-            padding: 20,
-            usePointStyle: true,
-            font: {
-              size: isMobile ? 10 : 12
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: false,
-          grid: {
-            color: 'rgba(0,0,0,0.1)',
-            lineWidth: 1
-          },
-          ticks: {
-            font: {
-              size: isMobile ? 10 : 12
-            },
-            maxTicksLimit: isMobile ? 6 : 10,
-            callback: function(value) {
-              return value.toFixed(3) + ' kg';
-            }
-          },
-          title: {
-            display: !isMobile,
-            text: 'Weight (kg)',
-            font: {
-              size: isMobile ? 11 : 13
-            }
-          }
-        },
-        x: {
-          grid: {
-            color: 'rgba(0,0,0,0.1)',
-            lineWidth: 1
-          },
-          ticks: {
-            font: {
-              size: isMobile ? 9 : 11
-            },
-            maxTicksLimit: isMobile ? 6 : 12,
-            maxRotation: isMobile ? 45 : 0
-          }
-        }
-      }
-    }
+    options: chartConfig
   });
-  
-  // Store chart reference for responsive updates
-  window.weightChart = weightChart;
-  console.log('Weight Chart created successfully');
-} else {
-  console.warn('Weight Chart not created - missing data or context:', {
-    hasContext: !!weightCtx,
-    hasWeightSeries: !!weightSeries,
-    hasDates: !!dates,
-    weightSeriesLength: weightSeries ? weightSeries.length : 0
-  });
-  
-  // Show no data message
-  if (weightCtx) {
-    weightCtx.parentElement.innerHTML = `
-      <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle me-2"></i>
-        No weight data available yet. Add daily entries to see the trend.
-      </div>
-    `;
-  }
 }
 
 // Enhanced Collapse Management with Animation
@@ -1510,7 +1269,7 @@ window.CycleDetailsApp = {
   CollapseManager,
   handleChartResize
 };
-</script>
+  </script>
 {% endblock %}
 
 <style>
@@ -1549,10 +1308,6 @@ window.CycleDetailsApp = {
     min-height: 44px !important;
     font-size: 1rem !important;
   }
-  
-  /* Badge adjustments */
-  .badge {
-    font-size: 0.8rem !important;
     padding: 0.3rem 0.5rem !important;
   }
   

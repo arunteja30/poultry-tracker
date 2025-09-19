@@ -7,6 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons for PWA Components -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Font Awesome for icon support -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <!-- Google Fonts for Telugu Support -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +24,114 @@
   <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
   <script src="/static/js/pwa.js"></script>
   <script src="/static/js/mobile-ux.js"></script>
+  
+  <!-- Global Date Formatting Function -->
+  <script>
+    // Global function to format dates to dd-mm-yyyy
+    function formatDateToDDMMYYYY(dateString) {
+      if (!dateString) return dateString;
+      
+      // Handle different date formats
+      let date;
+      if (dateString.includes('-')) {
+        // Handle yyyy-mm-dd format
+        const parts = dateString.split('-');
+        if (parts.length === 3) {
+          // Check if it's already in dd-mm-yyyy format
+          if (parts[0].length === 4) {
+            // yyyy-mm-dd format
+            date = new Date(dateString);
+          } else if (parts[2].length === 4) {
+            // dd-mm-yyyy format, already formatted
+            return dateString;
+          } else {
+            // Try to parse as is
+            date = new Date(dateString);
+          }
+        }
+      } else if (dateString.includes('/')) {
+        // Handle various slash formats
+        date = new Date(dateString);
+      } else {
+        date = new Date(dateString);
+      }
+      
+      if (isNaN(date.getTime())) {
+        return dateString; // Return original if invalid date
+      }
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}-${month}-${year}`;
+    }
+    
+    // Function to format all dates on page load
+    function formatAllDatesOnPage() {
+      // Format dates in elements with data-date attribute
+      document.querySelectorAll('[data-date]').forEach(element => {
+        const originalDate = element.getAttribute('data-date');
+        if (originalDate) {
+          element.textContent = formatDateToDDMMYYYY(originalDate);
+        }
+      });
+      
+      // Format dates in table cells with class 'date-cell'
+      document.querySelectorAll('.date-cell').forEach(element => {
+        const originalText = element.textContent.trim();
+        if (originalText) {
+          element.textContent = formatDateToDDMMYYYY(originalText);
+        }
+      });
+      
+      // Format dates in option elements (for select dropdowns)
+      document.querySelectorAll('option').forEach(option => {
+        const text = option.textContent;
+        // Look for date patterns in option text
+        const datePattern = /\d{4}-\d{2}-\d{2}/g;
+        const matches = text.match(datePattern);
+        if (matches) {
+          let updatedText = text;
+          matches.forEach(match => {
+            updatedText = updatedText.replace(match, formatDateToDDMMYYYY(match));
+          });
+          option.textContent = updatedText;
+        }
+      });
+    }
+    
+    // Run on page load and when content changes
+    document.addEventListener('DOMContentLoaded', formatAllDatesOnPage);
+    
+    // Also run when AJAX content is loaded (for dynamic content)
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            // Check if any of the added nodes contain date elements
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeType === 1) { // Element node
+                const dateElements = node.querySelectorAll ? 
+                  node.querySelectorAll('[data-date], .date-cell') : [];
+                dateElements.forEach(element => {
+                  const originalDate = element.getAttribute('data-date') || element.textContent.trim();
+                  if (originalDate) {
+                    element.textContent = formatDateToDDMMYYYY(originalDate);
+                  }
+                });
+              }
+            });
+          }
+        });
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+  </script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark" style="background: #3b5998;">
@@ -147,6 +257,8 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end border-0" style="background: #f8f9fa;">
             <li><span class="dropdown-item-text py-2"><strong>Role:</strong> {{ session.role.title() }}</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item py-2" href="{{ url_for('profile') }}"><i class="me-2">👤</i>Profile</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('logout') }}"><i class="me-2">🚪</i>Logout</a></li>
           </ul>
@@ -351,6 +463,11 @@
               </div>
             </div>
           </div>
+          <!-- Profile -->
+          <a href="{{ url_for('profile') }}" class="nav-list-item">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">Profile</span>
+          </a>
           <!-- Logout -->
           <a href="{{ url_for('logout') }}" class="nav-list-item text-danger">
             <span class="nav-icon">🚪</span>

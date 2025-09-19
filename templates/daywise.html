@@ -76,7 +76,7 @@
         <div class="mobile-card mb-4 p-3" style="background: #ffffff; border: 1px solid #dee2e6;">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">
-              <i class="bi bi-calendar-day me-2"></i>Day {{ loop.revindex }} - {{ r.entry_date }}
+              <i class="bi bi-calendar-day me-2"></i>Day {{ loop.revindex }} - <span data-date="{{ r.entry_date }}">{{ r.entry_date }}</span>
             </h6>
             <div class="dropdown">
               <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
@@ -158,13 +158,13 @@
 
           {% if session.role == 'admin' %}
           <div class="d-flex gap-2 pt-2 mt-2 border-top">
-            <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-outline-primary" data-i18n="edit_daily_entry">
-              <i class="bi bi-pencil me-1"></i><span data-i18n="edit">Edit</span>
+            <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-outline-primary" title="Edit Entry">
+              <i class="bi bi-pencil"></i>
             </a>
             <form method="POST" action="{{ url_for('delete_daily', entry_id=r.id) }}" class="d-inline"
                   onsubmit="return confirm('Are you sure you want to delete this entry?')">
-              <button type="submit" class="btn btn-sm btn-outline-danger" data-i18n="delete_daily_entry">
-                <i class="bi bi-trash me-1"></i><span data-i18n="delete">Delete</span>
+              <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Entry">
+                <i class="bi bi-trash"></i>
               </button>
             </form>
           </div>
@@ -190,7 +190,7 @@
 
     <!-- Charts Section -->
     {% if rows|length > 0 %}
-    <div class="mobile-card mt-4 p-3">
+    
       <h5 class="mobile-card-title">
         <i class="bi bi-graph-up me-2" data-i18n="performance_charts"></i>Performance Charts
       </h5>
@@ -220,7 +220,7 @@
       <div class="row g-3" id="chartsContainer">
         <div class="col-12 col-md-6">
           <div class="mobile-card bg-light">
-            <h6 class="text-center mb-3" data-i18n="fcr_trend">FCR Trend</h6>
+            <h6 class="text-center mb-3 " data-i18n="fcr_trend">FCR Trend</h6>
             <div style="height: 250px; position: relative;">
               <canvas id="fcrChart"></canvas>
             </div>
@@ -254,7 +254,7 @@
 
       <!-- Tiles Container (hidden by default) -->
       <div id="tilesContainer" class="d-none"></div>
-    </div>
+   
     {% endif %}
 
     <!-- Desktop Table View -->
@@ -292,7 +292,7 @@
               {% for r in rows_list|reverse %}
               <tr>
                 <td class="text-center"><strong>{{ loop.revindex }}</strong></td>
-                <td class="text-center text-nowrap">{{ r.entry_date }}</td>
+                <td class="text-center text-nowrap date-cell" data-date="{{ r.entry_date }}">{{ r.entry_date }}</td>
                 <td class="text-center text-danger"><strong>{{ r.mortality }}</strong></td>
                 <td class="text-center text-danger"><strong>{{ r.total_mortality }}</strong></td>
                 <td class="text-center text-danger"><strong>{{ r.mortality_rate }}%</strong></td>
@@ -343,11 +343,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Data from backend
   {% set rows_list = rows|list %}
-  const days = [{% for r in rows_list|reverse %}{{ loop.revindex }}{% if not loop.last %},{% endif %}{% endfor %}];
-  const fcrData = [{% for r in rows_list|reverse %}{{ r.fcr }}{% if not loop.last %},{% endif %}{% endfor %}];
-  const weightData = [{% for r in rows_list|reverse %}{{ (r.avg_weight * 1000)|int }}{% if not loop.last %},{% endif %}{% endfor %}];
-  const feedData = [{% for r in rows_list|reverse %}{{ r.feed_bags_consumed }}{% if not loop.last %},{% endif %}{% endfor %}];
-  const mortalityData = [{% for r in rows_list|reverse %}{{ r.mortality }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const days = [{% for r in rows_list %}{{ loop.index }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const fcrData = [{% for r in rows_list %}{{ r.fcr }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const weightData = [{% for r in rows_list %}{{ (r.avg_weight * 1000)|int }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const feedData = [{% for r in rows_list %}{{ r.feed_bags_consumed }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const mortalityData = [{% for r in rows_list %}{{ r.mortality }}{% if not loop.last %},{% endif %}{% endfor %}];
 
   // Chart instances
   let fcrChart, weightChart, feedChart, mortalityChart;

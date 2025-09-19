@@ -25,6 +25,10 @@
               <label for="med-qty" class="form-label mobile-content" data-i18n="medicine_qty">Quantity</label>
               <input id="med-qty" data-i18n-placeholder="med_qty_ph" name="qty" class="mobile-input form-control" placeholder="Qty" type="number">
             </div>
+            <div class="col-12">
+              <label for="med-notes" class="form-label mobile-content" data-i18n="medicine_notes">Notes</label>
+              <textarea id="med-notes" name="medicine_ext1" class="mobile-input form-control" rows="2" placeholder="Additional details..."></textarea>
+            </div>
           </div>
           <div class="mt-3">
             <button class="mobile-button btn btn-success w-100" type="submit" data-i18n="add_med">💊 Add Medicine</button>
@@ -38,7 +42,7 @@
   <div class="d-none d-md-block">
     <div class="card shadow-sm">
       <div class="card-header bg-primary text-white">
-        <h6 class="mb-0" data-i18n="medicines_list">📋 Medicines List</h6>
+        <h6 class="mb-0" style="color: #fff;" data-i18n="medicines_list">📋 Medicines List</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -48,7 +52,7 @@
                 <th scope="col" class="px-3" data-i18n="table_medicine_name">Medicine Name</th>
                 <th scope="col" class="text-center" data-i18n="table_medicine_price">Price (₹)</th>
                 <th scope="col" class="text-center" data-i18n="table_medicine_qty">Quantity</th>
-                <th scope="col" class="text-center" data-i18n="table_total_value">Total Value</th>
+                <th scope="col" class="text-center" data-i18n="medicine_notes">Notes</th>
                 <th scope="col" class="text-center" data-i18n="audit_info">Created By/Date</th>
                 <th scope="col" class="text-center" data-i18n="table_actions">Actions</th>
               </tr>
@@ -66,7 +70,7 @@
                     <span class="badge bg-info">{{ m.qty or 1 }}</span>
                   </td>
                   <td class="text-center">
-                    <span class="badge bg-warning text-dark">₹{{ "%.2f"|format((m.price|float) * (m.qty|int if m.qty else 1)) }}</span>
+                    {{ m.medicine_ext1 or '-' }}
                   </td>
                   <td class="text-center">
                     <small class="text-muted">
@@ -99,7 +103,7 @@
                 </tr>
               {% else %}
                 <tr>
-                  <td colspan="{% if session.role == 'admin' %}5{% else %}4{% endif %}" class="text-center py-4 text-muted">
+                  <td colspan="{% if session.role == 'admin' %}6{% else %}5{% endif %}" class="text-center py-4 text-muted">
                     <i class="fas fa-pills fa-2x mb-2 text-muted"></i><br>
                     <span data-i18n="no_meds">No medicines added yet</span>
                   </td>
@@ -110,16 +114,16 @@
         </div>
       </div>
       <div class="card-footer bg-light">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <small class="text-muted">
-              <i class="fas fa-info-circle me-1"></i>
-              <span data-i18n="total_medicines">Total Medicines: </span>{{ meds|length }}
-            </small>
+        <div class="row">
+          <div class="col-md-6 d-flex align-items-end">
+            <small class="text-muted"> <i class="fas fa-info-circle me-1"></i> <span data-i18n="total_medicines">Total Medicines: </span></small>
+            <span class="badge bg-primary ms-2">{{ meds|length }}</span>
           </div>
-          <div class="col-md-6 text-end">
-            <strong class="text-primary" data-i18n="total_amount">Total Amount: </strong>
-            <span class="badge bg-success fs-6">₹{{ "%.2f"|format(total_amount|float) }}</span>
+          <div class="col-md-6 d-flex justify-content-end align-items-end">
+            <div>
+              <small class="text-muted" data-i18n="total_amount">Total Amount</small>
+              <span class="badge bg-success fs-6 ms-2">₹{{ "%.2f"|format(total_amount|float) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -128,6 +132,7 @@
 
 <!-- Mobile Card View -->
 <div class="d-block d-md-none">
+  <h6 class="mb-3 text-primary text-center" data-i18n="medicines_list">📋 Medicines List</h6>
   {% for m in meds %}
     <div class="card mb-3 shadow-sm border-0">
       <div class="card-body p-3">
@@ -139,18 +144,16 @@
           </div>
           <span class="badge bg-success ms-2">₹{{ "%.2f"|format(m.price|float) }}</span>
         </div>
-        
         <div class="row g-2 mb-3">
           <div class="col-6">
             <small class="text-muted d-block" data-i18n="table_medicine_qty">Quantity:</small>
             <span class="badge bg-info">{{ m.qty or 1 }}</span>
           </div>
           <div class="col-6">
-            <small class="text-muted d-block">Total Value:</small>
-            <span class="badge bg-warning text-dark">₹{{ "%.2f"|format((m.price|float) * (m.qty|int if m.qty else 1)) }}</span>
+            <small class="text-muted d-block" data-i18n="medicine_notes">Notes:</small>
+            <span>{{ m.medicine_ext1 or '-' }}</span>
           </div>
         </div>
-        
         {% if session.role == 'admin' %}
         <div class="d-grid">
           <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" 
@@ -172,16 +175,14 @@
       </div>
     </div>
   {% endfor %}
-  
-  <!-- Mobile Total Summary -->
   <div class="card border-0 bg-light">
     <div class="card-body p-3 text-center">
-      <div class="row">
-        <div class="col-6">
+      <div class="d-flex justify-content-center align-items-center gap-4">
+        <div>
           <small class="text-muted d-block">Total Medicines</small>
           <span class="badge bg-primary">{{ meds|length }}</span>
         </div>
-        <div class="col-6">
+        <div>
           <small class="text-muted d-block" data-i18n="total_amount">Total Amount</small>
           <span class="badge bg-success fs-6">₹{{ "%.2f"|format(total_amount|float) }}</span>
         </div>
