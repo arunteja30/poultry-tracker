@@ -1637,6 +1637,11 @@ def create_pdf_report(cycle, title="Farm Report"):
         textColor=colors.black
     )
     
+   # --- Add company name above main header ---
+    company = Company.query.get(cycle.company_id) if hasattr(cycle, 'company_id') else None
+    company_name = company.name if company else "Company"
+    story.append(Paragraph(f"<b>{company_name.upper()}</b>", title_style))
+
     # Title and header info
     story.append(Paragraph(title, title_style))
     story.append(Paragraph(f"Cycle #{cycle.id} - {cycle.status.title()} - Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
