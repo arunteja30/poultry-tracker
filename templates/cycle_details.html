@@ -40,7 +40,7 @@
         <select class="mobile-form-control" id="cycle_select" onchange="changeCycle()">
           {% for c in all_cycles %}
             <option value="{{ c.id }}" {% if c.id == cycle.id %}selected{% endif %}>
-              Cycle #{{ c.id }} - <span data-date="{{ c.start_date }}">{{ c.start_date }}</span> 
+              Cycle #{{ c.cycle_ext1 or c.id }} - <span data-date="{{ c.start_date }}">{{ c.start_date }}</span> 
               {% if c.status == 'active' %}(Active){% else %}(Archived){% endif %}
             </option>
           {% endfor %}
@@ -191,13 +191,6 @@
       <div class="collapse show d-lg-block" id="fcrChartCollapse">
         <div class="card-body">
           <canvas id="fcrChart" height="200" class="mobile-chart"></canvas>
-          <!-- Debug info for FCR chart -->
-          <div id="fcrDebugInfo" class="small text-muted mt-2" style="display: none;">
-            <strong>Debug Info:</strong>
-            <div>FCR Series: {{ fcr_series|tojson | safe }}</div>
-            <div>Dates: {{ dates|tojson | safe }}</div>
-            <div>Chart.js loaded: <span id="chartjsStatus">Checking...</span></div>
-          </div>
         </div>
       </div>
     </div>
@@ -214,12 +207,6 @@
       <div class="collapse show d-lg-block" id="weightChartCollapse">
         <div class="card-body">
           <canvas id="weightChart" height="200" class="mobile-chart"></canvas>
-          <!-- Debug info for Weight chart -->
-          <div id="weightDebugInfo" class="small text-muted mt-2" style="display: none;">
-            <strong>Debug Info:</strong>
-            <div>Weight Series: {{ weight_series|tojson | safe }}</div>
-            <div>Dates: {{ dates|tojson | safe }}</div>
-          </div>
         </div>
       </div>
     </div>
@@ -1194,32 +1181,8 @@ function monitorPerformance() {
   }
 }
 
-// Initialize all features when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Page loaded, initializing features...');
-  
-  // Check if Chart.js is loaded
-  const chartjsStatus = document.getElementById('chartjsStatus');
-  if (chartjsStatus) {
-    chartjsStatus.textContent = typeof Chart !== 'undefined' ? 'Yes' : 'No';
-  }
-  
-  // Add debug toggle functionality
-  const debugToggle = document.createElement('button');
-  debugToggle.className = 'btn btn-sm btn-outline-secondary position-fixed';
-  debugToggle.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000;';
-  debugToggle.innerHTML = '<i class="bi bi-bug"></i> Debug';
-  debugToggle.onclick = function() {
-    const fcrDebug = document.getElementById('fcrDebugInfo');
-    const weightDebug = document.getElementById('weightDebugInfo');
-    if (fcrDebug) {
-      fcrDebug.style.display = fcrDebug.style.display === 'none' ? 'block' : 'none';
-    }
-    if (weightDebug) {
-      weightDebug.style.display = weightDebug.style.display === 'none' ? 'block' : 'none';
-    }
-  };
-  document.body.appendChild(debugToggle);
   
   // Core functionality
   const collapseManager = new CollapseManager();
@@ -1238,29 +1201,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Chart responsiveness
   window.addEventListener('resize', handleChartResize);
   window.addEventListener('orientationchange', handleChartResize);
-  
-  // Debug chart data availability
-  setTimeout(() => {
-    console.log('Chart Debug Summary:', {
-      fcrChartExists: !!window.fcrChart,
-      weightChartExists: !!window.weightChart,
-      fcrCanvas: document.getElementById('fcrChart'),
-      weightCanvas: document.getElementById('weightChart'),
-      chartJsLoaded: typeof Chart !== 'undefined'
-    });
-    
-    // If charts failed to load, show user-friendly message
-    const fcrCanvas = document.getElementById('fcrChart');
-    const weightCanvas = document.getElementById('weightChart');
-    
-    if (fcrCanvas && !window.fcrChart) {
-      console.warn('FCR Chart failed to initialize');
-    }
-    
-    if (weightCanvas && !window.weightChart) {
-      console.warn('Weight Chart failed to initialize');
-    }
-  }, 1000);
 });
 
 // Export for testing

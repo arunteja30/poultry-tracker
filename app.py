@@ -13,6 +13,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
+import json
+import os
 
 app = Flask(__name__, instance_relative_config=True)
 
@@ -50,6 +52,10 @@ class Company(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.Integer)  # User ID who created
     notes = db.Column(db.String(500))
+    company_ext1 = db.Column(db.String(500), nullable=True)
+    company_ext2 = db.Column(db.String(500), nullable=True)
+    company_ext3 = db.Column(db.Float, nullable=True)
+    company_ext4 = db.Column(db.Float, nullable=True)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -86,6 +92,7 @@ class User(db.Model):
 class Cycle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    cycle_number = db.Column(db.Integer)  # Sequential number per company
     start_date = db.Column(db.String(50))
     start_time = db.Column(db.String(50))
     start_birds = db.Column(db.Integer)
@@ -100,6 +107,10 @@ class Cycle(db.Model):
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     modified_by = db.Column(db.Integer, db.ForeignKey('user.id'))
     modified_date = db.Column(db.DateTime)
+    cycle_ext1 = db.Column(db.Integer, nullable=True)  # Store cycle_number here
+    cycle_ext2 = db.Column(db.String(500), nullable=True)
+    cycle_ext3 = db.Column(db.Float, nullable=True)
+    cycle_ext4 = db.Column(db.Float, nullable=True)
 
 class Daily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -294,7 +305,7 @@ def admin_required(f):
             return redirect(url_for('login'))
         user = User.query.get(session['user_id'])
         if not user or user.role not in ['admin', 'super_admin']:
-            flash('Access denied. Admin privileges required.', 'error')
+            flash(('Access denied. Admin privileges required.'), 'error')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -726,7 +737,7 @@ def dashboard():
             "avg_fcr": stats["avg_fcr"],
             "avg_weight": stats["avg_weight"]
         }
-    return render_template('dashboard.html', cycle=cycle, summary=summary, fcr_series=fcr_series, dates=dates, mortality_series=mortality_series, feedbags_series=feedbags_series, weight_series=weight_series, metrics=dashboard_metrics)
+    return render_template('dashboard.html', cycle=cycle, summary=summary, fcr_series=fcr_series, dates=dates, mortality_series=mortality_series, feedbags_series=feedbags_series, weight_series=weight_series, metrics=dashboard_metrics, cycle_id=cycle.id if cycle else None, cycle_number=cycle.cycle_ext1 if cycle else None)
 
 @app.route('/setup', methods=['GET','POST'])
 @admin_required
@@ -736,18 +747,9 @@ def setup():
         action = request.form.get('action', 'new')
         user = get_current_user()
         company_id = get_user_company_id()
-        
-        if action == 'reset' and existing_cycle:
-            # Archive current cycle
-            existing_cycle.status = 'archived'
-            existing_cycle.end_date = date.today().isoformat()
-            existing_cycle.notes = f"Archived on {datetime.now().isoformat()} - {existing_cycle.notes}"
-            existing_cycle.modified_by = user.id
-            existing_cycle.modified_date = datetime.utcnow()
-            
-            # Feed management data is preserved (not deleted) for historical records
-            # This maintains consistency with daily data preservation
-            
+        # Find max cycle_number for this company (using cycle_ext1)
+        last_cycle_number = db.session.query(db.func.max(Cycle.cycle_ext1)).filter_by(company_id=company_id).scalar()
+        next_cycle_number = (last_cycle_number or 0) + 1
         start_birds = int(request.form.get('start_birds',0))
         start_feed_bags = float(request.form.get('start_feed_bags',0))
         start_date = request.form.get('start_date') or date.today().isoformat()
@@ -757,6 +759,7 @@ def setup():
         
         c = Cycle(
             company_id=company_id,
+            cycle_ext1=next_cycle_number,  # Store cycle_number in ext1
             start_date=start_date, 
             start_time=start_time, 
             start_birds=start_birds, 
@@ -772,7 +775,7 @@ def setup():
         db.session.commit()
         
         if action == 'reset':
-            flash('New cycle started successfully!', 'success')
+            flash(translate('new_cycle_started'), 'success')
         
         return redirect(url_for('dashboard'))
     
@@ -835,15 +838,15 @@ def import_data():
                 
                 # Success message
                 if imported_medicine_count > 0:
-                    flash(f'✅ Import successful! {imported_daily_count} daily entries and {imported_medicine_count} medicines imported. / ✅ आयात सफल! {imported_daily_count} दैनिक प्रविष्टियां और {imported_medicine_count} दवाएं आयात की गईं। / ✅ దిగుమతి విజయవంతం! {imported_daily_count} రోజువారీ ఎంట్రీలు మరియు {imported_medicine_count} మందులు దిగుమతి చేయబడ్డాయి।', 'success')
+                    flash(translate('import_success_daily_and_medicines', daily=imported_daily_count, medicines=imported_medicine_count), 'success')
                 else:
-                    flash(f'✅ Import successful! {imported_daily_count} daily entries imported. / ✅ आयात सफल! {imported_daily_count} दैनिक प्रविष्टियां आयात की गईं। / ✅ దిగుమతి విజయవంతం! {imported_daily_count} రోజువారీ ఎంట్రీలు దిగుమతి చేయబడ్డాయి।', 'success')
+                    flash(translate('import_success_daily_only', daily=imported_daily_count), 'success')
                 
             except Exception as e:
-                flash(f'Import failed: {str(e)} / आयात असफल: {str(e)} / దిగుమతి విఫలమైంది: {str(e)}', 'error')
+                flash(translate('import_failed', error=str(e)), 'error')
         
         else:
-            flash('केवल Excel (.xlsx, .xls) या CSV फ़ाइलें समर्थित हैं / Only Excel (.xlsx, .xls) or CSV files are supported / Excel (.xlsx, .xls) లేదా CSV ఫైల్‌లు మాత్రమే సపోర్ట్ చేయబడతాయి', 'error')
+            flash(translate('import_file_type_error'), 'error')
         
         return redirect(url_for('import_data'))
     
@@ -952,7 +955,7 @@ def reset_cycle():
         # This maintains consistency with daily data preservation
         
         db.session.commit()
-        flash('Current cycle archived and all data preserved for historical records. You can now start a new cycle. / वर्तमान चक्र संग्रहीत किया गया और सभी डेटा ऐतिहासिक रिकॉर्ड के लिए संरक्षित किया गया। अब आप नया चक्र शुरू कर सकते हैं।', 'info')
+        flash(translate('cycle_archived'), 'info')
     
     return redirect(url_for('setup'))
 
@@ -1030,7 +1033,7 @@ def daily():
         bags_after_consumption = remaining_bags
         if bags_after_consumption < 0:
             shortage = abs(bags_after_consumption)
-            flash(f'⚠️ Insufficient feed bags! You need {round(shortage)} more bags. Current available: {round(bags_available)}, trying to consume: {round(feed_bags_consumed)}. Please add new bags first. / ⚠️ अपर्याप्त फ़ीड बैग! आपको {round(shortage)} और बैग चाहिए। वर्तमान उपलब्ध: {round(bags_available)}, उपयोग करने की कोशिश: {round(feed_bags_consumed)}। कृपया पहले नए बैग जोड़ें। / ⚠️ తగినంత ఫీడ్ బ్యాగులు లేవు! మీకు {round(shortage)} మరిన్ని బ్యాగులు కావాలి। అందుబాటులో: {round(bags_available)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}. దయచేసి మరిన్ని బ్యాగులు జోడించండి।', 'error')
+            flash(translate('insufficient_feed_bags', shortage=round(shortage), available=round(bags_available), consumed=round(feed_bags_consumed)), 'error')
             meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, bags_available=bags_available,
                                    error_data={
@@ -1042,7 +1045,7 @@ def daily():
                                        'medicines': medicines
                                    })
         elif bags_after_consumption < 0:
-            flash(f'⚠️ Error: Must maintain at least 1 feed bag in inventory! Current available: {round(bags_available)}, trying to consume: {round(feed_bags_consumed)}, bags added: {round(feed_bags_added)}. This would leave only {round(bags_after_consumption)} bags. / ⚠️ त्रुटि: इन्वेंटरी में कम से कम 1 फ़ीड बैग बनाए रखना चाहिए! / ⚠️ లోపం: ఇన్వెంటరీలో కనీసం 1 ఫీడ్ బ్యాగ్ ఉంచాలి! ప్రస్తుతం అందుబాటులో: {round(bags_available)}, వాడటానికి ప్రయత్నిస్తున్నారు: {round(feed_bags_consumed)}, జోడించిన బ్యాగులు: {round(feed_bags_added)}. దీని వలన కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలిపోతాయి।', 'error')
+            flash(translate('must_maintain_feed_bag', available=round(bags_available), consumed=round(feed_bags_consumed), added=round(feed_bags_added), remaining=round(bags_after_consumption)), 'error')
             meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
             return render_template('daily.html', cycle=cycle, meds=meds, bags_available=bags_available,
                                    error_data={
@@ -1056,7 +1059,7 @@ def daily():
 
         # Warn if bags are getting low (less than 3 days worth)
         if bags_after_consumption <= 3:
-            flash(f'🟡 Warning: Feed bags are running low! Only {round(bags_after_consumption)} bags remaining. Consider adding new bags soon. / 🟡 चेतावनी: फ़ीड बैग कम हो रहे हैं! केवल {round(bags_after_consumption)} बैग बचे हैं। जल्द ही नए बैग जोड़ने पर विचार करें। / 🟡 హెచ్చరిక: ఫీడ్ బ్యాగులు తక్కువగా అవుతున్నాయి! కేవలం {round(bags_after_consumption)} బ్యాగులు మిగిలి ఉన్నాయి। త్వరలో కొత్త బ్యాగులు జోడించడాన్ని పరిగణించండి।', 'warning')
+            flash(translate('feed_bags_running_low', remaining=round(bags_after_consumption)), 'warning')
     
         if live_after > 0:
             # Get all previous entries for cumulative calculation
@@ -1111,9 +1114,9 @@ def daily():
 
         # Success message
         if feed_bags_added > 0:
-            flash(f'✅ Daily entry saved successfully! Added {feed_bags_added:.1f} bags, consumed {feed_bags_consumed:.1f} bags. Remaining: {bags_after_consumption:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_added:.1f} बैग जोड़े गए, {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {bags_after_consumption:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_added:.1f} బ్యాగులు జోడించబడ్డాయి, {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {bags_after_consumption:.1f} బ్యాగులు।', 'success')
+            flash(translate('daily_entry_saved_added', added=feed_bags_added, consumed=feed_bags_consumed, remaining=bags_after_consumption), 'success')
         else:
-            flash(f'✅ Daily entry saved successfully! Consumed {feed_bags_consumed:.1f} bags. Remaining: {bags_after_consumption:.1f} bags. / ✅ दैनिक प्रविष्टि सफलतापूर्वक सहेजी गई! {feed_bags_consumed:.1f} बैग उपयोग किए गए। बचे हुए: {bags_after_consumption:.1f} बैग। / ✅ రోజువారీ ఎంట్రీ విజయవంతంగా సేవ్ చేయబడింది! {feed_bags_consumed:.1f} బ్యాగులు వాడబడ్డాయి। మిగిలినవి: {bags_after_consumption:.1f} బ్యాగులు।', 'success')
+            flash(translate('daily_entry_saved_consumed', consumed=feed_bags_consumed, remaining=bags_after_consumption), 'success')
 
         return redirect(url_for('dashboard'))
     meds = Medicine.query.filter_by(cycle_id=cycle.id).order_by(Medicine.name).all()
@@ -1229,6 +1232,39 @@ def stats():
     }
     
     return render_template('stats.html', cycle=cycle, stats=enhanced_stats, chart_data=chart_data)
+
+# --- Translation Helper ---
+TRANSLATION_PATH = os.path.join(os.path.dirname(__file__), 'static', 'i18n')
+LANGUAGES = ['en', 'hi', 'te']
+TRANSLATIONS = {}
+
+def load_translations():
+    global TRANSLATIONS
+    for lang in LANGUAGES:
+        try:
+            with open(os.path.join(TRANSLATION_PATH, f'{lang}.json'), encoding='utf-8') as f:
+                TRANSLATIONS[lang] = json.load(f)
+        except Exception:
+            TRANSLATIONS[lang] = {}
+
+load_translations()
+
+def get_user_language():
+    # Try to get language from session, cookie, or default to 'en'
+    lang = session.get('lang') or request.cookies.get('lang') or 'en'
+    if lang not in LANGUAGES:
+        lang = 'en'
+    return lang
+
+def translate(key, **kwargs):
+    lang = get_user_language()
+    text = TRANSLATIONS.get(lang, {}).get(key, TRANSLATIONS['en'].get(key, key))
+    if kwargs:
+        try:
+            text = text.format(**kwargs)
+        except Exception:
+            pass
+    return text
 
 @app.route('/medicines', methods=['GET','POST'])
 @login_required
@@ -1614,8 +1650,8 @@ def create_pdf_report(cycle, title="Farm Report"):
     total_medical_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
     total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
     survival_rate = (cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0
-    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len([entry for entry in daily_entries if entry.fcr > 0]))
-    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len([entry for entry in daily_entries if entry.avg_weight > 0]))
+    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len(entries))
+    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len(entries))
     
     # Cycle Overview (like the HTML card)
     story.append(Paragraph("🐔 Cycle Overview", heading_style))
@@ -2336,9 +2372,9 @@ def cycle_history():
                 end_date = cycle.end_date
             duration_days = (end_date - start_date).days + 1 if start_date else 0
         else:
-            duration_days = 0  # Ongoing cycles
+            duration_days = 0 # Ongoing cycles
         
-        # Get daily entries for this cycle
+        # Get daily entries for this specific cycle
         daily_entries = Daily.query.filter_by(cycle_id=cycle.id).all()
         
         # Calculate cycle statistics

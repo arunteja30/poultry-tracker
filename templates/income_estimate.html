@@ -27,7 +27,7 @@
                   <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles"><span data-i18n="all_cycles">All Cycles</span></option>
                   {% for c in all_cycles %}
                   <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>
-                    <span data-i18n="cycle">Cycle</span> #{{ c.id }} ({{ c.start_date }})
+                    <span data-i18n="cycle">Cycle</span> #{{ c.cycle_ext1 or c.id }} ({{ c.start_date }})
                   </option>
                   {% endfor %}
                 </select>
