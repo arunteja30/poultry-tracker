@@ -757,6 +757,12 @@ def setup():
         driver = request.form.get('driver','')
         notes = request.form.get('notes','')
         
+        # Archive all existing active cycles for this company before creating new one
+        active_cycles = Cycle.query.filter_by(company_id=company_id, status='active').all()
+        for active_cycle in active_cycles:
+            active_cycle.status = 'archived'
+            active_cycle.end_date = date.today().isoformat()
+        
         c = Cycle(
             company_id=company_id,
             cycle_ext1=next_cycle_number,  # Store cycle_number in ext1
@@ -1650,8 +1656,8 @@ def create_pdf_report(cycle, title="Farm Report"):
     total_medical_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
     total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
     survival_rate = (cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0
-    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len(entries))
-    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len(entries))
+    avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len(daily_entries))
+    avg_weight = sum(entry.avg_weight for entry in daily_entries if entry.avg_weight > 0) / max(1, len(daily_entries))
     
     # Cycle Overview (like the HTML card)
     story.append(Paragraph("🐔 Cycle Overview", heading_style))
@@ -1709,14 +1715,43 @@ def create_pdf_report(cycle, title="Farm Report"):
     story.append(metrics_table)
     story.append(Spacer(1, 15))
     
-    # Daily Entries (like the HTML table)
+    # Daily Entries (like the HTML table) - Enhanced with all columns
     if daily_entries:
         story.append(Paragraph(f"📅 Daily Entries ({len(daily_entries)} entries)", heading_style))
         
-        # Show last 15 entries to avoid too long table
-        recent_entries = daily_entries[-15:] if len(daily_entries) > 15 else daily_entries
+        # Show last 10 entries to avoid too long table but include all columns
+        recent_entries = daily_entries[-10:] if len(daily_entries) > 10 else daily_entries
         
-        daily_data = [['Day', 'Date', 'Mortality', 'Feed Consumed', 'Avg Weight (g)', 'FCR', 'Medicines']]
+        # Enhanced daily data with all columns from HTML template - using Paragraph objects for headers
+        header_style = ParagraphStyle(
+            'HeaderStyle',
+            parent=styles['Normal'],
+            fontSize=6,
+            alignment=1,  # Center alignment
+            textColor=colors.whitesmoke,
+            fontName='Helvetica-Bold'
+        )
+        
+        # Create headers with line breaks using Paragraph objects
+        daily_headers = [
+            Paragraph('Day', header_style),
+            Paragraph('Date', header_style),
+            Paragraph('Deaths', header_style),
+            Paragraph('Total<br/>Deaths', header_style),
+            Paragraph('Death<br/>Rate(%)', header_style),
+            Paragraph('Birds<br/>Alive', header_style),
+            Paragraph('Avg Wt<br/>(g)', header_style),
+            Paragraph('Feed<br/>Used', header_style),
+            Paragraph('Feed<br/>Added', header_style),
+            Paragraph('Total<br/>Used', header_style),
+            Paragraph('Bags<br/>Left', header_style),
+            Paragraph('Feed/Bird<br/>(g)', header_style),
+            Paragraph('FCR', header_style),
+            Paragraph('Medicine', header_style),
+            Paragraph('Notes', header_style)
+        ]
+        
+        daily_data = [daily_headers]
         
         total_days = len(daily_entries)
         for i, entry in enumerate(recent_entries):
@@ -1725,28 +1760,39 @@ def create_pdf_report(cycle, title="Farm Report"):
                 str(day_num),
                 entry.entry_date,
                 str(entry.mortality),
-                f"{entry.feed_bags_consumed} bags",
+                str(getattr(entry, 'total_mortality', 0)),
+                f"{getattr(entry, 'mortality_rate', 0)}%",
+                str(getattr(entry, 'birds_survived', 0)),
                 f"{int(entry.avg_weight * 1000) if entry.avg_weight else 0}",
-                f"{entry.fcr:.2f}" if entry.fcr else "0.00",
-                entry.medicines[:20] + '...' if entry.medicines and len(entry.medicines) > 20 else entry.medicines or '-'
+                f"{entry.feed_bags_consumed}",
+                f"{entry.feed_bags_added}",
+                str(getattr(entry, 'total_bags_consumed', 0)),
+                str(entry.remaining_bags),
+                f"{getattr(entry, 'avg_feed_per_bird_g', 0):.1f}",
+                f"{entry.fcr:.3f}" if entry.fcr else "0.000",
+                entry.medicines[:15] + '...' if entry.medicines and len(entry.medicines) > 15 else entry.medicines or '-',
+                getattr(entry, 'daily_notes', '-')[:15] + '...' if getattr(entry, 'daily_notes', '') and len(getattr(entry, 'daily_notes', '')) > 15 else getattr(entry, 'daily_notes', '-') or '-'
             ])
         
-        daily_table = Table(daily_data, colWidths=[0.5*inch, 0.8*inch, 0.7*inch, 0.9*inch, 0.8*inch, 0.5*inch, 1.7*inch])
+        # Adjust column widths for the enhanced table (total should be around 7.5 inches)
+        daily_table = Table(daily_data, colWidths=[0.3*inch, 0.6*inch, 0.4*inch, 0.5*inch, 0.5*inch, 0.5*inch, 
+                                                  0.5*inch, 0.4*inch, 0.4*inch, 0.4*inch, 0.4*inch, 
+                                                  0.5*inch, 0.4*inch, 0.8*inch, 0.8*inch])
         daily_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 7),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('FONTSIZE', (0, 0), (-1, -1), 6),  # Smaller font to fit more columns
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
             ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
         story.append(daily_table)
         
-        if len(daily_entries) > 15:
-            story.append(Paragraph(f"Showing last 15 entries out of {len(daily_entries)} total entries", styles['Italic']))
+        if len(daily_entries) > 10:
+            story.append(Paragraph(f"Showing last 10 entries out of {len(daily_entries)} total entries", styles['Italic']))
         
         story.append(Spacer(1, 15))
     
@@ -1784,25 +1830,29 @@ def create_pdf_report(cycle, title="Farm Report"):
         story.append(feed_table)
         story.append(Spacer(1, 15))
     
-    # Medicine Summary (like HTML card)
+    # Medicine Summary (like HTML card) - Enhanced with date information
     if medicines:
         story.append(Paragraph("💊 Medicine Summary", heading_style))
         
-        medicine_data = [['Medicine Name', 'Price per Unit', 'Quantity', 'Total Value']]
+        # Enhanced medicine data with date information
+        medicine_data = [['Medicine Name', 'Date Added', 'Price per Unit', 'Quantity', 'Total Value']]
         total_medicine_value = 0
         for med in medicines:
             value = med.price * (med.qty or 1)
+            # Format date if available
+            date_str = med.created_date.strftime('%Y-%m-%d') if hasattr(med, 'created_date') and med.created_date else 'N/A'
             medicine_data.append([
-                med.name[:30] + '...' if len(med.name) > 30 else med.name,
+                med.name[:25] + '...' if len(med.name) > 25 else med.name,
+                date_str,
                 f"₹{med.price:.2f}",
                 str(med.qty or 1),
                 f"₹{value:.2f}"
             ])
             total_medicine_value += value
         
-        medicine_data.append(['TOTAL', '', '', f"₹{total_medicine_value:.2f}"])
+        medicine_data.append(['TOTAL', '', '', '', f"₹{total_medicine_value:.2f}"])
         
-        medicine_table = Table(medicine_data, colWidths=[2.5*inch, 1*inch, 1*inch, 1.5*inch])
+        medicine_table = Table(medicine_data, colWidths=[2*inch, 1*inch, 1*inch, 0.8*inch, 1.2*inch])
         medicine_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.purple),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -1851,23 +1901,30 @@ def create_pdf_report(cycle, title="Farm Report"):
         story.append(expense_table)
         story.append(Spacer(1, 15))
     
-    # Dispatch History (like HTML table)
+    # Dispatch History (like HTML table) - Enhanced with vendor and time details
     if dispatches:
         story.append(Paragraph("🚚 Dispatch History", heading_style))
         
-        dispatch_data = [['Vehicle', 'Driver', 'Date', 'Birds', 'Weight (kg)', 'Avg/Bird (kg)', 'Status']]
+        # Enhanced dispatch data with vendor and time information
+        dispatch_data = [['Vehicle', 'Driver', 'Vendor', 'Date & Time', 'Birds', 'Weight (kg)', 'Avg/Bird (kg)', 'Status']]
         total_birds_dispatched = 0
         total_weight_dispatched = 0
         
         for dispatch in dispatches:
+            # Format date and time
+            date_time_str = f"{dispatch.dispatch_date}"
+            if hasattr(dispatch, 'dispatch_time') and dispatch.dispatch_time:
+                date_time_str += f"\n{dispatch.dispatch_time}"
+            
             dispatch_data.append([
                 dispatch.vehicle_no,
-                dispatch.driver_name[:15] + '...' if len(dispatch.driver_name) > 15 else dispatch.driver_name,
-                dispatch.dispatch_date,
+                dispatch.driver_name[:12] + '...' if len(dispatch.driver_name) > 12 else dispatch.driver_name,
+                (dispatch.vendor_name[:12] + '...' if len(dispatch.vendor_name) > 12 else dispatch.vendor_name) if dispatch.vendor_name else '-',
+                date_time_str,
                 str(dispatch.total_birds) if dispatch.status == 'completed' else 'In Progress',
                 f"{dispatch.total_weight:.1f}" if dispatch.status == 'completed' else '-',
                 f"{dispatch.avg_weight_per_bird:.3f}" if dispatch.status == 'completed' else '-',
-                dispatch.status.title()
+                'Completed' if dispatch.status == 'completed' else 'Active'
             ])
             
             if dispatch.status == 'completed':
@@ -1876,14 +1933,14 @@ def create_pdf_report(cycle, title="Farm Report"):
         
         # Add summary row
         dispatch_data.append([
-            'TOTAL', '', '', 
+            'TOTAL', '', '', '', 
             str(total_birds_dispatched), 
             f"{total_weight_dispatched:.1f}", 
             f"{(total_weight_dispatched/total_birds_dispatched):.3f}" if total_birds_dispatched > 0 else '0.000',
             'Summary'
         ])
         
-        dispatch_table = Table(dispatch_data, colWidths=[0.8*inch, 1*inch, 0.8*inch, 0.8*inch, 0.8*inch, 0.8*inch, 1*inch])
+        dispatch_table = Table(dispatch_data, colWidths=[0.8*inch, 1*inch, 1*inch, 1*inch, 0.7*inch, 0.8*inch, 0.8*inch, 0.8*inch])
         dispatch_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.orange),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
