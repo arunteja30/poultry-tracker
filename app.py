@@ -36,8 +36,8 @@ else:
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{sqlite_path}"
 
 # Supabase requires SSL
-if "sslmode" not in database_url:
-    database_url += "?sslmode=require"
+# if "sslmode" not in database_url:
+#     database_url += "?sslmode=require"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
@@ -3270,4 +3270,8 @@ def select_company():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-   
+    
+    # postgresql://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres
+    # postgresql://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres?sslmode=require
+    # DATABASE_URL = "postgresql+psycopg2://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres?sslmode=require&host=db.egkzjedqkmrjyugbcbjg.supabase.co"
+
