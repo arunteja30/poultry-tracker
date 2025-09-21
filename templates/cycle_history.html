@@ -7,12 +7,60 @@
     </h2>
     <p class="text-muted mb-4" data-i18n="cycle_history_desc"><span data-i18n="cycle_history_desc">Compare performance across different poultry cycles</span></p>
 
+
+
     {% if cycle_data %}
+
+<!-- Summary Stats Card -->
+    {% if cycle_data %}
+    <div class="mobile-card mt-4 p-3">
+      <h5 class="mobile-card-title">
+        <i class="bi bi-graph-up me-2"></i><span data-i18n="performance_summary">Performance Summary</span>
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center">
+            <div class="mobile-metric-value text-primary">{{ cycle_data|length }}</div>
+            <div class="mobile-metric-label" data-i18n="total_cycles">Total Cycles</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center">
+            <div class="mobile-metric-value text-success">
+              {% set active_cycles = cycle_data | selectattr('cycle.status', 'equalto', 'active') | list %}
+              {{ active_cycles|length }}
+            </div>
+            <div class="mobile-metric-label" data-i18n="active_cycles">Active Cycles</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center">
+            <div class="mobile-metric-value text-info">
+              {% set avg_survival = (cycle_data | map(attribute='survival_rate') | sum / cycle_data|length) | round(1) %}
+              {{ avg_survival }}%
+            </div>
+            <div class="mobile-metric-label" data-i18n="avg_survival">Avg Survival</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mobile-metric-card text-center">
+            <div class="mobile-metric-value text-warning">
+              {% set avg_duration = (cycle_data | map(attribute='duration_days') | sum / cycle_data|length) | round(0) %}
+              {{ avg_duration }}
+            </div>
+            <div class="mobile-metric-label" data-i18n="avg_duration">Avg Duration</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Mobile Cards View -->
     <div class="d-block d-lg-none">
       <div class="mobile-list-container" style="max-height: 70vh; overflow-y: auto;">
         {% for data in cycle_data %}
-        <div class="mobile-data-card mobile-swipeable mb-3 p-3 {% if data.cycle.status == 'active' %}border-success{% endif %}" style="background: #ffffff; border: 1px solid #c50808;">
+        <div class="mobile-data-card mobile-swipeable mb-3 p-3 {% if data.cycle.status == 'active' %}border-success{% endif %}" style="background: #edebeb; border: 1px solid #c50808;">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
               <h6 class="mobile-card-title mb-1">
@@ -248,50 +296,6 @@
     </div>
     {% endif %}
 
-    <!-- Summary Stats Card -->
-    {% if cycle_data %}
-    <div class="mobile-card mt-4 p-3">
-      <h5 class="mobile-card-title">
-        <i class="bi bi-graph-up me-2"></i><span data-i18n="performance_summary">Performance Summary</span>
-      </h5>
-
-      <div class="row g-3">
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center">
-            <div class="mobile-metric-value text-primary">{{ cycle_data|length }}</div>
-            <div class="mobile-metric-label" data-i18n="total_cycles">Total Cycles</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center">
-            <div class="mobile-metric-value text-success">
-              {% set active_cycles = cycle_data | selectattr('cycle.status', 'equalto', 'active') | list %}
-              {{ active_cycles|length }}
-            </div>
-            <div class="mobile-metric-label" data-i18n="active_cycles">Active Cycles</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center">
-            <div class="mobile-metric-value text-info">
-              {% set avg_survival = (cycle_data | map(attribute='survival_rate') | sum / cycle_data|length) | round(1) %}
-              {{ avg_survival }}%
-            </div>
-            <div class="mobile-metric-label" data-i18n="avg_survival">Avg Survival</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="mobile-metric-card text-center">
-            <div class="mobile-metric-value text-warning">
-              {% set avg_duration = (cycle_data | map(attribute='duration_days') | sum / cycle_data|length) | round(0) %}
-              {{ avg_duration }}
-            </div>
-            <div class="mobile-metric-label" data-i18n="avg_duration">Avg Duration</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
 
     <!-- Action Buttons -->
     <div class="mobile-button-stack mt-4">

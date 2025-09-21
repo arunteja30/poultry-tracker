@@ -103,6 +103,8 @@ class Cycle(db.Model):
     current_birds = db.Column(db.Integer)
     start_feed_bags = db.Column(db.Float)
     driver = db.Column(db.String(120))
+    hatchery = db.Column(db.String(120))
+    farmer_name = db.Column(db.String(120))
     notes = db.Column(db.String(500))
     status = db.Column(db.String(20), default='active')  # 'active' or 'archived'
     end_date = db.Column(db.String(50))  # Date when cycle was completed/archived
@@ -113,8 +115,8 @@ class Cycle(db.Model):
     modified_date = db.Column(db.DateTime)
     cycle_ext1 = db.Column(db.Integer, nullable=True)  # Store cycle_number here
     cycle_ext2 = db.Column(db.String(500), nullable=True)
-    cycle_ext3 = db.Column(db.Float, nullable=True)
-    cycle_ext4 = db.Column(db.Float, nullable=True)
+    cycle_ext3 = db.Column(db.Float, nullable=True)  
+    cycle_ext4 = db.Column(db.Float, nullable=True)  
 
 class Daily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -756,6 +758,8 @@ def setup():
         next_cycle_number = (last_cycle_number or 0) + 1
         start_birds = int(request.form.get('start_birds',0))
         start_feed_bags = float(request.form.get('start_feed_bags',0))
+        hatchery = request.form.get('hatchery_name','')
+        farmer_name = request.form.get('farm_owner','')
         start_date = request.form.get('start_date') or date.today().isoformat()
         start_time = request.form.get('start_time') or datetime.now().time().isoformat(timespec='minutes')
         driver = request.form.get('driver','')
@@ -776,6 +780,8 @@ def setup():
             current_birds=start_birds, 
             start_feed_bags=start_feed_bags, 
             driver=driver, 
+            hatchery=hatchery, 
+            farmer_name=farmer_name, 
             notes=notes, 
             status='active',
             created_by=user.id,
@@ -1648,7 +1654,7 @@ def create_pdf_report(cycle, title="Farm Report"):
 
     # Title and header info
     story.append(Paragraph(title, title_style))
-    story.append(Paragraph(f"Cycle #{cycle.id} - {cycle.status.title()} - Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+    story.append(Paragraph(f"Cycle #{cycle.id} - {cycle.status.title()} - Generated on {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}", styles['Normal']))
     story.append(Spacer(1, 15))
     
     # Get all the data we need (same as the HTML templates use)
@@ -1662,7 +1668,7 @@ def create_pdf_report(cycle, title="Farm Report"):
     total_mortality = sum(entry.mortality for entry in daily_entries)
     total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
     total_feed_cost = sum(feed.total_cost for feed in feeds) if feeds else 0
-    total_medical_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
+    total_medical_cost = sum(med.price * (1) for med in medicines) if medicines else 0
     total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
     survival_rate = (cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0
     avg_fcr = sum(entry.fcr for entry in daily_entries if entry.fcr > 0) / max(1, len(daily_entries))
@@ -1673,18 +1679,19 @@ def create_pdf_report(cycle, title="Farm Report"):
     
     overview_data = [
         ['Metric', 'Value', 'Metric', 'Value'],
-        ['Start Date', cycle.start_date or 'Not set', 'End Date', cycle.end_date or 'Ongoing'],
+        ['Start Date', convert_date_to_ddmmyyyy(cycle.start_date) or 'Not set', 'End Date', convert_date_to_ddmmyyyy(cycle.end_date) or 'Ongoing'],
         ['Start Time', cycle.start_time or 'N/A', 'Duration', f"{((datetime.now().date() - datetime.strptime(cycle.start_date, '%Y-%m-%d').date()).days + 1) if cycle.start_date else 0} days"],
         ['Driver', cycle.driver or 'N/A', 'Status', cycle.status.title()],
+        ['Hatchery', cycle.hatchery or 'N/A', 'Farmer Name', cycle.farmer_name or 'N/A'],
         ['Initial Birds', str(cycle.start_birds or 0), 'Current Birds', str(cycle.current_birds or 0)],
-        ['Initial Feed Bags', str(cycle.start_feed_bags or 0), 'Notes', cycle.notes[:30] + '...' if cycle.notes and len(cycle.notes) > 30 else cycle.notes or 'None']
+        ['Initial Feed Bags', str(cycle.start_feed_bags or 0), 'Notes', cycle.notes[:30] + '...' if cycle.notes and len(cycle.notes) > 1 else cycle.notes or 'None']
     ]
     
     overview_table = Table(overview_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
     overview_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
@@ -1705,7 +1712,7 @@ def create_pdf_report(cycle, title="Farm Report"):
         ['Feed Cost', f"₹{total_feed_cost:.2f}", 'Feed Cost per Bird', f"₹{(total_feed_cost / cycle.current_birds):.2f}" if cycle.current_birds > 0 else 'N/A'],
         ['Avg Weight (kg)', f"{avg_weight:.3f}" if avg_weight > 0 else 'N/A', 'Mortality No.', str(total_mortality)],
         ['Total Bags Consumed', str(total_feed_consumed), 'Mortality Rate', f"{(total_mortality / cycle.start_birds * 100):.2f}%" if cycle.start_birds > 0 else 'N/A'],
-        ['Medical Expenses', f"₹{total_medical_cost:.2f}", 'Other Expenses', f"₹{total_expense_cost:.2f}"]
+        ['Medical Expenses', f"{total_medical_cost:.2f}", 'Other Expenses', f"{total_expense_cost:.2f}"]
     ]
     
     metrics_table = Table(metrics_data, colWidths=[1.5*inch, 1.5*inch, 1.5*inch, 1.5*inch])
@@ -1767,7 +1774,7 @@ def create_pdf_report(cycle, title="Farm Report"):
             day_num = total_days - len(recent_entries) + i + 1
             daily_data.append([
                 str(day_num),
-                entry.entry_date,
+                convert_date_to_ddmmyyyy(entry.entry_date),
                 str(entry.mortality),
                 str(getattr(entry, 'total_mortality', 0)),
                 f"{getattr(entry, 'mortality_rate', 0)}%",
@@ -1813,7 +1820,7 @@ def create_pdf_report(cycle, title="Farm Report"):
         total_cost = 0
         for feed in feeds:
             feed_data.append([
-                feed.date,
+                convert_date_to_ddmmyyyy(feed.date),
                 feed.feed_name[:25] + '...' if len(feed.feed_name) > 25 else feed.feed_name,
                 str(feed.feed_bags),
                 f"{feed.bag_weight} kg",
@@ -1844,12 +1851,12 @@ def create_pdf_report(cycle, title="Farm Report"):
         story.append(Paragraph("💊 Medicine Summary", heading_style))
         
         # Enhanced medicine data with date information
-        medicine_data = [['Medicine Name', 'Date Added', 'Price per Unit', 'Quantity', 'Total Value']]
+        medicine_data = [['Medicine Name', 'Date Added', 'Price per Unit', 'Quantity Unit', 'Total Value']]
         total_medicine_value = 0
         for med in medicines:
-            value = med.price * (med.qty or 1)
+            value = med.price * (1)
             # Format date if available
-            date_str = med.created_date.strftime('%Y-%m-%d') if hasattr(med, 'created_date') and med.created_date else 'N/A'
+            date_str = med.created_date.strftime('%d-%m-%Y') if hasattr(med, 'created_date') and med.created_date else 'N/A'
             medicine_data.append([
                 med.name[:25] + '...' if len(med.name) > 25 else med.name,
                 date_str,
@@ -1886,7 +1893,7 @@ def create_pdf_report(cycle, title="Farm Report"):
         for expense in expenses:
             expense_data.append([
                 expense.name[:25] + '...' if len(expense.name) > 25 else expense.name,
-                expense.date,
+                convert_date_to_ddmmyyyy(expense.date),
                 f"₹{expense.amount:.2f}",
                 expense.notes[:30] + '...' if expense.notes and len(expense.notes) > 30 else expense.notes or '-'
             ])
@@ -1921,7 +1928,7 @@ def create_pdf_report(cycle, title="Farm Report"):
         
         for dispatch in dispatches:
             # Format date and time
-            date_time_str = f"{dispatch.dispatch_date}"
+            date_time_str = f"{convert_date_to_ddmmyyyy(dispatch.dispatch_date)}"
             if hasattr(dispatch, 'dispatch_time') and dispatch.dispatch_time:
                 date_time_str += f"\n{dispatch.dispatch_time}"
             
@@ -3050,7 +3057,7 @@ def export_all_cycles():
         total_mortality = sum(entry.mortality for entry in daily_entries)
         total_feed_consumed = sum(entry.feed_bags_consumed for entry in daily_entries)
         total_feed_cost = sum(feed.total_cost for feed in feeds) if feeds else 0
-        total_medicine_cost = sum(med.price * (med.qty or 1) for med in medicines) if medicines else 0
+        total_medicine_cost = sum(med.price * (1) for med in medicines) if medicines else 0
         total_expense_cost = sum(exp.amount for exp in expenses) if expenses else 0
         total_dispatched = sum(d.total_birds for d in dispatches if d.status == 'completed')
         
@@ -3267,6 +3274,17 @@ def select_company():
     session['selected_company_id'] = int(company_id)
     flash('Company selected! You are now viewing data as admin for this company.', 'success')
     return redirect(url_for('dashboard'))
+
+def convert_date_to_ddmmyyyy(date_str):
+    """Convert date from 'yyyy-mm-dd' to 'dd-mm-yyyy' format."""
+    try:
+        if not date_str:
+            return date_str
+        dt = datetime.strptime(date_str, '%Y-%m-%d')
+        print(dt.strftime('%d-%m-%Y'))
+        return dt.strftime('%d-%m-%Y')
+    except ValueError:
+        return date_str
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

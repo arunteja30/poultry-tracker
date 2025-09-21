@@ -72,43 +72,51 @@
 <!-- Cycle Overview -->
 
 <div class="row mb-3 mt-4">
-  <div class="col-md-8">
+  <div class="col-md-100">
     <div class="card w-100" style="width:100%;"> 
       <div class="card-header">
         <h5 data-i18n="cycle_overview">🐔 Cycle Overview</h5>
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <dl class="row">
-              <dt class="col-sm-5" data-i18n="start_date">Start Date:</dt>
-              <dd class="col-sm-7" data-date="{{ cycle.start_date }}">{{ cycle.start_date }}</dd>
-              <dt class="col-sm-5" data-i18n="start_time">Start Time:</dt>
-              <dd class="col-sm-7">{{ cycle.start_time or 'N/A' }}</dd>
-              <dt class="col-sm-5" data-i18n="driver">Driver:</dt>
-              <dd class="col-sm-7">{{ cycle.driver or 'N/A' }}</dd>
+              <dt class="col-sm-6" data-i18n="start_date">Start Date:</dt>
+              <dd class="col-sm-6" data-date="{{ cycle.start_date }}">{{ cycle.start_date }}</dd>
+              <dt class="col-sm-6" data-i18n="start_time">Start Time:</dt>
+              <dd class="col-sm-6">{{ cycle.start_time or 'N/A' }}</dd>
+              <dt class="col-sm-6" data-i18n="driver">Driver:</dt>
+              <dd class="col-sm-6">{{ cycle.driver or 'N/A' }}</dd>
             </dl>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-4">
             <dl class="row">
-              <dt class="col-sm-5" data-i18n="end_date">End Date:</dt>
-              <dd class="col-sm-7">
+              <dt class="col-sm-6" data-i18n="end_date">End Date:</dt>
+              <dd class="col-sm-6">
                 {% if cycle.end_date %}
                   <span data-date="{{ cycle.end_date }}">{{ cycle.end_date }}</span>
                 {% else %}
                   <span data-i18n="ongoing">Ongoing</span>
                 {% endif %}
               </dd>
-              <dt class="col-sm-5" data-i18n="duration">Duration:</dt>
-              <dd class="col-sm-7">
+              <dt class="col-sm-6" data-i18n="duration">Duration:</dt>
+              <dd class="col-sm-6">
                 {% if cycle.end_date %}
-                  {{ duration }} days
+                  {{ duration }} <span data-i18n="days">days</span>
                 {% else %}
                   {{ current_duration }} <span data-i18n="days">days</span> (<span data-i18n="ongoing">ongoing</span>)
                 {% endif %}
               </dd>
-              <dt class="col-sm-5" data-i18n="notes">Notes:</dt>
-              <dd class="col-sm-7">{{ cycle.notes or '<span data-i18n="none">None</span>'|safe }}</dd>
+              <dt class="col-sm-6" data-i18n="notes">Notes:</dt>
+              <dd class="col-sm-6">{{ cycle.notes or '<span data-i18n="none">None</span>'|safe }}</dd>
+            </dl>
+          </div>
+          <div class="col-md-4">
+            <dl class="row">
+              <dt class="col-sm-6" data-i18n="hatchery">Hatchery:</dt>
+              <dd class="col-sm-6">{{ cycle.hatchery or 'N/A' }}</dd>
+              <dt class="col-sm-6" data-i18n="farmer_name">Farmer Name:</dt>
+              <dd class="col-sm-6">{{ cycle.farmer_name or 'N/A' }}</dd>
             </dl>
           </div>
         </div>
