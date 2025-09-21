@@ -35,6 +35,10 @@ else:
     sqlite_path = os.path.join(app.instance_path, 'poultry.db')
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{sqlite_path}"
 
+# Supabase requires SSL
+if "sslmode" not in database_url:
+    database_url += "?sslmode=require"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
 db = SQLAlchemy(app)
@@ -3266,3 +3270,4 @@ def select_company():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+   
