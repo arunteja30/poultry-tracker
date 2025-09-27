@@ -1005,7 +1005,7 @@ def daily():
     if request.method=='POST':
         entry_date = request.form.get('entry_date') or date.today().isoformat()
         mortality = int(request.form.get('mortality',0))
-        feed_bags_consumed = float(request.form.get('feed_bags_consumed',0))
+        feed_bags_consumed = int(request.form.get('feed_bags_consumed',0))
         # feed_bags_added = float(request.form.get('feed_bags_added',0))
         avg_weight_grams = float(request.form.get('avg_weight_grams',0) or 0)
         
@@ -1144,20 +1144,48 @@ def daywise():
     cycle = get_active_cycle()
     if not cycle:
         return redirect(url_for('setup'))
-    rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date.asc()).all()
+    rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
     
     # Enhance rows with feed_bags_added from Feed table for each entry date
     for row in rows:
-        # Match Daily entry_date with Feed.date for current cycle
         feed_added_on_date = db.session.query(db.func.sum(Feed.feed_bags)).filter(
             Feed.date == row.entry_date, 
             Feed.cycle_id == cycle.id
         ).scalar() or 0
-        
-        # Override the feed_bags_added field with actual data from Feed management
         row.feed_bags_added = feed_added_on_date
-    
+
+    # Recalculate cumulative mortality and birds survived in date order
+    cumulative_mortality = 0
+    birds_survived = cycle.start_birds
+    for row in rows:
+        cumulative_mortality += row.mortality
+        birds_survived -= row.mortality
+        row.total_mortality = cumulative_mortality
+        row.birds_survived = birds_survived
+
+    # --- Sort only the total_mortality values and reassign them to the rows ---
+    total_mortality_values = sorted([row.total_mortality for row in rows])
+    for i, row in enumerate(rows):
+        row.total_mortality = total_mortality_values[i]
+
     return render_template('daywise.html', rows=rows, cycle=cycle)
+@login_required
+def daywise():
+    cycle = get_active_cycle()
+    if not cycle:
+        return redirect(url_for('setup'))
+    # Fetch rows ordered by entry_date (ascending)
+    rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
+    
+    for row in rows:
+        feed_added_on_date = db.session.query(db.func.sum(Feed.feed_bags)).filter(
+            Feed.date == row.entry_date, 
+            Feed.cycle_id == cycle.id
+        ).scalar() or 0
+        row.feed_bags_added = feed_added_on_date
+
+    return render_template('daywise.html', rows=rows, cycle=cycle)
+    
 
 @app.route('/stats')
 @login_required
@@ -2098,6 +2126,7 @@ def recalculate_feed_averages():
     
     return redirect(url_for('daywise'))
 
+
 @app.route('/edit_daily/<int:entry_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_daily(entry_id):
@@ -2138,7 +2167,11 @@ def edit_daily(entry_id):
             
             # Recalculate derived fields
             entry.avg_feed_per_bird_g = (feed_bags_consumed * 50 * 1000) / cycle.current_birds if cycle.current_birds > 0 else 0
-            entry.fcr = round(feed_bags_consumed / (avg_weight * cycle.current_birds / 1000), 2) if avg_weight > 0 and cycle.current_birds > 0 else 0
+            # --- FIXED FCR calculation ---
+            feed_kg = feed_bags_consumed * 50
+            birds_survived = cycle.current_birds
+            total_weight = avg_weight * birds_survived
+            entry.fcr = round(feed_kg / total_weight, 3) if avg_weight > 0 and birds_survived > 0 else 0
             
             db.session.commit()
             flash('Daily entry updated successfully!', 'success')
@@ -2149,6 +2182,7 @@ def edit_daily(entry_id):
     
     # For GET request, render edit form with current values
     return render_template('edit_daily.html', entry=entry, cycle=cycle)
+
 
 @app.route('/delete_daily/<int:entry_id>', methods=['POST'])
 @admin_required
@@ -2667,6 +2701,10 @@ def cycle_details(cycle_id):
 @app.route('/tips/bedding')
 def bedding_tips():
     return render_template('tips_bedding.html')
+
+@app.route('/daily_dosage_schedule')
+def daily_dosage_schedule():
+    return render_template('daily_dosage_schedule.html')
 
 @app.route('/tips/herbal')
 def herbal_treatment_tips():
@@ -3287,8 +3325,8 @@ def convert_date_to_ddmmyyyy(date_str):
         return date_str
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-    
+    app.run(host='0.0.0.0', port=8080, debug=True)
+
     # postgresql://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres
     # postgresql://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres?sslmode=require
     # DATABASE_URL = "postgresql+psycopg2://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres?sslmode=require&host=db.egkzjedqkmrjyugbcbjg.supabase.co"

@@ -6,6 +6,12 @@
       <i class="bi bi-calendar-week me-2"></i>Daywise Entries
     </h2>
 
+    <!-- Add Daily Entry Button -->
+  <div class="mb-3 d-flex justify-content-end">
+    <a href="{{ url_for('daily') }}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-2"></i>Add Daily Entry
+    </a>
+  </div>
     {% if not cycle %}
     <!-- No Active Cycle -->
     <div class="mobile-card text-center py-5">
@@ -334,6 +340,7 @@
     </div>
   </div>
 </div>
+
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
