@@ -19,7 +19,7 @@ import os
 app = Flask(__name__, instance_relative_config=True)
 
 # Fix the database configuration
-database_url = os.environ.get("DATABASE_URL")  # Get from environment variable
+database_url = os.environ.get("ARUN_DB")  # Get from environment variable
 
 if database_url:
     # Render gives a Postgres connection string starting with "postgres://"
@@ -3331,3 +3331,5 @@ if __name__ == '__main__':
     # postgresql://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres?sslmode=require
     # DATABASE_URL = "postgresql+psycopg2://postgres:rhG/aQ*H!8%re9P@db.egkzjedqkmrjyugbcbjg.supabase.co:5432/postgres?sslmode=require&host=db.egkzjedqkmrjyugbcbjg.supabase.co"
 
+# railway.postgres
+    #postgresql://postgres:fVZTUZhaSPkTTIQycgryzXeTwlUjqchH@tramway.proxy.rlwy.net:44567/railway
