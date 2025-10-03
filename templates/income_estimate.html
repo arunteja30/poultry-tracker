@@ -58,6 +58,22 @@
                 <label for="custom_fcr" class="form-label" data-i18n="custom_fcr">Custom FCR</label>
                 <input type="number" step="0.01" min="0" class="form-control mobile-form-control" name="custom_fcr" id="custom_fcr" value="{{ custom_fcr }}" placeholder="Override system FCR">
               </div>
+              <div class="col-6 col-lg-3">
+                <label for="medicine_cost" class="form-label" data-i18n="medicine_cost">Medicine Cost (₹)</label>
+                <input type="number" step="1" min="0" class="form-control mobile-form-control" name="medicine_cost" id="medicine_cost" value="{{ medicine_cost or 18000 }}" placeholder="Default: 18,000">
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="vaccine_cost" class="form-label" data-i18n="vaccine_cost">Vaccine Cost (₹)</label>
+                <input type="number" step="1" min="0" class="form-control mobile-form-control" name="vaccine_cost" id="vaccine_cost" value="{{ vaccine_cost or 1800 }}" placeholder="Default: 1,800">
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="base_pc_rate" class="form-label" data-i18n="base_pc_rate">Base PC Rate (₹/kg)</label>
+                <input type="number" step="0.1" min="0" class="form-control mobile-form-control" name="base_pc_rate" id="base_pc_rate" value="{{ base_pc_rate or 95 }}" placeholder="Default: 95">
+              </div>
+              <div class="col-6 col-lg-3">
+                <label for="base_income_rate" class="form-label" data-i18n="base_income_rate">Base Income Rate (₹/kg)</label>
+                <input type="number" step="0.1" min="0" class="form-control mobile-form-control" name="base_income_rate" id="base_income_rate" value="{{ base_income_rate or 6.5 }}" placeholder="Default: 6.5">
+              </div>
               <div class="col-12">
                 <div class="d-grid">
                   <button type="submit" class="mobile-btn mobile-btn-primary mobile-btn-lg" data-i18n="estimate_btn">
@@ -96,18 +112,28 @@
     </div>
   </div>
 
-  <!-- Enhanced Calculation Breakdown Section -->
+  <!-- Financial Breakdown - Two Methods -->
   <div class="row g-4 mt-2">
+    <!-- Method 1: FCR-Based Calculation -->
     <div class="col-12">
-      <div class="mobile-card">
-        <div class="card-header bg-info text-white">
-          <h5 class="mb-0 p-3">
-            <i class="bi bi-calculator me-2"></i>
-            <span data-i18n="financial_breakdown">Financial Breakdown</span>
-          </h5>
+      <div class="card border-primary">
+        <div class="card-header bg-primary text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#fcrBreakdown" aria-expanded="true" aria-controls="fcrBreakdown">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="mb-0 p-2">
+                <i class="bi bi-1-square me-2"></i>
+                <span data-i18n="fcr_based_breakdown">FCR-Based Financial Breakdown</span>
+              </h4>
+              <small class="text-light ps-4">Traditional calculation based on Feed Conversion Ratio</small>
+            </div>
+            <div class="collapse-icon">
+              <i class="bi bi-chevron-up" id="fcrIcon"></i>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <!-- Input Values Section -->
+        <div class="collapse show" id="fcrBreakdown">
+          <div class="card-body">
+            <!-- Input Values Section -->
           <div class="mb-4">
             <h6 class="text-primary mb-3 mt-2"><i class="fas fa-info-circle me-2"></i><span data-i18n="input_values">Input Values</span>:</h6>
             <div class="row g-3">
@@ -192,7 +218,7 @@
 
               <div class="calc-step p-3 mb-2 border-start border-danger border-3 bg-light">
                 <strong>4. <span data-i18n="total_chick_cost_label">Total Chick Cost</span>:</strong><br>
-                {{ cycle_stats.total_birds if cycle_stats.total_birds else 0 }} <span data-i18n="birds_text">birds</span> × ₹{{ chick_price }} = <span class="text-danger fs-5"><strong>₹{{ '%.0f'|format(chick_production_cost) }}</strong></span>
+                {{ default_birds_count }} <span data-i18n="birds_text">birds</span> × ₹{{ chick_price }} = <span class="text-danger fs-5"><strong>₹{{ '%.0f'|format(calculated_chick_cost_for_display) }}</strong></span>
               </div>
 
               <div class="calc-step p-3 mb-2 border-start border-danger border-3 bg-light">
@@ -202,16 +228,25 @@
 
               <div class="calc-step p-3 mb-2 border-start border-warning border-3 bg-warning bg-opacity-25">
                 <strong>6. <span data-i18n="total_investment">Total Investment</span>:</strong><br>
-                ₹{{ '%.0f'|format(total_feed_cost) }} (<span data-i18n="feed_text">feed</span>) + ₹{{ '%.0f'|format(chick_production_cost) }} (<span data-i18n="chick_text">chick</span>) + ₹{{ other_expenses }} (<span data-i18n="other_text">other</span>) = <span class="text-warning fs-4"><strong>₹{{ '%.0f'|format(total_cycle_cost) }}</strong></span>
+                ₹{{ '%.0f'|format(total_feed_cost) }} (<span data-i18n="feed_text">feed</span>) + ₹{{ '%.0f'|format(calculated_chick_cost_for_display) }} (<span data-i18n="chick_text">chick</span>) + ₹{{ other_expenses }} (<span data-i18n="other_text">other</span>) = <span class="text-warning fs-4"><strong>₹{{ '%.0f'|format(total_cycle_cost) }}</strong></span>
               </div>
 
               <div class="calc-step p-3 mb-2 border-start border-success border-3 bg-light">
-                <strong>7. <span data-i18n="total_revenue">Total Revenue</span>:</strong><br>
+                <strong>7. <span data-i18n="total_revenue">Total Revenue (Market Rate)</span>:</strong><br>
                 {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} <span data-i18n="kg_text">kg</span> × ₹{{ market_price_per_bird }} = <span class="text-success fs-4"><strong>₹{{ '%.0f'|format(estimated_income) }}</strong></span>
               </div>
+              
+              {% if pc_based_income > 0 %}
+              <div class="calc-step p-3 mb-2 border-start border-info border-3 bg-info bg-opacity-10">
+                <strong>7b. <span data-i18n="pc_based_revenue">Production Cost Based Income</span>:</strong><br>
+                <small class="text-muted">PC = Chick + Feed + Medicine (₹{{ '%.0f'|format(medicine_cost) }}) + Vaccine (₹{{ '%.0f'|format(vaccine_cost) }})</small><br>
+                PC per kg: ₹{{ '%.2f'|format(pc_per_kg) }} → Income Rate: ₹{{ '%.2f'|format((base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0) }}/kg<br>
+                {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} <span data-i18n="kg_text">kg</span> × ₹{{ '%.2f'|format((base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0) }} = <span class="text-info fs-4"><strong>₹{{ '%.0f'|format(pc_based_income) }}</strong></span>
+              </div>
+              {% endif %}
 
               <div class="calc-step p-3 mb-2 border-start border-{% if estimated_profit >= 0 %}success{% else %}danger{% endif %} border-3 bg-{% if estimated_profit >= 0 %}success{% else %}danger{% endif %} bg-opacity-25">
-                <strong>8. <span data-i18n="net_income_profit">Net Income (Profit)</span>:</strong><br>
+                <strong>8. <span data-i18n="net_income_profit">Net Income (FCR Method)</span>:</strong><br>
                 ₹{{ '%.0f'|format(estimated_income) }} (<span data-i18n="revenue_text">revenue</span>) - ₹{{ '%.0f'|format(total_cycle_cost) }} (<span data-i18n="investment_text">investment</span>) =
                 <span class="{% if estimated_profit >= 0 %}text-success{% else %}text-danger{% endif %} fs-3">
                   <strong>₹{{ '%.0f'|format(estimated_profit) }}</strong>
@@ -219,37 +254,248 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <!-- Summary Table -->
-          <div class="summary-section">
-            <h6 class="text-info mb-3"><i class="fas fa-table me-2"></i><span data-i18n="summary_table">Summary Table</span>:</h6>
-            <div class="table-responsive">
-              <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                <tr>
-                  <th data-i18n="item">Item</th>
-                  <th class="text-end" data-i18n="amount_rupees">Amount (₹)</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                  <td><strong data-i18n="total_investment">Total Investment</strong></td>
-                  <td class="text-end text-danger"><strong>{{ '%.0f'|format(total_cycle_cost) }}</strong></td>
-                </tr>
-                <tr>
-                  <td><strong data-i18n="total_revenue">Total Revenue</strong></td>
-                  <td class="text-end text-success"><strong>{{ '%.0f'|format(estimated_income) }}</strong></td>
-                </tr>
-                <tr class="table-{% if estimated_profit >= 0 %}success{% else %}danger{% endif %}">
-                  <td><strong data-i18n="net_profit">Net Profit</strong></td>
-                  <td class="text-end"><strong>{{ '%.0f'|format(estimated_profit) }}</strong></td>
-                </tr>
-                </tbody>
-              </table>
+    <!-- Method 2: Production Cost Based Calculation -->
+    <div class="col-12 mt-4">
+      <div class="card border-success">
+        <div class="card-header bg-success text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#pcBreakdown" aria-expanded="true" aria-controls="pcBreakdown">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="mb-0 p-2">
+                <i class="bi bi-2-square me-2"></i>
+                <span data-i18n="pc_based_breakdown">Production Cost (PC) Based Financial Breakdown</span>
+              </h4>
+              <small class="text-light ps-4">New method: PC = Chick + Feed + Medicine (₹{{ '%.0f'|format(medicine_cost) }}) + Vaccine (₹{{ '%.0f'|format(vaccine_cost) }})</small>
+            </div>
+            <div class="collapse-icon">
+              <i class="bi bi-chevron-up" id="pcIcon"></i>
             </div>
           </div>
         </div>
+        <div class="collapse show" id="pcBreakdown">
+          <div class="card-body">
+            {% if pc_based_income != 0 %}
+          <!-- PC Input Values Section -->
+          <div class="mb-4">
+            <h6 class="text-success mb-3 mt-2"><i class="fas fa-info-circle me-2"></i><span data-i18n="pc_input_values">Production Cost Input Values</span>:</h6>
+            {% if using_defaults %}
+            <div class="alert alert-info mb-3">
+              <small><i class="bi bi-info-circle me-1"></i>Using default values ({{ default_birds_count }} birds, 2.5kg avg weight) for calculation since complete cycle data is not available.</small>
+            </div>
+            {% endif %}
+            <div class="row g-3">
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-success">
+                  <strong><span data-i18n="chick_cost">Chick Cost</span>:</strong><br>₹{{ '%.0f'|format(calculated_chick_cost_for_display) }}{% if chick_price != 35 %} <small class="text-info">(custom)</small>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-success">
+                  <strong><span data-i18n="feed_cost">Feed Cost</span>:</strong><br>₹{{ '%.0f'|format(total_feed_cost) }}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-success">
+                  <strong><span data-i18n="medicine_cost">Medicine Cost</span>:</strong><br>₹{{ '%.0f'|format(medicine_cost) }}{% if medicine_cost != 18000 %} <small class="text-info">(custom)</small>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-success">
+                  <strong><span data-i18n="vaccine_cost">Vaccine Cost</span>:</strong><br>₹{{ '%.0f'|format(vaccine_cost) }}{% if vaccine_cost != 1800 %} <small class="text-info">(custom)</small>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-info">
+                  <strong><span data-i18n="base_pc_rate">Base PC Rate</span>:</strong><br>₹{{ '%.1f'|format(base_pc_rate) }}/kg{% if base_pc_rate != 95 %} <small class="text-info">(custom)</small>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-info">
+                  <strong><span data-i18n="base_income_rate">Base Income Rate</span>:</strong><br>₹{{ '%.1f'|format(base_income_rate) }}/kg{% if base_income_rate != 6.5 %} <small class="text-info">(custom)</small>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="input-display p-2 bg-light rounded border-primary">
+                  <strong><span data-i18n="live_weight">Live Weight</span>:</strong><br>
+                  {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} kg
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC Calculation Steps -->
+          <div class="mb-4">
+            <h6 class="text-success mb-3"><i class="fas fa-calculator me-2"></i><span data-i18n="pc_calculation_steps">Production Cost Calculation Steps</span>:</h6>
+            <div class="calculation-steps">
+              <div class="calc-step p-3 mb-2 border-start border-success border-3 bg-light">
+                <strong>1. <span data-i18n="total_production_cost">Total Production Cost</span>:</strong><br>
+                ₹{{ '%.0f'|format(calculated_chick_cost_for_display) }} (chick) + ₹{{ '%.0f'|format(total_feed_cost) }} (feed) + ₹{{ '%.0f'|format(medicine_cost) }} (medicine) + ₹{{ '%.0f'|format(vaccine_cost) }} (vaccine)<br>
+                = <span class="text-success fs-5"><strong>₹{{ '%.0f'|format(production_cost) }}</strong></span>
+              </div>
+
+              <div class="calc-step p-3 mb-2 border-start border-primary border-3 bg-light">
+                <strong>1a. <span data-i18n="live_weight_calculation">Live Weight Calculation</span>:</strong><br>
+                <span data-i18n="number_of_birds">Number of Birds</span>: {{ default_birds_count }}<br>
+                <span data-i18n="average_weight">Average Weight</span>: {{ '%.2f'|format(cycle_stats.avg_weight if cycle_stats.avg_weight else 0) }} <span data-i18n="kg_text">kg</span><br>
+                <span data-i18n="calculation">Calculation</span>: {{ default_birds_count }} × {{ '%.2f'|format(cycle_stats.avg_weight if cycle_stats.avg_weight else 0) }} = <span class="text-primary fs-5"><strong>{{ '%.0f'|format((default_birds_count * (cycle_stats.avg_weight if cycle_stats.avg_weight else 0))) }} <span data-i18n="kg_text">kg</span></strong></span>
+              </div>
+
+              <div class="calc-step p-3 mb-2 border-start border-success border-3 bg-light">
+                <strong>2. <span data-i18n="pc_per_kg">Production Cost per kg</span>:</strong><br>
+                ₹{{ '%.0f'|format(production_cost) }} ÷ {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} kg = <span class="text-success fs-5"><strong>₹{{ '%.2f'|format(pc_per_kg) }}/kg</strong></span>
+              </div>
+
+              <div class="calc-step p-3 mb-2 border-start border-info border-3 bg-info bg-opacity-10">
+                <strong>3. <span data-i18n="income_rate_calculation">Income Rate Calculation</span>:</strong><br>
+                <small class="text-muted">Formula: For PC=₹{{ '%.0f'|format(base_pc_rate) }} → Income=₹{{ '%.1f'|format(base_income_rate) }}/kg. For every ₹1 up/down, ±₹0.5/kg</small><br>
+                Base Rate: ₹{{ '%.1f'|format(base_income_rate) }}/kg (at PC=₹{{ '%.0f'|format(base_pc_rate) }}){% if base_pc_rate != 95 or base_income_rate != 6.5 %} <small class="text-info">(custom)</small>{% endif %}<br>
+                Adjustment: (₹{{ '%.2f'|format(pc_per_kg) }} - ₹{{ '%.0f'|format(base_pc_rate) }}) × 0.5 = {{ '%.2f'|format((pc_per_kg - base_pc_rate) * 0.5) }}<br>
+                Final Rate: ₹{{ '%.1f'|format(base_income_rate) }} - {{ '%.2f'|format((pc_per_kg - base_pc_rate) * 0.5) }} = <span class="text-info fs-5"><strong>₹{{ '%.2f'|format((base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0) }}/kg</strong></span>
+              </div>
+
+              <div class="calc-step p-3 mb-2 border-start border-success border-3 bg-light">
+                <strong>4. <span data-i18n="pc_total_revenue">Total Revenue (PC Method)</span>:</strong><br>
+                {{ '%.0f'|format((cycle_stats.total_birds * cycle_stats.avg_weight) if (cycle_stats.total_birds and cycle_stats.avg_weight) else 0) }} kg × ₹{{ '%.2f'|format((base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0) }} = <span class="text-success fs-4"><strong>₹{{ '%.0f'|format(pc_based_income) }}</strong></span>
+              </div>
+
+              <div class="calc-step p-3 mb-2 border-start border-{% if pc_based_profit >= 0 %}success{% else %}danger{% endif %} border-3 bg-{% if pc_based_profit >= 0 %}success{% else %}danger{% endif %} bg-opacity-25">
+                <strong>5. <span data-i18n="pc_net_profit">Net Profit (PC Method)</span>:</strong><br>
+                ₹{{ '%.0f'|format(pc_based_income) }} (revenue) - ₹{{ '%.0f'|format(production_cost) }} (production cost) =
+                <span class="{% if pc_based_profit >= 0 %}text-success{% else %}text-danger{% endif %} fs-3">
+                  <strong>₹{{ '%.0f'|format(pc_based_profit) }}</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="alert alert-warning">
+            <h6><i class="bi bi-exclamation-triangle me-2"></i>Production Cost Method Not Available</h6>
+            <p class="mb-0">Insufficient data to calculate production cost based income. Please ensure all cycle data is complete.</p>
+          </div>
+          {% endif %}
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Comparison Summary -->
+  <div class="row g-4 mt-3">
+    <div class="col-12">
+      <div class="card border-info">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0 p-2">
+            <i class="bi bi-bar-chart me-2"></i>
+            <span data-i18n="method_comparison">Method Comparison Summary</span>
+          </h5>
+        </div>
+        <div class="card-body">
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+              <thead class="table-info">
+              <tr>
+                <th data-i18n="comparison_item">Comparison Item</th>
+                <th class="text-center bg-primary text-white">FCR Method (₹)</th>
+                <th class="text-center bg-success text-white">PC Method (₹)</th>
+                <th class="text-center bg-warning">Difference (₹)</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><strong data-i18n="total_investment">Total Investment</strong></td>
+                <td class="text-center text-danger"><strong>{{ '%.0f'|format(total_cycle_cost) }}</strong></td>
+                <td class="text-center text-danger"><strong>{% if pc_based_income != 0 %}{{ '%.0f'|format(production_cost) }}{% else %}-{% endif %}</strong></td>
+                <td class="text-center">{% if pc_based_income != 0 %}<strong>{{ '%.0f'|format(production_cost - total_cycle_cost) }}</strong>{% else %}-{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong data-i18n="total_revenue">Total Revenue</strong></td>
+                <td class="text-center text-success"><strong>{{ '%.0f'|format(estimated_income) }}</strong></td>
+                <td class="text-center text-success"><strong>{% if pc_based_income != 0 %}{{ '%.0f'|format(pc_based_income) }}{% else %}-{% endif %}</strong></td>
+                <td class="text-center">{% if pc_based_income != 0 %}<strong>{{ '%.0f'|format(pc_based_income - estimated_income) }}</strong>{% else %}-{% endif %}</td>
+              </tr>
+              <tr class="table-warning">
+                <td><strong data-i18n="net_profit">Net Profit</strong></td>
+                <td class="text-center {% if estimated_profit >= 0 %}text-success{% else %}text-danger{% endif %}"><strong>{{ '%.0f'|format(estimated_profit) }}</strong></td>
+                <td class="text-center {% if pc_based_income > 0 %}{% if pc_based_profit >= 0 %}text-success{% else %}text-danger{% endif %}{% else %}text-muted{% endif %}"><strong>{% if pc_based_income > 0 %}{{ '%.0f'|format(pc_based_profit) }}{% else %}-{% endif %}</strong></td>
+                <td class="text-center fw-bold {% if pc_based_income > 0 %}{% if pc_based_profit > estimated_profit %}text-success{% elif pc_based_profit < estimated_profit %}text-danger{% else %}text-muted{% endif %}{% else %}text-muted{% endif %}">
+                  {% if pc_based_income != 0 %}
+                    {% set profit_diff = pc_based_profit - estimated_profit %}
+                    {{ '%.0f'|format(profit_diff) }}
+                    {% if profit_diff > 0 %}
+                      <i class="bi bi-arrow-up text-success"></i>
+                    {% elif profit_diff < 0 %}
+                      <i class="bi bi-arrow-down text-danger"></i>
+                    {% else %}
+                      <i class="bi bi-dash"></i>
+                    {% endif %}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+              <tr class="table-light">
+                <td><strong data-i18n="rate_per_kg">Rate per kg</strong></td>
+                <td class="text-center"><strong>₹{{ market_price_per_bird }}</strong></td>
+                <td class="text-center"><strong>{% if pc_based_income > 0 %}₹{{ '%.2f'|format((base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0) }}{% else %}-{% endif %}</strong></td>
+                <td class="text-center">{% if pc_based_income > 0 %}<strong>₹{{ '%.2f'|format(((base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) - market_price_per_bird) if pc_per_kg > 0 else 0) }}</strong>{% else %}-{% endif %}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Method Recommendations -->
+          {% if pc_based_income != 0 %}
+          <div class="mt-4">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>FCR Method</h6>
+                  </div>
+                  <div class="card-body">
+                    <p><strong>Best for:</strong> Day-to-day monitoring and feed efficiency tracking</p>
+                    <p><strong>Advantages:</strong> Real-time tracking, feed optimization</p>
+                    <p><strong>Current Profit:</strong> <span class="{% if estimated_profit >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">₹{{ '%.0f'|format(estimated_profit) }}</span></p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card border-success">
+                  <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-calculator me-2"></i>PC Method</h6>
+                  </div>
+                  <div class="card-body">
+                    <p><strong>Best for:</strong> Industry standard pricing and contracts</p>
+                    <p><strong>Advantages:</strong> Fixed costs, predictable pricing formula</p>
+                    <p><strong>Current Profit:</strong> <span class="{% if pc_based_profit >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">₹{{ '%.0f'|format(pc_based_profit) }}</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {% if pc_based_profit != estimated_profit %}
+            <div class="alert {% if pc_based_profit > estimated_profit %}alert-success{% else %}alert-warning{% endif %} mt-3">
+              <h6 class="alert-heading">
+                <i class="bi bi-lightbulb me-2"></i>Recommendation
+              </h6>
+              {% if pc_based_profit > estimated_profit %}
+                <p class="mb-0">The <strong>Production Cost (PC) method</strong> shows <strong>₹{{ '%.0f'|format(pc_based_profit - estimated_profit) }} higher profit</strong>. Consider negotiating contracts based on PC method for better returns.</p>
+              {% else %}
+                <p class="mb-0">The <strong>FCR method</strong> shows <strong>₹{{ '%.0f'|format(estimated_profit - pc_based_profit) }} higher profit</strong>. Focus on improving feed conversion efficiency for better margins.</p>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
     </div>
   </div>
 
@@ -397,9 +643,9 @@
                 </div>
                 <div class="cost-details">
                   <div class="cost-category" data-i18n="chick_cost_label">Chick Cost</div>
-                  <div class="cost-amount">₹{{ '%.0f'|format(chick_production_cost) }}</div>
+                  <div class="cost-amount">₹{{ '%.0f'|format(calculated_chick_cost_for_display) }}</div>
                   <div class="cost-percentage">
-                    {{ '%.1f'|format((chick_production_cost / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
+                    {{ '%.1f'|format((calculated_chick_cost_for_display / total_cycle_cost * 100) if total_cycle_cost > 0 else 0) }}%
                   </div>
                 </div>
               </div>
@@ -562,7 +808,7 @@
         label: 'Financial Breakdown (₹)',
         data: [
           parseFloat('{{ total_feed_cost|round(0) }}'),
-          parseFloat('{{ chick_production_cost|round(0) }}'),
+          parseFloat('{{ calculated_chick_cost_for_display|round(0) }}'),
           parseFloat('{{ total_medical_cost|round(0) }}'),
           parseFloat('{{ (total_expense_cost + other_expenses)|round(0) }}'),
           parseFloat('{{ estimated_income|round(0) }}')
@@ -903,7 +1149,7 @@
         label: 'Cost Breakdown (₹)',
         data: [
           {{ total_feed_cost|round(0) }},
-          {{ chick_production_cost|round(0) }},
+          {{ calculated_chick_cost_for_display|round(0) }},
           {{ total_medical_cost|round(0) }},
           {{ (total_expense_cost + other_expenses)|round(0) }}
         ],
@@ -1302,6 +1548,41 @@
       tooltip.className = 'form-text text-muted';
       tooltip.innerHTML = '<i class="fas fa-info-circle me-1"></i>Leave empty to use system calculated FCR based on actual feed consumption';
       fcrInputWrapper.appendChild(tooltip);
+    }
+  });
+
+  // Collapse/Expand Icon Management
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle FCR breakdown collapse
+    const fcrBreakdown = document.getElementById('fcrBreakdown');
+    const fcrIcon = document.getElementById('fcrIcon');
+    
+    if (fcrBreakdown && fcrIcon) {
+      fcrBreakdown.addEventListener('show.bs.collapse', function () {
+        fcrIcon.classList.remove('bi-chevron-down');
+        fcrIcon.classList.add('bi-chevron-up');
+      });
+      
+      fcrBreakdown.addEventListener('hide.bs.collapse', function () {
+        fcrIcon.classList.remove('bi-chevron-up');
+        fcrIcon.classList.add('bi-chevron-down');
+      });
+    }
+    
+    // Handle PC breakdown collapse
+    const pcBreakdown = document.getElementById('pcBreakdown');
+    const pcIcon = document.getElementById('pcIcon');
+    
+    if (pcBreakdown && pcIcon) {
+      pcBreakdown.addEventListener('show.bs.collapse', function () {
+        pcIcon.classList.remove('bi-chevron-down');
+        pcIcon.classList.add('bi-chevron-up');
+      });
+      
+      pcBreakdown.addEventListener('hide.bs.collapse', function () {
+        pcIcon.classList.remove('bi-chevron-up');
+        pcIcon.classList.add('bi-chevron-down');
+      });
     }
   });
 </script>
@@ -2171,6 +2452,35 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  /* Collapse/Expand Animation Styles */
+  .collapse-icon {
+    transition: transform 0.3s ease-in-out;
+    font-size: 1.2rem;
+  }
+
+  .collapse-icon i {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* Hover effects for collapsible headers */
+  .card-header[data-bs-toggle="collapse"]:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Smooth collapse animation */
+  .collapse {
+    transition: height 0.35s ease;
+  }
+
+  /* Enhanced card border animation */
+  .card.border-primary:hover,
+  .card.border-success:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: box-shadow 0.3s ease-in-out;
   }
 </style>
 {% endblock %}

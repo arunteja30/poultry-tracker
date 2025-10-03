@@ -110,16 +110,16 @@
                 <strong data-i18n="birds_alive">Birds Alive:</strong> {{ r.birds_survived }}
               </div>
               <div class="col-6">
-                <strong data-i18n="feed_used">Feed Used:</strong> {{ r.feed_bags_consumed }} bags
+                <strong data-i18n="feed_used">Feed Used:</strong> {{ r.feed_bags_consumed|int }} bags
               </div> 
               <div class="col-6">
-                <strong data-i18n="remaining_bags">Remaining Bags:</strong> {{ r.remaining_bags }} bags
+                <strong data-i18n="remaining_bags">Remaining Bags:</strong> {{ r.remaining_bags|int }} bags
               </div>
                <div class="col-6">
-                <strong data-i18n="total_feed">Total Feed:</strong> {{ r.total_bags_consumed }} bags
+                <strong data-i18n="total_feed">Total Feed:</strong> {{ r.total_bags_consumed|int }} bags
               </div>
               <div class="col-6">
-                <strong data-i18n="feed_added">Feed Added:</strong> {{ r.feed_bags_added }} bags
+                <strong data-i18n="feed_added">Feed Added:</strong> {{ r.feed_bags_added|int }} bags
               </div>
               <div class="col-6">
                 <strong data-i18n="weight">Weight:</strong> {{ "{:,.0f}".format(r.avg_weight * 1000) }}g
@@ -297,19 +297,19 @@
               {% set rows_list = rows|list %}
               {% for r in rows_list|reverse %}
               <tr>
-                <td class="text-center"><strong>{{ loop.revindex }}</strong></td>
+                <td class="text-center"><strong>{{ rows_list|length - loop.index + 1 }}</strong></td>
                 <td class="text-center text-nowrap date-cell" data-date="{{ r.entry_date }}">{{ r.entry_date }}</td>
                 <td class="text-center text-danger"><strong>{{ r.mortality }}</strong></td>
                 <td class="text-center text-danger"><strong>{{ r.total_mortality }}</strong></td>
                 <td class="text-center text-danger"><strong>{{ r.mortality_rate }}%</strong></td>
                 <td class="text-center text-success"><strong>{{ r.birds_survived }}</strong></td>
-                <td class="text-center text-info"><strong>{{ r.feed_bags_consumed }}</strong></td>
-                <td class="text-center text-primary"><strong>{{ r.total_bags_consumed }}</strong></td>
-                <td class="text-center text-success"><strong>{{ r.feed_bags_added }}</strong></td>
+                <td class="text-center text-info"><strong>{{ r.feed_bags_consumed|int }}</strong></td>
+                <td class="text-center text-primary"><strong>{{ r.total_bags_consumed|int }}</strong></td>
+                <td class="text-center text-success"><strong>{{ r.feed_bags_added|int }}</strong></td>
                 <td class="text-center text-nowrap text-success"><small>{{ "{:,.0f}".format(r.avg_weight * 1000) }}g</small></td>
                 <td class="text-center text-nowrap text-primary"><small>{{ "{:,.1f}".format(r.avg_feed_per_bird_g) }}g</small></td>
                 <td class="text-center text-success"><strong>{{ r.fcr }}</strong></td>
-                <td class="text-center text-info"><strong>{{ r.remaining_bags }}</strong></td>
+                <td class="text-center text-info"><strong>{{ r.remaining_bags|int }}</strong></td>
                 <td class="text-center text-truncate" style="max-width: 120px;" title="{{ r.medicines or '-' }}">{{ r.medicines or '-' }}</td>
                 <td class="text-center text-truncate" style="max-width: 150px;" title="{{ r.daily_notes or '-' }}">{{ r.daily_notes or '-' }}</td>
                 {% if session.role == 'admin' %}
@@ -328,6 +328,36 @@
                 </td>
                 {% endif %}
               </tr>
+              
+              <!-- Add weekly summary row after every 7 days from the beginning -->
+              {% set actual_day = loop.revindex  - 1 %}
+              {% if weekly_summaries and actual_day > 0 and (actual_day % 7) == 0 %}
+                {% set week_index = (actual_day // 7) - 1 %}
+                {% if week_index >= 0 and week_index < weekly_summaries|length %}
+                  {% set week = weekly_summaries[week_index] %}
+                  <tr class="table-warning fw-bold">
+                     <td class="text-center"><strong>Week {{ week.week_num }}</strong></td>
+                     <td class="text-center"><em>Days {{ week.start_day }}-{{ week.end_day }}</em></td>
+                     <td class="text-center text-warning"><strong>{{ week.avg_mortality }}</strong></td>
+                     <td class="text-center text-warning"><strong>{{ week.total_mortality }}</strong></td>
+                     <td class="text-center text-warning"><strong>{{ week.latest_mortality_rate }}%</strong></td>
+                     <td class="text-center text-warning"><strong>{{ week.latest_birds_survived|int }}</strong></td>
+                     <td class="text-center text-info"><strong>{{ week.avg_feed_consumed|round|int }}</strong></td>
+                     <td class="text-center text-primary"><strong>{{ week.total_feed_consumed|int }}</strong></td>
+                     <td class="text-center text-success"><strong>{{ week.total_feed_added|int }}</strong></td>
+                     <td class="text-center text-warning"><small><strong>{{ "{:,.0f}".format(week.avg_weight * 1000) }}g</strong></small></td>
+                     <td class="text-center text-warning"><strong>{{ "{:,.1f}".format((week.avg_feed_consumed * 50 * 1000) / week.latest_birds_survived if week.latest_birds_survived > 0 else 0) }}g</strong></td>
+                     <td class="text-center text-warning"><strong>{{ week.latest_fcr }}</strong></td>
+                     <td class="text-center text-warning"><strong>{{ week.latest_remaining_bags|int }}</strong></td>
+                    <td class="text-center"><em>Week {{ week.week_num }} Summary</em></td>
+                    <td class="text-center">{{ week.days_in_week }} days</td>
+                    {% if session.role == 'admin' %}
+                    <td class="text-center">-</td>
+                    {% endif %}
+                  </tr>
+            
+                {% endif %}
+              {% endif %}
               {% else %}
               <tr>
                 <td colspan="{% if session.role == 'admin' %}16{% else %}15{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>

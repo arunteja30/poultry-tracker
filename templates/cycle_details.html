@@ -577,16 +577,42 @@
           <td class="text-center text-success"><strong>{{ entry.birds_survived }}</strong></td>
           <td class="text-center text-nowrap text-success"><small>{{ "{:,.0f}".format(entry.avg_weight * 1000) }}g</small></td>
           <!-- Feed Related Fields -->
-          <td class="text-center text-info"><strong>{{ entry.feed_bags_consumed }}</strong></td>
-          <td class="text-center text-success"><strong>{{ entry.feed_bags_added }}</strong></td>
-          <td class="text-center text-primary"><strong>{{ entry.total_bags_consumed }}</strong></td>
-          <td class="text-center text-info"><strong>{{ entry.remaining_bags }}</strong></td>
+          <td class="text-center text-info"><strong>{{ entry.feed_bags_consumed|int }}</strong></td>
+          <td class="text-center text-success"><strong>{{ entry.feed_bags_added|int }}</strong></td>
+          <td class="text-center text-primary"><strong>{{ entry.total_bags_consumed|int }}</strong></td>
+          <td class="text-center text-info"><strong>{{ entry.remaining_bags|int }}</strong></td>
           <td class="text-center text-nowrap text-primary"><small>{{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</small></td>
           <td class="text-center text-success"><strong>{{ entry.fcr }}</strong></td>
           <!-- Others -->
           <td class="text-center text-truncate" style="max-width: 120px;" title="{{ entry.medicines or '-' }}">{{ entry.medicines or '-' }}</td>
           <td class="text-center text-truncate" style="max-width: 150px;" title="{{ entry.daily_notes or '-' }}">{{ entry.daily_notes or '-' }}</td>
         </tr>
+        
+        <!-- Add weekly summary row after every 7 days from the beginning -->
+        {% set actual_day = total_days - loop.index0 -1 %}
+        {% if weekly_summaries and actual_day > 0 and (actual_day % 7) == 0 %}
+          {% set week_index = (actual_day // 7) - 1 %}
+          {% if week_index >= 0 and week_index < weekly_summaries|length %}
+            {% set week = weekly_summaries[week_index] %}
+            <tr class="table-warning fw-bold">
+              <td class="text-center"><strong>Week {{ week.week_num }}</strong></td>
+              <td class="text-center"><em>Days {{ week.start_day }}-{{ week.end_day }}</em></td>
+              <td class="text-center text-warning"><strong>{{ week.avg_mortality }}</strong></td>
+              <td class="text-center text-warning"><strong>{{ week.total_mortality }}</strong></td>
+              <td class="text-center text-warning"><strong>{{ week.latest_mortality_rate }}%</strong></td>
+              <td class="text-center text-warning"><strong>{{ week.latest_birds_survived|int }}</strong></td>
+              <td class="text-center text-warning"><small><strong>{{ "{:,.0f}".format(week.avg_weight * 1000) }}g</strong></small></td>
+              <td class="text-center text-info"><strong>{{ week.avg_feed_consumed|round|int }}</strong></td>
+              <td class="text-center text-success"><strong>{{ week.total_feed_added|int }}</strong></td>
+              <td class="text-center text-primary"><strong>{{ week.total_feed_consumed|int }}</strong></td>
+              <td class="text-center text-warning"><strong>{{ week.latest_remaining_bags|int }}</strong></td>
+              <td class="text-center text-warning"><strong>{{ "{:,.1f}".format((week.avg_feed_consumed * 50 * 1000) / week.latest_birds_survived if week.latest_birds_survived > 0 else 0) }}g</strong></td>
+              <td class="text-center text-warning"><strong>{{ week.latest_fcr }}</strong></td>
+              <td class="text-center"><em> - </em></td>
+              <td class="text-center">-</td>
+            </tr>
+          {% endif %}
+        {% endif %}
         {% endfor %}
       </tbody>
       </table>
@@ -673,10 +699,10 @@
             <div class="text-success"><strong data-i18n="table_avg_weight">Avg Weight:</strong> {{ "{:,.0f}".format(entry.avg_weight * 1000) }}g</div>
             
             <!-- Feed Related Fields -->
-            <div class="text-info"><strong data-i18n="table_feed_consumed">Feed Consumed:</strong> {{ entry.feed_bags_consumed }}</div>
-            <div class="text-success"><strong data-i18n="table_feed_added">Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added }}{% else %}{{ entry.feed_bags_added }}{% endif %}</div>
-            <div class="text-primary"><strong data-i18n="total_bags_consumed">Total Consumed:</strong> {{ entry.total_bags_consumed }}</div>
-            <div class="text-info"><strong data-i18n="table_remaining_bags">Remaining Bags:</strong> {{ entry.remaining_bags }}</div>
+            <div class="text-info"><strong data-i18n="table_feed_consumed">Feed Consumed:</strong> {{ entry.feed_bags_consumed|int }}</div>
+            <div class="text-success"><strong data-i18n="table_feed_added">Feed Added:</strong> {% if entry.feed_bags_added > 0 %}+{{ entry.feed_bags_added|int }}{% else %}{{ entry.feed_bags_added|int }}{% endif %}</div>
+            <div class="text-primary"><strong data-i18n="total_bags_consumed">Total Consumed:</strong> {{ entry.total_bags_consumed|int }}</div>
+            <div class="text-info"><strong data-i18n="table_remaining_bags">Remaining Bags:</strong> {{ entry.remaining_bags|int }}</div>
             <div class="text-primary"><strong data-i18n="avg_feed_per_bird">Avg Feed/Bird:</strong> {{ "{:,.1f}".format(entry.avg_feed_per_bird_g) }}g</div>
             <div class="text-success"><strong data-i18n="table_fcr">FCR:</strong> {% if entry.fcr > 0 %}{{ "%.3f"|format(entry.fcr) }}{% else %}N/A{% endif %}</div>
             
@@ -684,6 +710,59 @@
             <div><strong data-i18n="table_medicines">Medicines:</strong> {{ entry.medicines or '-' }}</div>
             <div><strong data-i18n="notes">Notes:</strong> {{ entry.daily_notes or '-' }}</div>
           </div>
+          
+          <!-- Add weekly summary card after every 7 days from the beginning -->
+          {% set actual_day = total_days - loop.index0 %}
+          {% if weekly_summaries and actual_day > 0 and (actual_day % 7) == 0 %}
+            {% set week_index = (actual_day // 7) - 1 %}
+            {% if week_index >= 0 and week_index < weekly_summaries|length %}
+              {% set week = weekly_summaries[week_index] %}
+              <div class="card mb-3 border-warning bg-warning bg-opacity-10">
+                <div class="card-header bg-warning text-dark">
+                  <h6 class="mb-0"><strong>📊 Week {{ week.week_num }} Summary (Days {{ week.start_day }}-{{ week.end_day }})</strong></h6>
+                </div>
+                <div class="card-body">
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <small class="text-muted">Avg Mortality:</small><br>
+                      <strong class="text-danger">{{ week.avg_mortality }}</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">Total Mortality:</small><br>
+                      <strong class="text-danger">{{ week.total_mortality }}</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">Mortality Rate:</small><br>
+                      <strong class="text-danger">{{ week.latest_mortality_rate }}%</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">Birds Survived:</small><br>
+                      <strong class="text-success">{{ week.latest_birds_survived|int }}</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">Avg Weight:</small><br>
+                      <strong class="text-success">{{ "{:,.0f}".format(week.avg_weight * 1000) }}g</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">Avg Feed Consumed:</small><br>
+                      <strong class="text-info">{{ week.avg_feed_consumed|round|int }} bags</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">Total Feed Added:</small><br>
+                      <strong class="text-success">{{ week.total_feed_added|int }} bags</strong>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-muted">FCR (Latest):</small><br>
+                      <strong class="text-primary">{{ week.latest_fcr }}</strong>
+                    </div>
+                    <div class="col-12 text-center mt-2">
+                      <small class="text-muted"><em>{{ week.days_in_week }} days in this week</em></small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          {% endif %}
         {% endfor %}
       {% else %}
         <div class="text-muted text-center" data-i18n="no_daily_entries">No daily entries found for this cycle.</div>

@@ -103,7 +103,12 @@
     </div>
 
     <div class="col-12">
-      <label for="medicines" class="form-label" data-i18n="medicines"><span data-i18n="medicines">Medicines Given</span></label>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label for="medicines" class="form-label mb-0" data-i18n="medicines"><span data-i18n="medicines">Medicines Given</span></label>
+        <a href="{{ url_for('medicines') }}" class="btn btn-sm btn-outline-primary" title="Add New Medicine">
+          <i class="bi bi-plus-circle me-1"></i>Add Medicine
+        </a>
+      </div>
       <select id="medicines" name="medicines" class="form-select">
         <option value="" data-i18n="none"><span data-i18n="none">None</span></option>
         {% for m in meds %}
