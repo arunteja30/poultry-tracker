@@ -124,9 +124,17 @@
                     </small>
                   </td>
                   <td>
-                    <a href="{{ url_for('user_management') }}?company={{ company.id }}" class="btn btn-sm btn-info">
-                      View Users
-                    </a>
+                    <div class="btn-group" role="group">
+                      <a href="{{ url_for('user_management') }}?company={{ company.id }}" class="btn btn-sm btn-info">
+                        View Users
+                      </a>
+                      <button class="btn btn-sm btn-primary" onclick="editCompany({{ company.id }})">
+                        <i class="bi bi-pencil"></i> Edit
+                      </button>
+                      <button class="btn btn-sm btn-danger" onclick="deleteCompany({{ company.id }}, '{{ company.name }}')">
+                        <i class="bi bi-trash"></i> Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               {% endfor %}
@@ -151,6 +159,60 @@
 }
 </style>
 
+<!-- Edit Company Modal -->
+<div class="modal fade" id="editCompanyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Company</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editCompanyForm" method="POST">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="edit_name" class="form-label">Company Name *</label>
+              <input type="text" class="form-control" id="edit_name" name="name" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="edit_code" class="form-label">Company Code *</label>
+              <input type="text" class="form-control" id="edit_code" name="code" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="edit_contact_person" class="form-label">Contact Person</label>
+              <input type="text" class="form-control" id="edit_contact_person" name="contact_person">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="edit_phone" class="form-label">Phone</label>
+              <input type="text" class="form-control" id="edit_phone" name="phone">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="edit_email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="edit_email" name="email">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="edit_address" class="form-label">Address</label>
+              <input type="text" class="form-control" id="edit_address" name="address">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="edit_notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="edit_notes" name="notes" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Company</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
 function toggleCompanyDetails(id, btn) {
   const el = document.getElementById(id);
@@ -162,6 +224,46 @@ function toggleCompanyDetails(id, btn) {
     el.classList.add('show');
     btn.querySelector('i').classList.remove('bi-chevron-down');
     btn.querySelector('i').classList.add('bi-chevron-up');
+  }
+}
+
+function editCompany(companyId) {
+  // Fetch company data and populate modal
+  fetch(`{{ url_for('edit_company', company_id=0) }}`.replace('0', companyId), {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('edit_name').value = data.name;
+    document.getElementById('edit_code').value = data.code;
+    document.getElementById('edit_contact_person').value = data.contact_person;
+    document.getElementById('edit_phone').value = data.phone;
+    document.getElementById('edit_email').value = data.email;
+    document.getElementById('edit_address').value = data.address;
+    document.getElementById('edit_notes').value = data.notes;
+    
+    // Set form action
+    document.getElementById('editCompanyForm').action = `{{ url_for('edit_company', company_id=0) }}`.replace('0', companyId);
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('editCompanyModal')).show();
+  })
+  .catch(error => {
+    console.error('Error fetching company data:', error);
+    alert('Error loading company data');
+  });
+}
+
+function deleteCompany(companyId, companyName) {
+  if (confirm(`Are you sure you want to delete company "${companyName}"? This action cannot be undone.`)) {
+    // Create and submit form for deletion
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `{{ url_for('delete_company', company_id=0) }}`.replace('0', companyId);
+    document.body.appendChild(form);
+    form.submit();
   }
 }
 </script>

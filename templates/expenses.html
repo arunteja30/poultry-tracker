@@ -75,7 +75,7 @@
             {% for expense in expenses %}
             <tr>
               <td><strong>{{ expense.name }}</strong></td>
-              <td>{{ expense.date }}</td>
+              <td><span data-date="{{ expense.date }}">{{ expense.date }}</span></td>
               <td><span class="text-danger">₹{{ "%.2f"|format(expense.amount) }}</span></td>
               <td>{{ expense.notes or '-' }}</td>
               <td>
@@ -133,7 +133,7 @@
             <div class="row">
               <div class="col-6">
                 <small class="text-muted" data-i18n="expense_date">Date:</small><br>
-                <strong>{{ expense.date }}</strong>
+                <strong><span data-date="{{ expense.date }}">{{ expense.date }}</span></strong>
               </div>
               <div class="col-6">
                 <small class="text-muted" data-i18n="expense_notes">Notes:</small><br>

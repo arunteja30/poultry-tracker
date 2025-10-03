@@ -415,7 +415,14 @@ def calc_cumulative_stats(cycle_id):
     
     total_feed = sum(r.feed_bags_consumed for r in rows)
     avg_fcr = round(sum(r.fcr for r in rows if r.fcr>0)/max(1,len([r for r in rows if r.fcr>0])),3) if rows else 0
-    avg_weight = round(sum(r.avg_weight for r in rows if r.avg_weight>0)/max(1,len([r for r in rows if r.avg_weight>0])),3) if rows else 0
+    
+    # FIX: Calculate proper weighted average instead of "avg of avg"
+    if rows and cycle:
+        # Use latest entry's weight as the current average weight (most accurate)
+        latest_row = max(rows, key=lambda r: r.entry_date)
+        avg_weight = latest_row.avg_weight if latest_row.avg_weight > 0 else 0
+    else:
+        avg_weight = 0
     total_mort = sum(r.mortality for r in rows)
     
     # Calculate cumulative FCR = total feed consumed (kg) / total weight gained (kg)
@@ -427,7 +434,8 @@ def calc_cumulative_stats(cycle_id):
         total_weight_gained_kg = cycle.current_birds * (avg_weight - starting_weight_kg)
         if total_weight_gained_kg > 0:
             cumulative_fcr = round(total_feed_kg / total_weight_gained_kg, 3)
-    
+
+
     return {
         "total_feed_bags": total_feed, 
         "avg_fcr": avg_fcr, 
@@ -1163,28 +1171,53 @@ def daywise():
         row.total_mortality = cumulative_mortality
         row.birds_survived = birds_survived
 
-    # --- Sort only the total_mortality values and reassign them to the rows ---
-    total_mortality_values = sorted([row.total_mortality for row in rows])
-    for i, row in enumerate(rows):
-        row.total_mortality = total_mortality_values[i]
+    # Calculate weekly summaries for every 7 days
+    weekly_summaries = []
+    if rows:
+        # Group rows by week (every 7 days)
+        for week_start in range(0, len(rows), 7):
+            week_end = min(week_start + 7, len(rows))
+            week_rows = rows[week_start:week_end]
+            
+            if len(week_rows) > 0:
+                week_num = (week_start // 7) + 1
+                
+                # Calculate weekly averages for some fields
+                avg_mortality = round(sum(r.mortality for r in week_rows) / len(week_rows), 1)
+                avg_feed_consumed = round(sum(r.feed_bags_consumed for r in week_rows) / len(week_rows), 1) 
+                avg_weight = round(sum(r.avg_weight for r in week_rows if r.avg_weight > 0) / len([r for r in week_rows if r.avg_weight > 0]), 3) if any(r.avg_weight > 0 for r in week_rows) else 0
+                
+                # Weekly totals
+                total_mortality = sum(r.mortality for r in week_rows)
+                total_feed_consumed = sum(r.feed_bags_consumed for r in week_rows)
+                total_feed_added = sum(r.feed_bags_added for r in week_rows)
+                
+                # Get latest day (7th day) values for specific fields
+                latest_day = week_rows[-1]  # Last day of the week
+                latest_fcr = latest_day.fcr if latest_day.fcr > 0 else 0
+                latest_birds_survived = latest_day.birds_survived if hasattr(latest_day, 'birds_survived') else 0
+                latest_mortality_rate = latest_day.mortality_rate if hasattr(latest_day, 'mortality_rate') and latest_day.mortality_rate else 0
+                latest_remaining_bags = latest_day.remaining_bags if hasattr(latest_day, 'remaining_bags') else 0
+                
+                weekly_summary = {
+                    'week_num': week_num,
+                    'start_day': week_start + 1,
+                    'end_day': week_end,
+                    'days_in_week': len(week_rows),
+                    'avg_mortality': avg_mortality,
+                    'avg_feed_consumed': avg_feed_consumed,
+                    'avg_weight': avg_weight,
+                    'latest_fcr': latest_fcr,
+                    'total_mortality': total_mortality,
+                    'total_feed_consumed': total_feed_consumed,
+                    'total_feed_added': total_feed_added,
+                    'latest_mortality_rate': latest_mortality_rate,
+                    'latest_birds_survived': latest_birds_survived,
+                    'latest_remaining_bags': latest_remaining_bags
+                }
+                weekly_summaries.append(weekly_summary)
 
-    return render_template('daywise.html', rows=rows, cycle=cycle)
-@login_required
-def daywise():
-    cycle = get_active_cycle()
-    if not cycle:
-        return redirect(url_for('setup'))
-    # Fetch rows ordered by entry_date (ascending)
-    rows = Daily.query.filter_by(cycle_id=cycle.id).order_by(Daily.entry_date).all()
-    
-    for row in rows:
-        feed_added_on_date = db.session.query(db.func.sum(Feed.feed_bags)).filter(
-            Feed.date == row.entry_date, 
-            Feed.cycle_id == cycle.id
-        ).scalar() or 0
-        row.feed_bags_added = feed_added_on_date
-
-    return render_template('daywise.html', rows=rows, cycle=cycle)
+    return render_template('daywise.html', rows=rows, cycle=cycle, weekly_summaries=weekly_summaries)
     
 
 @app.route('/stats')
@@ -2576,6 +2609,56 @@ def cycle_details(cycle_id):
     
     # Calculate detailed statistics
     stats = calc_cumulative_stats(cycle_id)
+
+    # Get last entry's average weight
+    last_avg_weight = daily_entries[-1].avg_weight if daily_entries and daily_entries[-1].avg_weight > 0 else 0
+
+    # Calculate weekly summaries for daily entries (every 7 days)
+    weekly_summaries = []
+    if daily_entries:
+        rows = daily_entries  # already ordered by date ascending
+        for week_start in range(0, len(rows), 7):
+            week_rows = rows[week_start: week_start + 7]
+            if not week_rows:
+                continue
+            week_num = (week_start // 7) + 1
+            start_day = week_start + 1
+            end_day = week_start + len(week_rows)
+            
+            # Calculate averages and totals
+            avg_mortality = round(sum(r.mortality for r in week_rows) / len(week_rows), 1)
+            total_mortality = sum(r.mortality for r in week_rows)
+            latest_mortality_rate = round(getattr(week_rows[-1], 'mortality_rate', 0) or 0, 2)
+            latest_birds_survived = int(getattr(week_rows[-1], 'birds_survived', 0) or 0)
+            avg_feed_consumed = round(sum(r.feed_bags_consumed for r in week_rows) / len(week_rows), 1)
+            total_feed_consumed = sum(r.feed_bags_consumed for r in week_rows)
+            total_feed_added = sum(r.feed_bags_added for r in week_rows)
+            
+            # Average weight for week (use only positive weights)
+            weight_vals = [r.avg_weight for r in week_rows if getattr(r, 'avg_weight', 0) and r.avg_weight > 0]
+            avg_weight = round(sum(weight_vals) / len(weight_vals), 3) if weight_vals else 0
+            
+            # Latest values from 7th day (or last day of week)
+            latest_fcr = round(getattr(week_rows[-1], 'fcr', 0) or 0, 3)
+            latest_remaining_bags = int(getattr(week_rows[-1], 'remaining_bags', 0) or 0)
+            days_in_week = len(week_rows)
+
+            weekly_summaries.append({
+                'week_num': week_num,
+                'start_day': start_day,
+                'end_day': end_day,
+                'avg_mortality': avg_mortality,
+                'total_mortality': total_mortality,
+                'latest_mortality_rate': latest_mortality_rate,
+                'latest_birds_survived': latest_birds_survived,
+                'avg_feed_consumed': avg_feed_consumed,
+                'total_feed_consumed': total_feed_consumed,
+                'total_feed_added': total_feed_added,
+                'avg_weight': avg_weight,
+                'latest_fcr': latest_fcr,
+                'latest_remaining_bags': latest_remaining_bags,
+                'days_in_week': days_in_week
+            })
     
     # Prepare chart data
     dates = []
@@ -2695,7 +2778,9 @@ def cycle_details(cycle_id):
         medicines=medicines,
         total_medical_cost=total_medical_cost,
         expenses=expenses,
-        total_expense_cost=total_expense_cost
+        total_expense_cost=total_expense_cost,
+        last_avg_weight=last_avg_weight,
+        weekly_summaries=weekly_summaries
     )
 
 @app.route('/tips/bedding')
@@ -2809,6 +2894,12 @@ def income_estimate():
         bag_weight = float(request.form.get('bag_weight', 50))
         market_price_per_bird = float(request.form.get('market_price_per_bird', 0))
         
+        # New form parameters for PC calculation
+        medicine_cost = float(request.form.get('medicine_cost', 18000))
+        vaccine_cost = float(request.form.get('vaccine_cost', 1800))
+        base_pc_rate = float(request.form.get('base_pc_rate', 95))
+        base_income_rate = float(request.form.get('base_income_rate', 6.5))
+        
         # Get custom FCR if provided
         custom_fcr_input = request.form.get('custom_fcr', '').strip()
         if custom_fcr_input:
@@ -2817,9 +2908,21 @@ def income_estimate():
             except ValueError:
                 custom_fcr = None
     else:
-        # For GET requests, set chick_price same as chick_cost
+        # For GET requests, set default values
+        chick_cost = 35  # Default chick cost per bird
         chick_price = chick_cost
         feed_cost = feed_per_kg_price  # Set feed_cost for template
+        
+        # Default values for PC calculation parameters
+        medicine_cost = 18000
+        vaccine_cost = 1800
+        base_pc_rate = 95
+        base_income_rate = 6.5
+    
+    # Initialize variables that should always be available in template
+    calculated_chick_cost_for_display = 0
+    using_defaults = False
+    default_birds_count = 0
     # Helper to get stats
     def get_stats(cycle, use_custom_fcr=None, use_form_feed_price=None):
         if not cycle:
@@ -2897,8 +3000,23 @@ def income_estimate():
     
     # Calculate chick cost from input and cycle start birds
     chick_production_cost = 0
-    if cycle_for_costs and chick_price > 0:
-        chick_production_cost = (cycle_for_costs.start_birds or 0) * chick_price
+    if chick_price > 0:
+        if cycle_for_costs and cycle_for_costs.start_birds:
+            chick_production_cost = cycle_for_costs.start_birds * chick_price
+        else:
+            # If no cycle data but user provided chick price, use default bird count
+            default_birds = cycle_for_stats.current_birds if (cycle_for_stats and cycle_for_stats.current_birds) else 1000
+            chick_production_cost = default_birds * chick_price
+    
+    # Set default value for template variable (will be overridden in PC calculation if needed)
+    if calculated_chick_cost_for_display == 0:
+        calculated_chick_cost_for_display = chick_production_cost
+    
+    # Set default bird count for template
+    if cycle_for_stats and cycle_for_stats.current_birds:
+        default_birds_count = cycle_for_stats.current_birds
+    else:
+        default_birds_count = 1000
     
     # Calculate feed cost for selected cycle (using form values instead of database)
     selected_cycle_feed_cost = 0
@@ -2987,13 +3105,73 @@ def income_estimate():
     # Calculate estimated income for all cycles
     estimated_income_all_cycles = all_cycles_total_income
     
-    # Calculate profit for selected cycle
-    total_cycle_cost = selected_cycle_feed_cost + chick_production_cost + total_medical_cost + total_expense_cost + other_expenses
+    # NEW: Production Cost (PC) based income calculation
+    pc_based_income = 0
+    pc_per_kg = 0
+    production_cost = 0
+    pc_based_profit = 0
+    
+    # Determine calculation scenario and setup variables
+    if request.method == 'POST':
+        if cycle_for_stats and cycle_stats.get('total_birds') and cycle_stats.get('avg_weight'):
+            # Scenario 1: Complete cycle data available
+            total_birds = cycle_stats['total_birds']
+            total_weight_kg = total_birds * cycle_stats['avg_weight']
+            default_birds_count = total_birds
+            
+            # Calculate chick cost using input value and actual bird count
+            calculated_chick_cost = total_birds * chick_price if chick_price > 0 else 0
+            calculated_chick_cost_for_display = calculated_chick_cost
+            
+            # Calculate PC using cycle feed cost
+            pc_total = calculated_chick_cost + selected_cycle_feed_cost + medicine_cost + vaccine_cost
+            production_cost = pc_total
+            
+        else:
+            # Scenario 2: No complete cycle data - use defaults with user inputs
+            default_birds = 1000  # Default number of birds for calculation
+            default_avg_weight = 2.5  # Default average weight in kg
+            using_defaults = True
+            default_birds_count = default_birds
+            
+            total_birds = default_birds
+            total_weight_kg = total_birds * default_avg_weight
+            
+            # Calculate chick cost using input value
+            calculated_chick_cost = total_birds * chick_price if chick_price > 0 else 0
+            calculated_chick_cost_for_display = calculated_chick_cost
+            
+            # For feed cost, use a reasonable default if no cycle data
+            feed_cost_estimate = total_weight_kg * (custom_fcr or 1.8) * feed_per_kg_price if feed_per_kg_price > 0 else 0
+            
+            # Override selected_cycle_feed_cost for display when using defaults
+            if selected_cycle_feed_cost == 0:
+                selected_cycle_feed_cost = feed_cost_estimate
+            
+            # Calculate PC using estimated values
+            pc_total = calculated_chick_cost + feed_cost_estimate + medicine_cost + vaccine_cost
+            production_cost = pc_total
+        
+        # Common PC calculation for both scenarios
+        if total_weight_kg > 0 and pc_total > 0:
+            pc_per_kg = pc_total / total_weight_kg
+            
+            # Calculate income rate based on actual PC
+            pc_difference = pc_per_kg - base_pc_rate
+            income_adjustment = pc_difference * 0.5  # 0.50 rs for every 1 rs difference
+            actual_income_rate = base_income_rate - income_adjustment  # Subtract because higher PC means lower profit
+            
+            # Calculate total PC-based income
+            pc_based_income = total_weight_kg * actual_income_rate
+            pc_based_profit = pc_based_income - production_cost
+    
+    # Calculate profit for selected cycle (after PC calculation to use correct chick cost)
+    total_cycle_cost = selected_cycle_feed_cost + calculated_chick_cost_for_display + total_medical_cost + total_expense_cost + other_expenses
     estimated_profit = estimated_income - total_cycle_cost
     
     # Calculate profit for all cycles
     estimated_profit_all_cycles = all_cycles_total_income - (all_cycles_total_cost + other_expenses)
-    
+        
     # Get expenses list for selected cycle
     selected_cycle_expenses = []
     if cycle_for_costs:
@@ -3014,7 +3192,8 @@ def income_estimate():
         total_feed_cost=selected_cycle_feed_cost,
         total_medical_cost=total_medical_cost,
         total_expense_cost=total_expense_cost,
-        chick_production_cost=chick_production_cost,
+        chick_production_cost=calculated_chick_cost_for_display,
+        calculated_chick_cost_for_display=calculated_chick_cost_for_display,
         direct_feed_cost=direct_feed_cost,
         fallback_feed_cost=fallback_feed_cost,
         chick_price=chick_price,
@@ -3031,7 +3210,17 @@ def income_estimate():
         selected_cycle_id=selected_cycle_id,
         selected_cycle_expenses=selected_cycle_expenses,
         all_expenses=all_expenses,
-        custom_fcr=custom_fcr  # Add custom FCR to template
+        custom_fcr=custom_fcr,  # Add custom FCR to template
+        pc_based_income=pc_based_income,
+        pc_per_kg=pc_per_kg,
+        production_cost=production_cost,
+        pc_based_profit=pc_based_profit,
+        medicine_cost=medicine_cost,
+        vaccine_cost=vaccine_cost,
+        base_pc_rate=base_pc_rate,
+        base_income_rate=base_income_rate,
+        using_defaults=using_defaults,
+        default_birds_count=default_birds_count
     )
 
 @app.route('/export_cycle_details/<int:cycle_id>')
@@ -3192,6 +3381,85 @@ def create_company():
     db.session.commit()
     
     flash(f'Company "{name}" created successfully!', 'success')
+    return redirect(url_for('company_management'))
+
+@app.route('/edit_company/<int:company_id>', methods=['GET', 'POST'])
+@super_admin_required
+def edit_company(company_id):
+    """Edit a company (super admin only)"""
+    company = Company.query.get_or_404(company_id)
+    
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        code = request.form.get('code', '').strip()
+        address = request.form.get('address', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        contact_person = request.form.get('contact_person', '').strip()
+        notes = request.form.get('notes', '').strip()
+        
+        if not name or not code:
+            flash('Company name and code are required!', 'error')
+            return redirect(url_for('edit_company', company_id=company_id))
+        
+        # Check if code already exists for other companies
+        existing = Company.query.filter(Company.code == code, Company.id != company_id).first()
+        if existing:
+            flash('Company code already exists!', 'error')
+            return redirect(url_for('edit_company', company_id=company_id))
+        
+        user = get_current_user()
+        company.name = name
+        company.code = code
+        company.address = address
+        company.phone = phone
+        company.email = email
+        company.contact_person = contact_person
+        company.notes = notes
+        
+        db.session.commit()
+        
+        flash(f'Company "{name}" updated successfully!', 'success')
+        return redirect(url_for('company_management'))
+    
+    # For GET request, return JSON data for modal
+    if request.headers.get('Content-Type') == 'application/json':
+        return jsonify({
+            'id': company.id,
+            'name': company.name,
+            'code': company.code,
+            'address': company.address or '',
+            'phone': company.phone or '',
+            'email': company.email or '',
+            'contact_person': company.contact_person or '',
+            'notes': company.notes or ''
+        })
+    
+    return redirect(url_for('company_management'))
+
+@app.route('/delete_company/<int:company_id>', methods=['POST'])
+@super_admin_required
+def delete_company(company_id):
+    """Delete a company (super admin only)"""
+    company = Company.query.get_or_404(company_id)
+    
+    # Check if company has users
+    users_count = User.query.filter_by(company_id=company_id).count()
+    if users_count > 0:
+        flash(f'Cannot delete company "{company.name}". It has {users_count} associated users. Please reassign or remove users first.', 'error')
+        return redirect(url_for('company_management'))
+    
+    # Check if company has cycles
+    cycles_count = Cycle.query.filter_by(company_id=company_id).count()
+    if cycles_count > 0:
+        flash(f'Cannot delete company "{company.name}". It has {cycles_count} associated cycles. Please remove cycles first.', 'error')
+        return redirect(url_for('company_management'))
+    
+    company_name = company.name
+    db.session.delete(company)
+    db.session.commit()
+    
+    flash(f'Company "{company_name}" deleted successfully!', 'success')
     return redirect(url_for('company_management'))
 
 @app.route('/profile')
