@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mobile-header text-center mb-mobile-3">
+    <span data-i18n="edit_expense">Edit Expense</span>
+  </h2>
+
+  <div class="card">
+    <div class="card-header">
+      <h5 data-i18n="edit_expense_details">Edit Expense Details</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('edit_expense', expense_id=expense.id) }}">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="name" class="form-label" data-i18n="expense_name">Expense Name *</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ expense.name }}" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="date" class="form-label" data-i18n="date">Date *</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ expense.date }}" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="amount" class="form-label" data-i18n="amount">Amount *</label>
+            <input type="number" step="0.01" class="form-control" id="amount" name="amount" value="{{ expense.amount }}" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="notes" class="form-label" data-i18n="notes">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ expense.notes }}</textarea>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <a href="{{ url_for('expenses') }}" class="btn btn-secondary" data-i18n="cancel">Cancel</a>
+          <button type="submit" class="btn btn-success" data-i18n="update">Update Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

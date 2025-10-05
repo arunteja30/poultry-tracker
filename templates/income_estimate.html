@@ -19,11 +19,11 @@
         </div>
         <div class="card-body">
           <!-- Cycle Selection -->
-          <form method="GET" class="mobile-form-section mb-4">
+          <div class="mobile-form-section mb-4">
             <div class="row">
               <div class="col-12">
                 <label for="cycle_id" class="form-label p-2" data-i18n="select_cycle"><span data-i18n="select_cycle">Select Cycle</span></label>
-                <select class="form-select mobile-form-control" name="cycle_id" id="cycle_id" onchange="this.form.submit()">
+                <select class="form-select mobile-form-control" name="cycle_id" id="cycle_id" onchange="changeCycle()">
                   <option value="all" {% if selected_cycle_id == 'all' %}selected{% endif %} data-i18n="all_cycles"><span data-i18n="all_cycles">All Cycles</span></option>
                   {% for c in all_cycles %}
                   <option value="{{ c.id }}" {% if selected_cycle_id == c.id|string %}selected{% endif %}>
@@ -33,10 +33,11 @@
                 </select>
               </div>
             </div>
-          </form>
+          </div>
 
           <!-- Parameters Form -->
           <form method="POST" class="mobile-form-enhanced">
+            <input type="hidden" name="cycle_id" value="{{ selected_cycle_id }}">
             <div class="row g-3">
               <div class="col-6 col-lg-3">
                 <label for="chick_cost" class="form-label" data-i18n="chick_cost"><span data-i18n="chick_cost">Chick Cost (per bird)</span></label>
@@ -1100,6 +1101,14 @@
   }); // End of DOMContentLoaded
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
 <script>
+  // Function to change cycle while preserving form values
+  function changeCycle() {
+    const cycleId = document.getElementById('cycle_id').value;
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('cycle_id', cycleId);
+    window.location.href = currentUrl.toString();
+  }
+
   // Wait for DOM and Chart.js to be ready
   document.addEventListener('DOMContentLoaded', function() {
 

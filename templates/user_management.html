@@ -7,7 +7,7 @@
   </h2>
 
   <!-- Add New User Form -->
-  {% if current_user.role == 'super_admin' %}
+  {% if current_user.role in ['super_admin', 'admin'] %}
   <div class="card mb-4">
     <div class="card-header">
       <h5 data-i18n="add_new_user">Add New User</h5>
@@ -36,17 +36,28 @@
               <option value="">Select Role</option>
               <option value="user">User</option>
               <option value="admin">Admin</option>
+              {% if current_user.role == 'super_admin' %}
               <option value="super_admin">Super Admin</option>
+              {% endif %}
             </select>
           </div>
           <div class="col-md-6 mb-3">
             <label for="company_id" class="form-label" data-i18n="company">Company *</label>
+            {% if current_user.role == 'super_admin' %}
             <select class="form-control" id="company_id" name="company_id" required>
               <option value="">Select Company</option>
               {% for company in companies %}
               <option value="{{ company.id }}">{{ company.name }} ({{ company.code }})</option>
               {% endfor %}
             </select>
+            {% else %}
+            <!-- Farm admin can only create users in their own company -->
+            <select class="form-control" id="company_id" name="company_id" required>
+              {% for company in companies %}
+              <option value="{{ company.id }}" selected>{{ company.name }} ({{ company.code }})</option>
+              {% endfor %}
+            </select>
+            {% endif %}
           </div>
         </div>
         <div class="row">
@@ -99,12 +110,12 @@
             </div>
             <div id="user-details-{{ user.id }}" class="collapse">
               <div class="mb-1"><span class="fw-bold">Full Name:</span> {{ user.full_name or '-' }}</div>
-              <div class="mb-1"><span class="fw-bold">Company:</span> {% if user.get_company() %}{{ user.get_company().name }} <small class="text-muted">({{ user.get_company().code }})</small>{% else %}<span class="text-muted">No Company</span>{% endif %}</div>
+              <div class="mb-1"><span class="fw-bold">Company:</span> {% if user.company_id %}{% set user_company = get_company_by_id(user.company_id) %}{% if user_company %}{{ user_company.name }} <small class="text-muted">({{ user_company.code }})</small>{% else %}<span class="text-muted">Company Not Found</span>{% endif %}{% else %}<span class="text-muted">No Company</span>{% endif %}</div>
               <div class="mb-1"><span class="fw-bold">Email:</span> {{ user.email or '-' }}</div>
               <div class="mb-1"><span class="fw-bold">Phone:</span> {{ user.phone or '-' }}</div>
               <div class="mb-1"><span class="fw-bold">Status:</span> {% if user.status == 'active' %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">{{ user.status }}</span>{% endif %}</div>
-              <div class="mb-1"><span class="fw-bold">Last Login:</span> {% if user.last_login %}{{ user.last_login.strftime('%Y-%m-%d %H:%M') }}{% else %}<span class="text-muted">Never</span>{% endif %}</div>
-              <div class="mb-1"><span class="fw-bold">Created:</span> {% if user.created_date %}{{ user.created_date.strftime('%Y-%m-%d %H:%M') }}{% endif %}{% if user.created_by %}{% set created_user = get_user_by_id(user.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + user.created_by|string }}{% endif %}</div>
+              <div class="mb-1"><span class="fw-bold">Last Login:</span> {% if user.last_login %}{{ user.last_login|safe_strftime }}{% else %}<span class="text-muted">Never</span>{% endif %}</div>
+              <div class="mb-1"><span class="fw-bold">Created:</span> {% if user.created_date %}{{ user.created_date|safe_strftime }}{% endif %}{% if user.created_by %}{% set created_user = get_user_by_id(user.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + user.created_by|string }}{% endif %}</div>
               <div class="mt-2">
                 {% if user.status == 'active' %}
                 <a href="{{ url_for('update_user_status', user_id=user.id, status='inactive') }}" class="btn btn-outline-warning btn-sm me-1" onclick="return confirm('Deactivate this user?')">
@@ -167,9 +178,14 @@
               {% endif %}
             </td>
             <td>
-              {% if user.get_company() %}
-              {{ user.get_company().name }}
-              <small class="text-muted">({{ user.get_company().code }})</small>
+              {% if user.company_id %}
+              {% set user_company = get_company_by_id(user.company_id) %}
+              {% if user_company %}
+              {{ user_company.name }}
+              <small class="text-muted">({{ user_company.code }})</small>
+              {% else %}
+              <span class="text-muted">Company Not Found</span>
+              {% endif %}
               {% else %}
               <span class="text-muted">No Company</span>
               {% endif %}
@@ -185,7 +201,7 @@
             </td>
             <td>
               {% if user.last_login %}
-              {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+              {{ user.last_login|safe_strftime }}
               {% else %}
               <span class="text-muted">Never</span>
               {% endif %}
@@ -193,7 +209,7 @@
             <td>
               <small class="text-muted">
                 {% if user.created_date %}
-                {{ user.created_date.strftime('%Y-%m-%d %H:%M') }}
+                {{ user.created_date|safe_strftime }}
                 {% endif %}
                 {% if user.created_by %}
                 {% set created_user = get_user_by_id(user.created_by) %}
@@ -207,6 +223,27 @@
                  class="btn btn-outline-warning btn-sm me-1"
                  onclick="return confirm('Deactivate this user?')">
                 <i class="bi bi-person-x me-1"></i>Deactivate
+              </a>
+              <a href="{{ url_for('edit_user', user_id=user.id) }}" 
+                 class="btn btn-outline-info btn-sm ms-1" 
+                 data-i18n="edit">
+                <i class="bi bi-pencil-square me-1"></i>Edit
+              </a>
+              
+              {% if current_user.role == 'super_admin' or (current_user.role == 'admin' and user.role != 'super_admin') %}
+              <a href="{{ url_for('delete_user', user_id=user.id) }}" 
+                 class="btn btn-outline-danger btn-sm ms-1" 
+                 onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')"
+                 data-i18n="delete">
+                <i class="bi bi-trash me-1"></i>Delete
+              </a>
+              {% endif %}
+              {% else %}
+              <!-- Inactive user actions -->
+              <a href="{{ url_for('update_user_status', user_id=user.id, status='active') }}"
+                 class="btn btn-outline-success btn-sm me-1"
+                 onclick="return confirm('Activate this user?')">
+                <i class="bi bi-person-check me-1"></i>Activate
               </a>
               <a href="{{ url_for('edit_user', user_id=user.id) }}" 
                  class="btn btn-outline-info btn-sm ms-1" 
@@ -238,7 +275,9 @@
 
   <div class="mt-3">
     <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" data-i18n="back_to_dashboard">Back to Dashboard</a>
+    {% if current_user and current_user.role == 'super_admin' %}
     <a href="{{ url_for('company_management') }}" class="btn btn-info mt-2" data-i18n="manage_companies">Manage Companies</a>
+    {% endif %}
   </div>
 </div>
 

@@ -143,7 +143,7 @@
                 <small class="text-muted">
                   <i class="bi bi-clock me-1"></i>
                   {% if r.created_date %}
-                    <span data-i18n="created">Created:</span> {{ r.created_date.strftime('%Y-%m-%d %H:%M') }}
+                    <span data-i18n="created">Created:</span> {{ r.created_date|safe_strftime }}
                   {% endif %}
                   {% if r.created_by %}
                     {% set created_user = get_user_by_id(r.created_by) %}
@@ -151,7 +151,7 @@
                   {% endif %}
                   {% if r.modified_date %}
                     <br><i class="bi bi-pencil me-1"></i>
-                    <span data-i18n="modified">Modified:</span> {{ r.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                    <span data-i18n="modified">Modified:</span> {{ r.modified_date|safe_strftime }}
                     {% if r.modified_by %}
                       {% set modified_user = get_user_by_id(r.modified_by) %}
                       <span data-i18n="by">by</span> {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + r.modified_by|string }}
@@ -162,7 +162,7 @@
             </div>
           </div>
 
-          {% if session.role == 'admin' %}
+          {% if current_user and current_user.role in ['admin', 'super_admin'] %}
           <div class="d-flex gap-2 pt-2 mt-2 border-top">
             <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-outline-primary" title="Edit Entry">
               <i class="bi bi-pencil"></i>
@@ -288,7 +288,7 @@
                 <th class="text-center" data-i18n="table_remaining_bags">Remaining Bags</th>
                 <th class="text-center" data-i18n="table_medicines">Medicines</th>
                 <th class="text-center" data-i18n="notes">Notes</th>
-                {% if session.role == 'admin' %}
+                {% if current_user and current_user.role in ['admin', 'super_admin'] %}
                 <th class="text-center" data-i18n="actions">Actions</th>
                 {% endif %}
               </tr>
@@ -312,7 +312,7 @@
                 <td class="text-center text-info"><strong>{{ r.remaining_bags|int }}</strong></td>
                 <td class="text-center text-truncate" style="max-width: 120px;" title="{{ r.medicines or '-' }}">{{ r.medicines or '-' }}</td>
                 <td class="text-center text-truncate" style="max-width: 150px;" title="{{ r.daily_notes or '-' }}">{{ r.daily_notes or '-' }}</td>
-                {% if session.role == 'admin' %}
+                {% if current_user and current_user.role in ['admin', 'super_admin'] %}
                 <td class="text-center">
                   <div class="d-flex flex-column gap-1">
                     <a href="{{ url_for('edit_daily', entry_id=r.id) }}" class="btn btn-sm btn-primary" title="Edit Entry">
@@ -351,7 +351,7 @@
                      <td class="text-center text-warning"><strong>{{ week.latest_remaining_bags|int }}</strong></td>
                     <td class="text-center"><em>Week {{ week.week_num }} Summary</em></td>
                     <td class="text-center">{{ week.days_in_week }} days</td>
-                    {% if session.role == 'admin' %}
+                    {% if current_user and current_user.role in ['admin', 'super_admin'] %}
                     <td class="text-center">-</td>
                     {% endif %}
                   </tr>
@@ -360,7 +360,7 @@
               {% endif %}
               {% else %}
               <tr>
-                <td colspan="{% if session.role == 'admin' %}16{% else %}15{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
+                <td colspan="{% if current_user and current_user.role in ['admin', 'super_admin'] %}16{% else %}15{% endif %}" class="text-center" data-i18n="no_entries">No entries found</td>
               </tr>
               {% endfor %}
             </tbody>

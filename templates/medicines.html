@@ -5,6 +5,15 @@
     <span data-i18n="meds_title">💊 Medicines</span>
   </h2>
 
+  <!-- Debug info - remove this later -->
+  <div class="alert alert-info">
+    <strong>Debug:</strong> 
+    current_user: {{ current_user }}
+    {% if current_user %} | Role: {{ current_user.role }}{% endif %}
+    | Session: {{ session }}
+    {% if session.role %} | Session Role: {{ session.role }}{% endif %}
+  </div>
+
   <div class="mobile-section">
     <div class="mobile-card card">
       <div class="card-header bg-info text-white p-mobile-2">
@@ -75,14 +84,14 @@
                   <td class="text-center">
                     <small class="text-muted">
                       {% if m.created_date %}
-                        {{ m.created_date.strftime('%Y-%m-%d %H:%M') }}
+                        {{ m.created_date|safe_strftime }}
                       {% endif %}
                       {% if m.created_by %}
                         {% set created_user = get_user_by_id(m.created_by) %}
                         <br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + m.created_by|string }}
                       {% endif %}
                       {% if m.modified_date %}
-                        <br><i class="bi bi-pencil me-1"></i>{{ m.modified_date.strftime('%Y-%m-%d %H:%M') }}
+                        <br><i class="bi bi-pencil me-1"></i>{{ m.modified_date|safe_strftime }}
                         {% if m.modified_by %}
                           {% set modified_user = get_user_by_id(m.modified_by) %}
                           by {{ modified_user.full_name or modified_user.username if modified_user else 'User ID ' + m.modified_by|string }}
@@ -90,12 +99,15 @@
                       {% endif %}
                     </small>
                   </td>
-                  {% if session.role == 'admin' %}
+                  {% if current_user and current_user.role in ['admin', 'super_admin'] %}
                   <td class="text-center">
+                    <a href="{{ url_for('edit_medicine', medicine_id=m.id) }}" class="btn btn-outline-primary btn-sm me-1" title="Edit Medicine">
+                      <i class="bi bi-pencil"></i>
+                    </a>
                     <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" style="display: inline;" 
                           onsubmit="return confirm('Are you sure you want to delete this medicine?');">
                       <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Medicine">
-                        <i class="fas fa-trash"></i>
+                        <i class="bi bi-trash"></i>
                       </button>
                     </form>
                   </td>
@@ -103,7 +115,7 @@
                 </tr>
               {% else %}
                 <tr>
-                  <td colspan="{% if session.role == 'admin' %}6{% else %}5{% endif %}" class="text-center py-4 text-muted">
+                  <td colspan="{% if current_user and current_user.role in ['admin', 'super_admin'] %}6{% else %}5{% endif %}" class="text-center py-4 text-muted">
                     <i class="fas fa-pills fa-2x mb-2 text-muted"></i><br>
                     <span data-i18n="no_meds">No medicines added yet</span>
                   </td>
@@ -154,12 +166,15 @@
             <span>{{ m.medicine_ext1 or '-' }}</span>
           </div>
         </div>
-        {% if session.role == 'admin' %}
-        <div class="d-grid">
+        {% if current_user and current_user.role in ['admin', 'super_admin'] %}
+        <div class="d-grid gap-1">
+          <a href="{{ url_for('edit_medicine', medicine_id=m.id) }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> <span data-i18n="btn_edit">Edit</span>
+          </a>
           <form method="POST" action="{{ url_for('delete_medicine', medicine_id=m.id) }}" 
                 onsubmit="return confirm('Are you sure you want to delete this medicine?');">
-            <button type="submit" class="btn btn-outline-danger btn-sm">
-              <i class="fas fa-trash me-1"></i> <span data-i18n="btn_delete">Delete</span>
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+              <i class="bi bi-trash me-1"></i> <span data-i18n="btn_delete">Delete</span>
             </button>
           </form>
         </div>

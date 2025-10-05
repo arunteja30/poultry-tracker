@@ -12,7 +12,7 @@
       <h5 data-i18n="edit_user">Edit User: {{ user.username }}</h5>
     </div>
     <div class="card-body">
-      <form method="POST" action="{{ url_for('edit_user', user_id=user.id) }}">
+      <form method="POST" action="{{ url_for('update_edit_user', user_id=user.id) }}">
         <div class="row">
           <div class="col-md-6 mb-3">
             <label for="username" class="form-label" data-i18n="username">Username *</label>
@@ -42,12 +42,22 @@
           </div>
           <div class="col-md-6 mb-3">
             <label for="company_id" class="form-label" data-i18n="company">Company *</label>
+            {% if current_user.role == 'super_admin' %}
             <select class="form-control" id="company_id" name="company_id" {% if user.role == 'super_admin' %}disabled{% endif %}>
               <option value="">Select Company</option>
               {% for company in companies %}
               <option value="{{ company.id }}" {% if user.company_id == company.id %}selected{% endif %}>{{ company.name }} ({{ company.code }})</option>
               {% endfor %}
             </select>
+            {% else %}
+            <!-- Farm admin cannot change company -->
+            <select class="form-control" id="company_id" name="company_id" disabled>
+              {% for company in companies %}
+              <option value="{{ company.id }}" {% if user.company_id == company.id %}selected{% endif %}>{{ company.name }} ({{ company.code }})</option>
+              {% endfor %}
+            </select>
+            <input type="hidden" name="company_id" value="{{ user.company_id }}">
+            {% endif %}
           </div>
         </div>
         <div class="row">
