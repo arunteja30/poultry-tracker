@@ -140,7 +140,12 @@ def get_user_company_id():
 def inject_template_vars():
     """Make company data and other variables available to all templates"""
     def get_all_companies():
-        return company_model.get_all_companies()
+        # Only super admins can see all companies
+        user = get_current_user()
+        if user and user.get('role') == 'super_admin':
+            companies = company_model.get_all_companies()
+            return companies
+        return []
     
     def get_current_company():
         company_id = get_user_company_id()
@@ -647,6 +652,323 @@ def create_comprehensive_pdf_report(cycle, title="Farm Report"):
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
     ]))
     story.append(financial_table)
+    
+    # Build PDF
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+def create_income_estimate_pdf_report(cycle, income_data, title="Income Estimate Report"):
+    """Create a PDF report specifically for income estimates"""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch, 
+                          leftMargin=0.5*inch, rightMargin=0.5*inch)
+    story = []
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=1,  # Center alignment
+        textColor=colors.darkblue
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=10,
+        spaceBefore=15,
+        textColor=colors.darkblue
+    )
+    
+    # Company header
+    company_id = get_user_company_id()
+    company_data = company_model.get_record("companies", company_id) if company_id else {}
+    company_name = company_data.get('name', 'Unknown') if company_data else 'Unknown'
+    story.append(Paragraph(f"<b>{company_name.upper()}</b>", title_style))
+
+    # Title and header info
+    story.append(Paragraph(title, title_style))
+    story.append(Paragraph(f"Cycle #{cycle.get('cycle_ext1', cycle['id'])} - Generated on {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}", styles['Normal']))
+    story.append(Spacer(1, 20))
+    
+    # Cycle Overview
+    story.append(Paragraph("Cycle Overview", heading_style))
+    cycle_data = [
+        ["Cycle Number", f"#{cycle.get('cycle_ext1', cycle['id'])}"],
+        ["Start Date", cycle.get('start_date', 'N/A')],
+        ["Initial Birds", f"{cycle.get('start_birds', 0):,}"],
+        ["Current Birds", f"{cycle.get('current_birds', 0):,}"],
+        ["Current Status", cycle.get('status', 'active').title()]
+    ]
+    
+    cycle_table = Table(cycle_data, colWidths=[2.5*inch, 2.5*inch])
+    cycle_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+        ('GRID', (0,0), (-1,-1), 1, colors.black)
+    ]))
+    story.append(cycle_table)
+    story.append(Spacer(1, 20))
+    
+    # Input Parameters Section
+    story.append(Paragraph("Cost Parameters Used", heading_style))
+    param_data = [
+        ["Parameter", "Value", "Unit"],
+        ["Chick Cost", f"₹{income_data.get('chick_price', 0):.2f}", "per bird"],
+        ["Feed Cost", f"₹{income_data.get('feed_cost', 0):.2f}", "per kg"],
+        ["Other Expenses", f"₹{income_data.get('other_expenses', 0):,.2f}", "total"],
+        ["Market Price", f"₹{income_data.get('market_price_per_bird', 0):.2f}", "per kg"],
+        ["Medicine Cost", f"₹{income_data.get('medicine_cost', 0):,.2f}", "total"],
+        ["Vaccine Cost", f"₹{income_data.get('vaccine_cost', 0):,.2f}", "total"],
+        ["Base PC Rate", f"₹{income_data.get('base_pc_rate', 0):.1f}", "per kg"],
+        ["Base Income Rate", f"₹{income_data.get('base_income_rate', 0):.1f}", "per kg"]
+    ]
+    
+    if income_data.get('custom_fcr'):
+        param_data.append(["Custom FCR", f"{income_data['custom_fcr']:.2f}", "override"])
+    
+    param_table = Table(param_data, colWidths=[2*inch, 1.5*inch, 1.5*inch])
+    param_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.darkblue),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.lightblue),
+        ('GRID', (0,0), (-1,-1), 1, colors.black)
+    ]))
+    story.append(param_table)
+    story.append(Spacer(1, 20))
+    
+    # FCR-Based Calculation Section
+    story.append(Paragraph("Method 1: FCR-Based Financial Analysis", heading_style))
+    
+    # Key Metrics
+    metrics_data = [
+        ["Metric", "Value"],
+        ["Total Birds", f"{income_data.get('total_birds', 0):,}"],
+        ["Average Weight per Bird", f"{income_data.get('avg_weight_per_bird', 0):.3f} kg"],
+        ["Total Live Weight", f"{income_data.get('total_weight', 0):,.1f} kg"],
+        ["FCR Used", f"{income_data.get('fcr_to_use', 0):.2f}"],
+        ["Feed Needed", f"{income_data.get('feed_needed_kg', 0):,.1f} kg"]
+    ]
+    
+    metrics_table = Table(metrics_data, colWidths=[2.5*inch, 2.5*inch])
+    metrics_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.grey),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.lightgrey),
+        ('GRID', (0,0), (-1,-1), 1, colors.black)
+    ]))
+    story.append(metrics_table)
+    story.append(Spacer(1, 15))
+    
+    # Cost Breakdown
+    story.append(Paragraph("Cost Breakdown", heading_style))
+    cost_data = [
+        ["Cost Category", "Amount (₹)"],
+        ["Chick Cost", f"₹{income_data.get('calculated_chick_cost_for_display', 0):,.2f}"],
+        ["Feed Cost", f"₹{income_data.get('total_feed_cost', 0):,.2f}"],
+        ["Medicine Cost (Actual)", f"₹{income_data.get('total_medical_cost', 0):,.2f}"],
+        ["Other Expenses (Actual)", f"₹{income_data.get('total_expense_cost', 0):,.2f}"],
+        ["Additional Expenses", f"₹{income_data.get('other_expenses', 0):,.2f}"],
+        ["", ""],
+        ["TOTAL COST", f"₹{income_data.get('total_cycle_cost', 0):,.2f}"]
+    ]
+    
+    cost_table = Table(cost_data, colWidths=[2.5*inch, 2.5*inch])
+    cost_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.green),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-2,-2), colors.lightgreen),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.darkgreen),
+        ('TEXTCOLOR', (0,-1), (-1,-1), colors.whitesmoke),
+        ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+        ('GRID', (0,0), (-1,-2), 1, colors.black),
+        ('GRID', (0,-1), (-1,-1), 2, colors.black)
+    ]))
+    story.append(cost_table)
+    story.append(Spacer(1, 15))
+    
+    # Revenue and Profit Analysis (Market Price Method)
+    story.append(Paragraph("Market Price Method - Financial Analysis", heading_style))
+    profit_data = [
+        ["Analysis", "Amount (₹)"],
+        ["Estimated Income (Market Price)", f"₹{income_data.get('estimated_income', 0):,.2f}"],
+        ["Total Cycle Cost", f"₹{income_data.get('total_cycle_cost', 0):,.2f}"],
+        ["Estimated Profit/Loss", f"₹{income_data.get('estimated_profit', 0):,.2f}"]
+    ]
+    
+    profit_table = Table(profit_data, colWidths=[2.5*inch, 2.5*inch])
+    profit_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.blue),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.lightblue),
+        ('GRID', (0,0), (-1,-1), 1, colors.black),
+        # Highlight profit row
+        ('BACKGROUND', (0,-1), (-1,-1), colors.yellow if income_data.get('estimated_profit', 0) >= 0 else colors.lightcoral),
+    ]))
+    story.append(profit_table)
+    story.append(Spacer(1, 20))
+    
+    # Production Cost (PC) Method Section
+    story.append(Paragraph("Method 2: Production Cost (PC) Based Analysis", heading_style))
+    
+    # PC Method Explanation
+    pc_explanation = """
+    <b>Production Cost Method:</b> This method calculates profitability based on industry-standard PC rates.
+    PC includes chick cost, feed cost, and medicine cost but excludes other expenses.
+    The income rate is adjusted based on how the actual PC per kg compares to the base PC rate.
+    """
+    story.append(Paragraph(pc_explanation, styles['Normal']))
+    story.append(Spacer(1, 10))
+    
+    # PC Cost Breakdown
+    pc_cost_data = [
+        ["PC Component", "Amount (₹)"],
+        ["Chick Cost", f"₹{income_data.get('calculated_chick_cost_for_display', 0):,.2f}"],
+        ["Feed Cost", f"₹{income_data.get('total_feed_cost', 0):,.2f}"],
+        ["Medicine Cost (Actual)", f"₹{income_data.get('total_medical_cost', 0):,.2f}"],
+        ["Vaccine Cost (Est.)", f"₹{income_data.get('vaccine_cost', 0):,.2f}"],
+        ["", ""],
+        ["Total Production Cost", f"₹{income_data.get('production_cost', 0):,.2f}"]
+    ]
+    
+    pc_cost_table = Table(pc_cost_data, colWidths=[2.5*inch, 2.5*inch])
+    pc_cost_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.orange),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-2,-2), colors.wheat),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.darkorange),
+        ('TEXTCOLOR', (0,-1), (-1,-1), colors.whitesmoke),
+        ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+        ('GRID', (0,0), (-1,-2), 1, colors.black),
+        ('GRID', (0,-1), (-1,-1), 2, colors.black)
+    ]))
+    story.append(pc_cost_table)
+    story.append(Spacer(1, 15))
+    
+    # PC Analysis Results
+    pc_analysis_data = [
+        ["PC Analysis", "Value"],
+        ["Production Cost per Kg", f"₹{income_data.get('pc_per_kg', 0):.2f}"],
+        ["Base PC Rate", f"₹{income_data.get('base_pc_rate', 0):.1f}"],
+        ["Base Income Rate", f"₹{income_data.get('base_income_rate', 0):.1f}"],
+        ["Calculated Income Rate", f"₹{income_data.get('income_rate_per_kg', 0):.2f}"],
+        ["", ""],
+        ["PC-Based Total Income", f"₹{income_data.get('pc_based_income', 0):,.2f}"],
+        ["PC-Based Profit/Loss", f"₹{income_data.get('pc_based_profit', 0):,.2f}"]
+    ]
+    
+    pc_analysis_table = Table(pc_analysis_data, colWidths=[2.5*inch, 2.5*inch])
+    pc_analysis_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.purple),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.lavender),
+        ('GRID', (0,0), (-1,-1), 1, colors.black),
+        # Highlight profit row
+        ('BACKGROUND', (0,-1), (-1,-1), colors.yellow if income_data.get('pc_based_profit', 0) >= 0 else colors.lightcoral),
+    ]))
+    story.append(pc_analysis_table)
+    story.append(Spacer(1, 15))
+    
+    # Comparative Summary
+    story.append(Paragraph("Comparative Summary", heading_style))
+    is_profitable_market = income_data.get('estimated_profit', 0) >= 0
+    is_profitable_pc = income_data.get('pc_based_profit', 0) >= 0
+    
+    total_birds = max(income_data.get('total_birds', 1), 1)  # Avoid division by zero
+    
+    # Create comparison table
+    comparison_data = [
+        ["Method", "Income", "Cost", "Profit/Loss", "Status"],
+        [
+            "Market Price Method", 
+            f"₹{income_data.get('estimated_income', 0):,.2f}",
+            f"₹{income_data.get('total_cycle_cost', 0):,.2f}",
+            f"₹{income_data.get('estimated_profit', 0):,.2f}",
+            "✓ Profitable" if is_profitable_market else "✗ Loss"
+        ],
+        [
+            "PC Based Method", 
+            f"₹{income_data.get('pc_based_income', 0):,.2f}",
+            f"₹{income_data.get('production_cost', 0):,.2f}",
+            f"₹{income_data.get('pc_based_profit', 0):,.2f}",
+            "✓ Profitable" if is_profitable_pc else "✗ Loss"
+        ]
+    ]
+    
+    comparison_table = Table(comparison_data, colWidths=[1.5*inch, 1.2*inch, 1.2*inch, 1.2*inch, 1*inch])
+    comparison_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.darkgreen),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,1), colors.lightgreen if is_profitable_market else colors.lightcoral),
+        ('BACKGROUND', (0,2), (-1,2), colors.lightgreen if is_profitable_pc else colors.lightcoral),
+        ('GRID', (0,0), (-1,-1), 1, colors.black),
+        ('FONTSIZE', (0,1), (-1,-1), 8),
+    ]))
+    story.append(comparison_table)
+    story.append(Spacer(1, 15))
+    
+    # Additional metrics
+    additional_metrics = f"""
+    <b>Per Bird Analysis:</b><br/>
+    • Market Method Cost per Bird: ₹{income_data.get('total_cycle_cost', 0)/total_birds:.2f}<br/>
+    • PC Method Cost per Bird: ₹{income_data.get('production_cost', 0)/total_birds:.2f}<br/>
+    • Market Revenue per Bird: ₹{income_data.get('estimated_income', 0)/total_birds:.2f}<br/>
+    • PC Revenue per Bird: ₹{income_data.get('pc_based_income', 0)/total_birds:.2f}<br/>
+    <br/>
+    <b>Key Metrics:</b><br/>
+    • Production Cost per Kg: ₹{income_data.get('pc_per_kg', 0):.2f}<br/>
+    • Feed Cost per Kg of Live Weight: ₹{income_data.get('total_feed_cost', 0)/max(income_data.get('total_weight', 1), 1):.2f}<br/>
+    • FCR Used: {income_data.get('fcr_to_use', 0):.2f}<br/>
+    """
+    
+    story.append(Paragraph(additional_metrics, styles['Normal']))
+    story.append(Spacer(1, 20))
+    
+    # Footer
+    story.append(Paragraph(f"<i>Report generated on {datetime.now().strftime('%d-%m-%Y at %H:%M:%S')} by {company_name}</i>", 
+                          styles['Normal']))
     
     # Build PDF
     doc.build(story)
@@ -1892,7 +2214,7 @@ def cycle_history():
         total_mortality = sum(entry.get('mortality', 0) for entry in daily_entries)
         total_feed_consumed = sum(entry.get('feed_bags_consumed', 0) for entry in daily_entries)
         
-        # Calculate total feed added from Feed records
+        # Calculate total feed added from Feed records for this cycle
         feed_records = feed_model.get_records("feeds", {'cycle_id': cycle_id})
         total_feed_added = sum(feed.get('feed_bags', 0) for feed in feed_records.values())
         
@@ -1920,7 +2242,7 @@ def cycle_history():
         final_weight = 0
         if daily_entries:
             latest_entry = max(daily_entries, key=lambda x: x.get('entry_date', ''))
-            final_weight = latest_entry.get('avg_weight', 0)
+            final_weight = latest_entry.get('avg_weight', 0) if latest_entry.get('avg_weight', 0) > 0 else 0
         
         # Feed per bird calculation
         feed_per_bird = round(total_feed_consumed / cycle.get('start_birds', 1), 2) if cycle.get('start_birds', 0) > 0 else 0
@@ -2031,7 +2353,7 @@ def cycle_details(cycle_id):
     # Get medicines for this cycle
     medicine_records = medicine_model.get_records("medicines", {'cycle_id': cycle_id})
     medicines = list(medicine_records.values())
-    total_medical_cost = sum(float(m.get('price', 0)) * int(m.get('qty', 0)) for m in medicines)
+    total_medical_cost = sum(float(med.get('price', 0)) * int(med.get('qty', 0)) for med in medicines)
     
     # Get expenses for this cycle
     expense_records = expense_model.get_records("expenses", {'cycle_id': cycle_id})
@@ -2207,9 +2529,16 @@ def user_management():
     user = get_current_user()
     
     if user.get('role') == 'super_admin':
-        # Super admin sees all users and companies
+        # Super admin sees all companies
         companies = company_model.get_all_companies()
-        all_users = user_model.get_records("users")
+        
+        # If super admin has selected a specific company, show only that company's users
+        selected_company_id = session.get('selected_company_id')
+        if selected_company_id:
+            all_users = user_model.get_records("users", {'company_id': selected_company_id})
+        else:
+            # If no company selected, show all users
+            all_users = user_model.get_records("users")
         users = [{'id': k, **v} for k, v in all_users.items()]
     else:
         # Farm admin sees only their company's users
@@ -2582,8 +2911,8 @@ def income_estimate():
     # Calculate estimated income (weight-based)
     estimated_income = total_weight * market_price_per_bird
     
-    # Calculate PC (Production Cost) values
-    production_cost = calculated_chick_cost_for_display + total_feed_cost + medicine_cost + vaccine_cost
+    # Calculate PC (Production Cost) values - use actual costs where available
+    production_cost = calculated_chick_cost_for_display + total_feed_cost + total_medical_cost + vaccine_cost
     pc_per_kg = production_cost / total_weight if total_weight > 0 else 0
     income_rate_per_kg = (base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0
     pc_based_income = total_weight * income_rate_per_kg if total_weight > 0 else 0
@@ -2644,7 +2973,9 @@ def income_estimate():
             # Recalculate totals
             total_cycle_cost = total_feed_cost + calculated_chick_cost_for_display + total_medical_cost + total_expense_cost + other_expenses
             estimated_income = total_weight * market_price_per_bird
-            production_cost = calculated_chick_cost_for_display + total_feed_cost + medicine_cost + vaccine_cost
+            
+            # Production cost calculation - use actual costs for selected cycle
+            production_cost = calculated_chick_cost_for_display + total_feed_cost + total_medical_cost + vaccine_cost
             pc_per_kg = production_cost / total_weight if total_weight > 0 else 0
             income_rate_per_kg = (base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0
             pc_based_income = total_weight * income_rate_per_kg if total_weight > 0 else 0
@@ -2707,6 +3038,105 @@ def income_estimate():
     }
     
     return render_template('income_estimate.html', **template_vars)
+
+@app.route('/export_income_estimate')
+@admin_required
+def export_income_estimate():
+    """Export income estimate data to PDF"""
+    cycle = get_active_cycle()
+    if not cycle:
+        flash('No active cycle to export.', 'error')
+        return redirect(url_for('setup'))
+    
+    try:
+        # Calculate income estimate data (same logic as income_estimate route)
+        cycle_stats = calc_cumulative_stats(cycle['id'])
+        cycle_stats['total_birds'] = cycle.get('current_birds', 0)
+        cycle_stats['fcr'] = cycle_stats.get('cumulative_fcr', 0)
+        
+        # Default values
+        chick_price = 22
+        feed_cost = 45
+        other_expenses = 18000
+        market_price_per_bird = 130
+        custom_fcr = None
+        medicine_cost = 18000
+        vaccine_cost = 1800
+        base_pc_rate = 95
+        base_income_rate = 6.5
+        
+        # Calculate derived values
+        default_birds_count = cycle_stats['total_birds'] if cycle_stats['total_birds'] > 0 else cycle.get('start_birds', 0)
+        total_weight = (cycle_stats['total_birds'] * cycle_stats['avg_weight']) if (cycle_stats['total_birds'] and cycle_stats['avg_weight']) else 0
+        fcr_to_use = custom_fcr if custom_fcr else cycle_stats['fcr'] if cycle_stats['fcr'] else 1.53
+        feed_needed_kg = (total_weight * fcr_to_use) if total_weight > 0 else 0
+        total_feed_cost = feed_needed_kg * feed_cost
+        calculated_chick_cost_for_display = default_birds_count * chick_price
+        
+        # Get actual costs from database
+        medicine_records = medicine_model.get_records("medicines", {'cycle_id': cycle['id']})
+        total_medical_cost = sum(float(med.get('price', 0)) * int(med.get('qty', 0)) for med in medicine_records.values())
+        
+        expense_records = expense_model.get_records("expenses", {'cycle_id': cycle['id']})
+        total_expense_cost = sum(float(exp.get('amount', 0)) for exp in expense_records.values())
+        
+        # Calculate totals
+        total_cycle_cost = total_feed_cost + calculated_chick_cost_for_display + total_medical_cost + total_expense_cost + other_expenses
+        estimated_income = total_weight * market_price_per_bird
+        
+        # Production cost calculation - use actual costs where available, defaults for missing components
+        production_cost = calculated_chick_cost_for_display + total_feed_cost + total_medical_cost + vaccine_cost
+        pc_per_kg = production_cost / total_weight if total_weight > 0 else 0
+        income_rate_per_kg = (base_income_rate - (pc_per_kg - base_pc_rate) * 0.5) if pc_per_kg > 0 else 0
+        pc_based_income = total_weight * income_rate_per_kg if total_weight > 0 else 0
+        estimated_profit = estimated_income - total_cycle_cost
+        pc_based_profit = pc_based_income - production_cost
+        
+        # Prepare income data for PDF
+        income_data = {
+            'chick_price': chick_price,
+            'feed_cost': feed_cost,
+            'other_expenses': other_expenses,
+            'market_price_per_bird': market_price_per_bird,
+            'custom_fcr': custom_fcr,
+            'medicine_cost': medicine_cost,
+            'vaccine_cost': vaccine_cost,
+            'base_pc_rate': base_pc_rate,
+            'base_income_rate': base_income_rate,
+            'income_rate_per_kg': income_rate_per_kg,
+            'total_birds': cycle_stats['total_birds'],
+            'avg_weight_per_bird': cycle_stats.get('avg_weight', 0),
+            'total_weight': total_weight,
+            'fcr_to_use': fcr_to_use,
+            'feed_needed_kg': feed_needed_kg,
+            'calculated_chick_cost_for_display': calculated_chick_cost_for_display,
+            'total_feed_cost': total_feed_cost,
+            'total_medical_cost': total_medical_cost,
+            'total_expense_cost': total_expense_cost,
+            'total_cycle_cost': total_cycle_cost,
+            'estimated_income': estimated_income,
+            'production_cost': production_cost,
+            'pc_per_kg': pc_per_kg,
+            'pc_based_income': pc_based_income,
+            'estimated_profit': estimated_profit,
+            'pc_based_profit': pc_based_profit
+        }
+        
+        # Generate PDF report for income estimate only
+        pdf_buffer = create_income_estimate_pdf_report(cycle, income_data, "Income Estimate Report")
+        
+        company_id = get_user_company_id()
+        company_data = company_model.get_record("companies", company_id) if company_id else {}
+        company_name = company_data.get('name', 'Unknown') if company_data else 'Unknown'
+        
+        filename = f"Income_Estimate_Cycle_{cycle.get('cycle_ext1', cycle['id'])}_{company_name}_{date.today().strftime('%Y%m%d')}.pdf"
+        
+        return send_file(pdf_buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
+        
+    except Exception as e:
+        print(f"Error generating income estimate PDF: {e}")
+        flash(f'Error exporting income estimate: {str(e)}', 'error')
+        return redirect(url_for('income_estimate'))
 
 @app.route('/edit_user/<user_id>')
 @admin_required
@@ -2803,7 +3233,6 @@ def update_user_status(user_id, status):
             if user_data.get('company_id') != company_id:
                 flash('Access denied. You can only update users from your company.', 'error')
                 return redirect(url_for('user_management'))
-        
         # Prevent admin from deactivating themselves
         if user_id == current_user['id'] and status == 'inactive':
             flash('You cannot deactivate your own account.', 'error')
@@ -2934,7 +3363,7 @@ def export_cycle_details(cycle_id):
         pdf_buffer = create_comprehensive_pdf_report(cycle, f"Complete Cycle {cycle_id} Details Report")
         
         # Generate filename with current date
-        filename = f"cycle_{cycle_id}_complete_details_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        filename = f"cycle_{cycle_id}_complete_details_{datetime.now().strftime('%Y%m%d')}.pdf"
         
         return send_file(pdf_buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
         
@@ -3494,259 +3923,7 @@ def update_edit_user(user_id):
         flash(f'Error updating user: {str(e)}', 'error')
         return redirect(url_for('edit_user', user_id=user_id))
 
-# ---------------- PDF Report Helper Functions ----------------
-def create_pdf_report(cycle, title="Farm Report"):
-    """Create a comprehensive PDF report for a cycle"""
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    
-    # Get cycle data
-    daily_entries = daily_model.get_entries_by_cycle(cycle['id'])
-    medicine_records = medicine_model.get_records("medicines", {'cycle_id': cycle['id']})
-    feed_records = feed_model.get_records("feeds", {'cycle_id': cycle['id']})
-    expense_records = expense_model.get_records("expenses", {'cycle_id': cycle['id']})
-    stats = calc_cumulative_stats(cycle['id'])
-    
-    # Build PDF content
-    story = []
-    styles = getSampleStyleSheet()
-    
-    # Title
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=18,
-        spaceAfter=30,
-        alignment=1  # Center
-    )
-    story.append(Paragraph(title, title_style))
-    story.append(Spacer(1, 20))
-    
-    # Company and Cycle Information
-    company_id = cycle.get('company_id')
-    company_data = company_model.get_record("companies", company_id) if company_id else {}
-    company_name = company_data.get('name', 'Unknown Company') if company_data else 'Unknown Company'
-    
-    header_info = [
-        ['Company:', company_name],
-        ['Cycle Number:', cycle.get('cycle_ext1', cycle['id'])],
-        ['Start Date:', cycle.get('start_date', 'N/A')],
-        ['End Date:', cycle.get('end_date', 'Active') if cycle.get('end_date') else 'Active'],
-        ['Status:', cycle.get('status', 'Active')],
-    ]
-    
-    header_table = Table(header_info, colWidths=[2*inch, 3.5*inch])
-    header_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    story.append(header_table)
-    story.append(Spacer(1, 20))
-    
-    # Performance Summary
-    story.append(Paragraph("Performance Summary", styles['Heading2']))
-    
-    # Calculate survival rate
-    dispatch_records = dispatch_model.get_records("bird_dispatches", {'cycle_id': cycle['id']})
-    completed_dispatches = [d for d in dispatch_records.values() if d.get('status') == 'completed']
-    total_birds_dispatched = sum(d.get('total_birds', 0) for d in completed_dispatches)
-    
-    total_deaths = cycle.get('start_birds', 0) - cycle.get('current_birds', 0) - total_birds_dispatched
-    survival_rate = round(((cycle.get('start_birds', 0) - total_deaths) / cycle.get('start_birds', 0)) * 100, 2) if cycle.get('start_birds', 0) > 0 else 0
-    
-    perf_data = [
-        ['Start Birds:', f"{cycle.get('start_birds', 0):,}"],
-        ['Current Birds:', f"{cycle.get('current_birds', 0):,}"],
-        ['Birds Dispatched:', f"{total_birds_dispatched:,}"],
-        ['Total Mortality:', f"{stats.get('total_mortality', 0):,}"],
-        ['Survival Rate:', f"{survival_rate:.1f}%"],
-        ['Total Feed Consumed:', f"{stats.get('total_feed_bags', 0)} bags"],
-        ['Average Weight:', f"{stats.get('avg_weight', 0):.3f} kg"],
-        ['Cumulative FCR:', f"{stats.get('cumulative_fcr', 0):.3f}"],
-    ]
-    
-    perf_table = Table(perf_data, colWidths=[2*inch, 3.5*inch])
-    perf_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightblue),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    story.append(perf_table)
-    story.append(PageBreak())
-    
-    # Daily Entries Summary
-    if daily_entries:
-        story.append(Paragraph("Daily Entries Summary", styles['Heading2']))
-        
-        daily_data = [['Date', 'Mortality', 'Feed (bags)', 'Weight (kg)', 'FCR']]
-        for entry in daily_entries[-10:]:  # Show last 10 entries
-            daily_data.append([
-                entry.get('entry_date', ''),
-                str(entry.get('mortality', 0)),
-                str(entry.get('feed_bags_consumed', 0)),
-                f"{entry.get('avg_weight', 0):.3f}",
-                f"{entry.get('fcr', 0):.3f}" if entry.get('fcr', 0) > 0 else '-'
-            ])
-        
-        daily_table = Table(daily_data, colWidths=[1.2*inch, 0.8*inch, 1*inch, 1*inch, 0.8*inch])
-        daily_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ]))
-        
-        story.append(daily_table)
-        story.append(Spacer(1, 20))
-    
-    # Cost Summary
-    total_medicine_cost = sum(med.get('price', 0) * med.get('qty', 0) for med in medicine_records.values())
-    total_feed_cost = sum(feed.get('total_cost', 0) for feed in feed_records.values())
-    total_expense_cost = sum(exp.get('amount', 0) for exp in expense_records.values())
-    total_cost = total_medicine_cost + total_feed_cost + total_expense_cost
-    
-    story.append(Paragraph("Cost Summary", styles['Heading2']))
-    
-    cost_data = [
-        ['Medicine Cost:', f"₹{total_medicine_cost:,.2f}"],
-        ['Feed Cost:', f"₹{total_feed_cost:,.2f}"],
-        ['Other Expenses:', f"₹{total_expense_cost:,.2f}"],
-        ['Total Cost:', f"₹{total_cost:,.2f}"],
-    ]
-    
-    cost_table = Table(cost_data, colWidths=[2*inch, 3.5*inch])
-    cost_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.lightgreen),
-        ('BACKGROUND', (0, -1), (-1, -1), colors.yellow),  # Highlight total
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Bold total
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    story.append(cost_table)
-    
-    # Build PDF
-    doc.build(story)
-    buffer.seek(0)
-    return buffer
 
-@app.route('/generate_pdf_report')
-@login_required
-def generate_pdf_report():
-    """Generate PDF report for current cycle"""
-    cycle = get_active_cycle()
-    if not cycle:
-        flash('No active cycle to generate report.', 'error')
-        return redirect(url_for('setup'))
-    
-    try:
-        pdf_buffer = create_pdf_report(cycle, "Complete Farm Data Report")
         
-        # Generate filename
-        company_id = get_user_company_id()
-        company_data = company_model.get_record("companies", company_id) if company_id else {}
-        company_name = company_data.get('name', 'Unknown') if company_data else 'Unknown'
-        cycle_number = cycle.get('cycle_ext1', cycle['id'])
-        filename = f"Farm_Report_Cycle_{cycle_number}_{company_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
-        
-        return send_file(pdf_buffer, as_attachment=True, download_name=filename, mimetype='application/pdf')
-        
-    except Exception as e:
-        flash(f'Error generating PDF report: {str(e)}', 'error')
-        return redirect(url_for('dashboard'))
-
-@app.route('/reset_password/<user_id>', methods=['POST'])
-@super_admin_required
-def reset_password(user_id):
-    """Reset user password (super admin only)"""
-    try:
-        user_data = user_model.get_record("users", user_id)
-        if user_data:
-            username = user_data.get('username', 'Unknown')
-            
-            # Generate a temporary password
-            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
-            
-            # Update user password
-            current_user = get_current_user()
-            user_model.update_record("users", user_id, {
-                'password_hash': user_model.hash_password(temp_password),
-                'modified_by': current_user['id'],
-                'modified_date': datetime.utcnow().isoformat()
-            })
-            
-            flash(f'Password reset for user "{username}". New password: {temp_password}', 'success')
-        else:
-            flash('User not found.', 'error')
-    except Exception as e:
-        flash(f'Error resetting password: {str(e)}', 'error')
-    
-    return redirect(url_for('user_management'))
-
-@app.route('/change_password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    """Change current user password"""
-    user = get_current_user()
-    if not user:
-        flash('User not found.', 'error')
-        return redirect(url_for('login'))
-    
-    if request.method == 'POST':
-        current_password = request.form.get('current_password', '')
-        new_password = request.form.get('new_password', '')
-        confirm_password = request.form.get('confirm_password', '')
-        
-        # Validate current password
-        if not user_model.check_password({'password_hash': user.get('password_hash')}, current_password):
-            flash('Current password is incorrect.', 'error')
-            return render_template('change_password.html')
-        
-        # Validate new passwords match
-        if new_password != confirm_password:
-            flash('New passwords do not match.', 'error')
-            return render_template('change_password.html')
-        
-        # Validate new password strength
-        if len(new_password) < 6:
-            flash('New password must be at least 6 characters long.', 'error')
-            return render_template('change_password.html')
-        
-        try:
-            # Update password
-            user_model.update_record("users", user['id'], {
-                'password_hash': user_model.hash_password(new_password),
-                'modified_by': user['id'],
-                'modified_date': datetime.utcnow().isoformat()
-            })
-            
-            flash('Password changed successfully!', 'success')
-            return redirect(url_for('profile'))
-            
-        except Exception as e:
-            flash(f'Error changing password: {str(e)}', 'error')
-    
-    return render_template('change_password.html')
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)

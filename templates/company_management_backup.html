@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "base.html" %  {% endif %}
 
-{% block content %}
+  <!-- Add New Company Form -->ck content %}
 <div class="container-fluid">
   <h2 class="mobile-header text-center mb-mobile-3" data-i18n="company_management_title">
     <span data-i18n="company_management_title">Company Management</span>
@@ -22,7 +22,13 @@
       <strong>No Company Selected</strong> - Click on any company below to switch to it and view its data.
     </div>
   </div>
-  {% endif %}
+  {% endif %}nds "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mobile-header text-center mb-mobile-3" data-i18n="company_management_title">
+    <span data-i18n="company_management_title">3e2 Company Management</span>
+  </h2>
   
   <!-- Add New Company Form -->
   <div class="card mb-4">
@@ -77,12 +83,36 @@
     </div>
     <div class="card-body">
       {% if companies %}
-        <div class="table-responsive">
-          <table class="table table-striped table-hover">
-            <thead class="table-dark">
+        <!-- Mobile Company List -->
+        <div class="d-block d-md-none">
+          {% for company in companies %}
+            <div class="card mb-2 shadow-sm">
+              <div class="card-body p-2">
+                <div class="d-flex align-items-center justify-content-between">
+                  <strong>{{ company.name }}</strong>
+                  <button class="btn btn-sm btn-link p-0" type="button" onclick="toggleCompanyDetails('company-details-{{ company.id }}', this)">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+                <div id="company-details-{{ company.id }}" class="collapse">
+                  <div class="mb-1"><span class="fw-bold">Code:</span> <span class="badge bg-secondary">{{ company.code }}</span></div>
+                  <div class="mb-1"><span class="fw-bold">Contact:</span> {{ company.contact_person or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Phone:</span> {{ company.phone or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Email:</span> {{ company.email or '-' }}</div>
+                  <div class="mb-1"><span class="fw-bold">Status:</span> {% if company.status == 'active' %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">{{ company.status }}</span>{% endif %}</div>
+                  <div class="mb-1"><span class="fw-bold">Created:</span> {% if company.created_date %}{{ company.created_date|safe_strftime }}{% endif %}{% if company.created_by %}{% set created_user = get_user_by_id(company.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + company.created_by|string }}{% endif %}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <!-- Desktop/Tablet Company Table -->
+        <div class="table-responsive d-none d-md-block">
+          <table class="table table-striped">
+            <thead>
               <tr>
                 <th data-i18n="company_name">Company Name</th>
-                <th data-i18n="code">Code</th>
+                <th data-i18n="company_code">Code</th>
                 <th data-i18n="contact_person">Contact Person</th>
                 <th data-i18n="phone">Phone</th>
                 <th data-i18n="email">Email</th>
@@ -131,10 +161,10 @@
                       <a href="{{ url_for('user_management') }}?company={{ company.id }}" class="btn btn-sm btn-info">
                         <i class="bi bi-people"></i> Users
                       </a>
-                      <button class="btn btn-sm btn-primary" onclick="editCompany('{{ company.id }}')">
+                      <button class="btn btn-sm btn-primary" onclick="editCompany({{ company.id }})">
                         <i class="bi bi-pencil"></i> Edit
                       </button>
-                      <button class="btn btn-sm btn-danger" onclick="deleteCompany('{{ company.id }}', '{{ company.name }}')">
+                      <button class="btn btn-sm btn-danger" onclick="deleteCompany({{ company.id }}, '{{ company.name }}')">
                         <i class="bi bi-trash"></i> Delete
                       </button>
                     </div>
@@ -206,13 +236,6 @@
             <label for="edit_notes" class="form-label">Notes</label>
             <textarea class="form-control" id="edit_notes" name="notes" rows="2"></textarea>
           </div>
-          <div class="mb-3">
-            <label for="edit_status" class="form-label">Status</label>
-            <select class="form-select" id="edit_status" name="status">
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -223,58 +246,58 @@
   </div>
 </div>
 
-<!-- Delete Company Modal -->
-<div class="modal fade" id="deleteCompanyModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Delete Company</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to delete the company <strong id="deleteCompanyName"></strong>?</p>
-        <div class="alert alert-warning">
-          <i class="bi bi-exclamation-triangle"></i>
-          <strong>Warning:</strong> This action cannot be undone. All associated data will be deleted.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <form id="deleteCompanyForm" method="POST" style="display: inline;">
-          <button type="submit" class="btn btn-danger">Delete Company</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
+function toggleCompanyDetails(id, btn) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    btn.querySelector('i').classList.remove('bi-chevron-up');
+    btn.querySelector('i').classList.add('bi-chevron-down');
+  } else {
+    el.classList.add('show');
+    btn.querySelector('i').classList.remove('bi-chevron-down');
+    btn.querySelector('i').classList.add('bi-chevron-up');
+  }
+}
+
 function editCompany(companyId) {
-  fetch(`/get_company/${companyId}`)
-    .then(response => response.json())
-    .then(company => {
-      document.getElementById('edit_name').value = company.name || '';
-      document.getElementById('edit_code').value = company.code || '';
-      document.getElementById('edit_contact_person').value = company.contact_person || '';
-      document.getElementById('edit_phone').value = company.phone || '';
-      document.getElementById('edit_email').value = company.email || '';
-      document.getElementById('edit_address').value = company.address || '';
-      document.getElementById('edit_notes').value = company.notes || '';
-      document.getElementById('edit_status').value = company.status || 'active';
-      
-      document.getElementById('editCompanyForm').action = `/edit_company/${companyId}`;
-      new bootstrap.Modal(document.getElementById('editCompanyModal')).show();
-    })
-    .catch(error => {
-      console.error('Error fetching company data:', error);
-      alert('Error loading company data');
-    });
+  // Fetch company data and populate modal
+  fetch(`{{ url_for('edit_company', company_id=0) }}`.replace('0', companyId), {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('edit_name').value = data.name;
+    document.getElementById('edit_code').value = data.code;
+    document.getElementById('edit_contact_person').value = data.contact_person;
+    document.getElementById('edit_phone').value = data.phone;
+    document.getElementById('edit_email').value = data.email;
+    document.getElementById('edit_address').value = data.address;
+    document.getElementById('edit_notes').value = data.notes;
+    
+    // Set form action
+    document.getElementById('editCompanyForm').action = `{{ url_for('edit_company', company_id=0) }}`.replace('0', companyId);
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('editCompanyModal')).show();
+  })
+  .catch(error => {
+    console.error('Error fetching company data:', error);
+    alert('Error loading company data');
+  });
 }
 
 function deleteCompany(companyId, companyName) {
-  document.getElementById('deleteCompanyName').textContent = companyName;
-  document.getElementById('deleteCompanyForm').action = `/delete_company/${companyId}`;
-  new bootstrap.Modal(document.getElementById('deleteCompanyModal')).show();
+  if (confirm(`Are you sure you want to delete company "${companyName}"? This action cannot be undone.`)) {
+    // Create and submit form for deletion
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `{{ url_for('delete_company', company_id=0) }}`.replace('0', companyId);
+    document.body.appendChild(form);
+    form.submit();
+  }
 }
 </script>
 {% endblock %}

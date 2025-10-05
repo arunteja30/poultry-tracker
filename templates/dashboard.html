@@ -2,6 +2,9 @@
 {% block content %}
 <div class="mobile-container">
   <h2 class="mobile-header text-center mb-mobile-3" data-i18n="dashboard_title">🐔 Dashboard</h2>
+  
+  <!-- Super Admin Company Indicator -->
+  {{ company_indicator() }}
 
   {% if cycle %}
   <!-- Mobile-First Dashboard Layout -->

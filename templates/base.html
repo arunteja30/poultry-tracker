@@ -1,5 +1,23 @@
 <!doctype html>
 <html lang="en">
+
+<!-- Macro for Super Admin Company Indicator -->
+{% macro company_indicator() %}
+{% if current_user and current_user.role == 'super_admin' %}
+<div class="alert alert-info d-flex align-items-center mb-3">
+  <i class="bi bi-building me-2"></i>
+  <div>
+    <strong>Super Admin View:</strong>
+    {% if get_current_company() %}
+      Currently viewing <strong>{{ get_current_company().name }}</strong>
+    {% else %}
+      No company selected. <a href="{{ url_for('company_management') }}" class="alert-link">Select a company</a> to view data.
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endmacro %}
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

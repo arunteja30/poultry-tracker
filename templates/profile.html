@@ -19,18 +19,25 @@
       <h5>View Company Details</h5>
     </div>
     <div class="card-body">
-      <form method="POST" action="{{ url_for('select_company') }}">
-        <div class="mb-3">
-          <label for="company_id" class="form-label">Select Company</label>
-          <select class="form-control" id="company_id" name="company_id" required>
-            <option value="">Choose a company</option>
-            {% for company in companies %}
-            <option value="{{ company.id }}">{{ company.name }} ({{ company.code }})</option>
-            {% endfor %}
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">View Company Data</button>
-      </form>
+      <div class="mb-3">
+        <label for="company_id" class="form-label">Select Company</label>
+        <select class="form-control" id="company_id" onchange="switchCompany()">
+          <option value="">Choose a company</option>
+          {% for company in get_all_companies() %}
+          <option value="{{ company.id }}" {% if session.selected_company_id == company.id|string %}selected{% endif %}>
+            {{ company.name }} ({{ company.code }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <script>
+        function switchCompany() {
+          const companyId = document.getElementById('company_id').value;
+          if (companyId) {
+            window.location.href = "{{ url_for('switch_company', company_id='__COMPANY_ID__') }}".replace('__COMPANY_ID__', companyId);
+          }
+        }
+      </script>
     </div>
   </div>
   {% endif %}

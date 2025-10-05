@@ -6,6 +6,9 @@
     <span data-i18n="user_management_title">User Management</span>
   </h2>
 
+  <!-- Super Admin Company Indicator -->
+  {{ company_indicator() }}
+
   <!-- Add New User Form -->
   {% if current_user.role in ['super_admin', 'admin'] %}
   <div class="card mb-4">
