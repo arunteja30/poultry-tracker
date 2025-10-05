@@ -12,7 +12,7 @@
           <a href="{{ url_for('cycle_history') }}" class="btn btn-secondary btn-sm">
             <i class="bi bi-arrow-left me-2"></i>Back to History
           </a>
-          {% if session.role == 'admin' %}
+          {% if current_user and current_user.role in ['admin', 'super_admin'] %}
             <a href="{{ url_for('export_cycle_details', cycle_id=cycle.id) }}" class="btn btn-primary btn-sm">
               <i class="bi bi-download me-2"></i>Export Details
             </a>
@@ -130,7 +130,7 @@
 <!-- Key Metrics Tiles: Responsive 2 columns per row on mobile, 4 columns per row on desktop -->
 <div class="row mb-4">
 {% set metrics = [
-    {"title": "Survival Rate", "i18n": "key_survival_rate", "value": "%.1f"|format((cycle.current_birds / cycle.start_birds * 100) if cycle.start_birds > 0 else 0), "class": "text-success"},
+    {"title": "Survival Rate", "i18n": "key_survival_rate", "value": "%.1f"|format(((cycle.start_birds - stats.total_mortality) / cycle.start_birds * 100) if cycle.start_birds > 0 else 0), "class": "text-success"},
     {"title": "Avg FCR", "i18n": "key_avg_fcr", "value": "%.2f"|format(stats.avg_fcr) if stats.avg_fcr > 0 else 'N/A', "class": "text-info"},
     {"title": "Feed Cost", "i18n": "key_feed_cost", "value": "₹%s" % total_feed_cost, "class": "text-dark"},
     {"title": "Feed Cost per Bird", "i18n": "key_feed_cost_per_bird", "value": "₹%s" % ((total_feed_cost / cycle.current_birds)|round(2) if cycle.current_birds > 0 else 'N/A'), "class": "text-success"},

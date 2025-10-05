@@ -185,7 +185,7 @@
           </ul>
         </li>
         <!-- Admin Group -->
-        {% if session.role in ['admin', 'super_admin'] %}
+        {% if current_user and current_user.role in ['admin', 'super_admin'] %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="nav_admin" style="color: #fff;">
             <i class="me-2">👑</i>Admin
@@ -200,7 +200,7 @@
         </li>
         {% endif %}
         <!-- Super Admin Group -->
-        {% if session.role == 'super_admin' %}
+        {% if current_user and current_user.role == 'super_admin' %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fff;">
             <i class="me-2">🏢</i>Super Admin
@@ -253,10 +253,10 @@
         </select>
         <div class="dropdown">
           <button class="btn btn-outline-light btn-sm dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" style="background: #3b5998; color: #fff; border: none;">
-            {% if session.role == 'admin' %}👑{% else %}👤{% endif %} {{ session.username }}
+            {% if current_user and current_user.role == 'admin' %}👑{% else %}👤{% endif %} {{ current_user.username if current_user else 'User' }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end border-0" style="background: #f8f9fa;">
-            <li><span class="dropdown-item-text py-2"><strong>Role:</strong> {{ session.role.title() }}</span></li>
+            <li><span class="dropdown-item-text py-2"><strong>Role:</strong> {{ current_user.role.title() if current_user else 'User' }}</span></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item py-2" href="{{ url_for('profile') }}"><i class="me-2">👤</i>Profile</a></li>
             <li><hr class="dropdown-divider"></li>
@@ -282,11 +282,11 @@
         <div class="p-3" style="background: var(--fb-light-bg); border-bottom: 1px solid var(--fb-light-gray);">
           <div class="d-flex align-items-center">
             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: var(--fb-blue) !important;">
-              {% if session.role == 'admin' %}👑{% else %}👤{% endif %}
+              {% if current_user and current_user.role == 'admin' %}👑{% else %}👤{% endif %}
             </div>
             <div>
-              <div class="fw-bold" style="color: var(--fb-text-dark);">{{ session.username }}</div>
-              <small style="color: var(--fb-text-muted);">{{ session.role.title() }}</small>
+              <div class="fw-bold" style="color: var(--fb-text-dark);">{{ current_user.username if current_user else 'User' }}</div>
+              <small style="color: var(--fb-text-muted);">{{ current_user.role.title() if current_user else 'User' }}</small>
             </div>
           </div>
         </div>
@@ -362,7 +362,7 @@
               <span class="nav-text">Dispatch History</span>
             </a>
           </div>
-          {% if session.role == 'admin' or session.role == 'super_admin' %}
+          {% if current_user and current_user.role in ['admin', 'super_admin'] %}
           <!-- Section Header: Admin -->
           <div class="nav-section-header d-flex justify-content-between align-items-center">
             <span>Admin</span>
@@ -390,7 +390,7 @@
             </a>
           </div>
           {% endif %}
-          {% if session.role == 'super_admin' %}
+          {% if current_user and current_user.role == 'super_admin' %}
           <!-- Section Header: Super Admin -->
           <div class="nav-section-header d-flex justify-content-between align-items-center">
             <span>Super Admin</span>
@@ -711,7 +711,7 @@ document.getElementById('langSelectMobile').value = savedLang;
       { href: "{{ url_for('tips_own_feed') }}", icon: 'bi-heart-pulse', text: 'Own Feed Tips' },
     ];
 
-    {% if session.role == 'admin' %}
+    {% if current_user and current_user.role in ['admin', 'super_admin'] %}
     // Add admin-only items
     menuItems = menuItems.concat([
       { href: "{{ url_for('setup') }}", icon: 'bi-gear', text: 'Cycle Setup' },

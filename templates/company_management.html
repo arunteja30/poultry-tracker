@@ -76,7 +76,7 @@
                   <div class="mb-1"><span class="fw-bold">Phone:</span> {{ company.phone or '-' }}</div>
                   <div class="mb-1"><span class="fw-bold">Email:</span> {{ company.email or '-' }}</div>
                   <div class="mb-1"><span class="fw-bold">Status:</span> {% if company.status == 'active' %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">{{ company.status }}</span>{% endif %}</div>
-                  <div class="mb-1"><span class="fw-bold">Created:</span> {% if company.created_date %}{{ company.created_date.strftime('%Y-%m-%d %H:%M') }}{% endif %}{% if company.created_by %}{% set created_user = get_user_by_id(company.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + company.created_by|string }}{% endif %}</div>
+                  <div class="mb-1"><span class="fw-bold">Created:</span> {% if company.created_date %}{{ company.created_date|safe_strftime }}{% endif %}{% if company.created_by %}{% set created_user = get_user_by_id(company.created_by) %}<br>by {{ created_user.full_name or created_user.username if created_user else 'User ID ' + company.created_by|string }}{% endif %}</div>
                 </div>
               </div>
             </div>
@@ -115,7 +115,7 @@
                   <td>
                     <small class="text-muted">
                       {% if company.created_date %}
-                        {{ company.created_date.strftime('%Y-%m-%d %H:%M') }}
+                        {{ company.created_date|safe_strftime }}
                       {% endif %}
                       {% if company.created_by %}
                         {% set created_user = get_user_by_id(company.created_by) %}

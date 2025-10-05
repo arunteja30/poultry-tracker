@@ -1,11 +1,11 @@
 --index-url https://pypi.org/simple
 
 flask>=2.0.0
-flask_sqlalchemy>=3.0.0
 pandas>=1.5.0
 openpyxl>=3.0.0
 xlsxwriter>=3.0.0
 gunicorn>=20.0.0
 werkzeug>=2.0.0
 reportlab>=3.5.0
-psycopg2-binary
+firebase-admin>=6.0.0
+bcrypt>=4.0.0

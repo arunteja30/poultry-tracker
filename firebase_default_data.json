@@ -1,0 +1,237 @@
+{
+  "companies": {
+    "demo_company_001": {
+      "name": "Demo Farm",
+      "code": "DEMO",
+      "address": "Demo Address, Demo City",
+      "phone": "1234567890",
+      "email": "demo@example.com",
+      "contact_person": "Demo Manager",
+      "status": "active",
+      "created_date": "2025-01-01T00:00:00.000Z",
+      "created_by": "system",
+      "notes": "Default demo company for testing",
+      "company_ext1": "Demo Extension 1",
+      "company_ext2": "Demo Extension 2",
+      "company_ext3": "Demo Extension 3",
+      "company_ext4": "Demo Extension 4"
+    }
+  },
+  "users": {
+    "superadmin_001": {
+      "username": "superadmin",
+      "password_hash": "$2b$12$2KSAL2jUoshMEl1nD5ONM.KpuDPr0qyQ80l99OEdvo/p/ahBdw/SG",
+      "role": "super_admin",
+      "company_id": null,
+      "full_name": "Super Administrator",
+      "email": "admin@example.com",
+      "phone": "+1234567890",
+      "status": "active",
+      "created_date": "2025-01-01T00:00:00.000Z",
+      "created_by": "system",
+      "modified_by": null,
+      "modified_date": null,
+      "last_login": null
+    },
+    "demo_admin_001": {
+      "username": "demoadmin",
+      "password_hash": "$2b$12$2KSAL2jUoshMEl1nD5ONM.KpuDPr0qyQ80l99OEdvo/p/ahBdw/SG",
+      "role": "admin",
+      "company_id": "demo_company_001",
+      "full_name": "Demo Administrator",
+      "email": "demoadmin@example.com",
+      "phone": "+1234567891",
+      "status": "active",
+      "created_date": "2025-01-01T00:00:00.000Z",
+      "created_by": "superadmin_001",
+      "modified_by": null,
+      "modified_date": null,
+      "last_login": null
+    },
+    "demo_user_001": {
+      "username": "demouser",
+      "password_hash": "$2b$12$2KSAL2jUoshMEl1nD5ONM.KpuDPr0qyQ80l99OEdvo/p/ahBdw/SG",
+      "role": "user",
+      "company_id": "demo_company_001",
+      "full_name": "Demo User",
+      "email": "demouser@example.com",
+      "phone": "+1234567892",
+      "status": "active",
+      "created_date": "2025-01-01T00:00:00.000Z",
+      "created_by": "superadmin_001",
+      "modified_by": null,
+      "modified_date": null,
+      "last_login": null
+    }
+  },
+  "cycles": {
+    "demo_cycle_001": {
+      "company_id": "demo_company_001",
+      "cycle_number": 1,
+      "start_date": "2025-01-01",
+      "start_time": "08:00:00",
+      "start_birds": 5000,
+      "current_birds": 4950,
+      "start_feed_bags": 100,
+      "driver": "Demo Driver",
+      "hatchery": "Demo Hatchery",
+      "farmer_name": "Demo Farmer",
+      "notes": "Demo cycle for testing purposes",
+      "status": "active",
+      "end_date": null,
+      "created_by": "demo_admin_001",
+      "created_date": "2025-01-01T08:00:00.000Z",
+      "modified_by": null,
+      "modified_date": null,
+      "cycle_ext1": 1,
+      "cycle_ext2": "Demo Extension 2",
+      "cycle_ext3": "Demo Extension 3",
+      "cycle_ext4": "Demo Extension 4"
+    }
+  },
+  "daily_entries": {
+    "demo_daily_001": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "entry_date": "2025-01-01",
+      "mortality": 10,
+      "feed_bags_consumed": 2,
+      "birds_survived": 4990,
+      "feed_bags_added": 0,
+      "avg_weight": 0.045,
+      "avg_feed_per_bird_g": 20.0,
+      "fcr": 0.8,
+      "medicines": "Starter vaccine",
+      "daily_notes": "Day 1 - Birds arrived healthy",
+      "mortality_rate": 0.2,
+      "total_mortality": 10.0,
+      "remaining_bags": 98.0,
+      "total_bags_consumed": 2.0,
+      "created_by": "demo_user_001",
+      "created_date": "2025-01-01T18:00:00.000Z",
+      "modified_by": null,
+      "modified_date": null,
+      "daily_ext1": "Day 1",
+      "daily_ext2": "Morning shift",
+      "daily_ext3": "Good weather",
+      "daily_ext4": "Normal conditions"
+    },
+    "demo_daily_002": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "entry_date": "2025-01-02",
+      "mortality": 15,
+      "feed_bags_consumed": 3,
+      "birds_survived": 4975,
+      "feed_bags_added": 0,
+      "avg_weight": 0.055,
+      "avg_feed_per_bird_g": 25.0,
+      "fcr": 0.9,
+      "medicines": "Multivitamins",
+      "daily_notes": "Day 2 - Slight increase in mortality",
+      "mortality_rate": 0.5,
+      "total_mortality": 25.0,
+      "remaining_bags": 95.0,
+      "total_bags_consumed": 5.0,
+      "created_by": "demo_user_001",
+      "created_date": "2025-01-02T18:00:00.000Z",
+      "modified_by": null,
+      "modified_date": null,
+      "daily_ext1": "Day 2",
+      "daily_ext2": "Evening shift",
+      "daily_ext3": "Cloudy weather",
+      "daily_ext4": "Monitoring closely"
+    }
+  },
+  "medicines": {
+    "demo_medicine_001": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "name": "Starter Vaccine",
+      "price": 500.0,
+      "qty": 1,
+      "medicine_ext1": "Batch: VAC001",
+      "created_by": "demo_admin_001",
+      "created_date": "2025-01-01T08:30:00.000Z"
+    },
+    "demo_medicine_002": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "name": "Multivitamins",
+      "price": 300.0,
+      "qty": 2,
+      "medicine_ext1": "Batch: VIT001",
+      "created_by": "demo_admin_001",
+      "created_date": "2025-01-01T08:30:00.000Z"
+    }
+  },
+  "feeds": {
+    "demo_feed_001": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "bill_number": "FEED001",
+      "date": "2025-01-01",
+      "feed_name": "Starter Feed",
+      "feed_bags": 100,
+      "bag_weight": 50.0,
+      "total_feed_kg": 5000.0,
+      "price_per_kg": 45.0,
+      "total_cost": 225000.0,
+      "created_by": "demo_admin_001",
+      "created_date": "2025-01-01T07:00:00.000Z"
+    }
+  },
+  "expenses": {
+    "demo_expense_001": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "name": "Labor Cost",
+      "date": "2025-01-01",
+      "amount": 10000.0,
+      "notes": "Daily labor charges for farm workers",
+      "created_by": "demo_admin_001",
+      "created_date": "2025-01-01T18:00:00.000Z"
+    },
+    "demo_expense_002": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "name": "Electricity Bill",
+      "date": "2025-01-01",
+      "amount": 5000.0,
+      "notes": "Monthly electricity charges",
+      "created_by": "demo_admin_001",
+      "created_date": "2025-01-01T18:00:00.000Z"
+    }
+  },
+  "bird_dispatches": {
+    "demo_dispatch_001": {
+      "company_id": "demo_company_001",
+      "cycle_id": "demo_cycle_001",
+      "vehicle_no": "DEMO123",
+      "driver_name": "Demo Dispatch Driver",
+      "vendor_name": "Demo Vendor Ltd",
+      "dispatch_date": "2025-01-02",
+      "dispatch_time": "10:00:00",
+      "notes": "First batch dispatch for testing",
+      "total_birds": 25,
+      "total_weight": 50.0,
+      "avg_weight_per_bird": 2.0,
+      "status": "completed",
+      "created_by": "demo_user_001",
+      "created_date": "2025-01-02T10:00:00.000Z"
+    }
+  },
+  "weighing_records": {
+    "demo_weighing_001": {
+      "company_id": "demo_company_001",
+      "dispatch_id": "demo_dispatch_001",
+      "serial_no": 1,
+      "no_of_birds": 25,
+      "weight": 50.0,
+      "avg_weight_per_bird": 2.0,
+      "timestamp": "2025-01-02T10:15:00.000Z",
+      "created_by": "demo_user_001",
+      "created_date": "2025-01-02T10:15:00.000Z"
+    }
+  }
+}

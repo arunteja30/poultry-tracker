@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mobile-header text-center mb-mobile-3">
+    <span data-i18n="edit_dispatch">Edit Dispatch</span>
+  </h2>
+
+  <div class="card">
+    <div class="card-header">
+      <h5 data-i18n="edit_dispatch_details">Edit Dispatch Details</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('edit_dispatch', dispatch_id=dispatch.id) }}">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="vehicle_no" class="form-label" data-i18n="vehicle_number">Vehicle Number *</label>
+            <input type="text" class="form-control" id="vehicle_no" name="vehicle_no" value="{{ dispatch.vehicle_no }}" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="driver_name" class="form-label" data-i18n="driver_name">Driver Name *</label>
+            <input type="text" class="form-control" id="driver_name" name="driver_name" value="{{ dispatch.driver_name }}" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="vendor_name" class="form-label" data-i18n="vendor_name">Vendor Name</label>
+            <input type="text" class="form-control" id="vendor_name" name="vendor_name" value="{{ dispatch.vendor_name }}">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="dispatch_date" class="form-label" data-i18n="dispatch_date">Dispatch Date *</label>
+            <input type="date" class="form-control" id="dispatch_date" name="dispatch_date" value="{{ dispatch.dispatch_date }}" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="dispatch_time" class="form-label" data-i18n="dispatch_time">Dispatch Time</label>
+            <input type="time" class="form-control" id="dispatch_time" name="dispatch_time" value="{{ dispatch.dispatch_time }}">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="notes" class="form-label" data-i18n="notes">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ dispatch.notes }}</textarea>
+          </div>
+        </div>
+        
+        {% if dispatch.status == 'completed' %}
+        <div class="alert alert-info">
+          <strong data-i18n="note">Note:</strong> 
+          <span data-i18n="completed_dispatch_warning">This dispatch is completed. Editing will only update basic information, not the bird count or weights.</span>
+        </div>
+        {% endif %}
+        
+        <div class="d-flex justify-content-between">
+          <a href="{{ url_for('bird_dispatch') }}" class="btn btn-secondary" data-i18n="cancel">Cancel</a>
+          <button type="submit" class="btn btn-success" data-i18n="update">Update Dispatch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -139,8 +139,8 @@
             <th>Weight (kg)</th>
             <th>Avg/Bird (kg)</th>
             <th>Time</th>
-            {% if session.role == 'admin' and dispatch.status == 'active' %}
-            <th>Action</th>
+            {% if current_user and current_user.role in ['admin', 'super_admin'] and dispatch.status == 'active' %}
+            <th>Actions</th>
             {% endif %}
           </tr>
         </thead>
@@ -152,12 +152,17 @@
             <td><strong>{{ "%.3f"|format(record.weight) }}</strong></td>
             <td>{{ "%.3f"|format(record.avg_weight_per_bird) }}</td>
             <td><small class="text-muted timestamp-display" data-timestamp="{{ record.timestamp }}">{{ record.timestamp.split('T')[1][:5] if 'T' in record.timestamp else record.timestamp[:5] if ':' in record.timestamp else record.timestamp }}</small></td>
-            {% if session.role == 'admin' and dispatch.status == 'active' %}
+            {% if current_user and current_user.role in ['admin', 'super_admin'] and dispatch.status == 'active' %}
             <td>
+              <a href="{{ url_for('edit_weighing_record', record_id=record.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Edit Record">
+                <i class="bi bi-pencil"></i>
+              </a>
               <form method="POST" action="{{ url_for('delete_weighing_record', record_id=record.id) }}" 
                     style="display: inline-block;" 
                     onsubmit="return confirm('Are you sure you want to delete this record?')">
-                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Record">
+                  <i class="bi bi-trash"></i>
+                </button>
               </form>
             </td>
             {% endif %}
@@ -170,7 +175,7 @@
             <th><span class="badge bg-success">{{ total_birds }}</span></th>
             <th><strong>{{ "%.1f"|format(total_weight) }}</strong></th>
             <th><strong>{{ "%.3f"|format(avg_weight_per_bird) }}</strong></th>
-            <th colspan="{{ '2' if session.role == 'admin' and dispatch.status == 'active' else '1' }}">{{ weighing_records|length }} records</th>
+            <th colspan="{{ '2' if current_user and current_user.role in ['admin', 'super_admin'] and dispatch.status == 'active' else '1' }}">{{ weighing_records|length }} records</th>
           </tr>
         </tfoot>
       </table>
@@ -185,12 +190,19 @@
             <h6 class="mb-1">📊 Record #{{ record.serial_no }}</h6>
             <small class="text-muted timestamp-display" data-timestamp="{{ record.timestamp }}">{{ record.timestamp.split('T')[1][:5] if 'T' in record.timestamp else record.timestamp[:5] if ':' in record.timestamp else record.timestamp }}</small>
           </div>
-          {% if session.role == 'admin' and dispatch.status == 'active' %}
-          <form method="POST" action="{{ url_for('delete_weighing_record', record_id=record.id) }}" 
-                style="display: inline-block;" 
-                onsubmit="return confirm('Are you sure you want to delete this record?')">
-            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
-          </form>
+          {% if current_user and current_user.role in ['admin', 'super_admin'] and dispatch.status == 'active' %}
+          <div class="d-flex gap-1">
+            <a href="{{ url_for('edit_weighing_record', record_id=record.id) }}" class="btn btn-sm btn-outline-primary" title="Edit Record">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="POST" action="{{ url_for('delete_weighing_record', record_id=record.id) }}" 
+                  style="display: inline-block;" 
+                  onsubmit="return confirm('Are you sure you want to delete this record?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Record">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </div>
           {% endif %}
         </div>
         
