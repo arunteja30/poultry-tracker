@@ -2900,7 +2900,7 @@ def income_estimate():
     
     # Get actual medical and expense costs from database
     medicine_records = medicine_model.get_records("medicines", {'cycle_id': cycle['id']})
-    total_medical_cost = sum(float(med.get('price', 0)) * int(med.get('qty', 0)) for med in medicine_records.values())
+    total_medical_cost = sum(float(med.get('price', 0)) for med in medicine_records.values())
     
     expense_records = expense_model.get_records("expenses", {'cycle_id': cycle['id']})
     total_expense_cost = sum(float(exp.get('amount', 0)) for exp in expense_records.values())
@@ -2965,8 +2965,8 @@ def income_estimate():
             
             # Get medical and expense costs for selected cycle
             medicine_records = medicine_model.get_records("medicines", {'cycle_id': selected_cycle['id']})
-            total_medical_cost = sum(float(med.get('price', 0)) * int(med.get('qty', 0)) for med in medicine_records.values())
-            
+            total_medical_cost = sum(float(med.get('price', 0)) for med in medicine_records.values())
+
             expense_records = expense_model.get_records("expenses", {'cycle_id': selected_cycle['id']})
             total_expense_cost = sum(float(exp.get('amount', 0)) for exp in expense_records.values())
             
