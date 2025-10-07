@@ -394,6 +394,13 @@ class UserModel(FirebaseModel):
         return self.update_record(self.collection, user_id, {
             'last_login': datetime.utcnow().isoformat()
         })
+    
+    def get_all_users(self):
+        """Get all users"""
+        users_dict = self.get_records(self.collection)
+        if not users_dict:
+            return []
+        return [{'id': user_id, **user_data} for user_id, user_data in users_dict.items()]
 
 class CycleModel(FirebaseModel):
     """Cycle model for Firebase"""
