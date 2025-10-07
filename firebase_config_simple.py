@@ -6,6 +6,19 @@ import os
 import json
 from datetime import datetime
 
+# Load environment variables from .env file using python-dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("✅ Environment variables loaded from .env file")
+except ImportError:
+    print("⚠️  python-dotenv not available, using system environment variables only")
+
+# Legacy function for backward compatibility
+def load_env_file(env_file='.env'):
+    """Legacy function - now handled by python-dotenv"""
+    pass
+
 try:
     import bcrypt
     BCRYPT_AVAILABLE = True
@@ -29,7 +42,11 @@ class SimpleFirebaseConfig:
     
     def __init__(self):
         self.admin_db = None
-        self.database_url = "https://poultrymanagement-24d27-default-rtdb.asia-southeast1.firebasedatabase.app"
+        # Use environment variable for database URL, with fallback to default
+        self.database_url = os.environ.get(
+            'FIREBASE_DATABASE_URL', 
+            "https://poultrymanagement-24d27-default-rtdb.asia-southeast1.firebasedatabase.app"
+        )
         self.initialize_firebase()
     
     def initialize_firebase(self):
